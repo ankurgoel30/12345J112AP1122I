@@ -1,0 +1,10 @@
+
+Prerequisites:
+- mysql, maven, jdk 8, postman, nginx
+- good understanding of springboot, jwt, oauth, springdata, springrest
+
+Build
+- tweek any properties in the resources/application.properties files. Really don't need to if everything is on the localhost.
+- mvn clean compile install -DskipTests
+
+

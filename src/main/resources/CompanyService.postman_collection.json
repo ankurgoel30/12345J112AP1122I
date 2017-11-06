@@ -1,0 +1,169 @@
+{
+	"id": "b6b5e116-78b8-f2c3-d150-8cd3702a6805",
+	"name": "CompanyService",
+	"description": "",
+	"order": [
+		"c23661fd-1718-673e-4c82-f2932fdef1ce",
+		"13b05a74-4f3a-aae6-ca40-215299c7dbaa",
+		"1d84dc89-933c-6a33-6a59-204a4f33b36e",
+		"e9e44dfb-183d-c784-0632-c3f53b8f1490",
+		"c9297032-ceb2-6ac5-b40b-6c3d3d388ea3"
+	],
+	"folders": [],
+	"folders_order": [],
+	"timestamp": 1509709688819,
+	"owner": "2877409",
+	"public": false,
+	"requests": [
+		{
+			"id": "13b05a74-4f3a-aae6-ca40-215299c7dbaa",
+			"headers": "Content-Type: application/json\nAuthorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhdWQiOlsidGVzdGp3dGNsaWVudGlkIl0sInVzZXJfbmFtZSI6ImFkbWluLmFkbWluIiwic2NvcGUiOlsicmVhZCIsIndyaXRlIl0sImV4cCI6MTUwOTgxNDMyNywiYXV0aG9yaXRpZXMiOlsiU1RBTkRBUkRfVVNFUiIsIkFETUlOX1VTRVIiXSwianRpIjoiOTI1N2Y0YTktOGZmMS00NGRmLWJiZmQtNjQ3ODliZmIzNjljIiwiY2xpZW50X2lkIjoidGVzdGp3dGNsaWVudGlkIn0.pzpPYpEtil3j4URhr4nzoO8XgCLKUjHFHdnIzv33MNA\n",
+			"headerData": [
+				{
+					"key": "Content-Type",
+					"value": "application/json",
+					"description": "",
+					"enabled": true
+				}
+			],
+			"url": "http://localhost:8080/v1/companies/2",
+			"queryParams": [],
+			"preRequestScript": null,
+			"pathVariables": {},
+			"pathVariableData": [],
+			"method": "GET",
+			"data": [],
+			"dataMode": "raw",
+			"version": 2,
+			"tests": null,
+			"currentHelper": "normal",
+			"helperAttributes": {},
+			"time": 1509866898083,
+			"name": "Get a Company",
+			"description": "",
+			"collectionId": "b6b5e116-78b8-f2c3-d150-8cd3702a6805",
+			"responses": [],
+			"rawModeData": "{\n   \"id\": 3,\n    \"username\": \"Ankit.Jain\",\n    \"password\": \"12345\",\n    \"firstName\": \"Ankit\",\n    \"lastName\": \"Goel2\",\n    \"roles\": [\n        {\n            \"id\": 2\n            \n        }\n    ]\n}"
+		},
+		{
+			"id": "1d84dc89-933c-6a33-6a59-204a4f33b36e",
+			"headers": "Content-Type: application/json\nAuthorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhdWQiOlsidGVzdGp3dGNsaWVudGlkIl0sInVzZXJfbmFtZSI6ImFkbWluLmFkbWluIiwic2NvcGUiOlsicmVhZCIsIndyaXRlIl0sImV4cCI6MTUwOTg5ODQzNSwiYXV0aG9yaXRpZXMiOlsiU1RBTkRBUkRfVVNFUiIsIkFETUlOX1VTRVIiXSwianRpIjoiMzUxMjVhNmYtMGE2Ni00YzY0LWIzNzMtMzU1NjFkMjc0MmM0IiwiY2xpZW50X2lkIjoidGVzdGp3dGNsaWVudGlkIn0.ZI8SuF4mc-G7yxSWEaYBWgnVRwfbKD8b1cqY47C0iBk\n",
+			"headerData": [
+				{
+					"key": "Content-Type",
+					"value": "application/json",
+					"description": "",
+					"enabled": true
+				}
+			],
+			"url": "http://localhost:8080/v1/companies",
+			"queryParams": [],
+			"preRequestScript": null,
+			"pathVariables": {},
+			"pathVariableData": [],
+			"method": "POST",
+			"data": [],
+			"dataMode": "raw",
+			"version": 2,
+			"tests": null,
+			"currentHelper": "normal",
+			"helperAttributes": {},
+			"time": 1509866904610,
+			"name": "Create a Company",
+			"description": "",
+			"collectionId": "b6b5e116-78b8-f2c3-d150-8cd3702a6805",
+			"responses": [],
+			"rawModeData": "{\n\n    \"searchHelp\": \"test\",\n    \"companyType\": \"Busi54\",\n    \"companyName\": \"AnkurGol765\",\n    \"specialNote\": \"TestNote\",\n    \"companySince\": \"2014-11-04\"\n    \n}"
+		},
+		{
+			"id": "c23661fd-1718-673e-4c82-f2932fdef1ce",
+			"headers": "Content-Type: application/json\nAuthorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhdWQiOlsidGVzdGp3dGNsaWVudGlkIl0sInVzZXJfbmFtZSI6ImFkbWluLmFkbWluIiwic2NvcGUiOlsicmVhZCIsIndyaXRlIl0sImV4cCI6MTUwOTg5ODQzNSwiYXV0aG9yaXRpZXMiOlsiU1RBTkRBUkRfVVNFUiIsIkFETUlOX1VTRVIiXSwianRpIjoiMzUxMjVhNmYtMGE2Ni00YzY0LWIzNzMtMzU1NjFkMjc0MmM0IiwiY2xpZW50X2lkIjoidGVzdGp3dGNsaWVudGlkIn0.ZI8SuF4mc-G7yxSWEaYBWgnVRwfbKD8b1cqY47C0iBk\n",
+			"headerData": [
+				{
+					"key": "Content-Type",
+					"value": "application/json",
+					"description": "",
+					"enabled": true
+				}
+			],
+			"url": "http://localhost:8080/v1/companies",
+			"queryParams": [],
+			"preRequestScript": null,
+			"pathVariables": {},
+			"pathVariableData": [],
+			"method": "GET",
+			"data": [],
+			"dataMode": "raw",
+			"version": 2,
+			"tests": null,
+			"currentHelper": "normal",
+			"helperAttributes": {},
+			"time": 1509866888861,
+			"name": "Get All Companies",
+			"description": "",
+			"collectionId": "b6b5e116-78b8-f2c3-d150-8cd3702a6805",
+			"responses": [],
+			"rawModeData": "{\n   \"id\": 3,\n    \"username\": \"Ankit.Jain\",\n    \"password\": \"12345\",\n    \"firstName\": \"Ankit\",\n    \"lastName\": \"Goel2\",\n    \"roles\": [\n        {\n            \"id\": 2\n            \n        }\n    ]\n}"
+		},
+		{
+			"id": "c9297032-ceb2-6ac5-b40b-6c3d3d388ea3",
+			"headers": "Content-Type: application/json\nAuthorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhdWQiOlsidGVzdGp3dGNsaWVudGlkIl0sInVzZXJfbmFtZSI6ImFkbWluLmFkbWluIiwic2NvcGUiOlsicmVhZCIsIndyaXRlIl0sImV4cCI6MTUwOTgxNDMyNywiYXV0aG9yaXRpZXMiOlsiU1RBTkRBUkRfVVNFUiIsIkFETUlOX1VTRVIiXSwianRpIjoiOTI1N2Y0YTktOGZmMS00NGRmLWJiZmQtNjQ3ODliZmIzNjljIiwiY2xpZW50X2lkIjoidGVzdGp3dGNsaWVudGlkIn0.pzpPYpEtil3j4URhr4nzoO8XgCLKUjHFHdnIzv33MNA\n",
+			"headerData": [
+				{
+					"key": "Content-Type",
+					"value": "application/json",
+					"description": "",
+					"enabled": true
+				}
+			],
+			"url": "http://localhost:8080/v1/companies/1",
+			"queryParams": [],
+			"preRequestScript": null,
+			"pathVariables": {},
+			"pathVariableData": [],
+			"method": "DELETE",
+			"data": [],
+			"dataMode": "raw",
+			"version": 2,
+			"tests": null,
+			"currentHelper": "normal",
+			"helperAttributes": {},
+			"time": 1509866914426,
+			"name": "Delete a Company",
+			"description": "",
+			"collectionId": "b6b5e116-78b8-f2c3-d150-8cd3702a6805",
+			"responses": [],
+			"rawModeData": ""
+		},
+		{
+			"id": "e9e44dfb-183d-c784-0632-c3f53b8f1490",
+			"headers": "Content-Type: application/json\nAuthorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhdWQiOlsidGVzdGp3dGNsaWVudGlkIl0sInVzZXJfbmFtZSI6ImFkbWluLmFkbWluIiwic2NvcGUiOlsicmVhZCIsIndyaXRlIl0sImV4cCI6MTUwOTgxNDMyNywiYXV0aG9yaXRpZXMiOlsiU1RBTkRBUkRfVVNFUiIsIkFETUlOX1VTRVIiXSwianRpIjoiOTI1N2Y0YTktOGZmMS00NGRmLWJiZmQtNjQ3ODliZmIzNjljIiwiY2xpZW50X2lkIjoidGVzdGp3dGNsaWVudGlkIn0.pzpPYpEtil3j4URhr4nzoO8XgCLKUjHFHdnIzv33MNA\n",
+			"headerData": [
+				{
+					"key": "Content-Type",
+					"value": "application/json",
+					"description": "",
+					"enabled": true
+				}
+			],
+			"url": "http://localhost:8080/v1/companies",
+			"queryParams": [],
+			"preRequestScript": null,
+			"pathVariables": {},
+			"pathVariableData": [],
+			"method": "PUT",
+			"data": [],
+			"dataMode": "raw",
+			"version": 2,
+			"tests": null,
+			"currentHelper": "normal",
+			"helperAttributes": {},
+			"time": 1509866909169,
+			"name": "Edit a Company",
+			"description": "",
+			"collectionId": "b6b5e116-78b8-f2c3-d150-8cd3702a6805",
+			"responses": [],
+			"rawModeData": "{\n   \"companyId\": 2,\n    \"searchHelp\": \"erere\",\n    \"companyType\": \"Bus\",\n    \"companyName\": \"Saurabh123\",\n     \"specialNote\": \"TestNote\",\n    \"companySince\": \"2054-11-04\"\n}"
+		}
+	]
+}
