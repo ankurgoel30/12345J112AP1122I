@@ -35,14 +35,15 @@ public class CompanyService  extends CommonService {
     private CompanyRepository companyRepository;
 
     /**
-     * Fetch all companies from database
+     * Fetch all companies from database. To avoid huge number of records, we are limiting the records only upto 10 numbers.
      * 
      * @return List<Company> object 
      */
     public List<CompanyModel> getAllCompany() {
     	List<Company> companies = new ArrayList<Company>();
 
-    	Pageable pageble = new PageRequest(1, 10);
+    	//TODO: parameterize limiting of records
+    	Pageable pageble = new PageRequest(0, 10);
     	Page<Company> companyList  = (Page<Company>) companyRepository.findAll(pageble);
 
     	companyList.getContent().forEach(c -> companies.add(c));
