@@ -5,9 +5,15 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.EmptyResultDataAccessException;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import com.thinkhr.external.api.db.entities.Company;
+import com.thinkhr.external.api.exception.APIErrorCodes;
+import com.thinkhr.external.api.exception.ApplicationException;
 import com.thinkhr.external.api.model.CompanyModel;
 import com.thinkhr.external.api.repositories.CompanyRepository;
 
@@ -34,10 +40,14 @@ public class CompanyService  extends CommonService {
      * @return List<Company> object 
      */
     public List<CompanyModel> getAllCompany() {
-		List<Company> companies = new ArrayList<Company>();
-		companyRepository.findAll().forEach(c -> companies.add(c));
-		return companies.stream().map(c -> { return (CompanyModel) convert(c, CompanyModel.class); }).collect(Collectors.toList());
-	}
+    	List<Company> companies = new ArrayList<Company>();
+
+    	Pageable pageble = new PageRequest(1, 10);
+    	Page<Company> companyList  = (Page<Company>) companyRepository.findAll(pageble);
+
+    	companyList.getContent().forEach(c -> companies.add(c));
+    	return companies.stream().map(c -> { return (CompanyModel) convert(c, CompanyModel.class); }).collect(Collectors.toList());
+    }
     
     /**
      * Fetch specific company from database
@@ -66,8 +76,15 @@ public class CompanyService  extends CommonService {
      * Update a company in database
      * 
      * @param CompanyModel object
+     * @throws ApplicationException 
      */
-    public CompanyModel updateCompany(CompanyModel companyModel)  {
+    public CompanyModel updateCompany(CompanyModel companyModel) throws ApplicationException  {
+    	Integer companyId = companyModel.getCompanyId();
+    	
+		if (null == companyRepository.findOne(companyId)) {
+    		throw ApplicationException.createEntityNotFoundError(APIErrorCodes.ENTITY_NOT_FOUND, "company", "companyId="+companyId);
+    	}
+		
 		Company company = (Company)convert(companyModel, Company.class);
     	companyRepository.save(company);
     	return (CompanyModel) convert(company, CompanyModel.class);
@@ -79,8 +96,12 @@ public class CompanyService  extends CommonService {
      * 
      * @param companyId
      */
-    public int deleteCompany(int companyId)  {
-    	companyRepository.delete(companyId);
+    public int deleteCompany(int companyId) throws ApplicationException {
+    	try {
+    		companyRepository.delete(companyId);
+    	} catch (EmptyResultDataAccessException ex ) {
+    		throw ApplicationException.createEntityNotFoundError(APIErrorCodes.ENTITY_NOT_FOUND, "company", "companyId="+companyId);
+    	}
     	return companyId;
     }
 }

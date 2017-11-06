@@ -1,5 +1,12 @@
 package com.thinkhr.external.api.services;
 
+import static com.thinkhr.external.api.utils.ApiTestDataUtil.createCompany;
+import static com.thinkhr.external.api.utils.ApiTestDataUtil.createCompanyModel;
+import static org.junit.Assert.assertEquals;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -10,15 +17,13 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.modelmapper.ModelMapper;
-
-import static com.thinkhr.external.api.utils.ApiTestDataUtil.*;
-import static org.junit.Assert.assertEquals;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.test.context.junit4.SpringRunner;
 
 import com.thinkhr.external.api.db.entities.Company;
+import com.thinkhr.external.api.exception.ApplicationException;
 import com.thinkhr.external.api.model.CompanyModel;
 import com.thinkhr.external.api.repositories.CompanyRepository;
 
@@ -51,11 +56,12 @@ public class CompanyServiceTest {
 	 */
 	@Test
 	public void testGetAllCompany(){
-		List<Company> toDoList = new ArrayList<Company>();
-		toDoList.add(createCompany(1, "Pepcus", "Software", "PEP"));
-		toDoList.add(createCompany(2, "ThinkHR", "Service Provider", "THR"));
-		toDoList.add(createCompany(3, "ICICI", "Banking", "ICICI"));
-		when(companyRepository.findAll()).thenReturn(toDoList);
+		List<Company> companyList = new ArrayList<Company>();
+		companyList.add(createCompany(1, "Pepcus", "Software", "PEP"));
+		companyList.add(createCompany(2, "ThinkHR", "Service Provider", "THR"));
+		companyList.add(createCompany(3, "ICICI", "Banking", "ICICI"));
+		Pageable pageable = new PageRequest(0, 10);
+		when(companyRepository.findAll(pageable)).thenReturn(new PageImpl<>(companyList, pageable, companyList.size()));
 		
 		List<CompanyModel> result = companyService.getAllCompany();
 		assertEquals(3, result.size());
@@ -105,7 +111,12 @@ public class CompanyServiceTest {
 		CompanyModel companyModel = createCompanyModel(1, "Pepcus", "Software", "PEP");
 		Company company = (Company)companyService.convert(companyModel, Company.class);
 		when(companyRepository.save(company)).thenReturn(company);
-		CompanyModel result = companyService.updateCompany(companyModel);
+		when(companyRepository.findOne(companyId)).thenReturn(company);
+		CompanyModel result = null;
+		try {
+			result = companyService.updateCompany(companyModel);
+		} catch (ApplicationException e) {
+		}
 		assertEquals(companyId, result.getCompanyId());
 		assertEquals("Pepcus", result.getCompanyName());
 		assertEquals("Software", result.getCompanyType());
@@ -117,9 +128,12 @@ public class CompanyServiceTest {
 	 * 
 	 */
 	@Test
-	public void testDeleteCompany(){
+	public void testDeleteCompany() {
 		Integer companyId = 1;
-		companyService.deleteCompany(companyId);
+		try {
+			companyService.deleteCompany(companyId);
+		} catch (ApplicationException e) {
+		}
         verify(companyRepository, times(1)).delete(companyId);
 	}
 

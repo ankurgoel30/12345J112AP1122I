@@ -70,9 +70,9 @@ public class CompanyController {
      * @param companyId
      */
     @RequestMapping(method=RequestMethod.DELETE,value="/{companyId}")
-    public ResponseEntity<Integer> deleteCompany(@PathVariable(name="companyId",value = "companyId") Integer companyId) {
+    public ResponseEntity<Integer> deleteCompany(@PathVariable(name="companyId",value = "companyId") Integer companyId) throws ApplicationException{
     	companyService.deleteCompany(companyId);
-    	return new ResponseEntity <Integer>(companyId, HttpStatus.OK);
+    	return new ResponseEntity <Integer>(companyId, HttpStatus.NO_CONTENT);
     }
     
     
@@ -82,7 +82,9 @@ public class CompanyController {
      * @param CompanyModel object
      */
     @RequestMapping(method=RequestMethod.PUT,value="/{companyId}")
-	public ResponseEntity <CompanyModel> updateCompany(@RequestBody CompanyModel companyModel) {
+	public ResponseEntity <CompanyModel> updateCompany(@PathVariable(name="companyId",value = "companyId") Integer companyId, 
+			@RequestBody CompanyModel companyModel) throws ApplicationException {
+    	companyModel.setCompanyId(companyId);
     	CompanyModel company = companyService.updateCompany(companyModel);
         return new ResponseEntity<CompanyModel> (company, HttpStatus.OK);
 
@@ -95,7 +97,7 @@ public class CompanyController {
      * @param Company object
      */
     @RequestMapping(method=RequestMethod.POST)
-   	public ResponseEntity<CompanyModel> addCompany(@Valid @RequestBody CompanyModel companyModel) {
+   	public ResponseEntity<CompanyModel> addCompany(@Valid @RequestBody CompanyModel companyModel) throws ApplicationException {
     	CompanyModel company = companyService.addCompany(companyModel);
         return new ResponseEntity<CompanyModel>(company, HttpStatus.CREATED);
    	}

@@ -130,7 +130,7 @@ public class CompanyControllerTest {
 		
 		ResponseEntity<CompanyModel> responseEntity = createCompanyResponseEntity(companyModel, HttpStatus.OK);
 		
-		given(companyController.updateCompany(companyModel)).willReturn(responseEntity);
+		given(companyController.updateCompany(companyModel.getCompanyId(), companyModel)).willReturn(responseEntity);
 
 		mockMvc.perform(put(COMPANY_API_BASE_PATH+companyModel.getCompanyId())
 				.accept(MediaType.APPLICATION_JSON)
@@ -150,13 +150,13 @@ public class CompanyControllerTest {
 		
 		CompanyModel companyModel = createCompanyModel(); 
 		
-		ResponseEntity<Integer> responseEntity = createCompanyIdResponseEntity(companyModel.getCompanyId(), HttpStatus.OK);
-		
+		ResponseEntity<Integer> responseEntity = createCompanyIdResponseEntity(companyModel.getCompanyId(), HttpStatus.NO_CONTENT);
+
 		given(companyController.deleteCompany(companyModel.getCompanyId())).willReturn(responseEntity);
 
 		mockMvc.perform(delete(COMPANY_API_BASE_PATH+companyModel.getCompanyId())
 				.accept(MediaType.APPLICATION_JSON))
-		.andExpect(status().isOk());
+		.andExpect(status().is(204));
 	}
 
 }
