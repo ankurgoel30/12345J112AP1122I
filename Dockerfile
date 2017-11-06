@@ -1,5 +1,5 @@
 FROM java:8
 EXPOSE 8085
-ADD target/api-0.1.jar api-0.1.jar
-ENTRYPOINT ["java", "-jar", "api-0.1.jar"]
+ADD target/japi-0.1.jar japi-0.1.jar
+ENTRYPOINT ["java", "-jar", "japi-0.1.jar"]
 
