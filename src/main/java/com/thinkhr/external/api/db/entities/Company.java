@@ -30,8 +30,8 @@ import lombok.Data;
 @Data
 public class Company {
 	@Id
-    @GeneratedValue(strategy=GenerationType.AUTO)
-    @Column(name = "clientID") 
+	@GeneratedValue(strategy=GenerationType.AUTO)
+	@Column(name = "clientID") 
 	private Integer companyId;
 	
 	@Column(name = "search_help") 
