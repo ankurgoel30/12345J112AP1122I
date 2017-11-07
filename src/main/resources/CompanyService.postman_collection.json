@@ -1,0 +1,195 @@
+{
+	"id": "f143a84d-f5b2-c5a2-d03e-b0c1b926b525",
+	"name": "CompanyService",
+	"description": "",
+	"order": [
+		"123e0d75-84df-a4ef-5254-17e1de3aba28",
+		"a710cd0f-f315-bee0-efc3-d95c71e7674d",
+		"e05f25e9-5a11-c4b6-1df1-48560c84bd74",
+		"bd1a5496-ed14-19d2-b16c-4f07036f3871",
+		"33bad5e5-4e76-a31e-dfaa-11e5f7c4a424"
+	],
+	"folders": [],
+	"folders_order": [],
+	"timestamp": 1509709688819,
+	"owner": "1692030",
+	"public": false,
+	"hasRequests": true,
+	"requests": [
+		{
+			"id": "123e0d75-84df-a4ef-5254-17e1de3aba28",
+			"headers": "Content-Type: application/json\n",
+			"headerData": [
+				{
+					"key": "Content-Type",
+					"value": "application/json",
+					"description": "",
+					"enabled": true
+				},
+				{
+					"key": "",
+					"value": "",
+					"description": "",
+					"enabled": false
+				}
+			],
+			"url": "http://localhost:8080/v1/companies",
+			"queryParams": [],
+			"preRequestScript": null,
+			"pathVariables": {},
+			"pathVariableData": [],
+			"method": "GET",
+			"data": [],
+			"dataMode": "raw",
+			"version": 2,
+			"tests": null,
+			"currentHelper": "normal",
+			"helperAttributes": {},
+			"time": 1509971530089,
+			"name": "Get All Companies",
+			"description": "",
+			"collectionId": "f143a84d-f5b2-c5a2-d03e-b0c1b926b525",
+			"rawModeData": "{\n   \"id\": 3,\n    \"username\": \"Ankit.Jain\",\n    \"password\": \"12345\",\n    \"firstName\": \"Ankit\",\n    \"lastName\": \"Goel2\",\n    \"roles\": [\n        {\n            \"id\": 2\n            \n        }\n    ]\n}"
+		},
+		{
+			"id": "33bad5e5-4e76-a31e-dfaa-11e5f7c4a424",
+			"headers": "Content-Type: application/json\n",
+			"headerData": [
+				{
+					"key": "Content-Type",
+					"value": "application/json",
+					"description": "",
+					"enabled": true
+				},
+				{
+					"key": "",
+					"value": "",
+					"description": "",
+					"enabled": false
+				}
+			],
+			"url": "http://localhost:8080/v1/companies/145",
+			"queryParams": [],
+			"preRequestScript": null,
+			"pathVariables": {},
+			"pathVariableData": [],
+			"method": "DELETE",
+			"data": [],
+			"dataMode": "raw",
+			"version": 2,
+			"tests": null,
+			"currentHelper": "normal",
+			"helperAttributes": {},
+			"time": 1509972026075,
+			"name": "Delete a Company",
+			"description": "",
+			"collectionId": "f143a84d-f5b2-c5a2-d03e-b0c1b926b525",
+			"rawModeData": ""
+		},
+		{
+			"id": "a710cd0f-f315-bee0-efc3-d95c71e7674d",
+			"headers": "Content-Type: application/json\n",
+			"headerData": [
+				{
+					"key": "Content-Type",
+					"value": "application/json",
+					"description": "",
+					"enabled": true
+				},
+				{
+					"key": "",
+					"value": "",
+					"description": "",
+					"enabled": false
+				}
+			],
+			"url": "http://localhost:8080/v1/companies/8",
+			"queryParams": [],
+			"preRequestScript": null,
+			"pathVariables": {},
+			"pathVariableData": [],
+			"method": "GET",
+			"data": [],
+			"dataMode": "raw",
+			"version": 2,
+			"tests": null,
+			"currentHelper": "normal",
+			"helperAttributes": {},
+			"time": 1509971556929,
+			"name": "Get a Company",
+			"description": "",
+			"collectionId": "f143a84d-f5b2-c5a2-d03e-b0c1b926b525",
+			"rawModeData": "{\n   \"id\": 3,\n    \"username\": \"Ankit.Jain\",\n    \"password\": \"12345\",\n    \"firstName\": \"Ankit\",\n    \"lastName\": \"Goel2\",\n    \"roles\": [\n        {\n            \"id\": 2\n            \n        }\n    ]\n}"
+		},
+		{
+			"id": "bd1a5496-ed14-19d2-b16c-4f07036f3871",
+			"headers": "Content-Type: application/json\n",
+			"headerData": [
+				{
+					"key": "Content-Type",
+					"value": "application/json",
+					"description": "",
+					"enabled": true
+				},
+				{
+					"key": "",
+					"value": "",
+					"description": "",
+					"enabled": false
+				}
+			],
+			"url": "http://localhost:8080/v1/companies/1",
+			"queryParams": [],
+			"preRequestScript": null,
+			"pathVariables": {},
+			"pathVariableData": [],
+			"method": "PUT",
+			"data": [],
+			"dataMode": "raw",
+			"version": 2,
+			"tests": null,
+			"currentHelper": "normal",
+			"helperAttributes": {},
+			"time": 1509971880614,
+			"name": "Edit a Company",
+			"description": "",
+			"collectionId": "f143a84d-f5b2-c5a2-d03e-b0c1b926b525",
+			"rawModeData": "{\n    \"searchHelp\": \"This is a serach help\",\n    \"companyType\": \"\",\n    \"companyName\": \"Ajain\",\n    \"displayName\": \"Ajay Jain\",\n    \"aspect\": \"\",\n    \"broker\": null,\n    \"companyPhone\": \"\",\n    \"website\": \"\",\n    \"companySince\": 1509667200000,\n    \"tempID\": \"\",\n    \"companyStatus\": 0,\n    \"enhancedPassword\": 0,\n    \"companyHours\": \"\",\n    \"issuesBroker\": 0,\n    \"issuescompany\": 0,\n    \"issueFrequency\": 0,\n    \"industry\": \"\",\n    \"companySize\": \"\",\n    \"actualCompanySize\": 0,\n    \"salesNotes\": \"\",\n    \"customCompany\": 0,\n    \"groupID\": \"\",\n    \"deactivationDate\": null,\n    \"deactivationID\": 0,\n    \"login\": 0,\n    \"producer\": \"\",\n    \"specialDomain\": \"\",\n    \"addedBy\": \"\",\n    \"channel\": \"\",\n    \"directID\": 0,\n    \"resellerID\": 0,\n    \"parentID\": 0,\n    \"familiesID\": 0,\n    \"referral\": \"\",\n    \"tally\": 0,\n    \"optOut\": 0,\n    \"optOutWelcome\": 0,\n    \"newsletterID\": 0,\n    \"newsletterPrivateLabel\": 0,\n    \"officeLocation\": \"\",\n    \"partnercompanyType\": \"\",\n    \"marketID\": 0,\n    \"marketCode\": \"\",\n    \"suspended\": null,\n    \"marketingCampaign\": \"\",\n    \"marketingFree\": 0,\n    \"avoidTerms\": 0,\n    \"custom1\": \"\",\n    \"custom2\": \"\",\n    \"custom3\": \"\",\n    \"custom4\": \"\",\n    \"custom5\": \"\",\n    \"customDate\": null,\n    \"noReporting\": 0,\n    \"noTerms\": 0,\n    \"expiryDate\": null,\n    \"partnerAdmin\": 0,\n    \"level\": 0,\n    \"brainID\": \"\",\n    \"tokenID\": \"\",\n    \"subscriptionID\": \"\",\n    \"posters\": 0,\n    \"complyLinks\": 0,\n    \"resources\": 0,\n    \"newLook\": 0,\n    \"customStyle\": 0,\n    \"setupFee\": 0,\n    \"customerSuccessManager\": 0,\n    \"trial\": 0,\n    \"upsellLearn\": 0,\n    \"salesRep\": \"\",\n    \"exported\": 0,\n    \"directLanding\": 0,\n    \"revenue\": \"\",\n    \"workplaceUsers\": 0,\n    \"tempcompanyStatus\": 0,\n    \"renewalDate\": null,\n    \"reManager\": 0,\n    \"partnerManager\": 0,\n    \"autoWelcomeEmail\": 0,\n    \"contactAssignments\": 0,\n    \"salesforceID\": \"\",\n    \"specialNote\": \"\",\n    \"sourceID\": 0\n}"
+		},
+		{
+			"id": "e05f25e9-5a11-c4b6-1df1-48560c84bd74",
+			"headers": "Content-Type: application/json\n",
+			"headerData": [
+				{
+					"key": "Content-Type",
+					"value": "application/json",
+					"description": "",
+					"enabled": true
+				},
+				{
+					"key": "",
+					"value": "",
+					"description": "",
+					"enabled": false
+				}
+			],
+			"url": "http://localhost:8080/v1/companies",
+			"queryParams": [],
+			"preRequestScript": null,
+			"pathVariables": {},
+			"pathVariableData": [],
+			"method": "POST",
+			"data": [],
+			"dataMode": "raw",
+			"version": 2,
+			"tests": null,
+			"currentHelper": "normal",
+			"helperAttributes": {},
+			"time": 1509971692505,
+			"name": "Create a Company",
+			"description": "",
+			"collectionId": "f143a84d-f5b2-c5a2-d03e-b0c1b926b525",
+			"rawModeData": "{\n    \"searchHelp\": \"This is a serach help1\",\n    \"companyType\": \"\",\n    \"companyName\": \"Ajain1\",\n    \"displayName\": \"Ajay Jain1\",\n    \"aspect\": \"\",\n    \"broker\": null,\n    \"companyPhone\": \"\",\n    \"website\": \"\",\n    \"companySince\": 1509667200000,\n    \"tempID\": \"\",\n    \"companyStatus\": 0,\n    \"enhancedPassword\": 0,\n    \"companyHours\": \"\",\n    \"issuesBroker\": 0,\n    \"issuescompany\": 0,\n    \"issueFrequency\": 0,\n    \"industry\": \"\",\n    \"companySize\": \"\",\n    \"actualCompanySize\": 0,\n    \"salesNotes\": \"\",\n    \"customCompany\": 0,\n    \"groupID\": \"\",\n    \"deactivationDate\": null,\n    \"deactivationID\": 0,\n    \"login\": 0,\n    \"producer\": \"\",\n    \"specialDomain\": \"\",\n    \"addedBy\": \"\",\n    \"channel\": \"\",\n    \"directID\": 0,\n    \"resellerID\": 0,\n    \"parentID\": 0,\n    \"familiesID\": 0,\n    \"referral\": \"\",\n    \"tally\": 0,\n    \"optOut\": 0,\n    \"optOutWelcome\": 0,\n    \"newsletterID\": 0,\n    \"newsletterPrivateLabel\": 0,\n    \"officeLocation\": \"\",\n    \"partnercompanyType\": \"\",\n    \"marketID\": 0,\n    \"marketCode\": \"\",\n    \"suspended\": null,\n    \"marketingCampaign\": \"\",\n    \"marketingFree\": 0,\n    \"avoidTerms\": 0,\n    \"custom1\": \"\",\n    \"custom2\": \"\",\n    \"custom3\": \"\",\n    \"custom4\": \"\",\n    \"custom5\": \"\",\n    \"customDate\": null,\n    \"noReporting\": 0,\n    \"noTerms\": 0,\n    \"expiryDate\": null,\n    \"partnerAdmin\": 0,\n    \"level\": 0,\n    \"brainID\": \"\",\n    \"tokenID\": \"\",\n    \"subscriptionID\": \"\",\n    \"posters\": 0,\n    \"complyLinks\": 0,\n    \"resources\": 0,\n    \"newLook\": 0,\n    \"customStyle\": 0,\n    \"setupFee\": 0,\n    \"customerSuccessManager\": 0,\n    \"trial\": 0,\n    \"upsellLearn\": 0,\n    \"salesRep\": \"\",\n    \"exported\": 0,\n    \"directLanding\": 0,\n    \"revenue\": \"\",\n    \"workplaceUsers\": 0,\n    \"tempcompanyStatus\": 0,\n    \"renewalDate\": null,\n    \"reManager\": 0,\n    \"partnerManager\": 0,\n    \"autoWelcomeEmail\": 0,\n    \"contactAssignments\": 0,\n    \"salesforceID\": \"\",\n    \"specialNote\": \"\",\n    \"sourceID\": 0\n}"
+		}
+	]
+}
