@@ -1,8 +1,8 @@
 package com.thinkhr.external.api.controllers;
 
 import static com.thinkhr.external.api.utils.ApiTestDataUtil.COMPANY_API_BASE_PATH;
+import static com.thinkhr.external.api.utils.ApiTestDataUtil.createCompany;
 import static com.thinkhr.external.api.utils.ApiTestDataUtil.createCompanyIdResponseEntity;
-import static com.thinkhr.external.api.utils.ApiTestDataUtil.createCompanyModel;
 import static com.thinkhr.external.api.utils.ApiTestDataUtil.createCompanyResponseEntity;
 import static com.thinkhr.external.api.utils.ApiTestDataUtil.getJsonString;
 import static java.util.Collections.singletonList;
@@ -34,7 +34,7 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
 
 import com.thinkhr.external.api.ApiApplication;
-import com.thinkhr.external.api.model.CompanyModel;
+import com.thinkhr.external.api.db.entities.Company;
 
 /**
  * Junit class to test all the methods\APIs written for CompanyController
@@ -69,16 +69,16 @@ public class CompanyControllerTest {
 	@Test
 	public void testAllCompany() throws Exception {
 
-		CompanyModel companyModel = createCompanyModel(); 
+		Company Company = createCompany(); 
 
-		List<CompanyModel> companyList = singletonList(companyModel);
+		List<Company> companyList = singletonList(Company);
 
 		given(companyController.getAllCompany()).willReturn(companyList);
 		
 		mockMvc.perform(get(COMPANY_API_BASE_PATH).accept(MediaType.APPLICATION_JSON))
 		.andExpect(status().isOk())
 		.andExpect(jsonPath("$", hasSize(1)))
-		.andExpect(jsonPath("$[0].companyName", is(companyModel.getCompanyName())));	
+		.andExpect(jsonPath("$[0].companyName", is(Company.getCompanyName())));	
 	}
 	
 	/**
@@ -88,14 +88,14 @@ public class CompanyControllerTest {
 	 */
 	@Test
 	public void testGetCompanyById() throws Exception {
-		CompanyModel companyModel = createCompanyModel(); 
+		Company Company = createCompany(); 
 		
-		given(companyController.getById(companyModel.getCompanyId())).willReturn(companyModel);
+		given(companyController.getById(Company.getCompanyId())).willReturn(Company);
 
-		mockMvc.perform(get(COMPANY_API_BASE_PATH + companyModel.getCompanyId())
+		mockMvc.perform(get(COMPANY_API_BASE_PATH + Company.getCompanyId())
 				.accept(MediaType.APPLICATION_JSON))
 		.andExpect(status().isOk())
-		.andExpect(jsonPath("companyName", is(companyModel.getCompanyName())));
+		.andExpect(jsonPath("companyName", is(Company.getCompanyName())));
 	}
 
 	/**
@@ -105,18 +105,18 @@ public class CompanyControllerTest {
 	 */
 	@Test
 	public void testAddCompany() throws Exception {
-		CompanyModel companyModel = createCompanyModel(); 
+		Company Company = createCompany(); 
 		
-		ResponseEntity<CompanyModel> responseEntity = createCompanyResponseEntity(companyModel, HttpStatus.CREATED);
+		ResponseEntity<Company> responseEntity = createCompanyResponseEntity(Company, HttpStatus.CREATED);
 		
-		given(companyController.addCompany(companyModel)).willReturn(responseEntity);
+		given(companyController.addCompany(Company)).willReturn(responseEntity);
 
 		mockMvc.perform(post(COMPANY_API_BASE_PATH)
 				.accept(MediaType.APPLICATION_JSON)
 				.contentType(MediaType.APPLICATION_JSON)
-		        .content(getJsonString(companyModel)))
+		        .content(getJsonString(Company)))
 		.andExpect(status().isCreated())
-		.andExpect(jsonPath("companyName", is(companyModel.getCompanyName())));
+		.andExpect(jsonPath("companyName", is(Company.getCompanyName())));
 	}
 
 	/**
@@ -126,18 +126,18 @@ public class CompanyControllerTest {
 	 */
 	@Test
 	public void testUpdateCompany() throws Exception {
-		CompanyModel companyModel = createCompanyModel(); 
+		Company Company = createCompany(); 
 		
-		ResponseEntity<CompanyModel> responseEntity = createCompanyResponseEntity(companyModel, HttpStatus.OK);
+		ResponseEntity<Company> responseEntity = createCompanyResponseEntity(Company, HttpStatus.OK);
 		
-		given(companyController.updateCompany(companyModel.getCompanyId(), companyModel)).willReturn(responseEntity);
+		given(companyController.updateCompany(Company.getCompanyId(), Company)).willReturn(responseEntity);
 
-		mockMvc.perform(put(COMPANY_API_BASE_PATH+companyModel.getCompanyId())
+		mockMvc.perform(put(COMPANY_API_BASE_PATH+Company.getCompanyId())
 				.accept(MediaType.APPLICATION_JSON)
 				.contentType(MediaType.APPLICATION_JSON)
-		        .content(getJsonString(companyModel)))
+		        .content(getJsonString(Company)))
 		.andExpect(status().isOk())
-		.andExpect(jsonPath("companyName", is(companyModel.getCompanyName())));
+		.andExpect(jsonPath("companyName", is(Company.getCompanyName())));
 	}
 
 	/**
@@ -148,13 +148,13 @@ public class CompanyControllerTest {
 	@Test
 	public void testDeleteCompany() throws Exception {
 		
-		CompanyModel companyModel = createCompanyModel(); 
+		Company Company = createCompany(); 
 		
-		ResponseEntity<Integer> responseEntity = createCompanyIdResponseEntity(companyModel.getCompanyId(), HttpStatus.NO_CONTENT);
+		ResponseEntity<Integer> responseEntity = createCompanyIdResponseEntity(Company.getCompanyId(), HttpStatus.NO_CONTENT);
 
-		given(companyController.deleteCompany(companyModel.getCompanyId())).willReturn(responseEntity);
+		given(companyController.deleteCompany(Company.getCompanyId())).willReturn(responseEntity);
 
-		mockMvc.perform(delete(COMPANY_API_BASE_PATH+companyModel.getCompanyId())
+		mockMvc.perform(delete(COMPANY_API_BASE_PATH+Company.getCompanyId())
 				.accept(MediaType.APPLICATION_JSON))
 		.andExpect(status().is(204));
 	}

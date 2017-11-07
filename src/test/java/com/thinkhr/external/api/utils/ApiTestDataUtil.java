@@ -9,7 +9,6 @@ import org.springframework.http.ResponseEntity;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.thinkhr.external.api.db.entities.Company;
-import com.thinkhr.external.api.model.CompanyModel;
 
 /**
  * Utility class to keep all utilities required for Junits
@@ -66,8 +65,8 @@ public class ApiTestDataUtil {
 	 * @param httpStatus
 	 * @return
 	 */
-	public static ResponseEntity<CompanyModel> createCompanyResponseEntity(CompanyModel company, HttpStatus httpStatus) {
-		return new ResponseEntity<CompanyModel>(company, httpStatus);
+	public static ResponseEntity<Company> createCompanyResponseEntity(Company company, HttpStatus httpStatus) {
+		return new ResponseEntity<Company>(company, httpStatus);
 	}
 	
 	/**
@@ -86,32 +85,13 @@ public class ApiTestDataUtil {
 	 * 
 	 * @return
 	 */
-	public static CompanyModel createCompanyModel() {
-		CompanyModel company = new CompanyModel();
+	public static Company createCompany() {
+		Company company = new Company();
 		company.setCompanyId(1);
 		company.setCompanyName("Pepcus");
 		company.setCompanyType("Software");
 		company.setDisplayName("PEP");
 		return company;
 	}
-
-	/**
-	 * Create Model object for Company
-	 *
-	 * @param companyId
-	 * @param companyName
-	 * @param companyType
-	 * @param displayName
-	 * @return company
-	 */
-	public static CompanyModel createCompanyModel(Integer companyId, String companyName, String companyType, String displayName) {
-		CompanyModel company = new CompanyModel();
-		company.setCompanyId(companyId);
-		company.setCompanyName(companyName);
-		company.setCompanyType(companyType);
-		company.setDisplayName(displayName);
-		return company;
-	}
-
 
 }

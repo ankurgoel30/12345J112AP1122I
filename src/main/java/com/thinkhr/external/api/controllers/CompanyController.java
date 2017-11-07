@@ -13,9 +13,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.thinkhr.external.api.db.entities.Company;
 import com.thinkhr.external.api.exception.APIErrorCodes;
 import com.thinkhr.external.api.exception.ApplicationException;
-import com.thinkhr.external.api.model.CompanyModel;
 import com.thinkhr.external.api.services.CompanyService;
 
 
@@ -42,7 +42,7 @@ public class CompanyController {
      * 
      */
     @RequestMapping(method=RequestMethod.GET)
-    public List<CompanyModel> getAllCompany() {
+    public List<Company> getAllCompany() {
         return companyService.getAllCompany();
     }
     
@@ -55,8 +55,8 @@ public class CompanyController {
      * 
      */
     @RequestMapping(method=RequestMethod.GET, value="/{companyId}")
-    public CompanyModel getById(@PathVariable(name="companyId",value = "companyId") Integer companyId) throws ApplicationException {
-        CompanyModel company = companyService.getCompany(companyId);
+    public Company getById(@PathVariable(name="companyId",value = "companyId") Integer companyId) throws ApplicationException {
+        Company company = companyService.getCompany(companyId);
         if (null == company) {
         	throw ApplicationException.createEntityNotFoundError(APIErrorCodes.ENTITY_NOT_FOUND, "company", "companyId="+ companyId);
         }
@@ -82,11 +82,11 @@ public class CompanyController {
      * @param CompanyModel object
      */
     @RequestMapping(method=RequestMethod.PUT,value="/{companyId}")
-	public ResponseEntity <CompanyModel> updateCompany(@PathVariable(name="companyId",value = "companyId") Integer companyId, 
-			@RequestBody CompanyModel companyModel) throws ApplicationException {
-    	companyModel.setCompanyId(companyId);
-    	CompanyModel company = companyService.updateCompany(companyModel);
-        return new ResponseEntity<CompanyModel> (company, HttpStatus.OK);
+	public ResponseEntity <Company> updateCompany(@PathVariable(name="companyId",value = "companyId") Integer companyId, 
+			@RequestBody Company company) throws ApplicationException {
+    	company.setCompanyId(companyId);
+    	companyService.updateCompany(company);
+        return new ResponseEntity<Company> (company, HttpStatus.OK);
 
 	}
     
@@ -97,9 +97,9 @@ public class CompanyController {
      * @param Company object
      */
     @RequestMapping(method=RequestMethod.POST)
-   	public ResponseEntity<CompanyModel> addCompany(@Valid @RequestBody CompanyModel companyModel) throws ApplicationException {
-    	CompanyModel company = companyService.addCompany(companyModel);
-        return new ResponseEntity<CompanyModel>(company, HttpStatus.CREATED);
+   	public ResponseEntity<Company> addCompany(@Valid @RequestBody Company company) throws ApplicationException {
+    	companyService.addCompany(company);
+        return new ResponseEntity<Company>(company, HttpStatus.CREATED);
    	}
 }
 

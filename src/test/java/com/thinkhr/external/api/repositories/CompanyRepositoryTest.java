@@ -1,13 +1,22 @@
 package com.thinkhr.external.api.repositories;
-import static org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase.Replace.NONE;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+
+import java.util.Date;
+import java.util.List;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
+import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase.Replace;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager;
 import org.springframework.test.context.junit4.SpringRunner;
+
+import com.thinkhr.external.api.db.entities.Company;
+import com.thinkhr.external.api.utils.ApiTestDataUtil;
 
 /**
  * Junit to verify methods of CompanyRepository with use of H2 database
@@ -17,11 +26,8 @@ import org.springframework.test.context.junit4.SpringRunner;
  */
 @RunWith(SpringRunner.class)
 @DataJpaTest
-@AutoConfigureTestDatabase(replace = NONE)
+@AutoConfigureTestDatabase(replace = Replace.AUTO_CONFIGURED)
 public class CompanyRepositoryTest {
-
-	@Autowired
-	private TestEntityManager entityManager;
 
 	@Autowired
 	private CompanyRepository companyRepository;
@@ -31,7 +37,18 @@ public class CompanyRepositoryTest {
 	 */
 	@Test
 	public void testFindAll() {
-		   //TODO: Add implementation	
+		Company company1 = ApiTestDataUtil.createCompany(null, "HDFC", "Banking", "HHH");
+		company1.setSearchHelp("Test");
+		company1.setCompanySince(new Date());
+		company1.setSpecialNote("111");
+		
+		companyRepository.save(company1);
+		
+		List<Company> companyList = (List<Company>) companyRepository.findAll();
+		  
+        assertNotNull(companyList);
+        assertEquals(companyList.size(), 1);
+        assertEquals(companyList.get(0).getCompanyName(), company1.getCompanyName());
 	}
 
 	/**
@@ -39,7 +56,7 @@ public class CompanyRepositoryTest {
 	 */
 	@Test
 	public void testFindOne() {
-		   //TODO: Add implementation	
+		//TODO: Add implementation
 	}
 	
 	/**

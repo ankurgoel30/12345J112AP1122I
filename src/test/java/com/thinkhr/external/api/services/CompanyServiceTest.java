@@ -1,7 +1,6 @@
 package com.thinkhr.external.api.services;
 
 import static com.thinkhr.external.api.utils.ApiTestDataUtil.createCompany;
-import static com.thinkhr.external.api.utils.ApiTestDataUtil.createCompanyModel;
 import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -16,7 +15,6 @@ import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
-import org.modelmapper.ModelMapper;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -24,7 +22,6 @@ import org.springframework.test.context.junit4.SpringRunner;
 
 import com.thinkhr.external.api.db.entities.Company;
 import com.thinkhr.external.api.exception.ApplicationException;
-import com.thinkhr.external.api.model.CompanyModel;
 import com.thinkhr.external.api.repositories.CompanyRepository;
 
 /**
@@ -47,7 +44,6 @@ public class CompanyServiceTest {
 	@Before
 	public void setup(){
 		MockitoAnnotations.initMocks(this);
-		companyService.setModelMapper(new ModelMapper());
 	}
 	
 	/**
@@ -63,7 +59,7 @@ public class CompanyServiceTest {
 		Pageable pageable = new PageRequest(0, 10);
 		when(companyRepository.findAll(pageable)).thenReturn(new PageImpl<>(companyList, pageable, companyList.size()));
 		
-		List<CompanyModel> result = companyService.getAllCompany();
+		List<Company> result = companyService.getAllCompany();
 		assertEquals(3, result.size());
 	}
 	
@@ -76,7 +72,7 @@ public class CompanyServiceTest {
 		Integer companyId = 1;
 		Company company = createCompany(companyId, "Pepcus", "Software", "PEP");
 		when(companyRepository.findOne(companyId)).thenReturn(company);
-		CompanyModel result = companyService.getCompany(companyId);
+		Company result = companyService.getCompany(companyId);
 		assertEquals(companyId, result.getCompanyId());
 		assertEquals("Pepcus", result.getCompanyName());
 		assertEquals("Software", result.getCompanyType());
@@ -90,10 +86,9 @@ public class CompanyServiceTest {
 	@Test
 	public void testAddCompany(){
 		Integer companyId = 1;
-		CompanyModel companyModel = createCompanyModel(1, "Pepcus", "Software", "PEP");
-		Company company = (Company)companyService.convert(companyModel, Company.class);
+		Company company = createCompany(1, "Pepcus", "Software", "PEP");
 		when(companyRepository.save(company)).thenReturn(company);
-		CompanyModel result = companyService.addCompany(companyModel);
+		Company result = companyService.addCompany(company);
 		assertEquals(companyId, result.getCompanyId());
 		assertEquals("Pepcus", result.getCompanyName());
 		assertEquals("Software", result.getCompanyType());
@@ -108,13 +103,12 @@ public class CompanyServiceTest {
 	@Test
 	public void testUpdateCompany(){
 		Integer companyId = 1;
-		CompanyModel companyModel = createCompanyModel(1, "Pepcus", "Software", "PEP");
-		Company company = (Company)companyService.convert(companyModel, Company.class);
+		Company company = createCompany(1, "Pepcus", "Software", "PEP");
 		when(companyRepository.save(company)).thenReturn(company);
 		when(companyRepository.findOne(companyId)).thenReturn(company);
-		CompanyModel result = null;
+		Company result = null;
 		try {
-			result = companyService.updateCompany(companyModel);
+			result = companyService.updateCompany(company);
 		} catch (ApplicationException e) {
 		}
 		assertEquals(companyId, result.getCompanyId());
