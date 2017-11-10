@@ -123,13 +123,14 @@ public class EntitySearchUtil {
 	
 	/**
 	 * To filter request parameters on field Name
+	 * @param <T>
 	 * 
 	 * @param allRequestParams
 	 * @param kclass
 	 * @return 
 	 */
-	public static Map<String, String> extractParametersForFilterRecords(Map<String, String> allRequestParams,
-			Class<Company> kclass) throws ApplicationException {
+	public static <T> Map<String, String> extractParametersForFilterRecords(Map<String, String> allRequestParams,
+			Class<T> kclass) throws ApplicationException {
 		
 		    Set<String> excludedParams = getSortAndLimitRequestParams();
 		    
