@@ -19,6 +19,7 @@ import com.thinkhr.external.api.db.entities.Company;
 import com.thinkhr.external.api.exception.APIErrorCodes;
 import com.thinkhr.external.api.exception.ApplicationException;
 import com.thinkhr.external.api.services.CompanyService;
+import com.thinkhr.external.api.services.utils.EntitySearchUtil;
 
 
 /**
@@ -49,7 +50,7 @@ public class CompanyController {
     		@RequestParam(value = "limit", required = false) Integer limit,@RequestParam(value = "sort" , required = false) String sort,
     		@RequestParam(value = "searchSpec" , required = false) String searchSpec, 
     		@RequestParam Map<String, String> allRequestParams) throws ApplicationException {
-    		return companyService.getAllCompany(offset, limit, sort, null, allRequestParams); 
+    		return companyService.getAllCompany(offset, limit, sort, searchSpec, allRequestParams); 
     }
     
     /**

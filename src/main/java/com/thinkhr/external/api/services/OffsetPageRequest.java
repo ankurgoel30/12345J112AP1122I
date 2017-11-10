@@ -12,6 +12,7 @@ import org.springframework.data.domain.Sort.Direction;
  *
  */
 public class OffsetPageRequest extends PageRequest {
+	
 	private static final long serialVersionUID = 1L;
 	
 	int offset;
@@ -26,7 +27,6 @@ public class OffsetPageRequest extends PageRequest {
 	}
 	
 	/**
-	/**
 	 * OffsetPageRequest constructor 
 	 * @param page
 	 * @param size
@@ -38,7 +38,6 @@ public class OffsetPageRequest extends PageRequest {
 	}
 
 	/**
-	/**
 	 * OffsetPageRequest constructor 
 	 * @param page
 	 * @param size
@@ -48,12 +47,16 @@ public class OffsetPageRequest extends PageRequest {
 		super(page, size, sort);
 	}
 
+	/**
+	 * To fetch offset attribute value
+	 */
 	@Override
 	public int getOffset() {
 		return offset;
 	}
 	
 	/**
+	 * To set offset attribute value
 	 * @param offset
 	 */
 	public void setOffset(int offset) {

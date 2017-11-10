@@ -40,7 +40,7 @@ public class CompanyService  extends CommonService {
     private CompanyRepository companyRepository;
 
     /**
-     * Fetch all companies from database based on offset, limit and sortField
+     * To fetch companies records. Based on given parameters companies records will be filtered out.
      * 
      * @param Integer offset First record index from database after sorting. Default value is 0
      * @param Integer limit Number of records to be fetched. Default value is 50
@@ -50,15 +50,19 @@ public class CompanyService  extends CommonService {
      * @return List<Company> object 
      * @throws ApplicationException 
      */
-    public List<Company> getAllCompany(Integer offset,Integer limit ,String sortField,String searchSpec, 
+    public List<Company> getAllCompany(Integer offset, 
+    		Integer limit,
+    		String sortField, 
+    		String searchSpec, 
     		Map<String, String> requestParameters) throws ApplicationException {
+    	
     	List<Company> companies = new ArrayList<Company>();
 
     	Pageable pageable = getPageable(offset, limit, sortField, getDefaultSortField());
     	
     	Specification<Company> spec = getEntitySearchSpecification(searchSpec, requestParameters, Company.class, new Company());
 
-    	Page<Company> companyList  = (Page<Company>) companyRepository.findAll(spec,pageable);
+    	Page<Company> companyList  = (Page<Company>) companyRepository.findAll(spec, pageable);
 
     	companyList.getContent().forEach(c -> companies.add(c));
     	

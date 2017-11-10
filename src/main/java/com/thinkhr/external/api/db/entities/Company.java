@@ -88,7 +88,7 @@ public class Company implements SearchableEntity {
 	private String companyHours;
 	
 	@Column(name = "issuesBroker") 
-	private Integer issuesBroker;
+	private String issuesBroker;
 	
 	@Column(name = "issuesClient") 
 	private Integer issuesCompany;
