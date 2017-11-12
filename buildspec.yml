@@ -1,0 +1,32 @@
+version: 0.2
+
+env:
+  variables:
+    JAVA_HOME: "/usr/lib/jvm/java-8-openjdk-amd64"
+
+phases:
+  install:
+    commands:
+      - echo Entered the install phase...
+      - apt-get update -y
+      - apt-get install -y maven
+  pre_build:
+    commands:
+      - echo Entered the pre_build phase...
+      - docker login –u sudhakarkaki –p TryThis1$
+  build:
+    commands:
+      - echo Entered the build phase...
+      - echo Build started on `date`
+      - mvn install
+  post_build:
+    commands:
+      - echo Entered the post_build phase...
+      - echo Build completed on `date`
+      - mvn package
+
+artifacts:
+  files:
+    - target/japi-0.1.jar
+    - appspec.yml
+  discard-paths: yes
