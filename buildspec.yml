@@ -26,8 +26,8 @@ phases:
       - echo Entered the post_build phase...
       - echo Build completed on `date`
       - mvn package
-
 artifacts:
+  type: zip
   files:
     - target/japi-0.1.jar
     - appspec.yml
