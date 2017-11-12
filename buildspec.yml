@@ -15,8 +15,6 @@ phases:
       - echo Entered the pre_build phase...
       - mvn -version
       - java -version
-      - echo ${M2_HOME}
-      - echo ${PATH}
     build:
     commands:
       - echo Entered the build phase...
