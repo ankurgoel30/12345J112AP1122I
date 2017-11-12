@@ -13,7 +13,6 @@ phases:
   pre_build:
     commands:
       - echo Entered the pre_build phase...
-      - docker login –u sudhakarkaki –p TryThis1$
   build:
     commands:
       - echo Entered the build phase...
