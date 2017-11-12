@@ -14,9 +14,7 @@ phases:
   pre_build:
     commands:
       - echo Entered the pre_build phase...
-      - mvn -version
-      - java -version
-    build:
+  build:
     commands:
       - echo Entered the build phase...
       - echo Build started on `date`
