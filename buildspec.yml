@@ -9,11 +9,16 @@ phases:
     commands:
       - echo Entered the install phase...
       - apt-get update -y
+      - apt-get install oracle-java8-installer
       - apt-get install -y maven
   pre_build:
     commands:
       - echo Entered the pre_build phase...
-  build:
+      - mvn -version
+      - java -version
+      - echo ${M2_HOME}
+      - echo ${PATH}
+    build:
     commands:
       - echo Entered the build phase...
       - echo Build started on `date`
