@@ -7,7 +7,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.support.ResourceBundleMessageSource;
 
 /**
- * Main class for Spring Boot based API applciation.
+ * Main class for Spring Boot based API application.
  * 
  * @author Surabhi Bhawsar
  * @since 2017-11-01
@@ -35,7 +35,7 @@ public class ApiApplication {
 	@Bean
 	public MessageSource messageSource () {
 		ResourceBundleMessageSource messageSource = new ResourceBundleMessageSource();
-		messageSource.setBasename("errors");
+		messageSource.setBasename("messages");
 		return messageSource;
 	}
 	

@@ -19,7 +19,6 @@ import com.thinkhr.external.api.db.entities.Company;
 import com.thinkhr.external.api.exception.APIErrorCodes;
 import com.thinkhr.external.api.exception.ApplicationException;
 import com.thinkhr.external.api.services.CompanyService;
-import com.thinkhr.external.api.services.utils.EntitySearchUtil;
 
 
 /**
@@ -79,7 +78,7 @@ public class CompanyController {
     @RequestMapping(method=RequestMethod.DELETE,value="/{companyId}")
     public ResponseEntity<Integer> deleteCompany(@PathVariable(name="companyId",value = "companyId") Integer companyId) throws ApplicationException{
     	companyService.deleteCompany(companyId);
-    	return new ResponseEntity <Integer>(companyId, HttpStatus.NO_CONTENT);
+    	return new ResponseEntity <Integer>(companyId, HttpStatus.ACCEPTED);
     }
     
     

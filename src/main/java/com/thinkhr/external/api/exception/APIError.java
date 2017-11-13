@@ -28,11 +28,11 @@ import lombok.Data;
  */
 @Data
 @JsonInclude(Include.NON_EMPTY) 
-class APIError {
+public class APIError {
 
 	private String apiVersion = "v1"; //TODO: Fix me
-	@JsonIgnore
-	private HttpStatus status;
+	private String status;
+	private int code;
 	private String timestamp;
 	private String errorCode;
 	private String message;
@@ -51,7 +51,8 @@ class APIError {
 	 */
 	APIError(HttpStatus status) {
 		this();
-		this.status = status;
+		this.status = status.name();
+		this.code = status.value();
 	}
 
 	/**
@@ -59,8 +60,7 @@ class APIError {
 	 * @param ex
 	 */
 	APIError(HttpStatus status, Throwable ex) {
-		this();
-		this.status = status;
+		this(status);
 		this.exceptionDetail = ex.getLocalizedMessage();
 	}
 
@@ -70,8 +70,7 @@ class APIError {
 	 * @param errorCode
 	 */
 	APIError(HttpStatus status, APIErrorCodes errorCode) {
-		this();
-		this.status = status;
+		this(status);
 		this.errorCode = String.valueOf(errorCode.getCode());
 	}
 
@@ -81,8 +80,7 @@ class APIError {
 	 * @param ex
 	 */
 	APIError(HttpStatus status, APIErrorCodes errorCode, Throwable ex) {
-		this();
-		this.status = status;
+		this(status);
 		this.errorCode = String.valueOf(errorCode.getCode());
 		this.exceptionDetail = ex.getLocalizedMessage();
 	}
@@ -93,8 +91,7 @@ class APIError {
 	 * @param ex
 	 */
 	APIError(HttpStatus status, APIErrorCodes errorCode, FieldError fieldError) {
-		this();
-		this.status = status;
+		this(status);
 		this.errorCode = String.valueOf(errorCode.getCode());
 		addErrorDetail(fieldError);
 	}
@@ -104,8 +101,7 @@ class APIError {
 	 * @param errorDetail
 	 */
 	APIError(HttpStatus status, ErrorDetail errorDetail) {
-		this();
-		this.status = status;
+		this(status);
 		this.addErrorDetail(errorDetail);
 	}
 
@@ -115,8 +111,7 @@ class APIError {
 	 * @param ex
 	 */
 	APIError(HttpStatus status, String message, Throwable ex) {
-		this();
-		this.status = status;
+		this(status);
 		addErrorDetail(new ErrorDetail(ex.getMessage()));
 	}
 

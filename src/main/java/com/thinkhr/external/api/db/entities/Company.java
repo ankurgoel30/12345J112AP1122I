@@ -41,7 +41,6 @@ public class Company implements SearchableEntity {
 	private Integer companyId;
 	
 	@NotNull
-	@Size(min=1)
 	@Column(name = "search_help") 
 	private String searchHelp;
 		
@@ -298,7 +297,6 @@ public class Company implements SearchableEntity {
 	private String salesforceID;
 
 	@NotNull
-	@Size(min=1)
 	@Column(name = "special_note",nullable=false) 
 	private String specialNote;
 	

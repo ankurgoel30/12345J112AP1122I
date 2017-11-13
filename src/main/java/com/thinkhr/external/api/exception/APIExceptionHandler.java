@@ -2,9 +2,7 @@ package com.thinkhr.external.api.exception;
 
 import static org.springframework.http.HttpStatus.BAD_REQUEST;
 
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
+import static com.thinkhr.external.api.response.APIMessageUtil.getMessageFromResourceBundle;
 import org.hibernate.JDBCException;
 import org.hibernate.exception.ConstraintViolationException;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -40,7 +38,7 @@ import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExcep
 public class APIExceptionHandler extends ResponseEntityExceptionHandler {
 
 	@Autowired
-	ErrorMessageResourceHandler resourceHandler;
+	MessageResourceHandler resourceHandler;
 	
     /**
      * Handle MissingServletRequestParameterException when a 'required' request parameter is missing.
@@ -58,7 +56,7 @@ public class APIExceptionHandler extends ResponseEntityExceptionHandler {
             HttpStatus status, 
             WebRequest request) {
     	APIError apiError = new APIError(BAD_REQUEST, ex);
-    	apiError.setMessage(getMessageFromResourceBundle(APIErrorCodes.REQUIRED_PARAMETER, ex.getParameterName()));
+    	apiError.setMessage(getMessageFromResourceBundle(resourceHandler, APIErrorCodes.REQUIRED_PARAMETER, ex.getParameterName()));
         return buildResponseEntity(apiError);
     }
 
@@ -81,7 +79,7 @@ public class APIExceptionHandler extends ResponseEntityExceptionHandler {
     	APIError apiError = new APIError(HttpStatus.UNSUPPORTED_MEDIA_TYPE, ex);
     	StringBuilder builder = new StringBuilder();
         ex.getSupportedMediaTypes().forEach(t -> builder.append(t).append(", "));
-    	apiError.setMessage(getMessageFromResourceBundle(APIErrorCodes.REQUIRED_PARAMETER, 
+    	apiError.setMessage(getMessageFromResourceBundle(resourceHandler, APIErrorCodes.REQUIRED_PARAMETER, 
     			ex.getContentType().toString(), builder.toString()));
         return buildResponseEntity(apiError);
     }
@@ -164,7 +162,7 @@ public class APIExceptionHandler extends ResponseEntityExceptionHandler {
     @ExceptionHandler(ApplicationException.class)
     protected ResponseEntity<Object> handleAPIBadRequest(ApplicationException ex) {
     	APIError apiError = new APIError(ex.getHttpStatus(), ex.getApiErrorCode());
-    	apiError.setMessage(getMessageFromResourceBundle(ex.getApiErrorCode(), ex.getErrorMessageParameters()));
+    	apiError.setMessage(getMessageFromResourceBundle(resourceHandler, ex.getApiErrorCode(), ex.getErrorMessageParameters()));
         return buildResponseEntity(apiError);
     }
 
@@ -209,47 +207,9 @@ public class APIExceptionHandler extends ResponseEntityExceptionHandler {
      * @return
      */
     private ResponseEntity<Object> buildResponseEntity(APIError apiError) {
-        return new ResponseEntity<Object>(apiError, apiError.getStatus());
+        return new ResponseEntity<Object>(apiError, HttpStatus.valueOf(apiError.getCode()));
     }
     
     
-    /**
-     * Prepare error message for the apiErrorCode from resource bundle
-     * It will replace all dynamic arguments from error message by paramList values 
-     * E.g. 
-     *   '{0}' is a required parameter and paramList = userName then output of method will be as 
-     *   'userName' is a required parameter.
-     * @param apiErrorCode
-     * @param paramList
-     */
-    public String getMessageFromResourceBundle(APIErrorCodes apiErrorCode, String...paramList) {
-
-        String errorMessage = resourceHandler.get(apiErrorCode.name());
-        if(paramList != null && paramList.length > 0) {
-          Pattern pattern = Pattern.compile("\\{(\\d+)([^\\}.]*)\\.\\.(n?)(\\d*)\\}", Pattern.DOTALL);
-          Matcher matcher = pattern.matcher(errorMessage);
-          if ( matcher.find() ) {
-            int offset = Integer.parseInt(matcher.group(1));
-            String sep = matcher.group(2);
-            int length = ("n".equals(matcher.group(3))?paramList.length:Math.min(paramList.length,Integer.parseInt(matcher.group(4))-offset+1));
-            StringBuilder sb = new StringBuilder();
-            for (int i=offset; i<length+offset; i++) {
-              if (i > offset) {
-                sb.append(sep);
-              }
-              sb.append("{").append(i).append("}");
-            }
-            errorMessage = matcher.replaceAll(sb.toString());
-          }
-          //It will replace "{0}, {1},{2}... {n}" number of parameter from error message
-          for (int i=0; i<paramList.length; i++) {
-            String param = paramList[i];
-            errorMessage = errorMessage.replace("{"+i+"}", param);
-          }
-        }
-        
-        return errorMessage;
-    }
-
     
 }

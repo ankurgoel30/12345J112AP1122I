@@ -13,6 +13,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
@@ -60,6 +61,10 @@ public class CompanyService  extends CommonService {
 
     	Pageable pageable = getPageable(offset, limit, sortField, getDefaultSortField());
     	
+    	requestParameters.put("limit", String.valueOf(pageable.getPageSize()));
+    	requestParameters.put("offset", String.valueOf(pageable.getOffset()));
+    	requestParameters.put("sort", pageable.getSort().toString());
+
     	Specification<Company> spec = getEntitySearchSpecification(searchSpec, requestParameters, Company.class, new Company());
 
     	Page<Company> companyList  = (Page<Company>) companyRepository.findAll(spec, pageable);
@@ -68,6 +73,7 @@ public class CompanyService  extends CommonService {
     	
     	return companies;
     }
+
     
 	/**
      * Fetch specific company from database

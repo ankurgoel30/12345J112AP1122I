@@ -19,7 +19,7 @@ import org.springframework.stereotype.Component;
  * @since 2017-11-04
  */
 @Component
-public class ErrorMessageResourceHandler {
+public class MessageResourceHandler {
 
     @Autowired
     private MessageSource messageSource;

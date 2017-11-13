@@ -1,5 +1,6 @@
 package com.thinkhr.external.api.services;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -52,21 +53,27 @@ public class EntitySearchSpecification<T extends SearchableEntity> implements Sp
 	@Override
 	public Predicate toPredicate(Root<T> from, CriteriaQuery<?> criteria, CriteriaBuilder criteriaBuilder) {
 		
-		Predicate p = criteriaBuilder.disjunction();
+		List<Predicate> predicates = new ArrayList<Predicate>();
+		
 		
 		if (searchParameters != null && !searchParameters.isEmpty()) {
-			
-			searchParameters.entrySet().forEach( searchParam -> p.getExpressions().
+			Predicate filterPredicate =  criteriaBuilder.conjunction();
+			searchParameters.entrySet().forEach( searchParam -> filterPredicate.getExpressions().
 						add(criteriaBuilder.like(from.get(searchParam.getKey()), "%" + searchParam.getValue() + "%")));
+			predicates.add(filterPredicate);
 		}
 		
 		//WHEN search spec is not null
 		if (StringUtils.isNotBlank(searchSpec)) {
+			Predicate searchPredicate = criteriaBuilder.disjunction();
 			List<String> searchColumns =  t.getSearchFields();
-			searchColumns.stream().forEach(column -> p.getExpressions().add(criteriaBuilder.like(from.get(column), "%" + searchSpec +"%")));
+			searchColumns.stream().forEach(column -> searchPredicate.getExpressions().add(criteriaBuilder.like(from.get(column), "%" + searchSpec +"%")));
+			predicates.add(searchPredicate);
 		} 
 
-		return p;
+		Predicate[] pr = new Predicate[predicates.size()];
+		predicates.toArray(pr);
+		return criteriaBuilder.and(pr);
 	}
 
 }

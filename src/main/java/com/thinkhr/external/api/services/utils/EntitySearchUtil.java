@@ -78,6 +78,18 @@ public class EntitySearchUtil {
 		
 		return sortedBy;
 	}
+    
+    /**
+     * Return formatted string to display like +-fieldName will be formatted as 
+     * 
+     * fieldName ASC or fieldName DESC
+     */
+    public static String getFormattedString(String sortBy) {
+    	Sort.Direction sortDirection = getSortDirection(sortBy);
+    	String sortedBy = extractSortDirection(sortBy, sortDirection);
+    	
+    	return sortedBy + " " + sortDirection.name();
+    }
 
 	/**
      * Get the first character out from sortedBy value. 
