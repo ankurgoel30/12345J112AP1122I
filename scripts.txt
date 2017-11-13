@@ -1,0 +1,4 @@
+#Prerequisites
+you need to install aws-cli
+#command line to trigger a dev build on a specific branch
+aws codebuild start-build --project-name JAPI --source-version story/THR-3704
