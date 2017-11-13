@@ -47,13 +47,13 @@ public class CompanyRepositoryTest {
 		Company companySaved = companyRepository.save(company);
 		
 		savedCompanyId = company.getCompanyId();
-        assertNotNull(companySaved);
-        assertNotNull(companySaved.getCompanyId());// As company is saved successfully.
-        assertEquals(companySaved.getSearchHelp(), company.getSearchHelp());
-        assertEquals(companySaved.getCompanySince(), company.getCompanySince());
-        assertEquals(companySaved.getSpecialNote(), company.getSpecialNote());
-        assertEquals(companySaved.getCompanyName(), company.getCompanyName());
-        
+		assertNotNull(companySaved);
+		assertNotNull(companySaved.getCompanyId());// As company is saved successfully.
+		assertEquals(companySaved.getSearchHelp(), company.getSearchHelp());
+		assertEquals(companySaved.getCompanySince(), company.getCompanySince());
+		assertEquals(companySaved.getSpecialNote(), company.getSpecialNote());
+		assertEquals(companySaved.getCompanyName(), company.getCompanyName());
+		
 	}
 	
 	/**
@@ -79,8 +79,8 @@ public class CompanyRepositoryTest {
 
 		List<Company> companyList = (List<Company>) companyRepository.findAll();
 		  
-        assertNotNull(companyList);
-        assertEquals(companyList.size(), 2);
+		assertNotNull(companyList);
+		assertEquals(companyList.size(), 2);
 	}
 
 	/**
@@ -97,9 +97,9 @@ public class CompanyRepositoryTest {
 		Company savedCompany = companyRepository.save(company1);
 
 		Company findCompany = (Company) companyRepository.findOne(savedCompany.getCompanyId());
-        assertNotNull(findCompany);
-        assertEquals(findCompany.getSearchHelp(), "Test");
-        assertEquals(findCompany.getCompanyName(), "HDFC");
+		assertNotNull(findCompany);
+		assertEquals(findCompany.getSearchHelp(), "Test");
+		assertEquals(findCompany.getCompanyName(), "HDFC");
 	}
 	
 	/**
@@ -120,6 +120,6 @@ public class CompanyRepositoryTest {
 		
 		//FIND saved company with find and it should not  return
 		Company findCompany = (Company) companyRepository.findOne(savedCompany.getCompanyId());
-        assertEquals(null, findCompany);
+		assertEquals(null, findCompany);
 	}
 }
