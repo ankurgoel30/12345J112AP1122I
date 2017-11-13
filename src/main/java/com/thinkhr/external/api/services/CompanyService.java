@@ -1,19 +1,27 @@
 package com.thinkhr.external.api.services;
 
+import static com.thinkhr.external.api.ApplicationConstants.DEFAULT_SORT_BY_COMPANY_NAME;
+import static com.thinkhr.external.api.services.utils.EntitySearchUtil.*;
+
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
+import org.apache.commons.lang.StringUtils;
+import org.hibernate.engine.spi.EntityKey;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
 import com.thinkhr.external.api.db.entities.Company;
 import com.thinkhr.external.api.exception.APIErrorCodes;
 import com.thinkhr.external.api.exception.ApplicationException;
 import com.thinkhr.external.api.repositories.CompanyRepository;
+import com.thinkhr.external.api.services.utils.EntitySearchUtil;
 
 /**
 *
@@ -27,27 +35,43 @@ import com.thinkhr.external.api.repositories.CompanyRepository;
 */
 
 @Service
-public class CompanyService {
+public class CompanyService  extends CommonService {
 	
     @Autowired
     private CompanyRepository companyRepository;
 
     /**
-     * Fetch all companies from database. To avoid huge number of records, we are limiting the records only upto 10 numbers.
+     * To fetch companies records. Based on given parameters companies records will be filtered out.
      * 
+     * @param Integer offset First record index from database after sorting. Default value is 0
+     * @param Integer limit Number of records to be fetched. Default value is 50
+     * @param String sortField Field on which records needs to be sorted
+     * @param String searchSpec Search string for filtering results
+     * @param Map<String, String>
      * @return List<Company> object 
+     * @throws ApplicationException 
      */
-    public List<Company> getAllCompany() {
+    public List<Company> getAllCompany(Integer offset, 
+    		Integer limit,
+    		String sortField, 
+    		String searchSpec, 
+    		Map<String, String> requestParameters) throws ApplicationException {
+    	
     	List<Company> companies = new ArrayList<Company>();
 
-    	//TODO: parameterize limiting of records
-    	Pageable pageble = new PageRequest(0, 10);
-    	Page<Company> companyPages  = (Page<Company>) companyRepository.findAll(pageble);
-    	companyPages.getContent().forEach(c -> companies.add(c));
+    	Pageable pageable = getPageable(offset, limit, sortField, getDefaultSortField());
+    	
+    	Specification<Company> spec = getEntitySearchSpecification(searchSpec, requestParameters, Company.class, new Company());
+
+    	Page<Company> companyList  = (Page<Company>) companyRepository.findAll(spec, pageable);
+
+    	companyList.getContent().forEach(c -> companies.add(c));
+    	
     	return companies;
     }
+
     
-    /**
+	/**
      * Fetch specific company from database
      * 
      * @param companyId
@@ -95,5 +119,14 @@ public class CompanyService {
     		throw ApplicationException.createEntityNotFoundError(APIErrorCodes.ENTITY_NOT_FOUND, "company", "companyId="+companyId);
     	}
     	return companyId;
+    }    
+    /**
+     * Return default sort field for company service
+     * 
+     * @return String 
+     */
+    @Override
+    public String getDefaultSortField()  {
+    	return DEFAULT_SORT_BY_COMPANY_NAME;
     }
 }

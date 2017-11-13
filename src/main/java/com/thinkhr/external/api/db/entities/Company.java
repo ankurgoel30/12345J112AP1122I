@@ -1,7 +1,9 @@
 package com.thinkhr.external.api.db.entities;
 
 import java.sql.Timestamp;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -11,6 +13,10 @@ import javax.persistence.Id;
 import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
+
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import lombok.Data;
 
@@ -28,18 +34,23 @@ import lombok.Data;
 @Entity
 @Table(name = "clients")
 @Data
-public class Company {
+public class Company implements SearchableEntity {
 	@Id
 	@GeneratedValue(strategy=GenerationType.AUTO)
 	@Column(name = "clientID") 
 	private Integer companyId;
 	
+	@NotNull
 	@Column(name = "search_help") 
 	private String searchHelp;
 		
+	@NotNull
+	@Size(min=1)
 	@Column(name = "Client_Type") 
 	private String companyType;
 	
+	@NotNull
+	@Size(min=1)
 	@Column(name = "Client_Name") 
 	private String companyName;
 	
@@ -58,9 +69,10 @@ public class Company {
 	@Column(name = "Website") 
 	private String website;
 	
+	@NotNull
 	@Column(name = "Client_Since",nullable=false) 
 	@Temporal(TemporalType.DATE)
-	private Date companySince = new Date();
+	private Date companySince;
 	
 	@Column(name = "tempID") 
 	private String tempID;
@@ -75,7 +87,7 @@ public class Company {
 	private String companyHours;
 	
 	@Column(name = "issuesBroker") 
-	private Integer issuesBroker;
+	private String issuesBroker;
 	
 	@Column(name = "issuesClient") 
 	private Integer issuesCompany;
@@ -283,11 +295,23 @@ public class Company {
 	
 	@Column(name = "salesforceID") 
 	private String salesforceID;
-	
+
+	@NotNull
 	@Column(name = "special_note",nullable=false) 
 	private String specialNote;
 	
 	@Column(name = "sourceID") 
 	private Integer sourceId;
+
+	@Override
+	@JsonIgnore
+	public List<String> getSearchFields() {
+		List<String> searchColumns = new ArrayList<String>();
+		searchColumns.add("searchHelp");
+		searchColumns.add("companyName");
+		searchColumns.add("companyPhone");
+		searchColumns.add("website");
+		return searchColumns;
+	}
 	
 }

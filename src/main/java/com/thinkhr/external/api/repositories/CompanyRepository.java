@@ -1,8 +1,7 @@
 package com.thinkhr.external.api.repositories;
 
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.repository.CrudRepository;
+import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
+import org.springframework.data.repository.PagingAndSortingRepository;
 
 import com.thinkhr.external.api.db.entities.Company;
 
@@ -15,12 +14,6 @@ import com.thinkhr.external.api.db.entities.Company;
  *
  */
 
-public interface CompanyRepository extends CrudRepository<Company, Integer> {
+public interface CompanyRepository extends PagingAndSortingRepository<Company, Integer> ,JpaSpecificationExecutor<Company> {
 	
-	/**
-	 * To limit records by given pageable
-	 * @param pageable
-	 * @return
-	 */
-	Page<Company> findAll(Pageable pageable);
 }
