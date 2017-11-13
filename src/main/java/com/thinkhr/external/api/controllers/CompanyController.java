@@ -46,9 +46,11 @@ public class CompanyController {
      */
     @RequestMapping(method=RequestMethod.GET)
     public List<Company> getAllCompany(@RequestParam(value = "offset", required = false) Integer offset,
-    		@RequestParam(value = "limit", required = false) Integer limit,@RequestParam(value = "sort" , required = false) String sort,
-    		@RequestParam(value = "searchSpec" , required = false) String searchSpec, 
-    		@RequestParam Map<String, String> allRequestParams) throws ApplicationException {
+    		@RequestParam(value = "limit", required = false) Integer limit, 
+    		@RequestParam(value = "sort" , required = false) String sort,
+    		@RequestParam(value = "searchSpec", required = false) String searchSpec, 
+    		@RequestParam Map<String, String> allRequestParams) 
+    				throws ApplicationException {
     		return companyService.getAllCompany(offset, limit, sort, searchSpec, allRequestParams); 
     }
     
@@ -61,7 +63,8 @@ public class CompanyController {
      * 
      */
     @RequestMapping(method=RequestMethod.GET, value="/{companyId}")
-    public Company getById(@PathVariable(name="companyId",value = "companyId") Integer companyId) throws ApplicationException {
+    public Company getById(@PathVariable(name="companyId", value = "companyId") Integer companyId) 
+    		throws ApplicationException {
         Company company = companyService.getCompany(companyId);
         if (null == company) {
         	throw ApplicationException.createEntityNotFoundError(APIErrorCodes.ENTITY_NOT_FOUND, "company", "companyId="+ companyId);
@@ -76,7 +79,8 @@ public class CompanyController {
      * @param companyId
      */
     @RequestMapping(method=RequestMethod.DELETE,value="/{companyId}")
-    public ResponseEntity<Integer> deleteCompany(@PathVariable(name="companyId",value = "companyId") Integer companyId) throws ApplicationException{
+    public ResponseEntity<Integer> deleteCompany(@PathVariable(name="companyId", value = "companyId") Integer companyId) 
+    		throws ApplicationException {
     	companyService.deleteCompany(companyId);
     	return new ResponseEntity <Integer>(companyId, HttpStatus.ACCEPTED);
     }
@@ -88,7 +92,7 @@ public class CompanyController {
      * @param Company object
      */
     @RequestMapping(method=RequestMethod.PUT,value="/{companyId}")
-	public ResponseEntity <Company> updateCompany(@PathVariable(name="companyId",value = "companyId") Integer companyId, 
+	public ResponseEntity <Company> updateCompany(@PathVariable(name="companyId", value = "companyId") Integer companyId, 
 			@Valid @RequestBody Company company) throws ApplicationException {
     	company.setCompanyId(companyId);
     	companyService.updateCompany(company);
