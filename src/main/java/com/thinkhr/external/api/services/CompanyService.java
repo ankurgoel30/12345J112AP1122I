@@ -61,10 +61,6 @@ public class CompanyService  extends CommonService {
 
     	Pageable pageable = getPageable(offset, limit, sortField, getDefaultSortField());
     	
-    	requestParameters.put("limit", String.valueOf(pageable.getPageSize()));
-    	requestParameters.put("offset", String.valueOf(pageable.getOffset()));
-    	requestParameters.put("sort", pageable.getSort().toString());
-
     	Specification<Company> spec = getEntitySearchSpecification(searchSpec, requestParameters, Company.class, new Company());
 
     	Page<Company> companyList  = (Page<Company>) companyRepository.findAll(spec, pageable);

@@ -174,10 +174,12 @@ public class EntitySearchUtil {
     		Map<String, String> requestParameters, Class<T> kclass, SearchableEntity entity) throws ApplicationException {
     	
     	//To get any other requestParameter like Company's fieldName to filter record on filterName with this case we will ignore searchSpec.
-    	Map<String, String> requestParametersForFilterRecords = EntitySearchUtil.extractParametersForFilterRecords(requestParameters, kclass);
-    	if (requestParametersForFilterRecords != null && !requestParametersForFilterRecords.isEmpty()) {
-    		return new EntitySearchSpecification(requestParametersForFilterRecords, entity);
-    	} 
+    	if (requestParameters != null) {
+    		Map<String, String> requestParametersForFilterRecords = EntitySearchUtil.extractParametersForFilterRecords(requestParameters, kclass);
+    		if (requestParametersForFilterRecords != null && !requestParametersForFilterRecords.isEmpty()) {
+    			return new EntitySearchSpecification(requestParametersForFilterRecords, entity);
+    		} 
+    	}
 
     	if (StringUtils.isNotBlank(searchSpec)) {
     		return new EntitySearchSpecification (searchSpec, entity);
