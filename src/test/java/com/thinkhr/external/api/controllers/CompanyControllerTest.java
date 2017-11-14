@@ -231,6 +231,7 @@ public class CompanyControllerTest {
     	}
     	Page<Company> companies  = (Page<Company>) companyRepository.findAll(spec, pageable);
     	
+    	
     	assertNotNull(companies.getContent());
     	assertEquals(companies.getContent().size(), 3);
 	}
@@ -245,7 +246,7 @@ public class CompanyControllerTest {
 		
 		List<Company> companyList = null;
 
-	//	given(companyController.getAllCompany(null, null, null, null, null)).willReturn(companyList);
+		given(companyController.getAllCompany(null, null, null, null, null)).willReturn(companyList);
 		
 		mockMvc.perform(get(COMPANY_API_BASE_PATH)
 			   .accept(MediaType.APPLICATION_JSON))
@@ -265,7 +266,8 @@ public class CompanyControllerTest {
 		
 		List<Company> companyList = singletonList(createCompany());
 
-		given(companyController.getAllCompany(null, null, null, null, null)).willThrow(new JDBCException("Internal Server Error", new SQLException("Database Error"))); 
+		given(companyController.getAllCompany(null, null, null, null, null)).
+			willThrow(new JDBCException("Internal Server Error", new SQLException("Database Error"))); 
 		
 		mockMvc.perform(get(COMPANY_API_BASE_PATH)
 			   .accept(MediaType.APPLICATION_JSON))
@@ -447,7 +449,7 @@ public class CompanyControllerTest {
 	@Test
 	public void testAddCompanyCompanySinceInvalidBadRequest() throws Exception {
 		Company company = createCompany(); 
-		company.setCompanySince(new SimpleDateFormat("dd/MM/yyyy").parse("08-07-2011"));
+		company.setCompanySince(new SimpleDateFormat("dd/MM/yyyy").parse("08/07/2011"));
 		
 		mockMvc.perform(post(COMPANY_API_BASE_PATH)
 			   .accept(MediaType.APPLICATION_JSON)
@@ -617,7 +619,7 @@ public class CompanyControllerTest {
 	@Test
 	public void testUpdateCompanyCompanySinceInvalidBadRequest() throws Exception {
 		Company company = createCompany(); 
-		company.setCompanySince(new SimpleDateFormat("dd/MM/yyyy").parse("08-07-2011"));
+		company.setCompanySince(new SimpleDateFormat("dd/MM/yyyy").parse("08/07/2011"));
 		
 		mockMvc.perform(put(COMPANY_API_BASE_PATH + company.getCompanyId())
 			   .accept(MediaType.APPLICATION_JSON)
