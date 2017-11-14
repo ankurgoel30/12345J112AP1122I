@@ -1,6 +1,6 @@
 package com.thinkhr.external.api.controllers;
 
-import static com.thinkhr.external.api.services.utils.EntitySearchUtil.*;
+import static com.thinkhr.external.api.services.utils.EntitySearchUtil.getPageable;
 import static com.thinkhr.external.api.utils.ApiTestDataUtil.COMPANY_API_BASE_PATH;
 import static com.thinkhr.external.api.utils.ApiTestDataUtil.createCompanies;
 import static com.thinkhr.external.api.utils.ApiTestDataUtil.createCompany;
@@ -22,9 +22,11 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import java.sql.SQLException;
 import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.List;
 
 import org.apache.commons.lang.StringUtils;
+import org.hamcrest.core.IsNot;
 import org.hibernate.JDBCException;
 import org.junit.Before;
 import org.junit.Test;
@@ -93,17 +95,16 @@ public class CompanyControllerTest {
 	@Test
 	public void testAllCompany() throws Exception {
 		
-		Company Company = createCompany(); 
+		List<Company> companyList = saveCompaniesToH2DB();
 
-		List<Company> companyList = singletonList(Company);
-
-		given(companyController.getAllCompany(null, null, null, null, null)).willReturn(companyList);
+		given(companyController.getAllCompany(null, 10, null, null, null)).willReturn(companyList);
 		
-		mockMvc.perform(get(COMPANY_API_BASE_PATH)
+		mockMvc.perform(get(COMPANY_API_BASE_PATH+"?limit=10")
 			   .accept(MediaType.APPLICATION_JSON))
 		.andExpect(status().isOk())
-		.andExpect(jsonPath("$", hasSize(1)))
-		.andExpect(jsonPath("$[0].companyName", is(Company.getCompanyName())));	
+		.andExpect(jsonPath("limit", is("10")))
+		.andExpect(jsonPath("sort", is("companyName ASC")))
+		.andExpect(jsonPath("offset", is("0")));
 	}
 	
 	/**
@@ -115,11 +116,8 @@ public class CompanyControllerTest {
 	@Test
 	public void testAllCompaniesWithDefault() throws Exception {
 		
-		List<Company> companyList = createCompanies();
-
-		for (Company company : companyList) {
-			companyRepository.save(company);
-		}
+		saveCompaniesToH2DB();
+		
 		String searchSpec = null;
 		Pageable pageable = getPageable(null, null, null, defaultSortField);
     	Specification<Company> spec = null;
@@ -131,7 +129,7 @@ public class CompanyControllerTest {
     	assertNotNull(companies.getContent());
     	assertEquals(companies.getContent().size(), 10);
 	}
-	
+
 	/**
 	 * Test to verify get all companies when searchSpec is default and all other 
 	 * parameters are provided (sort is ascending)  
@@ -141,11 +139,7 @@ public class CompanyControllerTest {
 	@Test
 	public void testAllCompaniesWithParamsAndSearchSpecNull() throws Exception {
 		
-		List<Company> companyList = createCompanies();
-
-		for (Company company : companyList) {
-			companyRepository.save(company);
-		}
+		saveCompaniesToH2DB();
 		String searchSpec = null;
 		Pageable pageable = getPageable(3, 3, "+companyType", defaultSortField);
     	Specification<Company> spec = null;
@@ -166,11 +160,7 @@ public class CompanyControllerTest {
 	@Test
 	public void testAllCompaniesWithParamsAndPageableNull() throws Exception {
 		
-		List<Company> companyList = createCompanies();
-
-		for (Company company : companyList) {
-			companyRepository.save(company);
-		}
+		saveCompaniesToH2DB();
 		String searchSpec = "fifth";
 		Pageable pageable = getPageable(null, null, null, defaultSortField);
     	Specification<Company> spec = null;
@@ -192,13 +182,10 @@ public class CompanyControllerTest {
 	@Test
 	public void testAllCompaniesWithParamsAndAscSort() throws Exception {
 		
-		List<Company> companyList = createCompanies();
-
-		for (Company company : companyList) {
-			companyRepository.save(company);
-		}
+		saveCompaniesToH2DB();
+		
 		String searchSpec = "General";
-		Pageable pageable = getPageable(3, 3, "+companyType", defaultSortField);
+		Pageable pageable = getPageable(0, null, "+companyType", defaultSortField);
     	Specification<Company> spec = null;
     	if(StringUtils.isNotBlank(searchSpec)) {
     		spec = new EntitySearchSpecification<Company>(searchSpec, new Company());
@@ -206,7 +193,7 @@ public class CompanyControllerTest {
     	Page<Company> companies  = (Page<Company>) companyRepository.findAll(spec, pageable);
     	
     	assertNotNull(companies.getContent());
-    	assertEquals(companies.getContent().size(), 3);
+    	assertEquals(companies.getContent().size(), 2);
 	}
 	
 	/**
@@ -218,13 +205,9 @@ public class CompanyControllerTest {
 	@Test
 	public void testAllCompaniesWithParamsAndDescSort() throws Exception {
 		
-		List<Company> companyList = createCompanies();
-
-		for (Company company : companyList) {
-			companyRepository.save(company);
-		}
+		saveCompaniesToH2DB();
 		String searchSpec = "Suzuki";
-		Pageable pageable = getPageable(3, 3, "-companyType", defaultSortField);
+		Pageable pageable = getPageable(null, null, "-companyType", defaultSortField);
     	Specification<Company> spec = null;
     	if(StringUtils.isNotBlank(searchSpec)) {
     		spec = new EntitySearchSpecification<Company>(searchSpec, new Company());
@@ -233,7 +216,7 @@ public class CompanyControllerTest {
     	
     	
     	assertNotNull(companies.getContent());
-    	assertEquals(companies.getContent().size(), 3);
+    	assertEquals(companies.getContent().size(), 1);
 	}
 	
 	/**
@@ -251,31 +234,9 @@ public class CompanyControllerTest {
 		mockMvc.perform(get(COMPANY_API_BASE_PATH)
 			   .accept(MediaType.APPLICATION_JSON))
 		.andExpect(status().isOk())
-		.andExpect(jsonPath("$", hasSize(0)))
-		.andExpect(jsonPath("$[0].companyName", is(companyList)));
+		.andExpect(jsonPath("message", IsNot.not(""))); 
 	}
 
-	/**
-	 * Test to verify Get All Companies API (/v1/companies) when service layer throws an exception.
-	 * API status code should be 400 for bad request.
-	 * 
-	 * @throws Exception
-	 */
-	@Test
-	public void testAllCompanyWithException() throws Exception {
-		
-		List<Company> companyList = singletonList(createCompany());
-
-		given(companyController.getAllCompany(null, null, null, null, null)).
-			willThrow(new JDBCException("Internal Server Error", new SQLException("Database Error"))); 
-		
-		mockMvc.perform(get(COMPANY_API_BASE_PATH)
-			   .accept(MediaType.APPLICATION_JSON))
-		.andExpect(status().isInternalServerError())
-		.andExpect(jsonPath("errorCode", is(APIErrorCodes.DATABASE_ERROR.getCode().toString())));
-	}
-
-	
 	/**
 	 * Test to verify Get company by id API (/v1/companies/{companyId}). 
 	 * 
@@ -290,7 +251,7 @@ public class CompanyControllerTest {
 		mockMvc.perform(get(COMPANY_API_BASE_PATH + Company.getCompanyId())
 			   .accept(MediaType.APPLICATION_JSON))
 		.andExpect(status().isOk())
-		.andExpect(jsonPath("companyName", is(Company.getCompanyName())));
+		.andExpect(jsonPath("company.companyName", is(Company.getCompanyName())));
 	}
 	
 	/**
@@ -333,7 +294,7 @@ public class CompanyControllerTest {
 			   .contentType(MediaType.APPLICATION_JSON)
 		       .content(getJsonString(company)))
 		.andExpect(status().isCreated())
-		.andExpect(jsonPath("companyName", is(company.getCompanyName())));
+		.andExpect(jsonPath("company.companyName", is(company.getCompanyName())));
 	}
 
 	/**
@@ -448,18 +409,22 @@ public class CompanyControllerTest {
 	 */
 	@Test
 	public void testAddCompanyCompanySinceInvalidBadRequest() throws Exception {
+		
 		Company company = createCompany(); 
-		company.setCompanySince(new SimpleDateFormat("dd/MM/yyyy").parse("08/07/2011"));
+		
+		Date date = new SimpleDateFormat("dd/MM/yyyy").parse("08/07/2011");
+		
+		company.setCompanySince(date);
+		
+		String request = getJsonString(company);
+		request = request.replaceAll(String.valueOf(date.getTime()), "08-07-2011"); //To fail validation layer
 		
 		mockMvc.perform(post(COMPANY_API_BASE_PATH)
 			   .accept(MediaType.APPLICATION_JSON)
 			   .contentType(MediaType.APPLICATION_JSON)
-		       .content(getJsonString(company)))
+		       .content(request))
 		.andExpect(status().isBadRequest())
-		.andExpect(jsonPath("errorCode", is(APIErrorCodes.MALFORMED_JSON_REQUEST.getCode().toString())))
-		.andExpect(jsonPath("errorDetails[0].field", is("companySince")))
-		.andExpect(jsonPath("errorDetails[0].object", is("company")))
-		.andExpect(jsonPath("errorDetails[0].rejectedValue", is(company.getCompanySince())));
+		.andExpect(jsonPath("errorCode", is(APIErrorCodes.MALFORMED_JSON_REQUEST.getCode().toString())));
 	}
 	
 	/**
@@ -503,7 +468,7 @@ public class CompanyControllerTest {
 			   .contentType(MediaType.APPLICATION_JSON)
 		       .content(getJsonString(Company)))
 		.andExpect(status().isOk())
-		.andExpect(jsonPath("companyName", is(Company.getCompanyName())));
+		.andExpect(jsonPath("company.companyName", is(Company.getCompanyName())));
 	}
 	
 	/**
@@ -619,14 +584,14 @@ public class CompanyControllerTest {
 	@Test
 	public void testUpdateCompanyCompanySinceInvalidBadRequest() throws Exception {
 		Company company = createCompany(); 
-		company.setCompanySince(new SimpleDateFormat("dd/MM/yyyy").parse("08/07/2011"));
+		company.setCompanySince(null);
 		
 		mockMvc.perform(put(COMPANY_API_BASE_PATH + company.getCompanyId())
 			   .accept(MediaType.APPLICATION_JSON)
 			   .contentType(MediaType.APPLICATION_JSON)
 		       .content(getJsonString(company)))
 		.andExpect(status().isBadRequest())
-		.andExpect(jsonPath("errorCode", is(APIErrorCodes.MALFORMED_JSON_REQUEST.getCode().toString())))
+		.andExpect(jsonPath("errorCode", is(APIErrorCodes.VALIDATION_FAILED.getCode().toString())))
 		.andExpect(jsonPath("errorDetails[0].field", is("companySince")))
 		.andExpect(jsonPath("errorDetails[0].object", is("company")))
 		.andExpect(jsonPath("errorDetails[0].rejectedValue", is(company.getCompanySince())));
@@ -651,5 +616,18 @@ public class CompanyControllerTest {
 			   .accept(MediaType.APPLICATION_JSON))
 		.andExpect(status().is(204));
 	}
+
+	/**
+	 * Save Companies to test database
+	 */
+	private List<Company> saveCompaniesToH2DB() {
+		List<Company> companyList = createCompanies();
+
+		for (Company company : companyList) {
+			companyRepository.save(company);
+		}
+		return companyList;
+	}
+	
 
 }
