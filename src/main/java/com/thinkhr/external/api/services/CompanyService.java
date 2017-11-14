@@ -1,19 +1,19 @@
 package com.thinkhr.external.api.services;
 
 import static com.thinkhr.external.api.ApplicationConstants.DEFAULT_SORT_BY_COMPANY_NAME;
-import static com.thinkhr.external.api.services.utils.EntitySearchUtil.*;
+import static com.thinkhr.external.api.services.utils.EntitySearchUtil.getEntitySearchSpecification;
+import static com.thinkhr.external.api.services.utils.EntitySearchUtil.getPageable;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.commons.lang.StringUtils;
-import org.hibernate.engine.spi.EntityKey;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
@@ -36,6 +36,8 @@ import com.thinkhr.external.api.services.utils.EntitySearchUtil;
 
 @Service
 public class CompanyService  extends CommonService {
+	
+	private Logger logger = LoggerFactory.getLogger(CompanyService.class);
 	
     @Autowired
     private CompanyRepository companyRepository;
@@ -60,6 +62,12 @@ public class CompanyService  extends CommonService {
     	List<Company> companies = new ArrayList<Company>();
 
     	Pageable pageable = getPageable(offset, limit, sortField, getDefaultSortField());
+    	
+		if(logger.isDebugEnabled()) {
+			logger.debug("Request parameters to filter, size and paginate records ");
+			requestParameters.entrySet().stream().forEach(entry -> { logger.debug(entry.getKey() + ":: " + entry.getValue()); });
+		}
+
     	
     	Specification<Company> spec = getEntitySearchSpecification(searchSpec, requestParameters, Company.class, new Company());
 
