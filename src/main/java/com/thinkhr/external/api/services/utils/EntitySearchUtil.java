@@ -14,12 +14,13 @@ import java.util.Map.Entry;
 import java.util.Set;
 
 import org.apache.commons.lang.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.domain.Sort.Direction;
 import org.springframework.data.jpa.domain.Specification;
 
-import com.thinkhr.external.api.db.entities.Company;
 import com.thinkhr.external.api.db.entities.SearchableEntity;
 import com.thinkhr.external.api.exception.APIErrorCodes;
 import com.thinkhr.external.api.exception.ApplicationException;
@@ -34,6 +35,7 @@ import com.thinkhr.external.api.services.OffsetPageRequest;
  */
 public class EntitySearchUtil {
 
+	private static Logger logger = LoggerFactory.getLogger(EntitySearchUtil.class);
 
     /**
      * Get Pageable instance
@@ -85,6 +87,9 @@ public class EntitySearchUtil {
      * fieldName ASC or fieldName DESC
      */
     public static String getFormattedString(String sortBy) {
+    	if (StringUtils.isBlank(sortBy)) {
+    		return sortBy;
+    	}
     	Sort.Direction sortDirection = getSortDirection(sortBy);
     	String sortedBy = extractSortDirection(sortBy, sortDirection);
     	
@@ -182,6 +187,9 @@ public class EntitySearchUtil {
     	}
 
     	if (StringUtils.isNotBlank(searchSpec)) {
+    		if(logger.isDebugEnabled()) {
+				logger.debug("Applying searchSpec filter on records " + searchSpec);
+			}
     		return new EntitySearchSpecification (searchSpec, entity);
     	}
     	

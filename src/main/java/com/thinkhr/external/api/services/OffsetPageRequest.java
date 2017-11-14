@@ -62,4 +62,12 @@ public class OffsetPageRequest extends PageRequest {
 	public void setOffset(int offset) {
 		this.offset = offset;
 	}
+
+	@Override
+	public String toString() {
+		return "OffsetPageRequest [offset=" + offset + ", getSort()=" + getSort() + ", limit =" + getPageSize()
+				+ ", getPageNumber()=" + getPageNumber() + "]";
+	}
+	
+	
 }
