@@ -14,6 +14,8 @@ import java.util.Map.Entry;
 import java.util.Set;
 
 import org.apache.commons.lang.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.domain.Sort.Direction;
@@ -34,6 +36,7 @@ import com.thinkhr.external.api.services.OffsetPageRequest;
  */
 public class EntitySearchUtil {
 
+	private static Logger logger = LoggerFactory.getLogger(EntitySearchUtil.class);
 
     /**
      * Get Pageable instance
@@ -49,7 +52,7 @@ public class EntitySearchUtil {
     	offset = offset == null ? DEFAULT_OFFSET : offset;
     	limit = limit == null ? DEFAULT_LIMIT : limit;
     	
-    	sortedBy = StringUtils.isBlank(sortedBy) ? defaultSortedBy : sortedBy;
+    	sortedBy = StringUtils.isBlank(sortedBy) ? defaultSortedBy : sortedBy.trim();
 
     	Sort.Direction sortDirection = getSortDirection(sortedBy);
     	
@@ -85,6 +88,9 @@ public class EntitySearchUtil {
      * fieldName ASC or fieldName DESC
      */
     public static String getFormattedString(String sortBy) {
+    	if (StringUtils.isBlank(sortBy)) {
+    		return sortBy;
+    	}
     	Sort.Direction sortDirection = getSortDirection(sortBy);
     	String sortedBy = extractSortDirection(sortBy, sortDirection);
     	
@@ -98,7 +104,7 @@ public class EntitySearchUtil {
      * @return
      */
     public static Direction getSortDirection(String sortedBy) {
-    	String sortDirection =  sortedBy.substring(0,1);
+    	String sortDirection =  sortedBy.substring(0, 1);
     	return DESENDING.equalsIgnoreCase(sortDirection) ? Direction.DESC : Direction.ASC;
 	}
 
@@ -182,6 +188,9 @@ public class EntitySearchUtil {
     	}
 
     	if (StringUtils.isNotBlank(searchSpec)) {
+    		if(logger.isDebugEnabled()) {
+				logger.debug("Applying searchSpec filter on records " + searchSpec);
+			}
     		return new EntitySearchSpecification (searchSpec, entity);
     	}
     	

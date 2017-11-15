@@ -6,6 +6,7 @@ import javax.annotation.PostConstruct;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.MessageSource;
+import org.springframework.context.NoSuchMessageException;
 import org.springframework.context.support.MessageSourceAccessor;
 import org.springframework.stereotype.Component;
 
@@ -40,7 +41,11 @@ public class MessageResourceHandler {
      * @return
      */
     public String get(String code) {
+    	try {
         return accessor.getMessage(code);
+    	} catch (NoSuchMessageException ex ) {
+    		return code; //When message is not found for given key, then return key as message instead of breaking.
+    	}
     }
 
 }

@@ -207,6 +207,7 @@ public class APIExceptionHandler extends ResponseEntityExceptionHandler {
      * @return
      */
     private ResponseEntity<Object> buildResponseEntity(APIError apiError) {
+    	logger.error("API throws an exception " + apiError);
         return new ResponseEntity<Object>(apiError, HttpStatus.valueOf(apiError.getCode()));
     }
     
