@@ -26,6 +26,7 @@ phases:
       - echo Build started on `date`
       - mvn clean compile test install
       - docker build -t japi .
+      - docker tag japi:latest 743115313691.dkr.ecr.us-west-2.amazonaws.com/japi:latest
   post_build:
     commands:
       - echo Entered the post_build phase...
