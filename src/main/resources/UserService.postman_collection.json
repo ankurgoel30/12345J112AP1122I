@@ -1,0 +1,176 @@
+{
+	"variables": [],
+	"info": {
+		"name": "UserService",
+		"_postman_id": "3bc4660e-4640-3bba-5b26-31ff1d155e7c",
+		"description": "",
+		"schema": "https://schema.getpostman.com/json/collection/v2.0.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Get A User",
+			"request": {
+				"url": "http://localhost:8080/v1/users/393125",
+				"method": "GET",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"description": ""
+					},
+					{
+						"key": "Authorization",
+						"value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhdWQiOlsidGVzdGp3dGNsaWVudGlkIl0sInVzZXJfbmFtZSI6ImFkbWluLmFkbWluIiwic2NvcGUiOlsicmVhZCIsIndyaXRlIl0sImV4cCI6MTUwOTc1NTQ2NCwiYXV0aG9yaXRpZXMiOlsiU1RBTkRBUkRfVVNFUiIsIkFETUlOX1VTRVIiXSwianRpIjoiMGExNjZmYzItYjI2Zi00YTE4LWI1NzYtMjAxMGY0ZGI2MGViIiwiY2xpZW50X2lkIjoidGVzdGp3dGNsaWVudGlkIn0.k1RYEMBBBAd1-SU3X6gO2rO-15s5y_sl7RKC0PfIZdE",
+						"description": ""
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n   \"id\": 3,\n    \"username\": \"Ankit.Jain\",\n    \"password\": \"12345\",\n    \"firstName\": \"Ankit\",\n    \"lastName\": \"Goel2\",\n    \"roles\": [\n        {\n            \"id\": 2\n            \n        }\n    ]\n}"
+				},
+				"description": ""
+			},
+			"response": []
+		},
+		{
+			"name": "Get All Users",
+			"request": {
+				"url": {
+					"raw": "http://localhost:8080/v1/users?sort=contactId&searchSpec=Mason&offset=0&limit=2",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"v1",
+						"users"
+					],
+					"query": [
+						{
+							"key": "sort",
+							"value": "contactId",
+							"equals": true,
+							"description": ""
+						},
+						{
+							"key": "searchSpec",
+							"value": "Mason",
+							"equals": true,
+							"description": ""
+						},
+						{
+							"key": "offset",
+							"value": "0",
+							"equals": true,
+							"description": ""
+						},
+						{
+							"key": "limit",
+							"value": "2",
+							"equals": true,
+							"description": ""
+						}
+					],
+					"variable": []
+				},
+				"method": "GET",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"description": ""
+					},
+					{
+						"key": "Authorization",
+						"value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhdWQiOlsidGVzdGp3dGNsaWVudGlkIl0sInVzZXJfbmFtZSI6ImFkbWluLmFkbWluIiwic2NvcGUiOlsicmVhZCIsIndyaXRlIl0sImV4cCI6MTUwOTgxNDMyNywiYXV0aG9yaXRpZXMiOlsiU1RBTkRBUkRfVVNFUiIsIkFETUlOX1VTRVIiXSwianRpIjoiOTI1N2Y0YTktOGZmMS00NGRmLWJiZmQtNjQ3ODliZmIzNjljIiwiY2xpZW50X2lkIjoidGVzdGp3dGNsaWVudGlkIn0.pzpPYpEtil3j4URhr4nzoO8XgCLKUjHFHdnIzv33MNA",
+						"description": "",
+						"disabled": true
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n   \"id\": 3,\n    \"username\": \"Ankit.Jain\",\n    \"password\": \"12345\",\n    \"firstName\": \"Ankit\",\n    \"lastName\": \"Goel2\",\n    \"roles\": [\n        {\n            \"id\": 2\n            \n        }\n    ]\n}"
+				},
+				"description": ""
+			},
+			"response": []
+		},
+		{
+			"name": "Creat User",
+			"request": {
+				"url": "http://localhost:8080/v1/users/",
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"description": ""
+					},
+					{
+						"key": "Authorization",
+						"value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhdWQiOlsidGVzdGp3dGNsaWVudGlkIl0sInVzZXJfbmFtZSI6ImFkbWluLmFkbWluIiwic2NvcGUiOlsicmVhZCIsIndyaXRlIl0sImV4cCI6MTUwOTgxNDMyNywiYXV0aG9yaXRpZXMiOlsiU1RBTkRBUkRfVVNFUiIsIkFETUlOX1VTRVIiXSwianRpIjoiOTI1N2Y0YTktOGZmMS00NGRmLWJiZmQtNjQ3ODliZmIzNjljIiwiY2xpZW50X2lkIjoidGVzdGp3dGNsaWVudGlkIn0.pzpPYpEtil3j4URhr4nzoO8XgCLKUjHFHdnIzv33MNA",
+						"description": "",
+						"disabled": true
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"accountId\": null,\n    \"activationDate\": \"2010-03-24\",\n    \"active\": 1,\n    \"blockedAccount\": 0,\n    \"bounced\": 0,\n    \"brokerId\": 1,\n    \"clientHours\": \"2\",\n    \"clientId\": 123,\n    \"clientName\": \"Jio Infocomm\",\n    \"clientStatus\": \"Contact\",\n    \"codevalid\": \"\",\n    \"contactType\": \"primary\",\n    \"deactivationDate\": null,\n    \"deactivationId\": null,\n    \"decisionMaker\": 0,\n    \"deleted\": null,\n    \"email\": \"test@gmail.com\",\n    \"fax\": \"\",\n    \"firstName\": \"Kathleen\",\n    \"firstMail\": null,\n    \"firstMailMessage\": \"\",\n    \"firstMailSuccess\": \"Y\",\n    \"hasSPD\": 0,\n    \"hrhId\": 1,\n    \"lastName\": \"Mason\",\n    \"learnReminder\": 1,\n    \"learnSync\": 2,\n    \"location\": \"\",\n    \"mkdate\": \"\",\n    \"mobile\": \"\",\n    \"modified\": 1493912727,\n    \"password\": \"boltonco2010\",\n    \"passwordApps\": null,\n    \"passwordEnc\": null,\n    \"passwordReset\": null,\n    \"phone\": \"(310) 782-3569\",\n    \"phoneBackup\": \"(310) 782-3569\",\n    \"reminder\": \"2010-05-18\",\n    \"salesforceID\": null,\n    \"searchHelp\": \"Kathleen Mason, , (310) 782-3569, kmason@pplusa.com, client\",\n    \"specialBlast\": null,\n    \"t1Customfield1\": null,\n    \"t1Customfield2\": null,\n    \"t1Customfield3\": null,\n    \"t1Customfield4\": null,\n    \"t1RoleId\": null,\n    \"tempId\": null,\n    \"terms\": null,\n    \"testAccount\": 0,\n    \"title\": \"\",\n    \"updatePassword\": \"\",\n    \"userName\": null\n}"
+				},
+				"description": ""
+			},
+			"response": []
+		},
+		{
+			"name": "Update User",
+			"request": {
+				"url": "http://localhost:8080/v1/users/393125",
+				"method": "PUT",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"description": ""
+					},
+					{
+						"key": "Authorization",
+						"value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhdWQiOlsidGVzdGp3dGNsaWVudGlkIl0sInVzZXJfbmFtZSI6ImFkbWluLmFkbWluIiwic2NvcGUiOlsicmVhZCIsIndyaXRlIl0sImV4cCI6MTUwOTY1OTAxMCwiYXV0aG9yaXRpZXMiOlsiU1RBTkRBUkRfVVNFUiIsIkFETUlOX1VTRVIiXSwianRpIjoiMjYzY2EyNGMtNzZlOS00MWE2LWEzMjctMjM5OGNhZDM2NTI3IiwiY2xpZW50X2lkIjoidGVzdGp3dGNsaWVudGlkIn0.zDwmGxKoTOpswDWA9VzEW1e3fw53cqxG8EdOPoffbmY",
+						"description": ""
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"contactId\": 7480,\n    \"accountId\": null,\n    \"activationDate\": \"2010-03-24\",\n    \"active\": 1,\n    \"addedBy\": null,\n    \"blockedAccount\": 0,\n    \"bounced\": 0,\n    \"brokerId\": 48985,\n    \"clientHours\": \"2\",\n    \"clientId\": 7191,\n    \"clientName\": \"Polypeptide Laboratories, Inc.\",\n    \"clientStatus\": \"Contact\",\n    \"codevalid\": \"\",\n    \"contactType\": \"primary\",\n    \"deactivationDate\": null,\n    \"deactivationId\": null,\n    \"decisionMaker\": 0,\n    \"deleted\": null,\n    \"email\": \"engineering+7480@thinkhr-dev.com\",\n    \"expirationDate\": null,\n    \"fax\": \"\",\n    \"firstName\": \"Kathleen\",\n    \"firstMail\": null,\n    \"firstMailMessage\": \"\",\n    \"firstMailSuccess\": \"Y\",\n    \"hasSPD\": 0,\n    \"hrhId\": 1,\n    \"international\": null,\n    \"lastName\": \"Mason\",\n    \"learnReminder\": 1,\n    \"learnSync\": 2,\n    \"location\": \"\",\n    \"mailStatus\": null,\n    \"mailTime\": null,\n    \"master\": 0,\n    \"masterBackup\": 0,\n    \"mkdate\": \"\",\n    \"mobile\": \"\",\n    \"modified\": 1493912727,\n    \"password\": \"boltonco2010\",\n    \"passwordApps\": null,\n    \"passwordEnc\": null,\n    \"passwordReset\": null,\n    \"phone\": \"(310) 782-3569\",\n    \"phoneBackup\": \"(310) 782-3569\",\n    \"reminder\": \"2010-05-18\",\n    \"salesforceID\": null,\n    \"searchHelp\": \"Kathleen Mason, , (310) 782-3569, kmason@pplusa.com, client\",\n    \"specialBlast\": null,\n    \"t1Customfield1\": null,\n    \"t1Customfield2\": null,\n    \"t1Customfield3\": null,\n    \"t1Customfield4\": null,\n    \"t1RoleId\": null,\n    \"tempId\": null,\n    \"terms\": null,\n    \"testAccount\": 0,\n    \"title\": \"\",\n    \"updatePassword\": \"\",\n    \"userName\": null\n}"
+				},
+				"description": ""
+			},
+			"response": []
+		},
+		{
+			"name": "Delete User",
+			"request": {
+				"url": "http://localhost:8080/v1/users/393125",
+				"method": "DELETE",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"description": ""
+					},
+					{
+						"key": "Authorization",
+						"value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhdWQiOlsidGVzdGp3dGNsaWVudGlkIl0sInVzZXJfbmFtZSI6ImFkbWluLmFkbWluIiwic2NvcGUiOlsicmVhZCIsIndyaXRlIl0sImV4cCI6MTUwOTY1OTAxMCwiYXV0aG9yaXRpZXMiOlsiU1RBTkRBUkRfVVNFUiIsIkFETUlOX1VTRVIiXSwianRpIjoiMjYzY2EyNGMtNzZlOS00MWE2LWEzMjctMjM5OGNhZDM2NTI3IiwiY2xpZW50X2lkIjoidGVzdGp3dGNsaWVudGlkIn0.zDwmGxKoTOpswDWA9VzEW1e3fw53cqxG8EdOPoffbmY",
+						"description": ""
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": ""
+				},
+				"description": ""
+			},
+			"response": []
+		}
+	]
+}
