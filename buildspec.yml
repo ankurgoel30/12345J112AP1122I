@@ -8,6 +8,11 @@ phases:
   install:
     commands:
       - echo Entered the install phase...
+      - apt-get update -y
+      - apt-get install -y software-properties-common
+      - add-apt-repository ppa:openjdk-r/ppa
+      - apt-get update -y
+      - apt-get install -y openjdk-8-jdk
       - wget https://jcenter.bintray.com/org/apache/maven/apache-maven/3.3.9/apache-maven-3.3.9-bin.tar.gz
       - tar xzvf apache-maven-3.3.9-bin.tar.gz -C /opt/
       - export PATH=/opt/apache-maven-3.3.9/bin:$PATH
