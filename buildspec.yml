@@ -14,19 +14,16 @@ phases:
   pre_build:
     commands:
       - echo Entered the pre_build phase...
+      - $(aws ecr get-login --no-include-email --region $AWS_DEFAULT_REGION)
   build:
     commands:
       - echo Entered the build phase...
       - echo Build started on `date`
-      - mvn test
+      - mvn clean compile test install
+      - docker build -t japi .
   post_build:
     commands:
       - echo Entered the post_build phase...
       - echo Build completed on `date`
-      - mvn package
-artifacts:
-  type: zip
-  files:
-    - target/japi-0.1.jar
-    - appspec.yml
-  discard-paths: yes
+      - echo Build pushing the docker image
+      - docker push 743115313691.dkr.ecr.us-west-2.amazonaws.com/japi:latest
