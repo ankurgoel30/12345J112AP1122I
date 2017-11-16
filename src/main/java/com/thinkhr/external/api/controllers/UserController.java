@@ -39,10 +39,10 @@ public class UserController {
      */
     @RequestMapping(method=RequestMethod.GET)
     List<User> getAllUser(@RequestParam(value = "offset", required = false) Integer offset,
-    		@RequestParam(value = "limit", required = false) Integer limit,@RequestParam(value = "sort" , required = false) String sort,
-    		@RequestParam(value = "searchSpec" , required = false) String searchSpec,
+    		@RequestParam(value = "limit", required = false) Integer limit, @RequestParam(value = "sort", required = false) String sort,
+    		@RequestParam(value = "searchSpec", required = false) String searchSpec,
     		@RequestParam Map<String, String> allRequestParams) throws ApplicationException {
-        return userService.getAllUser(offset,limit,sort,searchSpec,allRequestParams);
+        return userService.getAllUser(offset, limit, sort, searchSpec, allRequestParams);
     }
     
     /**
@@ -52,8 +52,8 @@ public class UserController {
      * @throws ApplicationException 
      * 
      */
-    @RequestMapping(method=RequestMethod.GET,value="/{contactId}")
-    public User getById(@PathVariable(name="contactId",value = "contactId") Integer contactId) throws ApplicationException { 
+    @RequestMapping(method=RequestMethod.GET, value="/{contactId}")
+    public User getById(@PathVariable(name="contactId", value = "contactId") Integer contactId) throws ApplicationException { 
         User user = userService.getUser(contactId);
         if (user == null) {
         	throw ApplicationException.createEntityNotFoundError(APIErrorCodes.ENTITY_NOT_FOUND, "user", "contactId="+ contactId);
@@ -67,8 +67,8 @@ public class UserController {
      * 
      * @param userId
      */
-    @RequestMapping(method=RequestMethod.DELETE,value="/{contactId}")
-    public ResponseEntity<Integer> deleteUser(@PathVariable(name="contactId",value = "contactId") Integer contactId) throws ApplicationException{
+    @RequestMapping(method=RequestMethod.DELETE, value="/{contactId}")
+    public ResponseEntity<Integer> deleteUser(@PathVariable(name="contactId", value = "contactId") Integer contactId) throws ApplicationException{
     	userService.deleteUser(contactId);
     	return new ResponseEntity <Integer>(contactId, HttpStatus.NO_CONTENT);
     }
@@ -78,8 +78,8 @@ public class UserController {
      * 
      * @param User object
      */
-    @RequestMapping(method=RequestMethod.PUT,value="/{contactId}")
-	public ResponseEntity <User> updateUser(@PathVariable(name="contactId",value = "contactId") Integer contactId, @RequestBody User user) throws ApplicationException {
+    @RequestMapping(method=RequestMethod.PUT, value="/{contactId}")
+	public ResponseEntity <User> updateUser(@PathVariable(name="contactId", value = "contactId") Integer contactId, @RequestBody User user) throws ApplicationException {
     	user.setContactId(contactId);
     	userService.updateUser(user);
         return new ResponseEntity<User> (user, HttpStatus.OK);

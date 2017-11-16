@@ -1,5 +1,6 @@
 package com.thinkhr.external.api.services;
 
+import static com.thinkhr.external.api.ApplicationConstants.DEFAULT_SORT_BY_USER_NAME;
 import static com.thinkhr.external.api.services.utils.EntitySearchUtil.getEntitySearchSpecification;
 import static com.thinkhr.external.api.services.utils.EntitySearchUtil.getPageable;
 
@@ -32,8 +33,7 @@ public class UserService extends CommonService {
 	
     @Autowired	
     private UserRepository userRepository;
-    public static final String DEFAULT_SORT_BY = "userName";
-
+    
     /**
      * Fetch all users from database based on offset, limit and sortField and search criteria
      * 
@@ -43,11 +43,15 @@ public class UserService extends CommonService {
      * @param String searchSpec Search string for filtering results
      * @return List<User> object 
      */
-    public List<User> getAllUser(Integer offset,Integer limit ,String sortField,String searchSpec,Map<String, String> requestParameters) throws ApplicationException  {
+    public List<User> getAllUser(Integer offset, Integer limit, String sortField, 
+    		String searchSpec, Map<String, String> requestParameters) throws ApplicationException  {
+    
     	List<User> users = new ArrayList<User>();
 
     	Pageable pageable = getPageable(offset, limit, sortField, getDefaultSortField());
+    	
     	Specification<User> spec = getEntitySearchSpecification(searchSpec, requestParameters, User.class, new User());
+    	
     	Page<User> userList  = (Page<User>) userRepository.findAll(spec,pageable);
 
     	userList.getContent().forEach(c -> users.add(c));
@@ -113,7 +117,7 @@ public class UserService extends CommonService {
      */
     @Override
     public String getDefaultSortField()  {
-    	return DEFAULT_SORT_BY;
+    	return DEFAULT_SORT_BY_USER_NAME;
     }
 
 }
