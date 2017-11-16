@@ -7,9 +7,11 @@ import java.util.Map;
 
 import javax.validation.Valid;
 
+import org.hibernate.validator.constraints.Range;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -33,6 +35,7 @@ import com.thinkhr.external.api.services.CompanyService;
  * 
  */
 @RestController
+@Validated
 @RequestMapping(path="/v1/companies")
 public class CompanyController {
 	
@@ -47,7 +50,9 @@ public class CompanyController {
      * 
      */
     @RequestMapping(method=RequestMethod.GET)
-    public List<Company> getAllCompany(@RequestParam(value = "offset", required = false, defaultValue = "0") Integer offset,
+    public List<Company> getAllCompany(@Range(min=0l, message="Please select positive integer value for 'offset'") 
+    		@RequestParam(value = "offset", required = false, defaultValue = "0") Integer offset,
+    		@Range(min=1l, message="Please select positive integer and should be greater than 0 for 'limit'") 
     		@RequestParam(value = "limit", required = false, defaultValue= "50" ) Integer limit, 
     		@RequestParam(value = "sort", required = false, defaultValue = DEFAULT_SORT_BY_COMPANY_NAME) String sort,
     		@RequestParam(value = "searchSpec", required = false) String searchSpec, 

@@ -13,6 +13,7 @@ import org.apache.commons.lang.StringUtils;
 import org.springframework.data.jpa.domain.Specification;
 
 import com.thinkhr.external.api.db.entities.SearchableEntity;
+import com.thinkhr.external.api.services.utils.EntitySearchUtil;
 /**
  * Extends Specification specific to SearchableEntity
  * 
@@ -58,8 +59,16 @@ public class EntitySearchSpecification<T extends SearchableEntity> implements Sp
 		
 		if (searchParameters != null && !searchParameters.isEmpty()) {
 			Predicate filterPredicate =  criteriaBuilder.conjunction();
-			searchParameters.entrySet().forEach( searchParam -> filterPredicate.getExpressions().
-						add(criteriaBuilder.like(from.get(searchParam.getKey()), "%" + searchParam.getValue() + "%")));
+			searchParameters.entrySet().forEach( searchParam -> { 
+				if (EntitySearchUtil.isStringField(t.getClass(), searchParam.getKey())) { 
+					filterPredicate.getExpressions().
+					add(criteriaBuilder.like(from.get(searchParam.getKey()), "%" + searchParam.getValue() + "%")); 
+				} else {
+					filterPredicate.getExpressions().
+					add(criteriaBuilder.equal(from.get(searchParam.getKey()), searchParam.getValue())); 
+				}
+			}
+			);
 			predicates.add(filterPredicate);
 		}
 		
