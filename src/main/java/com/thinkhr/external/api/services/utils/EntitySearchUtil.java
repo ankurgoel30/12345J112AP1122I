@@ -1,6 +1,8 @@
 package com.thinkhr.external.api.services.utils;
 
 import static com.thinkhr.external.api.ApplicationConstants.ASCENDING;
+import static com.thinkhr.external.api.ApplicationConstants.DEFAULT_LIMIT;
+import static com.thinkhr.external.api.ApplicationConstants.DEFAULT_OFFSET;
 import static com.thinkhr.external.api.ApplicationConstants.DESENDING;
 
 import java.lang.reflect.Field;
@@ -19,6 +21,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.domain.Sort.Direction;
 import org.springframework.data.jpa.domain.Specification;
 
+import com.thinkhr.external.api.db.entities.Company;
 import com.thinkhr.external.api.db.entities.SearchableEntity;
 import com.thinkhr.external.api.exception.APIErrorCodes;
 import com.thinkhr.external.api.exception.ApplicationException;
@@ -45,6 +48,9 @@ public class EntitySearchUtil {
     public static Pageable getPageable(Integer offset, Integer limit, String sortedBy, String defaultSortedBy) {
     	
     	OffsetPageRequest pageable = null;
+    	
+    	offset = offset == null ? DEFAULT_OFFSET : offset;
+    	limit = limit == null ? DEFAULT_LIMIT : limit;
     	
     	sortedBy = StringUtils.isBlank(sortedBy) ? defaultSortedBy : sortedBy.trim();
 
