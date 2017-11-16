@@ -1,7 +1,5 @@
 package com.thinkhr.external.api.controllers;
 
-import static com.thinkhr.external.api.ApplicationConstants.DEFAULT_LIMIT;
-import static com.thinkhr.external.api.ApplicationConstants.DEFAULT_OFFSET;
 import static com.thinkhr.external.api.ApplicationConstants.DEFAULT_SORT_BY_COMPANY_NAME;
 
 import java.util.List;
@@ -49,8 +47,8 @@ public class CompanyController {
      * 
      */
     @RequestMapping(method=RequestMethod.GET)
-    public List<Company> getAllCompany(@RequestParam(value = "offset", required = false, defaultValue = DEFAULT_OFFSET) Integer offset,
-    		@RequestParam(value = "limit", required = false, defaultValue= DEFAULT_LIMIT ) Integer limit, 
+    public List<Company> getAllCompany(@RequestParam(value = "offset", required = false, defaultValue = "0") Integer offset,
+    		@RequestParam(value = "limit", required = false, defaultValue= "50" ) Integer limit, 
     		@RequestParam(value = "sort", required = false, defaultValue = DEFAULT_SORT_BY_COMPANY_NAME) String sort,
     		@RequestParam(value = "searchSpec", required = false) String searchSpec, 
     		@RequestParam Map<String, String> allRequestParams) 
