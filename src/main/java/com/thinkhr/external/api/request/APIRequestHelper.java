@@ -31,7 +31,11 @@ public class APIRequestHelper {
 	 * @param attributeValue
 	 */
 	public static void setRequestAttribute(String attributeName, Object attributeValue) {
-		getRequest().setAttribute(attributeName, attributeValue);
+		HttpServletRequest request = getRequest();
+		if (request == null) {
+			return; //Do nothing;
+		}
+		request.setAttribute(attributeName, attributeValue);
 	}
 	
 	/**
@@ -41,7 +45,11 @@ public class APIRequestHelper {
 	 * @return
 	 */
 	public static String getRequestAttribute(String attributeName) {
-		Object val = getRequest().getAttribute(attributeName);
+		HttpServletRequest request = getRequest();
+		if (request == null) {
+			return null;
+		}
+		Object val = request.getAttribute(attributeName);
 		return val == null ? null : val.toString();
 	}
 	
