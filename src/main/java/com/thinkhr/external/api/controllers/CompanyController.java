@@ -1,5 +1,9 @@
 package com.thinkhr.external.api.controllers;
 
+import static com.thinkhr.external.api.ApplicationConstants.DEFAULT_LIMIT;
+import static com.thinkhr.external.api.ApplicationConstants.DEFAULT_OFFSET;
+import static com.thinkhr.external.api.ApplicationConstants.DEFAULT_SORT_BY_COMPANY_NAME;
+
 import java.util.List;
 import java.util.Map;
 
@@ -45,18 +49,13 @@ public class CompanyController {
      * 
      */
     @RequestMapping(method=RequestMethod.GET)
-    public List<Company> getAllCompany(@RequestParam(value = "offset", required = false) Integer offset,
-    		@RequestParam(value = "limit", required = false) Integer limit, 
-    		@RequestParam(value = "sort" , required = false) String sort,
+    public List<Company> getAllCompany(@RequestParam(value = "offset", required = false, defaultValue = DEFAULT_OFFSET) Integer offset,
+    		@RequestParam(value = "limit", required = false, defaultValue= DEFAULT_LIMIT ) Integer limit, 
+    		@RequestParam(value = "sort", required = false, defaultValue = DEFAULT_SORT_BY_COMPANY_NAME) String sort,
     		@RequestParam(value = "searchSpec", required = false) String searchSpec, 
     		@RequestParam Map<String, String> allRequestParams) 
     				throws ApplicationException {
-    		if (limit != null && limit <= 0) {
-    			throw ApplicationException.createBadRequest(APIErrorCodes.REQUEST_PARAM_INVALID, "limit=" + limit, "company");
-    		}
-    		if (offset != null && offset < 0) {
-    			throw ApplicationException.createBadRequest(APIErrorCodes.REQUEST_PARAM_INVALID, "offset=" + offset, "company");
-    		}
+    	
     		return companyService.getAllCompany(offset, limit, sort, searchSpec, allRequestParams); 
     }
     
