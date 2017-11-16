@@ -64,7 +64,9 @@ public class CompanyService  extends CommonService {
     	
 		if(logger.isDebugEnabled()) {
 			logger.debug("Request parameters to filter, size and paginate records ");
-			requestParameters.entrySet().stream().forEach(entry -> { logger.debug(entry.getKey() + ":: " + entry.getValue()); });
+			if (requestParameters != null) {
+				requestParameters.entrySet().stream().forEach(entry -> { logger.debug(entry.getKey() + ":: " + entry.getValue()); });
+			}
 		}
 
     	
