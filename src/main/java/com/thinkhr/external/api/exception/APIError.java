@@ -11,12 +11,14 @@ import javax.validation.ConstraintViolation;
 import org.hibernate.validator.internal.engine.path.PathImpl;
 import org.springframework.http.HttpStatus;
 import org.springframework.validation.FieldError;
+import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 /**
  * Wrapper class to wrap all the exception.
@@ -172,9 +174,21 @@ public class APIError {
 	void addErrorDetail(Set<ConstraintViolation<?>> constraintViolations) {
 		constraintViolations.forEach(this::addErrorDetail);
 	}
+	
+	/**
+	 * @param ex
+	 */
+	void addErrorDetail(MethodArgumentTypeMismatchException ex) {
+		this.addErrorDetail(
+				"requestParameter",
+				ex.getName(),
+				ex.getValue(),
+				ex.getMessage());
+	}
 
 	@Data
 	@AllArgsConstructor
+	@NoArgsConstructor
 	public class ErrorDetail {
 		private String object;
 		private String field;

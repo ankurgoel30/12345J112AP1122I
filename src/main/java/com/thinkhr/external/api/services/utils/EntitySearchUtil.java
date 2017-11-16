@@ -4,6 +4,7 @@ import static com.thinkhr.external.api.ApplicationConstants.ASCENDING;
 import static com.thinkhr.external.api.ApplicationConstants.DEFAULT_LIMIT;
 import static com.thinkhr.external.api.ApplicationConstants.DEFAULT_OFFSET;
 import static com.thinkhr.external.api.ApplicationConstants.DESENDING;
+import static com.thinkhr.external.api.ApplicationConstants.STRING_CLASS_NAME;
 
 import java.lang.reflect.Field;
 import java.util.Arrays;
@@ -137,6 +138,30 @@ public class EntitySearchUtil {
 		}
 
 		return true;
+	}
+
+	/**
+	 * To validate given Class has field with fieldName or not
+	 * 
+	 * @param kclass
+	 * @param fieldName
+	 * @return
+	 * @throws SecurityException 
+	 * @throws NoSuchFieldException 
+	 */
+	public static boolean isStringField(Class kclass, String fieldName) {
+		try {
+			Field field = kclass.getDeclaredField(fieldName);
+			if (field == null) {
+				return false;
+			}
+			String typeName = field.getType().getTypeName();
+			return (STRING_CLASS_NAME.equals(typeName) ? true : false) ;
+			
+		} catch(NoSuchFieldException | SecurityException ex) {
+			return false;
+		}
+
 	}
 	
 	/**
