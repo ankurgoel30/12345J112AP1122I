@@ -21,7 +21,6 @@ import com.thinkhr.external.api.db.entities.Company;
 import com.thinkhr.external.api.exception.APIErrorCodes;
 import com.thinkhr.external.api.exception.ApplicationException;
 import com.thinkhr.external.api.repositories.CompanyRepository;
-import com.thinkhr.external.api.services.utils.EntitySearchUtil;
 
 /**
 *
