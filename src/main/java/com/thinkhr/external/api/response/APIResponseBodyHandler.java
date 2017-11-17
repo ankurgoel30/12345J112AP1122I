@@ -117,7 +117,7 @@ public class APIResponseBodyHandler implements ResponseBodyAdvice<Object> {
 		apiResponse.setOffset(offset);
 		
 		String sort = httpRequest.getServletRequest().getParameter(SORT_PARAM);
-		offset = StringUtils.isNotBlank(sort) ? offset : DEFAULT_SORT_BY_COMPANY_NAME;
+		sort = StringUtils.isNotBlank(sort) ? sort : DEFAULT_SORT_BY_COMPANY_NAME;
 		apiResponse.setSort(EntitySearchUtil.getFormattedString(sort));
 		
 		apiResponse.setTotalRecords(getRequestAttribute(TOTAL_RECORDS));
