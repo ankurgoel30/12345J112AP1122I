@@ -1,13 +1,19 @@
 package com.thinkhr.external.api.services.utils;
 
 import static com.thinkhr.external.api.ApplicationConstants.ASCENDING;
+import static com.thinkhr.external.api.ApplicationConstants.DATE_CLASS_NAME;
 import static com.thinkhr.external.api.ApplicationConstants.DEFAULT_LIMIT;
 import static com.thinkhr.external.api.ApplicationConstants.DEFAULT_OFFSET;
 import static com.thinkhr.external.api.ApplicationConstants.DESENDING;
 import static com.thinkhr.external.api.ApplicationConstants.STRING_CLASS_NAME;
+import static com.thinkhr.external.api.ApplicationConstants.TIMESTAMP_CLASS_NAME;
+import static com.thinkhr.external.api.ApplicationConstants.VALID_FORMAT_YYYY_MM_DD;
 
 import java.lang.reflect.Field;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -22,7 +28,6 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.domain.Sort.Direction;
 import org.springframework.data.jpa.domain.Specification;
 
-import com.thinkhr.external.api.db.entities.Company;
 import com.thinkhr.external.api.db.entities.SearchableEntity;
 import com.thinkhr.external.api.exception.APIErrorCodes;
 import com.thinkhr.external.api.exception.ApplicationException;
@@ -141,7 +146,7 @@ public class EntitySearchUtil {
 	}
 
 	/**
-	 * To validate given Class has field with fieldName or not
+	 * To check type of field for given parameters and validate it is java.lang.String or not
 	 * 
 	 * @param kclass
 	 * @param fieldName
@@ -163,7 +168,51 @@ public class EntitySearchUtil {
 		}
 
 	}
+
+	/**
+	 * To check type of field for given parameters and validate it is java.util.Date or not
+	 * 
+	 * @param kclass
+	 * @param fieldName
+	 * @return
+	 * @throws SecurityException 
+	 * @throws NoSuchFieldException 
+	 */
+	public static boolean isDateField(Class kclass, String fieldName) {
+		try {
+			Field field = kclass.getDeclaredField(fieldName);
+			if (field == null) {
+				return false;
+			}
+			String typeName = field.getType().getTypeName();
+			return DATE_CLASS_NAME.equals(typeName) | TIMESTAMP_CLASS_NAME.equals(typeName) ? true : false ;
+			
+		} catch(NoSuchFieldException | SecurityException ex) {
+			return false;
+		}
+
+	}
 	
+	/**
+	 * Get the date for a given string
+	 * @param dateStr
+	 * @param key
+	 * @return
+	 * @throws ApplicationException 
+	 */
+	public static Date convertToDate(String value, String key) throws ApplicationException {
+
+		SimpleDateFormat sdf = new SimpleDateFormat(VALID_FORMAT_YYYY_MM_DD);
+		sdf.setLenient(false);
+ 		try {
+ 			return sdf.parse(value);
+ 		} catch (ParseException e) {
+ 			throw ApplicationException.createBadRequest(APIErrorCodes.INVALID_DATE_FORMAT, key, value);
+		} catch (Exception e) {
+			throw ApplicationException.createBadRequest(APIErrorCodes.INVALID_DATE_FORMAT, key, value);
+		}
+	}
+
 	/**
 	 * To filter request parameters on field Name
 	 * @param <T>

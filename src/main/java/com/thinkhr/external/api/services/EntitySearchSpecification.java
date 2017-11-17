@@ -1,6 +1,11 @@
 package com.thinkhr.external.api.services;
 
+import static com.thinkhr.external.api.services.utils.EntitySearchUtil.convertToDate;
+import static com.thinkhr.external.api.services.utils.EntitySearchUtil.isDateField;
+import static com.thinkhr.external.api.services.utils.EntitySearchUtil.isStringField;
+
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
@@ -13,7 +18,6 @@ import org.apache.commons.lang.StringUtils;
 import org.springframework.data.jpa.domain.Specification;
 
 import com.thinkhr.external.api.db.entities.SearchableEntity;
-import com.thinkhr.external.api.services.utils.EntitySearchUtil;
 /**
  * Extends Specification specific to SearchableEntity
  * 
@@ -60,9 +64,13 @@ public class EntitySearchSpecification<T extends SearchableEntity> implements Sp
 		if (searchParameters != null && !searchParameters.isEmpty()) {
 			Predicate filterPredicate =  criteriaBuilder.conjunction();
 			searchParameters.entrySet().forEach( searchParam -> { 
-				if (EntitySearchUtil.isStringField(t.getClass(), searchParam.getKey())) { 
+				if (isStringField(t.getClass(), searchParam.getKey())) { 
 					filterPredicate.getExpressions().
 					add(criteriaBuilder.like(from.get(searchParam.getKey()), "%" + searchParam.getValue() + "%")); 
+				} else if (isDateField(t.getClass(), searchParam.getKey())) {
+					Date date = convertToDate(searchParam.getValue(), searchParam.getKey());
+					filterPredicate.getExpressions().
+					add(criteriaBuilder.equal(from.get(searchParam.getKey()), date)); 
 				} else {
 					filterPredicate.getExpressions().
 					add(criteriaBuilder.equal(from.get(searchParam.getKey()), searchParam.getValue())); 
