@@ -36,10 +36,10 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 /**
- * Junit to test all the methods of CompanyService.
+ * Junit to test all the methods of HealthCheckService.
  * 
- * @author Surabhi Bhawsar
- * @since 2017-11-06
+ * @author Sudhakar Kaki
+ * @since 2017-11-18
  *
  */
 
