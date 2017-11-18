@@ -49,8 +49,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @AutoConfigureTestDatabase(connection = EmbeddedDatabaseConnection.H2)
 public class HealthCheckServiceTest {
 
-	@InjectMocks
-	private HealthCheckService healthCheckService;
+    @InjectMocks
+    private HealthCheckService healthCheckService;
 
     @Value("${application.version}")
     private String version;
@@ -58,8 +58,8 @@ public class HealthCheckServiceTest {
     @Autowired
     private ApplicationContext ac;
 
-	@Before
-	public void setup(){
+    @Before
+    public void setup(){
 		MockitoAnnotations.initMocks(this);
 	}
 

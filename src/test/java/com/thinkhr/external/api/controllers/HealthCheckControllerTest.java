@@ -69,13 +69,13 @@ public class HealthCheckControllerTest {
     private HealthCheckService healthCheckService;
 
 	@InjectMocks
-	private HealthCheckController healthCheckController;
+    private HealthCheckController healthCheckController;
 
 	@Autowired
     private WebApplicationContext wac;
 	
 	@Before
-	public void setup() {
+    public void setup() {
         this.mockMvc = MockMvcBuilders.webAppContextSetup(wac).build();
 	}
 	

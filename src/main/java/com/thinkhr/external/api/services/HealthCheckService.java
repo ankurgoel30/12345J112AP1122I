@@ -24,8 +24,7 @@ import java.util.Arrays;
 
 @Service
 public class HealthCheckService  {
-	
-	private Logger logger = LoggerFactory.getLogger(HealthCheckService.class);
+    private Logger logger = LoggerFactory.getLogger(HealthCheckService.class);
 
     @Value("${application.version}")
     private String version;
