@@ -62,10 +62,9 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @SpringBootTest
 @AutoConfigureTestDatabase(connection = EmbeddedDatabaseConnection.H2)
 public class HealthCheckControllerTest {
+    private MockMvc mockMvc;
 
-	private MockMvc mockMvc;
-
-	@MockBean
+    @MockBean
     private HealthCheckService healthCheckService;
 
 	@InjectMocks
@@ -73,7 +72,7 @@ public class HealthCheckControllerTest {
 
 	@Autowired
     private WebApplicationContext wac;
-	
+
 	@Before
     public void setup() {
         this.mockMvc = MockMvcBuilders.webAppContextSetup(wac).build();
