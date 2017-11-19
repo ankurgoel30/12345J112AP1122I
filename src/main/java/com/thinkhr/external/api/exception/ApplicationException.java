@@ -86,4 +86,18 @@ public class ApplicationException extends Exception {
     	appException.setHttpStatus(HttpStatus.NOT_FOUND);
     	return appException;
     }
+    
+    
+    /**
+     * TODO
+     * @param errorCode
+     * @param params
+     * @return
+     */
+    public static ApplicationException createFileImportError(APIErrorCodes errorCode, String...params) {
+    	ApplicationException appException = new ApplicationException(errorCode, params);
+    	appException.setHttpStatus(HttpStatus.NOT_ACCEPTABLE);
+    	return appException;
+    }
+    
 }

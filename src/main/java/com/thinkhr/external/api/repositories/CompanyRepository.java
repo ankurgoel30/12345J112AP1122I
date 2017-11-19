@@ -1,5 +1,8 @@
 package com.thinkhr.external.api.repositories;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.repository.PagingAndSortingRepository;
 
@@ -16,4 +19,6 @@ import com.thinkhr.external.api.db.entities.Company;
 
 public interface CompanyRepository extends PagingAndSortingRepository<Company, Integer> ,JpaSpecificationExecutor<Company> {
 	
+	
 }
+
