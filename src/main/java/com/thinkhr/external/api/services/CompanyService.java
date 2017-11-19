@@ -1,8 +1,10 @@
 package com.thinkhr.external.api.services;
 
 import static com.thinkhr.external.api.ApplicationConstants.DEFAULT_SORT_BY_COMPANY_NAME;
+import static com.thinkhr.external.api.ApplicationConstants.TOTAL_RECORDS;
 import static com.thinkhr.external.api.services.utils.EntitySearchUtil.getEntitySearchSpecification;
 import static com.thinkhr.external.api.services.utils.EntitySearchUtil.getPageable;
+import static com.thinkhr.external.api.request.APIRequestHelper.setRequestAttribute;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -21,7 +23,6 @@ import com.thinkhr.external.api.db.entities.Company;
 import com.thinkhr.external.api.exception.APIErrorCodes;
 import com.thinkhr.external.api.exception.ApplicationException;
 import com.thinkhr.external.api.repositories.CompanyRepository;
-import com.thinkhr.external.api.services.utils.EntitySearchUtil;
 
 /**
 *
@@ -65,7 +66,9 @@ public class CompanyService  extends CommonService {
     	
 		if(logger.isDebugEnabled()) {
 			logger.debug("Request parameters to filter, size and paginate records ");
-			requestParameters.entrySet().stream().forEach(entry -> { logger.debug(entry.getKey() + ":: " + entry.getValue()); });
+			if (requestParameters != null) {
+				requestParameters.entrySet().stream().forEach(entry -> { logger.debug(entry.getKey() + ":: " + entry.getValue()); });
+			}
 		}
 
     	
@@ -75,6 +78,9 @@ public class CompanyService  extends CommonService {
 
     	companyList.getContent().forEach(c -> companies.add(c));
     	
+    	//Get and set the total number of records
+        setRequestAttribute(TOTAL_RECORDS, companyRepository.count());
+        
     	return companies;
     }
 
