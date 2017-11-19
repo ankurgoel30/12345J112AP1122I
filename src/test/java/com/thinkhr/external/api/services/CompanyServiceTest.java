@@ -1,6 +1,6 @@
 package com.thinkhr.external.api.services;
 
-import static com.thinkhr.external.api.services.utils.EntitySearchUtil.*;
+import static com.thinkhr.external.api.services.utils.EntitySearchUtil.getPageable;
 import static com.thinkhr.external.api.utils.ApiTestDataUtil.LIMIT;
 import static com.thinkhr.external.api.utils.ApiTestDataUtil.OFFSET;
 import static com.thinkhr.external.api.utils.ApiTestDataUtil.SEARCH_SPEC;
@@ -92,7 +92,7 @@ public class CompanyServiceTest {
 		Pageable pageable = getPageable(OFFSET, LIMIT, SORT_BY, defaultSortField);
 		Specification<Company> spec = null;
     	if(SEARCH_SPEC != null && SEARCH_SPEC.trim() != "") {
-    		spec = new CompanySearchSpecification(SEARCH_SPEC);
+    		spec = new EntitySearchSpecification(SEARCH_SPEC, new Company());
     	}
 		when(companyRepository.findAll(spec, pageable)).thenReturn(new PageImpl<Company>(companyList, pageable, companyList.size()));
 
