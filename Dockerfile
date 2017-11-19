@@ -22,6 +22,6 @@ COPY target/japi-0.1.jar ${RUNNERDIR}/japi.jar
 EXPOSE 8080
 WORKDIR ${RUNNERDIR}
 
-ENTRYPOINT java -XX:+UseConcMarkSweepGC -jar japi.jar  >> ${LGGERDIR}/japi.log 2>&1
+ENTRYPOINT java -XX:+UseConcMarkSweepGC -jar japi.jar  >> ${LOGGERDIR}/japi.log 2>&1
 
 
