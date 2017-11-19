@@ -122,7 +122,7 @@ public class CompanyService  extends CommonService {
      */
     public int deleteCompany(int companyId) throws ApplicationException {
     	try {
-    		companyRepository.delete(companyId);
+    		companyRepository.softDelete(companyId);
     	} catch (EmptyResultDataAccessException ex ) {
     		throw ApplicationException.createEntityNotFoundError(APIErrorCodes.ENTITY_NOT_FOUND, "company", "companyId="+companyId);
     	}

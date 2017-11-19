@@ -16,9 +16,11 @@ import javax.persistence.TemporalType;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-
 import lombok.Data;
+
+import org.hibernate.annotations.Where;
+
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
 /**
  * 
@@ -34,6 +36,7 @@ import lombok.Data;
 @Entity
 @Table(name = "clients")
 @Data
+@Where(clause="t1_is_active=1")
 public class Company implements SearchableEntity {
 	@Id
 	@GeneratedValue(strategy=GenerationType.AUTO)
@@ -171,6 +174,9 @@ public class Company implements SearchableEntity {
 	@Column(name = "partnerClientType") 
 	private String partnerCompanyType;
 	
+	@Column(name = "offering") 
+	private String offering;
+	
 	@Column(name = "marketID") 
 	private Integer marketID;
 	
@@ -302,7 +308,38 @@ public class Company implements SearchableEntity {
 	
 	@Column(name = "sourceID") 
 	private Integer sourceId;
+	
+	@Column(name = "t1_is_active", updatable= false)
+	private Integer isActive;
 
+	@Column(name = "t1_parent_company_id")
+	private Integer parentCompanyId;
+
+	@Column(name = "t1_configuration_id")
+	private Integer parentConfigurationId;
+	
+	@Column(name = "t1_customfield1")
+	private String customfield1;
+
+	@Column(name = "t1_customfield2")
+	private String customField2;
+
+	@Column(name = "t1_customfield3")
+	private String customField3;
+
+	@Column(name = "t1_customfield4")
+	private String customField4;
+
+	@Column(name = "t1_display_name")
+	private String customField5;
+
+	@Column(name = "t1_email_template_id")
+	private String emailTemplateId;
+
+	/**
+	 * Returns fields where "SearchSpec" searching acts on.
+	 * 
+	 */
 	@Override
 	@JsonIgnore
 	public List<String> getSearchFields() {

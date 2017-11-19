@@ -177,7 +177,7 @@ public class APIExceptionHandler extends ResponseEntityExceptionHandler {
                                                                   WebRequest request) {
     	APIError apiError = null;
         if (ex.getCause() instanceof ConstraintViolationException) {
-        	apiError = new APIError(HttpStatus.CONFLICT, APIErrorCodes.DATABASE_ERROR, ex.getCause());
+        	apiError = new APIError(HttpStatus.CONFLICT, APIErrorCodes.DATABASE_ERROR, ex);
     	    apiError.setMessage(resourceHandler.get(APIErrorCodes.DATABASE_ERROR.name()));
         } else {
         	apiError = new APIError(HttpStatus.INTERNAL_SERVER_ERROR, ex);
