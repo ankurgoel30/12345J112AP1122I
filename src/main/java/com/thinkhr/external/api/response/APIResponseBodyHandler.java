@@ -37,7 +37,7 @@ import com.thinkhr.external.api.services.utils.EntitySearchUtil;
  * @since 2017-11-13
  *
  */
-@ControllerAdvice
+@ControllerAdvice ("com.thinkhr.external.api.controllers")
 public class APIResponseBodyHandler implements ResponseBodyAdvice<Object> {
     
 	private static Logger logger = LoggerFactory.getLogger(APIResponseBodyHandler.class);
