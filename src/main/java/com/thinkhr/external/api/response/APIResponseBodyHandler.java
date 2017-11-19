@@ -120,7 +120,10 @@ public class APIResponseBodyHandler implements ResponseBodyAdvice<Object> {
 		sort = StringUtils.isNotBlank(sort) ? sort : DEFAULT_SORT_BY_COMPANY_NAME;
 		apiResponse.setSort(EntitySearchUtil.getFormattedString(sort));
 		
-		apiResponse.setTotalRecords(getRequestAttribute(TOTAL_RECORDS));
+		Object totalRecObj = getRequestAttribute(TOTAL_RECORDS);
+		if (totalRecObj != null) {
+			apiResponse.setTotalRecords(String.valueOf(totalRecObj));
+		}
 		
 		/*
 		 * TODO: FIXME for generic list
