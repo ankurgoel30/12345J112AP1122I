@@ -77,19 +77,6 @@ public class ApiTestDataUtil {
 	}
 
 	/**
-	 * Generate company test data 
-	 * 
-	 * @param companyId
-	 * @param companyName
-	 * @param companyType
-	 * @param displayName
-	 * @return
-	 */
-	public static Company createCompany(Integer companyId, String companyName, String companyType, String displayName) {
-		return createCompany(companyId, companyName, companyType, displayName, new Date(), companyName, "SEARCHHELP-"+companyName);
-	}
-	
-	/**
 	 * Creates a company response object
 	 * 
 	 * @param company

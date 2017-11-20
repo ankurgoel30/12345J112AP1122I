@@ -1,7 +1,6 @@
 package com.thinkhr.external.api.services;
 
 import static com.thinkhr.external.api.services.utils.EntitySearchUtil.getPageable;
-import static org.mockito.Mockito.doThrow;
 import static com.thinkhr.external.api.utils.ApiTestDataUtil.LIMIT;
 import static com.thinkhr.external.api.utils.ApiTestDataUtil.OFFSET;
 import static com.thinkhr.external.api.utils.ApiTestDataUtil.SEARCH_SPEC;
@@ -10,11 +9,13 @@ import static com.thinkhr.external.api.utils.ApiTestDataUtil.createCompany;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.fail;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 import org.junit.Before;
@@ -65,9 +66,9 @@ public class CompanyServiceTest {
 	@Test
 	public void testGetAllCompany(){
 		List<Company> companyList = new ArrayList<Company>();
-		companyList.add(createCompany(1, "Pepcus", "Software", "PEP"));
-		companyList.add(createCompany(2, "ThinkHR", "Service Provider", "THR"));
-		companyList.add(createCompany(3, "ICICI", "Banking", "ICICI"));
+		companyList.add(createCompany(1, "Pepcus", "Software", "PEP", new Date(), "PepcusNotes", "PepcusHelp"));
+		companyList.add(createCompany(2, "ThinkHR", "Service Provider", "THR", new Date(), "THRNotes", "THRHelp"));
+		companyList.add(createCompany(3, "ICICI", "Banking", "ICICI", new Date(), "ICICINotes", "ICICIHelp"));
 		Pageable pageable = getPageable(null, null, null, defaultSortField);
 		
 		when(companyRepository.findAll(null, pageable)).thenReturn(new PageImpl<Company>(companyList, pageable, companyList.size()));
@@ -89,9 +90,9 @@ public class CompanyServiceTest {
 	@Test
 	public void testGetAllCompanyForParams(){
 		List<Company> companyList = new ArrayList<Company>();
-		companyList.add(createCompany(1, "Pepcus", "Software", "PEP"));
-		companyList.add(createCompany(2, "ThinkHR", "Service Provider", "THR"));
-		companyList.add(createCompany(3, "ICICI", "Banking", "ICICI"));
+		companyList.add(createCompany(1, "Pepcus", "Software", "PEP", new Date(), "PepcusNotes", "PepcusHelp"));
+		companyList.add(createCompany(2, "ThinkHR", "Service Provider", "THR", new Date(), "THRNotes", "THRHelp"));
+		companyList.add(createCompany(3, "ICICI", "Banking", "ICICI", new Date(), "ICICINotes", "ICICIHelp"));
 		Pageable pageable = getPageable(OFFSET, LIMIT, SORT_BY, defaultSortField);
 		Specification<Company> spec = null;
     	if(SEARCH_SPEC != null && SEARCH_SPEC.trim() != "") {
@@ -116,7 +117,7 @@ public class CompanyServiceTest {
 	@Test
 	public void testGetCompany() {
 		Integer companyId = 1;
-		Company company = createCompany(companyId, "Pepcus", "Software", "PEP");
+		Company company = createCompany(companyId, "Pepcus", "Software", "PEP", new Date(), "PepcusNotes", "PepcusHelp");
 		when(companyRepository.findOne(companyId)).thenReturn(company);
 		Company result = companyService.getCompany(companyId);
 		assertEquals(companyId, result.getCompanyId());
@@ -145,7 +146,7 @@ public class CompanyServiceTest {
 	public void testAddCompany() {
 		//When all data is correct, it should assert true 
 		Integer companyId = 1;
-		Company company = createCompany(1, "Pepcus", "Software", "PEP");
+		Company company = createCompany(companyId, "Pepcus", "Software", "PEP", new Date(), "PepcusNotes", "PepcusHelp");
 		
 		when(companyRepository.save(company)).thenReturn(company);
 		
@@ -164,7 +165,9 @@ public class CompanyServiceTest {
 	@Test
 	public void testUpdateCompany(){
 		Integer companyId = 1;
-		Company company = createCompany(1, "Pepcus", "Software", "PEP");
+
+		Company company = createCompany(companyId, "Pepcus", "Software", "PEP", new Date(), "PepcusNotes", "PepcusHelp");
+
 		when(companyRepository.save(company)).thenReturn(company);
 		when(companyRepository.findOne(companyId)).thenReturn(company);
 		Company result = null;
@@ -188,7 +191,7 @@ public class CompanyServiceTest {
 	@Test
 	public void testUpdateCompanyForEntityNotFound(){
 		Integer companyId = 1;
-		Company company = createCompany(1, "Pepcus", "Software", "PEP");
+		Company company = createCompany(companyId, "Pepcus", "Software", "PEP", new Date(), "PepcusNotes", "PepcusHelp");
 		when(companyRepository.findOne(companyId)).thenReturn(null);
 		try {
 			companyService.updateCompany(company);

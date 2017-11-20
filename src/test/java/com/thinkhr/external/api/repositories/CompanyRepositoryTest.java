@@ -2,6 +2,7 @@ package com.thinkhr.external.api.repositories;
 
 import static com.thinkhr.external.api.services.utils.EntitySearchUtil.getPageable;
 import static com.thinkhr.external.api.utils.ApiTestDataUtil.createCompanies;
+import static com.thinkhr.external.api.utils.ApiTestDataUtil.createCompany;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
@@ -26,6 +27,7 @@ import com.thinkhr.external.api.utils.ApiTestDataUtil;
 
 /**
  * Junit to verify methods of CompanyRepository with use of H2 database
+ * 
  * @author Surabhi Bhawsar
  * @since 2017-11-06
  *
@@ -38,21 +40,18 @@ public class CompanyRepositoryTest {
 	@Autowired
 	private CompanyRepository companyRepository;
 	
-	private Integer savedCompanyId;
-	
 	private String defaultSortField = "+companyName";
 	
 
 	/**
-	 * To test save method
+	 * To test companyRepository.save method. 
 	 */
 	@Test
 	public void testSave() {
-		Company company = ApiTestDataUtil.createCompany(null, "HDFC", "Banking", "HHH");
+		Company company = createCompany();
 		
 		Company companySaved = companyRepository.save(company);
 		
-		savedCompanyId = company.getCompanyId();
 		assertNotNull(companySaved);
 		assertNotNull(companySaved.getCompanyId());// As company is saved successfully.
 		assertEquals(companySaved.getSearchHelp(), company.getSearchHelp());
@@ -63,16 +62,18 @@ public class CompanyRepositoryTest {
 	}
 	
 	/**
-	 * To test findAll method
+	 * To test companyRepository.findAll method. Here it just creates first two company records and 
+	 * expecting to receive two records from company repository.
 	 */
 	@Test
 	public void testFindAll() {
-		Company company1 = ApiTestDataUtil.createCompany(null, "HDFC", "Banking", "HHH");
+		
+		Company company1 = createCompany(null, "Pepcus", "Software", "PEP", new Date(), "PepcusNotes", "PepcusHelp");
 		
 		//SAVE a Company
 		companyRepository.save(company1);
 
-		Company company2 = ApiTestDataUtil.createCompany(null, "PEPCUS", "IT", "PEP");
+		Company company2 = createCompany(null, "ThinkHR", "Service Provider", "THR", new Date(), "THRNotes", "THRHelp");
 
 		//SAVE second Company
 		companyRepository.save(company2);
@@ -84,19 +85,21 @@ public class CompanyRepositoryTest {
 	}
 
 	/**
-	 * To test findOne method
+	 * To test companyRepository.findOne method
 	 */
 	@Test
 	public void testFindOne() {
-		Company company1 = ApiTestDataUtil.createCompany(null, "HDFC", "Banking", "HHH");
+		
+		Company company1 = createCompany(null, "Pepcus", "Software", "PEP", new Date(), "PepcusNotes", "PepcusHelp");
 		
 		//SAVE a Company
 		Company savedCompany = companyRepository.save(company1);
 
 		Company findCompany = (Company) companyRepository.findOne(savedCompany.getCompanyId());
+		
 		assertNotNull(findCompany);
-		assertEquals(findCompany.getSearchHelp(), "Test");
-		assertEquals(findCompany.getCompanyName(), "HDFC");
+		assertEquals(findCompany.getSearchHelp(), "PepcusHelp");
+		assertEquals(findCompany.getCompanyName(), "Pepcus");
 	}
 	
 	/**
@@ -104,7 +107,7 @@ public class CompanyRepositoryTest {
 	 */
 	@Test
 	public void testDelete() {
-		Company company1 = ApiTestDataUtil.createCompany(null, "HDFC", "Banking", "HHH");
+		Company company1 = createCompany(null, "Pepcus", "Software", "PEP", new Date(), "PepcusNotes", "PepcusHelp");
 		
 		//SAVE a Company
 		Company savedCompany = companyRepository.save(company1);
@@ -180,11 +183,15 @@ public class CompanyRepositoryTest {
 		}
 		
 		String searchSpec = "help3";
+		
 		Pageable pageable = getPageable(null, null, null, defaultSortField);
+		
     	Specification<Company> spec = null;
+    	
     	if(StringUtils.isNotBlank(searchSpec)) {
     		spec = new EntitySearchSpecification<Company>(searchSpec, new Company());
     	}
+    	
     	Page<Company> companies  = (Page<Company>) companyRepository.findAll(spec, pageable);
     	
     	assertNotNull(companies.getContent());
