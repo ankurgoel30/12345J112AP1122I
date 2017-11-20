@@ -114,14 +114,16 @@ public class CompanyControllerTest {
 	 */
 	@Test
 	public void testGetCompanyById() throws Exception {
-		Company Company = createCompany(); 
+		Company company = createCompany(); 
 		
-		given(companyController.getById(Company.getCompanyId())).willReturn(Company);
+		given(companyController.getById(company.getCompanyId())).willReturn(company);
 
-		mockMvc.perform(get(COMPANY_API_BASE_PATH + Company.getCompanyId())
+		mockMvc.perform(get(COMPANY_API_BASE_PATH + company.getCompanyId())
 			   .accept(MediaType.APPLICATION_JSON))
 		.andExpect(status().isOk())
-		.andExpect(jsonPath("company.companyName", is(Company.getCompanyName())));
+		.andExpect(jsonPath("company.companyName", is(company.getCompanyName())))
+		.andExpect(jsonPath("company.companyId", is(company.getCompanyId())));
+		
 	}
 	
 	/**
@@ -308,16 +310,16 @@ public class CompanyControllerTest {
 	 */
 	@Test
 	public void testUpdateCompanyWithNoCompanyIdInPath() throws Exception {
-		Company Company = createCompany(); 
+		Company company = createCompany(); 
 		
-		ResponseEntity<Company> responseEntity = createCompanyResponseEntity(Company, HttpStatus.OK);
+		ResponseEntity<Company> responseEntity = createCompanyResponseEntity(company, HttpStatus.OK);
 		
-		given(companyController.updateCompany(Company.getCompanyId(), Company)).willReturn(responseEntity);
+		given(companyController.updateCompany(company.getCompanyId(), company)).willReturn(responseEntity);
 
 		mockMvc.perform(put(COMPANY_API_BASE_PATH)
 			   .accept(MediaType.APPLICATION_JSON)
 			   .contentType(MediaType.APPLICATION_JSON)
-		       .content(getJsonString(Company)))
+		       .content(getJsonString(company)))
 		.andExpect(status().isMethodNotAllowed());
 	}
 
@@ -329,18 +331,18 @@ public class CompanyControllerTest {
 	 */
 	@Test
 	public void testUpdateCompany() throws Exception {
-		Company Company = createCompany(); 
+		Company company = createCompany(); 
 		
-		ResponseEntity<Company> responseEntity = createCompanyResponseEntity(Company, HttpStatus.OK);
+		ResponseEntity<Company> responseEntity = createCompanyResponseEntity(company, HttpStatus.OK);
 		
 		given(companyController.updateCompany(Mockito.any(Integer.class), Mockito.any(Company.class))).willReturn(responseEntity);
 
-		mockMvc.perform(put(COMPANY_API_BASE_PATH + Company.getCompanyId())
+		mockMvc.perform(put(COMPANY_API_BASE_PATH + company.getCompanyId())
 			   .accept(MediaType.APPLICATION_JSON)
 			   .contentType(MediaType.APPLICATION_JSON)
-		       .content(getJsonString(Company)))
+		       .content(getJsonString(company)))
 		.andExpect(status().isOk())
-		.andExpect(jsonPath("company.companyName", is(Company.getCompanyName())));
+		.andExpect(jsonPath("company.companyName", is(company.getCompanyName())));
 	}
 	
 	/**
@@ -478,13 +480,13 @@ public class CompanyControllerTest {
 	@Test
 	public void testDeleteCompany() throws Exception {
 		
-		Company Company = createCompany(); 
+		Company company = createCompany(); 
 		
-		ResponseEntity<Integer> responseEntity = createCompanyIdResponseEntity(Company.getCompanyId(), HttpStatus.NO_CONTENT);
+		ResponseEntity<Integer> responseEntity = createCompanyIdResponseEntity(company.getCompanyId(), HttpStatus.NO_CONTENT);
 
-		given(companyController.deleteCompany(Company.getCompanyId())).willReturn(responseEntity);
+		given(companyController.deleteCompany(company.getCompanyId())).willReturn(responseEntity);
 
-		mockMvc.perform(delete(COMPANY_API_BASE_PATH+Company.getCompanyId())
+		mockMvc.perform(delete(COMPANY_API_BASE_PATH+company.getCompanyId())
 			   .accept(MediaType.APPLICATION_JSON))
 		.andExpect(status().is(204));
 	}
@@ -497,12 +499,12 @@ public class CompanyControllerTest {
 	@Test
 	public void testDeleteCompanyForEntityNotFound() throws Exception {
 		
-		Company Company = createCompany(); 
+		Company company = createCompany(); 
 		
-		given(companyController.deleteCompany(Company.getCompanyId())).willThrow(ApplicationException.
-				createEntityNotFoundError(APIErrorCodes.ENTITY_NOT_FOUND, String.valueOf(Company.getCompanyId())));
+		given(companyController.deleteCompany(company.getCompanyId())).willThrow(ApplicationException.
+				createEntityNotFoundError(APIErrorCodes.ENTITY_NOT_FOUND, String.valueOf(company.getCompanyId())));
 
-		mockMvc.perform(delete(COMPANY_API_BASE_PATH+Company.getCompanyId())
+		mockMvc.perform(delete(COMPANY_API_BASE_PATH+company.getCompanyId())
 			   .accept(MediaType.APPLICATION_JSON))
 		.andExpect(status().isNotFound());
 	}
