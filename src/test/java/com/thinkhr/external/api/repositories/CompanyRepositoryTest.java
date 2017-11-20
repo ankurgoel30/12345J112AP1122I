@@ -46,7 +46,7 @@ public class CompanyRepositoryTest {
 	 * To test companyRepository.save method. 
 	 */
 	@Test
-	public void testSave() {
+	public void testSaveForAdd() {
 		Company company = createCompany(null, "Pepcus", "Software", "PEP", new Date(), "Special", "This is search help");
 		
 		Company companySaved = companyRepository.save(company);
@@ -124,8 +124,8 @@ public class CompanyRepositoryTest {
 	 */
 	@Test(expected = EmptyResultDataAccessException.class)
 	public void testDeleteForFailure() {
-		Integer companyId = 1;	
-		//DELETING record here.
+		Integer companyId = 1;	// No record is available in H2 DB
+		// DELETING record here. 
 		companyRepository.delete(companyId);
 	}
 	
@@ -135,37 +135,21 @@ public class CompanyRepositoryTest {
 	 */
 	
 	@Test
-	public void testUpdateForSuccess(){
-		Company company = companyRepository.save(createCompany(null, "Pepcus", "Software", "PEP", 
-				new Date(), "PepcusNotes", "PepcusHelp"));
-		
-		// updating company name
-		company.setCompanyName("Pepcus - Updated");
+	public void testSaveForUpdate(){
 
-		Company companyUpdated = null;
+		Company company = companyRepository.save(createCompany(null, "Pepcus", "Software", "PEP", new Date(), "PepcusNotes", "PepcusHelp"));
+		
+		// Updating company name
+		company.setCompanyName("Pepcus - Updated");
+		
+		Company updatedCompany = null;
 		try {
-			companyUpdated = companyRepository.save(company);
+			updatedCompany = companyRepository.save(company);
 		} catch (ApplicationException e) {
 			fail("Not expecting application exception for a valid test case");
 		}
-		assertEquals(company.getCompanyId(), companyUpdated.getCompanyId());
-		assertEquals("Pepcus - Updated", companyUpdated.getCompanyName());
-	}
-	
-	/**
-	 * To verify updateCompany method when companyRepository doesn't find a match for given companyId.
-	 * 
-	 */
-	
-	@Test
-	public void testUpdateForFailure(){
-		Integer companyId = 1;
-		Company company = null;
-		try {
-			company = companyRepository.findOne(companyId);
-		} catch (ApplicationException e) {
-			assertEquals(null, company);
-		}
+		assertEquals(company.getCompanyId(), updatedCompany.getCompanyId());
+		assertEquals("Pepcus - Updated", updatedCompany.getCompanyName());
 	}
 	
 	/**

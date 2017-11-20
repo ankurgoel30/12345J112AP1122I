@@ -166,10 +166,7 @@ public class CompanyServiceTest {
 		} catch (ApplicationException e) {
 			fail("Not expecting application exception for a valid test case");
 		}
-		assertEquals(companyId, companyUpdated.getCompanyId());
 		assertEquals("Pepcus - Updated", companyUpdated.getCompanyName());
-		assertEquals("Software", companyUpdated.getCompanyType());
-		assertEquals("PEP", companyUpdated.getDisplayName());
 	}
 	
 	/**
