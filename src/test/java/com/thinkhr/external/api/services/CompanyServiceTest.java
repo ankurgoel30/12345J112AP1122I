@@ -156,6 +156,10 @@ public class CompanyServiceTest {
 
 		when(companyRepository.save(company)).thenReturn(company);
 		when(companyRepository.findOne(companyId)).thenReturn(company);
+		
+		// Updating company name 
+		company.setCompanyName("ThinkHR");
+		
 		Company result = null;
 		try {
 			result = companyService.updateCompany(company);
@@ -163,7 +167,7 @@ public class CompanyServiceTest {
 			fail("Not expecting application exception for a valid test case");
 		}
 		assertEquals(companyId, result.getCompanyId());
-		assertEquals("Pepcus", result.getCompanyName());
+		assertEquals("ThinkHR", result.getCompanyName());
 		assertEquals("Software", result.getCompanyType());
 		assertEquals("PEP", result.getDisplayName());
 	}

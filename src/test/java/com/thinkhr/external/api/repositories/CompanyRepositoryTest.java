@@ -6,6 +6,7 @@ import static com.thinkhr.external.api.utils.ApiTestDataUtil.createCompanies;
 import static com.thinkhr.external.api.utils.ApiTestDataUtil.createCompany;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.fail;
 
 import java.util.Date;
 import java.util.List;
@@ -16,13 +17,14 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase.Replace;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.jpa.domain.Specification;
 import org.springframework.test.context.junit4.SpringRunner;
 
 import com.thinkhr.external.api.db.entities.Company;
 import com.thinkhr.external.api.services.EntitySearchSpecification;
+import com.thinkhr.external.api.exception.ApplicationException;
 import com.thinkhr.external.api.services.utils.EntitySearchUtil;
 
 /**
@@ -45,7 +47,7 @@ public class CompanyRepositoryTest {
 	 */
 	@Test
 	public void testSave() {
-		Company company = createCompany();
+		Company company = createCompany(null, "Pepcus", "Software", "PEP", new Date(), "Special", "This is search help");
 		
 		Company companySaved = companyRepository.save(company);
 		
@@ -103,7 +105,7 @@ public class CompanyRepositoryTest {
 	 * To test delete method
 	 */
 	@Test
-	public void testDelete() {
+	public void testDeleteForSuccess() {
 		Company company1 = createCompany(null, "Pepcus", "Software", "PEP", new Date(), "PepcusNotes", "PepcusHelp");
 		
 		//SAVE a Company
@@ -115,6 +117,62 @@ public class CompanyRepositoryTest {
 		//FIND saved company with find and it should not  return
 		Company findCompany = (Company) companyRepository.findOne(savedCompany.getCompanyId());
 		assertEquals(null, findCompany);
+	}
+	
+	/**
+	 * To test delete method when exception is thrown
+	 */
+	@Test(expected = EmptyResultDataAccessException.class)
+	public void testDeleteForFailure() {
+		Integer companyId = 1;	
+		//DELETING record here.
+		companyRepository.delete(companyId);
+	}
+	
+	/**
+	 * To verify updateCompany method
+	 * 
+	 */
+	
+	@Test
+	public void testUpdateForSuccess(){
+		Integer companyId = 1;
+
+		Company company = companyRepository.save(createCompany(companyId, "Pepcus", "Software", "PEP", new Date(), "PepcusNotes", "PepcusHelp"));
+		
+		// updating company name
+		company.setCompanyName("ThinkHR");
+		company.setCompanyId(companyId); 
+		
+		Company result = null;
+		try {
+			if (company.getCompanyId() == companyId) {
+				result = companyRepository.save(company);
+			}
+		} catch (ApplicationException e) {
+			fail("Not expecting application exception for a valid test case");
+		}
+		assertEquals(companyId, result.getCompanyId());
+		assertEquals("ThinkHR", result.getCompanyName());
+		assertEquals("Software", result.getCompanyType());
+		assertEquals("PEP", result.getDisplayName());
+	}
+	
+	/**
+	 * To verify updateCompany method when companyRepository doesn't find a match for given companyId.
+	 * 
+	 * 
+	 */
+	
+	@Test
+	public void testUpdateForFailure(){
+		Integer companyId = 1;
+		Company company = null;
+		try {
+			company = companyRepository.findOne(companyId);
+		} catch (ApplicationException e) {
+			assertEquals(null, company);
+		}
 	}
 	
 	/**
