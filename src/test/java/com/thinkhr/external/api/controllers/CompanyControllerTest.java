@@ -132,7 +132,7 @@ public class CompanyControllerTest {
 	 */
 	@Test
 	public void testGetCompanyByIdNotExists() throws Exception {
-		Integer companyId = new Integer(15);
+		Integer companyId = 1;
 		
 		given(companyController.getById(companyId)).willThrow(ApplicationException.
 				createEntityNotFoundError(APIErrorCodes.ENTITY_NOT_FOUND, "company", "companyId=" + companyId));

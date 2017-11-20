@@ -93,10 +93,12 @@ public class CompanyServiceTest {
 		companyList.add(createCompany(1, "Pepcus", "Software", "PEP", new Date(), "PepcusNotes", "PepcusHelp"));
 		companyList.add(createCompany(2, "ThinkHR", "Service Provider", "THR", new Date(), "THRNotes", "THRHelp"));
 		companyList.add(createCompany(3, "ICICI", "Banking", "ICICI", new Date(), "ICICINotes", "ICICIHelp"));
+		
 		Pageable pageable = getPageable(OFFSET, LIMIT, SORT_BY, defaultSortField);
+		
 		Specification<Company> spec = null;
     	if(SEARCH_SPEC != null && SEARCH_SPEC.trim() != "") {
-    		spec = new EntitySearchSpecification(SEARCH_SPEC, new Company());
+    		spec = new EntitySearchSpecification<Company>(SEARCH_SPEC, new Company());
     	}
 		when(companyRepository.findAll(spec, pageable)).thenReturn(new PageImpl<Company>(companyList, pageable, companyList.size()));
 

@@ -1,5 +1,6 @@
 package com.thinkhr.external.api.repositories;
 
+import static com.thinkhr.external.api.ApplicationConstants.DEFAULT_SORT_BY_COMPANY_NAME;
 import static com.thinkhr.external.api.services.utils.EntitySearchUtil.getPageable;
 import static com.thinkhr.external.api.utils.ApiTestDataUtil.createCompanies;
 import static com.thinkhr.external.api.utils.ApiTestDataUtil.createCompany;
@@ -23,7 +24,6 @@ import org.springframework.test.context.junit4.SpringRunner;
 
 import com.thinkhr.external.api.db.entities.Company;
 import com.thinkhr.external.api.services.EntitySearchSpecification;
-import com.thinkhr.external.api.utils.ApiTestDataUtil;
 
 /**
  * Junit to verify methods of CompanyRepository with use of H2 database
@@ -40,9 +40,6 @@ public class CompanyRepositoryTest {
 	@Autowired
 	private CompanyRepository companyRepository;
 	
-	private String defaultSortField = "+companyName";
-	
-
 	/**
 	 * To test companyRepository.save method. 
 	 */
@@ -134,7 +131,7 @@ public class CompanyRepositoryTest {
 		}
 		
 		String searchSpec = null;
-		Pageable pageable = getPageable(null, null, null, defaultSortField);
+		Pageable pageable = getPageable(null, null, null, DEFAULT_SORT_BY_COMPANY_NAME);
     	Specification<Company> spec = null;
     	if(StringUtils.isNotBlank(searchSpec)) {
     		spec = new EntitySearchSpecification<Company>(searchSpec, new Company());
@@ -159,7 +156,7 @@ public class CompanyRepositoryTest {
 		}
 		
 		String searchSpec = null;
-		Pageable pageable = getPageable(3, 3, "+companyType", defaultSortField);
+		Pageable pageable = getPageable(3, 3, "+companyType", DEFAULT_SORT_BY_COMPANY_NAME);
     	Specification<Company> spec = null;
     	if(StringUtils.isNotBlank(searchSpec)) {
     		spec = new EntitySearchSpecification<Company>(searchSpec, new Company());
@@ -184,7 +181,7 @@ public class CompanyRepositoryTest {
 		
 		String searchSpec = "help3";
 		
-		Pageable pageable = getPageable(null, null, null, defaultSortField);
+		Pageable pageable = getPageable(null, null, null, DEFAULT_SORT_BY_COMPANY_NAME);
 		
     	Specification<Company> spec = null;
     	
@@ -212,7 +209,7 @@ public class CompanyRepositoryTest {
 		}
 		
 		String searchSpec = "General";
-		Pageable pageable = getPageable(0, null, "+companyType", defaultSortField);
+		Pageable pageable = getPageable(0, null, "+companyType", DEFAULT_SORT_BY_COMPANY_NAME);
     	Specification<Company> spec = null;
     	if(StringUtils.isNotBlank(searchSpec)) {
     		spec = new EntitySearchSpecification<Company>(searchSpec, new Company());
@@ -237,7 +234,7 @@ public class CompanyRepositoryTest {
 		}
 		
 		String searchSpec = "Suzuki";
-		Pageable pageable = getPageable(null, null, "-companyType", defaultSortField);
+		Pageable pageable = getPageable(null, null, "-companyType", DEFAULT_SORT_BY_COMPANY_NAME);
     	Specification<Company> spec = null;
     	if(StringUtils.isNotBlank(searchSpec)) {
     		spec = new EntitySearchSpecification<Company>(searchSpec, new Company());
