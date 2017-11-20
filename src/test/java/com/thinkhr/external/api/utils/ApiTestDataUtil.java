@@ -62,7 +62,7 @@ public class ApiTestDataUtil {
 	 * @return
 	 */
 	public static Company createCompany(Integer companyId, String companyName, String companyType, String displayName, 
-			Date companySince, String specialNotes) {
+			Date companySince, String specialNotes, String searchHelp) {
 		Company company = new Company();
 		if (companyId != null) {
 			company.setCompanyId(companyId);
@@ -72,6 +72,7 @@ public class ApiTestDataUtil {
 		company.setDisplayName(displayName);
 		company.setCompanySince(companySince);
 		company.setSpecialNote(specialNotes);
+		company.setSearchHelp(searchHelp); 
 		return company;
 	}
 
@@ -84,8 +85,8 @@ public class ApiTestDataUtil {
 	 * @param displayName
 	 * @return
 	 */
-	public static Company createCompany(Integer companyId, String companyName, String companyType, String displayName) {
-		return createCompany(companyId, companyName, companyType, displayName, new Date(), companyName);
+	public static Company createCompany(Integer companyId, String companyName, String companyType, String displayName, String searchHelp) {
+		return createCompany(companyId, companyName, companyType, displayName, new Date(), companyName, searchHelp);
 	}
 	
 	/**
@@ -116,7 +117,7 @@ public class ApiTestDataUtil {
 	 * @return
 	 */
 	public static Company createCompany() {
-		return createCompany(1, "Pepcus", "Software", "PEP", new Date(), "Special");
+		return createCompany(1, "Pepcus", "Software", "PEP", new Date(), "Special", "This is search help");
 	}
 
 	/**
@@ -126,16 +127,16 @@ public class ApiTestDataUtil {
 	 */
 	public static List<Company> createCompanies() {
 		List<Company> companies = new ArrayList<Company>();
-		companies.add(createCompany(1, "Pepcus", "IT", "PEP", new Date(), "IT comp at Indore"));
-		companies.add(createCompany(2, "Google", "IT", "PEP", new Date(), "IT comp at Indore"));
-		companies.add(createCompany(3, "Facebook", "IT", "PEP", new Date(), "IT comp at Indore"));
-		companies.add(createCompany(4, "Suzuki", "IT", "PEP", new Date(), "IT comp at Indore"));
-		companies.add(createCompany(5, "General Motors", "IT", "PEP", new Date(), "IT comp at Indore"));
-		companies.add(createCompany(6, "L & T", "IT", "PEP", new Date(), "IT comp at Indore"));
-		companies.add(createCompany(7, "General Electric", "IT", "PEP", new Date(), "IT comp at Indore"));
-		companies.add(createCompany(8, "Oracle", "IT", "PEP", new Date(), "IT comp at Indore"));
-		companies.add(createCompany(9, "Microsoft", "IT", "PEP", new Date(), "IT comp at Indore"));
-		companies.add(createCompany(10, "Thinkhr", "IT", "PEP", new Date(), "IT comp at Indore"));
+		companies.add(createCompany(1, "Pepcus", "IT", "PEP", new Date(), "IT comp at Indore", "This is search help1"));
+		companies.add(createCompany(2, "Google", "IT", "PEP", new Date(), "IT comp at Indore", "This is search help2"));
+		companies.add(createCompany(3, "Facebook", "IT", "PEP", new Date(), "IT comp at Indore", "This is search help3"));
+		companies.add(createCompany(4, "Suzuki", "IT", "PEP", new Date(), "IT comp at Indore", "This is search help4"));
+		companies.add(createCompany(5, "General Motors", "IT", "PEP", new Date(), "IT comp at Indore", "This is search help5"));
+		companies.add(createCompany(6, "L & T", "IT", "PEP", new Date(), "IT comp at Indore", "This is search help6"));
+		companies.add(createCompany(7, "General Electric", "IT", "PEP", new Date(), "IT comp at Indore", "This is search help7"));
+		companies.add(createCompany(8, "Oracle", "IT", "PEP", new Date(), "IT comp at Indore", "This is search help8"));
+		companies.add(createCompany(9, "Microsoft", "IT", "PEP", new Date(), "IT comp at Indore", "This is search help9"));
+		companies.add(createCompany(10, "Thinkhr", "IT", "PEP", new Date(), "IT comp at Indore", "This is search help10"));
 		return companies;
 
 	}
