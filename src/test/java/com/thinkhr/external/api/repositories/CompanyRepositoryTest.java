@@ -22,6 +22,7 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.test.context.junit4.SpringRunner;
 
 import com.thinkhr.external.api.db.entities.Company;
+import com.thinkhr.external.api.services.EntitySearchSpecification;
 import com.thinkhr.external.api.services.utils.EntitySearchUtil;
 
 /**
@@ -129,10 +130,10 @@ public class CompanyRepositoryTest {
 		
 		Pageable pageable = getPageable(0, 5, null, DEFAULT_SORT_BY_COMPANY_NAME);
 
-    	Page<Company> companies  = (Page<Company>) companyRepository.findAll(null, pageable);
-    	
-    	assertNotNull(companies.getContent());
-    	assertEquals(companies.getContent().size(), 5);
+		Page<Company> companies  = (Page<Company>) companyRepository.findAll(null, pageable);
+		
+		assertNotNull(companies.getContent());
+		assertEquals(companies.getContent().size(), 5);
 	}
 	
 	/**
@@ -148,10 +149,10 @@ public class CompanyRepositoryTest {
 		
 		Pageable pageable = getPageable(5, null, null, DEFAULT_SORT_BY_COMPANY_NAME);
 
-    	Page<Company> companies  = (Page<Company>) companyRepository.findAll(null, pageable);
-    	
-    	assertNotNull(companies.getContent());
-    	assertEquals(companies.getContent().size(), 5); //As offset = 5, so it will pick records by 5th 
+		Page<Company> companies  = (Page<Company>) companyRepository.findAll(null, pageable);
+		
+		assertNotNull(companies.getContent());
+		assertEquals(companies.getContent().size(), 5); //As offset = 5, so it will pick records by 5th 
 	}
 
 	/**
@@ -166,14 +167,15 @@ public class CompanyRepositoryTest {
 			companyRepository.save(company);
 		}
 		
-		Pageable pageable = getPageable(null, null, "+companyType", DEFAULT_SORT_BY_COMPANY_NAME);
+		Pageable pageable = getPageable(null, null, null, DEFAULT_SORT_BY_COMPANY_NAME);
 
-		Specification specification = EntitySearchUtil.getEntitySearchSpecification("Pepcus", null, Company.class, new Company());
+		EntitySearchSpecification<Company> specification = (EntitySearchSpecification<Company>) EntitySearchUtil.
+				getEntitySearchSpecification("General Electric", null, Company.class, new Company());
 		
-    	Page<Company> companies  = (Page<Company>) companyRepository.findAll(specification, pageable);
-    	
-    	assertNotNull(companies.getContent());
-    	assertEquals(1, companies.getContent().size()); //As we have only one record have searchKey = "pep"
+		Page<Company> companies  = (Page<Company>) companyRepository.findAll(specification, pageable);
+		
+		assertNotNull(companies.getContent());
+		assertEquals(1, companies.getContent().size()); //As we have only one record have searchKey = "pep"
 	}
 
 }
