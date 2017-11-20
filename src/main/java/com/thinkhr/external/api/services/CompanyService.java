@@ -5,8 +5,10 @@ import static com.thinkhr.external.api.ApplicationConstants.DEFAULT_SORT_BY_COMP
 import static com.thinkhr.external.api.ApplicationConstants.MAX_RECORDS_COMPANY_CSV_IMPORT;
 import static com.thinkhr.external.api.ApplicationConstants.REQUIRED_HEADERS_COMPANY_CSV_IMPORT;
 import static com.thinkhr.external.api.ApplicationConstants.VALID_FILE_EXTENSION_IMPORT;
+import static com.thinkhr.external.api.ApplicationConstants.TOTAL_RECORDS;
 import static com.thinkhr.external.api.services.utils.EntitySearchUtil.getEntitySearchSpecification;
 import static com.thinkhr.external.api.services.utils.EntitySearchUtil.getPageable;
+import static com.thinkhr.external.api.request.APIRequestHelper.setRequestAttribute;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -84,7 +86,9 @@ public class CompanyService  extends CommonService {
     	
 		if(logger.isDebugEnabled()) {
 			logger.debug("Request parameters to filter, size and paginate records ");
-			requestParameters.entrySet().stream().forEach(entry -> { logger.debug(entry.getKey() + ":: " + entry.getValue()); });
+			if (requestParameters != null) {
+				requestParameters.entrySet().stream().forEach(entry -> { logger.debug(entry.getKey() + ":: " + entry.getValue()); });
+			}
 		}
 
     	
@@ -94,6 +98,9 @@ public class CompanyService  extends CommonService {
 
     	companyList.getContent().forEach(c -> companies.add(c));
     	
+    	//Get and set the total number of records
+        setRequestAttribute(TOTAL_RECORDS, companyRepository.count());
+        
     	return companies;
     }
 

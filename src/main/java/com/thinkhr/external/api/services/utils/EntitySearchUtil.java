@@ -4,9 +4,13 @@ import static com.thinkhr.external.api.ApplicationConstants.ASCENDING;
 import static com.thinkhr.external.api.ApplicationConstants.DEFAULT_LIMIT;
 import static com.thinkhr.external.api.ApplicationConstants.DEFAULT_OFFSET;
 import static com.thinkhr.external.api.ApplicationConstants.DESENDING;
+import static com.thinkhr.external.api.ApplicationConstants.VALID_FORMAT_YYYY_MM_DD;
 
 import java.lang.reflect.Field;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -118,6 +122,7 @@ public class EntitySearchUtil {
     
 	/**
 	 * To validate given Class has field with fieldName or not
+	 * @param <T>
 	 * 
 	 * @param kclass
 	 * @param fieldName
@@ -125,7 +130,7 @@ public class EntitySearchUtil {
 	 * @throws SecurityException 
 	 * @throws NoSuchFieldException 
 	 */
-	public static boolean classHasField(Class kclass, String fieldName) {
+	public static <T> boolean classHasField(Class<T> kclass, String fieldName) {
 		try {
 			Field field = kclass.getDeclaredField(fieldName);
 			if (field == null) {
@@ -137,7 +142,74 @@ public class EntitySearchUtil {
 
 		return true;
 	}
+
+	/**
+	 * To check type of field for given parameters and validate it is java.lang.String or not
+	 * 
+	 * @param <T>
+	 * @param kclass
+	 * @param fieldName
+	 * @param fieldType
+	 * @return
+	 */
+	public static <T> boolean isFieldOfType(Class<T> kclass, String fieldName,  Class<?> fieldType) {
+		Field field = null;
+		try {
+			field = kclass.getDeclaredField(fieldName);
+		} catch(NoSuchFieldException | SecurityException ex) {
+			return false;
+		}
+		if (field.getType().isAssignableFrom(fieldType)) {
+			return true;
+		}
+
+		return false;
+	}
 	
+	/**
+	 * To check type of field for given parameters and validate it is java.lang.String or not
+	 * 
+	 * @param <T>
+	 * @param kclass
+	 * @param fieldName
+	 * @return
+	 */
+	public static <T> boolean isStringField(Class<T> kclass, String fieldName) {
+		return isFieldOfType(kclass, fieldName, String.class);
+	}
+
+	/**
+	 * To check type of field for given parameters and validate it is java.util.Date or not
+	 * 
+	 * @param <T>
+	 * @param kclass
+	 * @param fieldName
+	 * @return
+	 */
+	public static <T> boolean isDateField(Class<T> kclass, String fieldName) {
+		return isFieldOfType(kclass, fieldName, Date.class);
+	}
+
+	/**
+	 * Get the date for a given string
+	 * @param dateStr
+	 * @param key
+	 * @return
+	 * @throws ApplicationException 
+	 */
+	public static Date convertToDate(String value, String key) throws ApplicationException {
+
+		SimpleDateFormat sdf = new SimpleDateFormat(VALID_FORMAT_YYYY_MM_DD);
+		sdf.setLenient(false);
+ 		try {
+ 			return sdf.parse(value);
+ 		} catch (ParseException e) {
+ 			throw ApplicationException.createBadRequest(APIErrorCodes.INVALID_DATE_FORMAT, key, value);
+		} catch (Exception e) {
+			throw ApplicationException.createBadRequest(APIErrorCodes.INVALID_DATE_FORMAT, key, value);
+		}
+	}
+
 	/**
 	 * To filter request parameters on field Name
 	 * @param <T>

@@ -27,7 +27,7 @@ public class APIResponse {
 	private String limit;
 	private String offset;
 	private String sort;
-	private String total;
+	private String totalRecords;
 	private String message;
 	/*
 	 * TODO: Replace with generic attribute like list

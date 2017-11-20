@@ -1,13 +1,12 @@
 package com.thinkhr.external.api.response;
 
-import static com.thinkhr.external.api.ApplicationConstants.DEFAULT_LIMIT;
-import static com.thinkhr.external.api.ApplicationConstants.DEFAULT_OFFSET;
-import static com.thinkhr.external.api.ApplicationConstants.DEFAULT_SORT_BY_COMPANY_NAME;
-import static com.thinkhr.external.api.ApplicationConstants.SUCCESS_DELETED;
+import static com.thinkhr.external.api.ApplicationConstants.*;
+import static com.thinkhr.external.api.request.APIRequestHelper.*;
 import static com.thinkhr.external.api.response.APIMessageUtil.getMessageFromResourceBundle;
 
 import java.util.List;
 
+import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -38,7 +37,7 @@ import com.thinkhr.external.api.services.utils.EntitySearchUtil;
  * @since 2017-11-13
  *
  */
-@ControllerAdvice
+@ControllerAdvice ("com.thinkhr.external.api.controllers")
 public class APIResponseBodyHandler implements ResponseBodyAdvice<Object> {
     
 	private static Logger logger = LoggerFactory.getLogger(APIResponseBodyHandler.class);
@@ -81,22 +80,7 @@ public class APIResponseBodyHandler implements ResponseBodyAdvice<Object> {
 		 * the same code reference will be used by all APIs for different entities as well.
 		 */
 		if (body instanceof List) {
-			String limit = httpRequest.getServletRequest().getParameter("limit");
-			limit = limit == null ? String.valueOf(DEFAULT_LIMIT) : limit;
-			apiResponse.setLimit(limit);
-			String offset = httpRequest.getServletRequest().getParameter("offset");
-			offset = offset == null ? String.valueOf(DEFAULT_OFFSET) : offset;
-			apiResponse.setOffset(offset);
-			String sort = httpRequest.getServletRequest().getParameter("sort");
-			sort = sort == null ? String.valueOf(DEFAULT_SORT_BY_COMPANY_NAME) : sort;
-			apiResponse.setSort(EntitySearchUtil.getFormattedString(sort));
-			/*
-			 * TODO: FIXME for generic list
-			 */
-			apiResponse.setCompanies((List)body);
-			if (body == null || ((List)body).isEmpty()) {
-				apiResponse.setMessage(getMessageFromResourceBundle(resourceHandler, APIErrorCodes.NO_RECORDS_FOUND, "company"));
-			}
+			setListData((List)body, httpRequest, apiResponse);
 		} else {
 			/*
 			 * TODO: FIXME for generic object
@@ -113,6 +97,41 @@ public class APIResponseBodyHandler implements ResponseBodyAdvice<Object> {
 			logger.debug("Request processed and response is " + apiResponse);
 		}
 		return apiResponse;
+	}
+
+	/**
+	 * To set list specific information into ApiResponse object 
+	 * 
+	 * @param list
+	 * @param httpRequest
+	 * @param apiResponse
+	 */
+	private void setListData(List list, ServletServerHttpRequest httpRequest, APIResponse apiResponse) {
+		
+		String limit = httpRequest.getServletRequest().getParameter(LIMIT_PARAM);
+		limit = StringUtils.isNotBlank(limit) ? limit : String.valueOf(DEFAULT_LIMIT);
+		apiResponse.setLimit(limit);
+		
+		String offset = httpRequest.getServletRequest().getParameter(OFFSET_PARAM);
+		offset = StringUtils.isNotBlank(offset) ? offset : String.valueOf(DEFAULT_OFFSET);
+		apiResponse.setOffset(offset);
+		
+		String sort = httpRequest.getServletRequest().getParameter(SORT_PARAM);
+		sort = StringUtils.isNotBlank(sort) ? sort : DEFAULT_SORT_BY_COMPANY_NAME;
+		apiResponse.setSort(EntitySearchUtil.getFormattedString(sort));
+		
+		Object totalRecObj = getRequestAttribute(TOTAL_RECORDS);
+		if (totalRecObj != null) {
+			apiResponse.setTotalRecords(String.valueOf(totalRecObj));
+		}
+		
+		/*
+		 * TODO: FIXME for generic list
+		 */
+		apiResponse.setCompanies(list);
+		if (list == null || list.isEmpty()) {
+			apiResponse.setMessage(getMessageFromResourceBundle(resourceHandler, APIErrorCodes.NO_RECORDS_FOUND, "company"));
+		}
 	}
 
 }

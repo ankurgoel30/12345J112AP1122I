@@ -13,7 +13,7 @@ import lombok.Data;
  *
  */
 @Data
-public class ApplicationException extends Exception {
+public class ApplicationException extends RuntimeException {
 
 	private static final long serialVersionUID = 1L;
     private APIErrorCodes apiErrorCode;
