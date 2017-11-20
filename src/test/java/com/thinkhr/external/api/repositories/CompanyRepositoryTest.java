@@ -136,31 +136,24 @@ public class CompanyRepositoryTest {
 	
 	@Test
 	public void testUpdateForSuccess(){
-		Integer companyId = 1;
-
-		Company company = companyRepository.save(createCompany(companyId, "Pepcus", "Software", "PEP", new Date(), "PepcusNotes", "PepcusHelp"));
+		Company company = companyRepository.save(createCompany(null, "Pepcus", "Software", "PEP", 
+				new Date(), "PepcusNotes", "PepcusHelp"));
 		
 		// updating company name
-		company.setCompanyName("ThinkHR");
-		company.setCompanyId(companyId); 
-		
-		Company result = null;
+		company.setCompanyName("Pepcus - Updated");
+
+		Company companyUpdated = null;
 		try {
-			if (company.getCompanyId() == companyId) {
-				result = companyRepository.save(company);
-			}
+			companyUpdated = companyRepository.save(company);
 		} catch (ApplicationException e) {
 			fail("Not expecting application exception for a valid test case");
 		}
-		assertEquals(companyId, result.getCompanyId());
-		assertEquals("ThinkHR", result.getCompanyName());
-		assertEquals("Software", result.getCompanyType());
-		assertEquals("PEP", result.getDisplayName());
+		assertEquals(company.getCompanyId(), companyUpdated.getCompanyId());
+		assertEquals("Pepcus - Updated", companyUpdated.getCompanyName());
 	}
 	
 	/**
 	 * To verify updateCompany method when companyRepository doesn't find a match for given companyId.
-	 * 
 	 * 
 	 */
 	

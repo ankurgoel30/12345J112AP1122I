@@ -158,18 +158,18 @@ public class CompanyServiceTest {
 		when(companyRepository.findOne(companyId)).thenReturn(company);
 		
 		// Updating company name 
-		company.setCompanyName("ThinkHR");
+		company.setCompanyName("Pepcus - Updated");
 		
-		Company result = null;
+		Company companyUpdated = null;
 		try {
-			result = companyService.updateCompany(company);
+			companyUpdated = companyService.updateCompany(company);
 		} catch (ApplicationException e) {
 			fail("Not expecting application exception for a valid test case");
 		}
-		assertEquals(companyId, result.getCompanyId());
-		assertEquals("ThinkHR", result.getCompanyName());
-		assertEquals("Software", result.getCompanyType());
-		assertEquals("PEP", result.getDisplayName());
+		assertEquals(companyId, companyUpdated.getCompanyId());
+		assertEquals("Pepcus - Updated", companyUpdated.getCompanyName());
+		assertEquals("Software", companyUpdated.getCompanyType());
+		assertEquals("PEP", companyUpdated.getDisplayName());
 	}
 	
 	/**
