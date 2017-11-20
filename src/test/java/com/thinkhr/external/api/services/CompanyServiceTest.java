@@ -1,6 +1,7 @@
 package com.thinkhr.external.api.services;
 
 import static com.thinkhr.external.api.services.utils.EntitySearchUtil.getPageable;
+import static org.mockito.Mockito.doThrow;
 import static com.thinkhr.external.api.utils.ApiTestDataUtil.LIMIT;
 import static com.thinkhr.external.api.utils.ApiTestDataUtil.OFFSET;
 import static com.thinkhr.external.api.utils.ApiTestDataUtil.SEARCH_SPEC;
@@ -9,7 +10,6 @@ import static com.thinkhr.external.api.utils.ApiTestDataUtil.createCompany;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.fail;
-import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -23,12 +23,14 @@ import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.test.context.junit4.SpringRunner;
 
 import com.thinkhr.external.api.db.entities.Company;
+import com.thinkhr.external.api.exception.APIErrorCodes;
 import com.thinkhr.external.api.exception.ApplicationException;
 import com.thinkhr.external.api.repositories.CompanyRepository;
 
@@ -178,6 +180,25 @@ public class CompanyServiceTest {
 	}
 	
 	/**
+	 * To verify updateCompany method when companyRepository doesn't find a match for given companyId.
+	 * 
+	 * 
+	 */
+	
+	@Test
+	public void testUpdateCompanyForEntityNotFound(){
+		Integer companyId = 1;
+		Company company = createCompany(1, "Pepcus", "Software", "PEP");
+		when(companyRepository.findOne(companyId)).thenReturn(null);
+		try {
+			companyService.updateCompany(company);
+		} catch (ApplicationException e) {
+			assertEquals(APIErrorCodes.ENTITY_NOT_FOUND, e.getApiErrorCode());
+		}
+	}
+	
+
+	/**
 	 * To verify deleteCompany method
 	 * 
 	 */
@@ -192,11 +213,13 @@ public class CompanyServiceTest {
 	}
 
 	/**
-	 * To verify deleteCompany method throws ApplicationException
+	 * To verify deleteCompany method throws ApplicationException when internally companyRepository.delete method throws exception.
 	 * 
 	 */
 	@Test(expected=com.thinkhr.external.api.exception.ApplicationException.class)
 	public void testDeleteCompanyForEntityNotFound() {
+		int companyId = 1 ;
+		doThrow(new EmptyResultDataAccessException("Not found", 1)).when(companyRepository).delete(companyId);
 		companyService.deleteCompany(companyId);
 	}
 
