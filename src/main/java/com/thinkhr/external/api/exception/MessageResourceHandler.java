@@ -13,7 +13,7 @@ import org.springframework.stereotype.Component;
 /**
  * Helper to simplify accessing i18n messages in code.
  * This finds messages automatically found from 
- * src/main/resources (files named errors_*.properties)
+ * src/main/resources (files named messages_*.properties)
  * 
  *
  * @author Surabhi Bhawsar

@@ -7,8 +7,6 @@ import static com.thinkhr.external.api.utils.ApiTestDataUtil.createCompany;
 import static com.thinkhr.external.api.utils.ApiTestDataUtil.createCompanyIdResponseEntity;
 import static com.thinkhr.external.api.utils.ApiTestDataUtil.createCompanyResponseEntity;
 import static com.thinkhr.external.api.utils.ApiTestDataUtil.getJsonString;
-import static java.util.Collections.singletonList;
-import static org.hamcrest.collection.IsCollectionWithSize.hasSize;
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
@@ -20,17 +18,17 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-import java.sql.SQLException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
+import java.util.TimeZone;
 
 import org.apache.commons.lang.StringUtils;
 import org.hamcrest.core.IsNot;
-import org.hibernate.JDBCException;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase.Replace;
@@ -287,7 +285,7 @@ public class CompanyControllerTest {
 		
 		ResponseEntity<Company> responseEntity = createCompanyResponseEntity(company, HttpStatus.CREATED);
 		
-		given(companyController.addCompany(company)).willReturn(responseEntity);
+		given(companyController.addCompany(Mockito.any(Company.class))).willReturn(responseEntity);
 		
 		mockMvc.perform(post(COMPANY_API_BASE_PATH)
 			   .accept(MediaType.APPLICATION_JSON)
@@ -412,12 +410,14 @@ public class CompanyControllerTest {
 		
 		Company company = createCompany(); 
 		
-		Date date = new SimpleDateFormat("dd/MM/yyyy").parse("08/07/2011");
+		SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd");
+		simpleDateFormat.setTimeZone(TimeZone.getTimeZone("UTC"));
+		Date date = simpleDateFormat.parse("2011-07-11");
 		
 		company.setCompanySince(date);
 		
 		String request = getJsonString(company);
-		request = request.replaceAll(String.valueOf(date.getTime()), "08-07-2011"); //To fail validation layer
+		request = request.replaceAll("2011-07-11", "08/07/2011"); //As mm/dd/yyyy is not supported date format
 		
 		mockMvc.perform(post(COMPANY_API_BASE_PATH)
 			   .accept(MediaType.APPLICATION_JSON)
@@ -461,7 +461,7 @@ public class CompanyControllerTest {
 		
 		ResponseEntity<Company> responseEntity = createCompanyResponseEntity(Company, HttpStatus.OK);
 		
-		given(companyController.updateCompany(Company.getCompanyId(), Company)).willReturn(responseEntity);
+		given(companyController.updateCompany(Mockito.any(Integer.class), Mockito.any(Company.class))).willReturn(responseEntity);
 
 		mockMvc.perform(put(COMPANY_API_BASE_PATH + Company.getCompanyId())
 			   .accept(MediaType.APPLICATION_JSON)

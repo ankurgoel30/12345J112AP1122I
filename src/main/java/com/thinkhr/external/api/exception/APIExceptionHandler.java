@@ -1,8 +1,9 @@
 package com.thinkhr.external.api.exception;
 
+import static com.thinkhr.external.api.response.APIMessageUtil.getMessageFromResourceBundle;
 import static org.springframework.http.HttpStatus.BAD_REQUEST;
 
-import static com.thinkhr.external.api.response.APIMessageUtil.getMessageFromResourceBundle;
+import org.apache.commons.lang.StringUtils;
 import org.hibernate.JDBCException;
 import org.hibernate.exception.ConstraintViolationException;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,6 +20,7 @@ import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.context.request.WebRequest;
+import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 
 /**
@@ -114,7 +116,32 @@ public class APIExceptionHandler extends ResponseEntityExceptionHandler {
     @ExceptionHandler(javax.validation.ConstraintViolationException.class)
     protected ResponseEntity<Object> handleConstraintViolation(
             javax.validation.ConstraintViolationException ex) {
+    	
 	    APIError apiError = new APIError(BAD_REQUEST, APIErrorCodes.VALIDATION_FAILED, ex);
+	    ex.getConstraintViolations().forEach(obj -> { String messageTemplate = obj.getConstraintDescriptor().getMessageTemplate();
+	    if (StringUtils.isNotBlank(messageTemplate)) {
+	    	apiError.setExceptionDetail(messageTemplate);
+	    } } );
+	    apiError.setMessage(resourceHandler.get(APIErrorCodes.VALIDATION_FAILED.name()));
+        return buildResponseEntity(apiError);
+    }
+
+    /**
+     * Handles org.springframework.web.method.annotation.MethodArgumentTypeMismatchException, PropertyReferenceException
+     * and IllegalArgumentException. Throws when @Validated fails
+     * 
+     * @param ex
+     * @return
+     */
+    @ExceptionHandler({org.springframework.web.method.annotation.MethodArgumentTypeMismatchException.class,
+    		org.springframework.data.mapping.PropertyReferenceException.class,
+    		java.lang.IllegalArgumentException.class})
+    protected ResponseEntity<Object> handleExceptions(
+            Exception ex) {
+	    APIError apiError = new APIError(BAD_REQUEST, APIErrorCodes.VALIDATION_FAILED, ex);
+	    if (ex instanceof MethodArgumentTypeMismatchException) {
+	    	apiError.addErrorDetail((MethodArgumentTypeMismatchException)ex);
+	    }
 	    apiError.setMessage(resourceHandler.get(APIErrorCodes.VALIDATION_FAILED.name()));
         return buildResponseEntity(apiError);
     }

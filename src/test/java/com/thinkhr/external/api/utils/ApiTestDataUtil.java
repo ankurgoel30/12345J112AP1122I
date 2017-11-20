@@ -23,6 +23,7 @@ import com.thinkhr.external.api.db.entities.Company;
  */
 public class ApiTestDataUtil {
 
+	public static final String API_BASE_PATH = "/v1/";
 	public static final String COMPANY_API_BASE_PATH = "/v1/companies/";
 	public static final String COMPANY_API_REQUEST_PARAM_OFFSET = "offset";
 	public static final String COMPANY_API_REQUEST_PARAM_LIMIT = "limit";

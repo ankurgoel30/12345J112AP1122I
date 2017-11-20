@@ -20,6 +20,7 @@ import lombok.Data;
 
 import org.hibernate.annotations.Where;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 /**
@@ -73,8 +74,9 @@ public class Company implements SearchableEntity {
 	private String website;
 	
 	@NotNull
-	@Column(name = "Client_Since",nullable=false) 
-	@Temporal(TemporalType.DATE)
+	@JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")  
+	@Temporal(TemporalType.TIMESTAMP)
+	@Column(name = "Client_Since", nullable=false) 
 	private Date companySince;
 	
 	@Column(name = "tempID") 
@@ -116,6 +118,7 @@ public class Company implements SearchableEntity {
 	@Column(name = "groupID") 
 	private String groupID;
 	
+	@JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")  
 	@Column(name = "deactivationDate") 
 	@Temporal(TemporalType.DATE)
 	private Date deactivationDate;
@@ -183,6 +186,7 @@ public class Company implements SearchableEntity {
 	@Column(name = "marketCode") 
 	private String marketCode;
 	
+	@JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")  
 	@Column(name = "suspended") 
 	@Temporal(TemporalType.TIMESTAMP)
 	private Date suspended;
@@ -211,6 +215,7 @@ public class Company implements SearchableEntity {
 	@Column(name = "custom5") 
 	private String custom5;
 	
+	@JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")  
 	@Column(name = "customDate") 
 	private Timestamp customDate;
 	
@@ -284,6 +289,7 @@ public class Company implements SearchableEntity {
 	@Column(name = "temp_Client_Status") 
 	private Integer tempCompanyStatus;
 	
+	@JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")  
 	@Column(name = "Renewal_Date") 
 	private Date renewalDate;
 	
