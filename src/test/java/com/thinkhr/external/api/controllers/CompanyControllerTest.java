@@ -489,5 +489,23 @@ public class CompanyControllerTest {
 		.andExpect(status().is(204));
 	}
 
+	/**
+	 * Test to verify delete company API (/v1/companies/{companyId}) for EntityNotFound
+	 * 
+	 * @throws Exception
+	 */
+	@Test
+	public void testDeleteCompanyForEntityNotFound() throws Exception {
+		
+		Company Company = createCompany(); 
+		
+		given(companyController.deleteCompany(Company.getCompanyId())).willThrow(ApplicationException.
+				createEntityNotFoundError(APIErrorCodes.ENTITY_NOT_FOUND, String.valueOf(Company.getCompanyId())));
 
+		mockMvc.perform(delete(COMPANY_API_BASE_PATH+Company.getCompanyId())
+			   .accept(MediaType.APPLICATION_JSON))
+		.andExpect(status().isNotFound());
+	}
+
+	
 }
