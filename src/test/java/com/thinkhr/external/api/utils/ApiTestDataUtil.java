@@ -85,8 +85,8 @@ public class ApiTestDataUtil {
 	 * @param displayName
 	 * @return
 	 */
-	public static Company createCompany(Integer companyId, String companyName, String companyType, String displayName, String searchHelp) {
-		return createCompany(companyId, companyName, companyType, displayName, new Date(), companyName, searchHelp);
+	public static Company createCompany(Integer companyId, String companyName, String companyType, String displayName) {
+		return createCompany(companyId, companyName, companyType, displayName, new Date(), companyName, "SEARCHHELP-"+companyName);
 	}
 	
 	/**

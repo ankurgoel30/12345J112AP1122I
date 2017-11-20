@@ -48,7 +48,7 @@ public class CompanyRepositoryTest {
 	 */
 	@Test
 	public void testSave() {
-		Company company = ApiTestDataUtil.createCompany(null, "HDFC", "Banking", "HHH", "Test");
+		Company company = ApiTestDataUtil.createCompany(null, "HDFC", "Banking", "HHH");
 		
 		Company companySaved = companyRepository.save(company);
 		
@@ -67,12 +67,12 @@ public class CompanyRepositoryTest {
 	 */
 	@Test
 	public void testFindAll() {
-		Company company1 = ApiTestDataUtil.createCompany(null, "HDFC", "Banking", "HHH", "Test");
+		Company company1 = ApiTestDataUtil.createCompany(null, "HDFC", "Banking", "HHH");
 		
 		//SAVE a Company
 		companyRepository.save(company1);
 
-		Company company2 = ApiTestDataUtil.createCompany(null, "PEPCUS", "IT", "PEP", "PEPTEST");
+		Company company2 = ApiTestDataUtil.createCompany(null, "PEPCUS", "IT", "PEP");
 
 		//SAVE second Company
 		companyRepository.save(company2);
@@ -88,7 +88,7 @@ public class CompanyRepositoryTest {
 	 */
 	@Test
 	public void testFindOne() {
-		Company company1 = ApiTestDataUtil.createCompany(null, "HDFC", "Banking", "HHH", "Test");
+		Company company1 = ApiTestDataUtil.createCompany(null, "HDFC", "Banking", "HHH");
 		
 		//SAVE a Company
 		Company savedCompany = companyRepository.save(company1);
@@ -104,7 +104,7 @@ public class CompanyRepositoryTest {
 	 */
 	@Test
 	public void testDelete() {
-		Company company1 = ApiTestDataUtil.createCompany(null, "HDFC", "Banking", "HHH", "PEPTEST");
+		Company company1 = ApiTestDataUtil.createCompany(null, "HDFC", "Banking", "HHH");
 		
 		//SAVE a Company
 		Company savedCompany = companyRepository.save(company1);
