@@ -20,8 +20,11 @@ public class APIRequestHelper {
 	 * @return
 	 */
 	public static HttpServletRequest getRequest() {
-		 HttpServletRequest request = ((ServletRequestAttributes)RequestContextHolder.getRequestAttributes()).getRequest();
-		 return request;
+		ServletRequestAttributes servletReqAttr = (ServletRequestAttributes)RequestContextHolder.getRequestAttributes();
+		if ( servletReqAttr != null) {
+			return servletReqAttr.getRequest();
+		}
+		return null;
 	}
 	
 	/**
@@ -32,10 +35,9 @@ public class APIRequestHelper {
 	 */
 	public static void setRequestAttribute(String attributeName, Object attributeValue) {
 		HttpServletRequest request = getRequest();
-		if (request == null) {
-			return; //Do nothing;
+		if (request != null) {
+			request.setAttribute(attributeName, attributeValue);
 		}
-		request.setAttribute(attributeName, attributeValue);
 	}
 	
 	/**
@@ -44,13 +46,13 @@ public class APIRequestHelper {
 	 * @param attributeName
 	 * @return
 	 */
-	public static String getRequestAttribute(String attributeName) {
+	public static Object getRequestAttribute(String attributeName) {
 		HttpServletRequest request = getRequest();
-		if (request == null) {
-			return null;
+		Object attrVal = null; 
+		if (request != null) {
+			return request.getAttribute(attributeName);
 		}
-		Object val = request.getAttribute(attributeName);
-		return val == null ? null : val.toString();
+		return attrVal;
 	}
 	
 }

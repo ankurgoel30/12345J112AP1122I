@@ -37,7 +37,7 @@ import com.thinkhr.external.api.services.utils.EntitySearchUtil;
  * @since 2017-11-13
  *
  */
-@ControllerAdvice
+@ControllerAdvice ("com.thinkhr.external.api.controllers")
 public class APIResponseBodyHandler implements ResponseBodyAdvice<Object> {
     
 	private static Logger logger = LoggerFactory.getLogger(APIResponseBodyHandler.class);
@@ -117,10 +117,13 @@ public class APIResponseBodyHandler implements ResponseBodyAdvice<Object> {
 		apiResponse.setOffset(offset);
 		
 		String sort = httpRequest.getServletRequest().getParameter(SORT_PARAM);
-		offset = StringUtils.isNotBlank(sort) ? offset : DEFAULT_SORT_BY_COMPANY_NAME;
+		sort = StringUtils.isNotBlank(sort) ? sort : DEFAULT_SORT_BY_COMPANY_NAME;
 		apiResponse.setSort(EntitySearchUtil.getFormattedString(sort));
 		
-		apiResponse.setTotalRecords(getRequestAttribute(TOTAL_RECORDS));
+		Object totalRecObj = getRequestAttribute(TOTAL_RECORDS);
+		if (totalRecObj != null) {
+			apiResponse.setTotalRecords(String.valueOf(totalRecObj));
+		}
 		
 		/*
 		 * TODO: FIXME for generic list

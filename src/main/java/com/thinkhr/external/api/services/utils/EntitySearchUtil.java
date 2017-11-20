@@ -1,12 +1,9 @@
 package com.thinkhr.external.api.services.utils;
 
 import static com.thinkhr.external.api.ApplicationConstants.ASCENDING;
-import static com.thinkhr.external.api.ApplicationConstants.DATE_CLASS_NAME;
 import static com.thinkhr.external.api.ApplicationConstants.DEFAULT_LIMIT;
 import static com.thinkhr.external.api.ApplicationConstants.DEFAULT_OFFSET;
 import static com.thinkhr.external.api.ApplicationConstants.DESENDING;
-import static com.thinkhr.external.api.ApplicationConstants.STRING_CLASS_NAME;
-import static com.thinkhr.external.api.ApplicationConstants.TIMESTAMP_CLASS_NAME;
 import static com.thinkhr.external.api.ApplicationConstants.VALID_FORMAT_YYYY_MM_DD;
 
 import java.lang.reflect.Field;
@@ -125,6 +122,7 @@ public class EntitySearchUtil {
     
 	/**
 	 * To validate given Class has field with fieldName or not
+	 * @param <T>
 	 * 
 	 * @param kclass
 	 * @param fieldName
@@ -132,7 +130,7 @@ public class EntitySearchUtil {
 	 * @throws SecurityException 
 	 * @throws NoSuchFieldException 
 	 */
-	public static boolean classHasField(Class kclass, String fieldName) {
+	public static <T> boolean classHasField(Class<T> kclass, String fieldName) {
 		try {
 			Field field = kclass.getDeclaredField(fieldName);
 			if (field == null) {
@@ -148,51 +146,50 @@ public class EntitySearchUtil {
 	/**
 	 * To check type of field for given parameters and validate it is java.lang.String or not
 	 * 
+	 * @param <T>
 	 * @param kclass
 	 * @param fieldName
+	 * @param fieldType
 	 * @return
-	 * @throws SecurityException 
-	 * @throws NoSuchFieldException 
 	 */
-	public static boolean isStringField(Class kclass, String fieldName) {
+	public static <T> boolean isFieldOfType(Class<T> kclass, String fieldName,  Class<?> fieldType) {
+		Field field = null;
 		try {
-			Field field = kclass.getDeclaredField(fieldName);
-			if (field == null) {
-				return false;
-			}
-			String typeName = field.getType().getTypeName();
-			return (STRING_CLASS_NAME.equals(typeName) ? true : false) ;
-			
+			field = kclass.getDeclaredField(fieldName);
 		} catch(NoSuchFieldException | SecurityException ex) {
 			return false;
 		}
+		if (field.getType().isAssignableFrom(fieldType)) {
+			return true;
+		}
 
+		return false;
+	}
+	
+	/**
+	 * To check type of field for given parameters and validate it is java.lang.String or not
+	 * 
+	 * @param <T>
+	 * @param kclass
+	 * @param fieldName
+	 * @return
+	 */
+	public static <T> boolean isStringField(Class<T> kclass, String fieldName) {
+		return isFieldOfType(kclass, fieldName, String.class);
 	}
 
 	/**
 	 * To check type of field for given parameters and validate it is java.util.Date or not
 	 * 
+	 * @param <T>
 	 * @param kclass
 	 * @param fieldName
 	 * @return
-	 * @throws SecurityException 
-	 * @throws NoSuchFieldException 
 	 */
-	public static boolean isDateField(Class kclass, String fieldName) {
-		try {
-			Field field = kclass.getDeclaredField(fieldName);
-			if (field == null) {
-				return false;
-			}
-			String typeName = field.getType().getTypeName();
-			return DATE_CLASS_NAME.equals(typeName) | TIMESTAMP_CLASS_NAME.equals(typeName) ? true : false ;
-			
-		} catch(NoSuchFieldException | SecurityException ex) {
-			return false;
-		}
-
+	public static <T> boolean isDateField(Class<T> kclass, String fieldName) {
+		return isFieldOfType(kclass, fieldName, Date.class);
 	}
-	
+
 	/**
 	 * Get the date for a given string
 	 * @param dateStr
