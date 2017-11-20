@@ -16,6 +16,7 @@ public class ApplicationConstants {
     public static final String SUCCESS_DELETED = "SUCCESSFULLY_DELETED";
     
     //COMPANY BULK IMPORT
+    public static final int DEFAULT_BROKER = 187624;
     public static final int MAX_RECORDS_COMPANY_CSV_IMPORT = 11000;
     public static final String SPACE = " ";
     public static final String VALID_FILE_EXTENSION_IMPORT = "csv";

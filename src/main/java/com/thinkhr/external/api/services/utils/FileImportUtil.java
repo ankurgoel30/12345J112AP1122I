@@ -16,6 +16,8 @@ import org.apache.commons.io.FilenameUtils;
 import org.springframework.web.multipart.MultipartFile;
 
 public class FileImportUtil {
+	
+		
     /**
      * Finds if any required header is missing from given set of headers
      * 
@@ -31,11 +33,23 @@ public class FileImportUtil {
         String[] missingHeaders = new String[requiredHeadersSet.size()];
         return requiredHeadersSet.toArray(missingHeaders);
     }
-
+    
+    /**
+     * Checks if file has a valid extention as given
+     * @param fileName
+     * @param validExtention
+     * @return
+     */
     public static boolean hasValidExtension(String fileName, String... validExtention) {
         return FilenameUtils.isExtension(fileName, validExtention);
     }
 
+    /**
+     * Read file content 
+     * @param file
+     * @return
+     * @throws IOException
+     */
     public static List<String> readFileContent(MultipartFile file) throws IOException {
         BufferedReader br;
         List<String> result = new ArrayList<>();
@@ -97,33 +111,24 @@ public class FileImportUtil {
 
         //clientName
         columnsToHeaderMap.put("client_name", "CLIENT_NAME");
-
         //displayName
         columnsToHeaderMap.put("display_name", "DISPLAY_NAME");
-
         //companyPhone
         columnsToHeaderMap.put("client_phone", "PHONE");
-
         //industry
         columnsToHeaderMap.put("industry", "INDUSTRY");
-
         //companySize
         columnsToHeaderMap.put("companysize", "COMPANY_SIZE");
-
         //producer
         columnsToHeaderMap.put("producer", "PRODUCER");
-
         // get this map from app_throne_custom_fields table
-        //custom1
+        //custom1 (default = BUSINESS_ID)
         columnsToHeaderMap.put("custom1", "BUSINESS_ID");
-
-        //custom2
+        //custom2 (default = BRANCH_ID)
         columnsToHeaderMap.put("custom2", "BRANCH_ID");
-
-        //custom3
+        //custom3 (default = CLIENT_ID)
         columnsToHeaderMap.put("custom3", "CLIENT_ID");
-
-        //custom4
+        //custom4 (default = CLIENT_TYPE)
         columnsToHeaderMap.put("custom4", "CLIENT_TYPE");
 
         return columnsToHeaderMap;
@@ -139,16 +144,12 @@ public class FileImportUtil {
 
         //address
         columnsToHeaderMap.put("address", "ADDRESS");
-
         //address2
         columnsToHeaderMap.put("address2", "ADDRESS2");
-
         //city
         columnsToHeaderMap.put("city", "CITY");
-
         //state
         columnsToHeaderMap.put("state", "STATE");
-
         //zip
         columnsToHeaderMap.put("zip", "ZIP");
 

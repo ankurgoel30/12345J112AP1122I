@@ -1,5 +1,6 @@
 package com.thinkhr.external.api.services;
 
+import static com.thinkhr.external.api.ApplicationConstants.DEFAULT_BROKER;
 import static com.thinkhr.external.api.ApplicationConstants.DEFAULT_SORT_BY_COMPANY_NAME;
 import static com.thinkhr.external.api.ApplicationConstants.MAX_RECORDS_COMPANY_CSV_IMPORT;
 import static com.thinkhr.external.api.ApplicationConstants.REQUIRED_HEADERS_COMPANY_CSV_IMPORT;
@@ -59,9 +60,6 @@ public class CompanyService  extends CommonService {
 	
 	 @Autowired
 	 JdbcTemplate jdbcTemplate;
-
-	 @Autowired
-	 BatchRunData batchRunData;
 
     /**
      * To fetch companies records. Based on given parameters companies records will be filtered out.
@@ -163,7 +161,7 @@ public class CompanyService  extends CommonService {
 
         List<String> fileContents = new ArrayList<String>();
         String[] headers = null;
-        validateFile(fileToImport, fileContents, headers);
+        validateAndReadFile(fileToImport, fileContents, headers);
         stopWatchFileRead.stop();
         StopWatch stopWatchDBSave = new StopWatch();
         stopWatchDBSave.start();
@@ -179,6 +177,58 @@ public class CompanyService  extends CommonService {
         System.out.println(fileImportResult.getNumSuccessRecords());
         System.out.println(fileImportResult.getNumFailedRecords());
         return fileImportResult;
+    }
+    
+    /**
+     * Validates fileToimport and populates fileContens and file headers
+     * 
+     * @param fileToImport
+     * @param fileContents
+     * @param headers
+     * @throws ApplicationException
+     */
+    public void validateAndReadFile(MultipartFile fileToImport, 
+    									   List<String> fileContents, 
+    									   String[] headers) throws ApplicationException {
+        
+    	String fileName = fileToImport.getOriginalFilename();
+
+        // Validate if file has valid extension or empty
+        if (!FileImportUtil.hasValidExtension(fileName, VALID_FILE_EXTENSION_IMPORT)) {
+            throw ApplicationException.createFileImportError(APIErrorCodes.INVALID_FILE_EXTENTION, fileName, VALID_FILE_EXTENSION_IMPORT);
+        }
+
+        if (fileToImport.isEmpty()) {
+            throw ApplicationException.createFileImportError(APIErrorCodes.NO_RECORDS_FOUND_FOR_IMPORT, fileName);
+        }
+
+        // Read all lines from file
+        try {
+            fileContents = FileImportUtil.readFileContent(fileToImport);
+        } catch (IOException ex) {
+            throw ApplicationException.createFileImportError(APIErrorCodes.FILE_READ_ERROR, ex.getMessage());
+        }
+
+        // Validate for missing headers
+        headers = fileContents.get(0).split(",");
+        String[] missingHeadersIfAny = FileImportUtil.getMissingHeaders(headers, REQUIRED_HEADERS_COMPANY_CSV_IMPORT);
+        if (missingHeadersIfAny.length != 0) {
+            String requiredHeaders = String.join(",", REQUIRED_HEADERS_COMPANY_CSV_IMPORT);
+            String missingHeaders = String.join(",", missingHeadersIfAny);
+            throw ApplicationException.createFileImportError(APIErrorCodes.MISSING_REQUIRED_HEADERS, fileName, missingHeaders,
+                    requiredHeaders);
+        }
+
+        // If we are here then file is a valid csv file with all the required headers. 
+        // Now  validate if it has records and number of records not exceed max allowed records
+        int numOfRecords = fileContents.size() - 1; // as first line is for header
+        if (numOfRecords == 0) {
+            throw ApplicationException.createFileImportError(APIErrorCodes.NO_RECORDS_FOUND_FOR_IMPORT, fileName);
+        }
+        if (numOfRecords > MAX_RECORDS_COMPANY_CSV_IMPORT) {
+            throw ApplicationException.createFileImportError(APIErrorCodes.MAX_RECORD_EXCEEDED,
+                    String.valueOf(MAX_RECORDS_COMPANY_CSV_IMPORT));
+        }
     }
     
     /**
@@ -198,7 +248,7 @@ public class CompanyService  extends CommonService {
             throws ApplicationException {
         fileImportResult.setTotalRecords(records.size());
 
-        Map<String, String> columnToHeaderCompanyMap = getCompanyColumnsHeaderMap(187624);
+        Map<String, String> columnToHeaderCompanyMap = getCompanyColumnsHeaderMap(DEFAULT_BROKER);
         Map<String, String> columnToHeaderLocationMap = FileImportUtil.getColumnsToHeaderMapForLocationRecord();
 
         Map<String, Integer> headerIndexMap = new HashMap<String, Integer>();
@@ -251,6 +301,7 @@ public class CompanyService  extends CommonService {
     /**
      * This function returns a map of custom fields to customFieldDisplayLabel(Header in CSV)
      * map by looking up into app_throne_custom_fields table
+     * 
      * @return Map<String,String> 
      */
     private Map<String, String> getCustomFieldsMap(int id) {
@@ -263,7 +314,12 @@ public class CompanyService  extends CommonService {
         }
         return customFieldsToHeaderMap;
     }
-
+    
+    /**
+     * Get a map of Company columns
+     * @param customColumnsLookUpId
+     * @return
+     */
     private Map<String, String> getCompanyColumnsHeaderMap(int customColumnsLookUpId) {
         Map<String, String> columnToHeaderCompanyMap = FileImportUtil.getColumnsToHeaderMapForCompanyRecord();
         Map<String, String> customColumnToHeaderMap = getCustomFieldsMap(187624);//customColumnsLookUpId
@@ -274,6 +330,8 @@ public class CompanyService  extends CommonService {
         }
         return columnToHeaderCompanyMap;
     }
+    
+    
 
     
 	
@@ -292,54 +350,5 @@ public class CompanyService  extends CommonService {
     public String getDefaultSortField()  {
     	return DEFAULT_SORT_BY_COMPANY_NAME;
     }
-    
-    /**
-     * Validates fileToimport and populates fileContens and file headers
-     * 
-     * @param fileToImport
-     * @param fileContents
-     * @param headers
-     * @throws ApplicationException
-     */
-    private void validateFile(MultipartFile fileToImport, List<String> fileContents, String[] headers) throws ApplicationException {
-        String fileName = fileToImport.getOriginalFilename();
-
-        // Validate if file has valid extension
-        if (!FileImportUtil.hasValidExtension(fileName, VALID_FILE_EXTENSION_IMPORT)) {
-            throw ApplicationException.createFileImportError(APIErrorCodes.INVALID_FILE_EXTENTION, fileName, VALID_FILE_EXTENSION_IMPORT);
-        }
-
-        if (fileToImport.isEmpty()) {
-            throw ApplicationException.createFileImportError(APIErrorCodes.NO_RECORDS_FOUND_FOR_IMPORT, fileName);
-        }
-
-        // Read all lines from file
-        try {
-            fileContents = FileImportUtil.readFileContent(fileToImport);
-        } catch (IOException ex) {
-            throw ApplicationException.createFileImportError(APIErrorCodes.FILE_READ_ERROR, ex.getMessage());
-        }
-
-        // Validate for missing headers
-        headers = fileContents.get(0).split(",");
-        String[] missingHeadersIfAny = FileImportUtil.getMissingHeaders(headers, REQUIRED_HEADERS_COMPANY_CSV_IMPORT);
-        if (missingHeadersIfAny.length != 0) {
-            String requiredHeaders = String.join(",", REQUIRED_HEADERS_COMPANY_CSV_IMPORT);
-            String missingHeaders = String.join(",", missingHeadersIfAny);
-            throw ApplicationException.createFileImportError(APIErrorCodes.MISSING_REQUIRED_HEADERS, fileName, missingHeaders,
-                    requiredHeaders);
-        }
-
-        // If we are here then file is a valid csv file with all the required headers. 
-        // Now  validate if it has records and number of records not exceed max allowed records
-        int numOfRecords = fileContents.size() - 1; // as first line is for header
-        if (numOfRecords == 0) {
-            throw ApplicationException.createFileImportError(APIErrorCodes.NO_RECORDS_FOUND_FOR_IMPORT, fileName);
-        }
-        if (numOfRecords > MAX_RECORDS_COMPANY_CSV_IMPORT) {
-            throw ApplicationException.createFileImportError(APIErrorCodes.MAX_RECORD_EXCEEDED,
-                    String.valueOf(MAX_RECORDS_COMPANY_CSV_IMPORT));
-        }
-    }
-	
+  
 }

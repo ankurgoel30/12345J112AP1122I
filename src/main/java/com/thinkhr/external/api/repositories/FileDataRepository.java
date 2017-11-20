@@ -101,15 +101,20 @@ public class FileDataRepository {
             throw ex;
         }
     }
-
-    public Map<String, String> getCustomFields(int id) {
+    
+    /**
+     * Returns a map of custom fields for given broker
+     * @param brokerId broker id
+     * @return
+     */
+    public Map<String, String> getCustomFields(int brokerId) {
         String customFieldsLookupQuery = "Select customFieldDisplayLabel,customFieldColumnName from app_throne_custom_fields  where companyId = ?";
 
         return jdbcTemplate.query(new PreparedStatementCreator() {
             @Override
             public PreparedStatement createPreparedStatement(Connection con) throws SQLException {
                 PreparedStatement statement = con.prepareStatement(customFieldsLookupQuery);
-                statement.setInt(1, id);
+                statement.setInt(1, brokerId);
                 return statement;
             }
         }, new ResultSetExtractor<Map<String, String>>() {
