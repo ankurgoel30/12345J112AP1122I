@@ -70,7 +70,7 @@ public class EntitySearchSpecification<T extends SearchableEntity> implements Sp
 				} else if (isDateField(t.getClass(), searchParam.getKey())) {
 					Date date = convertToDate(searchParam.getValue(), searchParam.getKey());
 					filterPredicate.getExpressions().
-					add(criteriaBuilder.equal(from.get(searchParam.getKey()), searchParam.getValue())); 
+					add(criteriaBuilder.equal(from.get(searchParam.getKey()), date)); 
 				} else {
 					filterPredicate.getExpressions().
 					add(criteriaBuilder.equal(from.get(searchParam.getKey()), searchParam.getValue())); 
