@@ -10,7 +10,6 @@ import static org.junit.Assert.assertNotNull;
 import java.util.Date;
 import java.util.List;
 
-import org.apache.commons.lang.StringUtils;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,7 +22,7 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.test.context.junit4.SpringRunner;
 
 import com.thinkhr.external.api.db.entities.Company;
-import com.thinkhr.external.api.services.EntitySearchSpecification;
+import com.thinkhr.external.api.services.utils.EntitySearchUtil;
 
 /**
  * Junit to verify methods of CompanyRepository with use of H2 database
@@ -118,132 +117,63 @@ public class CompanyRepositoryTest {
 	}
 	
 	/**
-	 * Test to verify get all companies when no parameters are provided 
-	 * i.e., all parameters are default provided.  
-	 * 
+	 * Test companyRepository.pageable with limit = 5 
 	 * @throws Exception
 	 */
 	@Test
-	public void testAllCompaniesWithDefault() throws Exception {
+	public void testFindAllWithPageableWithLimit() throws Exception {
 		
 		for (Company company : createCompanies()) {
 			companyRepository.save(company);
 		}
 		
-		String searchSpec = null;
-		Pageable pageable = getPageable(null, null, null, DEFAULT_SORT_BY_COMPANY_NAME);
-    	Specification<Company> spec = null;
-    	if(StringUtils.isNotBlank(searchSpec)) {
-    		spec = new EntitySearchSpecification<Company>(searchSpec, new Company());
-    	}
-    	Page<Company> companies  = (Page<Company>) companyRepository.findAll(spec, pageable);
+		Pageable pageable = getPageable(0, 5, null, DEFAULT_SORT_BY_COMPANY_NAME);
+
+    	Page<Company> companies  = (Page<Company>) companyRepository.findAll(null, pageable);
     	
     	assertNotNull(companies.getContent());
-    	assertEquals(companies.getContent().size(), 10);
+    	assertEquals(companies.getContent().size(), 5);
+	}
+	
+	/**
+	 * Test companyRepository.pageable with offset = 5 
+	 * @throws Exception
+	 */
+	@Test
+	public void testFindAllWithPageableWithOffset() throws Exception {
+		
+		for (Company company : createCompanies()) {
+			companyRepository.save(company);
+		}
+		
+		Pageable pageable = getPageable(5, null, null, DEFAULT_SORT_BY_COMPANY_NAME);
+
+    	Page<Company> companies  = (Page<Company>) companyRepository.findAll(null, pageable);
+    	
+    	assertNotNull(companies.getContent());
+    	assertEquals(companies.getContent().size(), 5); //As offset = 5, so it will pick records by 5th 
 	}
 
 	/**
-	 * Test to verify get all companies when searchSpec is default and all other 
-	 * parameters are provided (sort is ascending)  
+	 * Junit to verify search specification
 	 * 
 	 * @throws Exception
 	 */
 	@Test
-	public void testAllCompaniesWithParamsAndSearchSpecNull() throws Exception {
+	public void testFindAllWithSpecification() throws Exception {
 		
 		for (Company company : createCompanies()) {
 			companyRepository.save(company);
 		}
 		
-		String searchSpec = null;
-		Pageable pageable = getPageable(3, 3, "+companyType", DEFAULT_SORT_BY_COMPANY_NAME);
-    	Specification<Company> spec = null;
-    	if(StringUtils.isNotBlank(searchSpec)) {
-    		spec = new EntitySearchSpecification<Company>(searchSpec, new Company());
-    	}
-    	Page<Company> companies  = (Page<Company>) companyRepository.findAll(spec, pageable);
+		Pageable pageable = getPageable(null, null, "+companyType", DEFAULT_SORT_BY_COMPANY_NAME);
+
+		Specification specification = EntitySearchUtil.getEntitySearchSpecification("Pepcus", null, Company.class, new Company());
+		
+    	Page<Company> companies  = (Page<Company>) companyRepository.findAll(specification, pageable);
     	
     	assertNotNull(companies.getContent());
-    	assertEquals(companies.getContent().size(), 3);
+    	assertEquals(1, companies.getContent().size()); //As we have only one record have searchKey = "pep"
 	}
-	
-	/**
-	 * Test to verify get all companies searchSpec is provided and other parameters are default.  
-	 * 
-	 * @throws Exception
-	 */
-	@Test
-	public void testAllCompaniesWithParamsAndPageableNull() throws Exception {
-		
-		for (Company company : createCompanies()) {
-			companyRepository.save(company);
-		}
-		
-		String searchSpec = "help3";
-		
-		Pageable pageable = getPageable(null, null, null, DEFAULT_SORT_BY_COMPANY_NAME);
-		
-    	Specification<Company> spec = null;
-    	
-    	if(StringUtils.isNotBlank(searchSpec)) {
-    		spec = new EntitySearchSpecification<Company>(searchSpec, new Company());
-    	}
-    	
-    	Page<Company> companies  = (Page<Company>) companyRepository.findAll(spec, pageable);
-    	
-    	assertNotNull(companies.getContent());
-    	assertEquals(companies.getContent().size(), 1);
-	}
-	
-	/**
-	 * Test to verify get all companies when all parameters are provided 
-	 * and sort is ascending   
-	 * 
-	 * @throws Exception
-	 */
-	@Test
-	public void testAllCompaniesWithParamsAndAscSort() throws Exception {
-		
-		for (Company company : createCompanies()) {
-			companyRepository.save(company);
-		}
-		
-		String searchSpec = "General";
-		Pageable pageable = getPageable(0, null, "+companyType", DEFAULT_SORT_BY_COMPANY_NAME);
-    	Specification<Company> spec = null;
-    	if(StringUtils.isNotBlank(searchSpec)) {
-    		spec = new EntitySearchSpecification<Company>(searchSpec, new Company());
-    	}
-    	Page<Company> companies  = (Page<Company>) companyRepository.findAll(spec, pageable);
-    	
-    	assertNotNull(companies.getContent());
-    	assertEquals(companies.getContent().size(), 2);
-	}
-	
-	/**
-	 * Test to verify get all companies when all parameters are provided
-	 * and sort is descending.  
-	 * 
-	 * @throws Exception
-	 */
-	@Test
-	public void testAllCompaniesWithParamsAndDescSort() throws Exception {
-		
-		for (Company company : createCompanies()) {
-			companyRepository.save(company);
-		}
-		
-		String searchSpec = "Suzuki";
-		Pageable pageable = getPageable(null, null, "-companyType", DEFAULT_SORT_BY_COMPANY_NAME);
-    	Specification<Company> spec = null;
-    	if(StringUtils.isNotBlank(searchSpec)) {
-    		spec = new EntitySearchSpecification<Company>(searchSpec, new Company());
-    	}
-    	Page<Company> companies  = (Page<Company>) companyRepository.findAll(spec, pageable);
-    	
-    	
-    	assertNotNull(companies.getContent());
-    	assertEquals(companies.getContent().size(), 1);
-	}
-	
+
 }

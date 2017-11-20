@@ -28,11 +28,6 @@ public class ApiTestDataUtil {
 	public static final String COMPANY_API_REQUEST_PARAM_LIMIT = "limit";
 	public static final String COMPANY_API_REQUEST_PARAM_SORT = "sort";
 	public static final String COMPANY_API_REQUEST_PARAM_SEARCH_SPEC = "searchSpec";
-	public static final Integer OFFSET = 3;
-    public static final Integer LIMIT = 3;
-    public static final String SORT_BY = "companyType";
-    public static final String SEARCH_SPEC = null;
-
 	
 	/**
 	 * Convert object into Json String
