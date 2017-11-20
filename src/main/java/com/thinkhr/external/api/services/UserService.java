@@ -74,8 +74,8 @@ public class UserService extends CommonService {
      * Add a user in system
      * @param User object
      */
-    public void addUser(User user)  {
-    	userRepository.save(user);
+    public User addUser(User user)  {
+    	return userRepository.save(user);
     }
     
     /**

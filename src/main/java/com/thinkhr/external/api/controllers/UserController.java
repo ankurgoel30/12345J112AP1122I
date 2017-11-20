@@ -1,13 +1,17 @@
 package com.thinkhr.external.api.controllers;
 
+import static com.thinkhr.external.api.ApplicationConstants.DEFAULT_SORT_BY_USER_NAME;
+
 import java.util.List;
 import java.util.Map;
 
 import javax.validation.Valid;
 
+import org.hibernate.validator.constraints.Range;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -26,6 +30,7 @@ import com.thinkhr.external.api.services.UserService;
  * 
  */
 @RestController
+@Validated
 @RequestMapping(path="/v1/users")
 public class UserController {
 	
@@ -38,10 +43,14 @@ public class UserController {
      * 
      */
     @RequestMapping(method=RequestMethod.GET)
-    List<User> getAllUser(@RequestParam(value = "offset", required = false) Integer offset,
-    		@RequestParam(value = "limit", required = false) Integer limit, @RequestParam(value = "sort", required = false) String sort,
+    List<User> getAllUser(@Range(min = 0l, message = "Please select positive integer value for 'offset'") 
+    		@RequestParam(value = "offset", required = false, defaultValue = "0") Integer offset,
+    		@Range(min = 1l, message = "Please select positive integer and should be greater than 0 for 'limit'")
+    		@RequestParam(value = "limit", required = false, defaultValue = "50") Integer limit, 
+    		@RequestParam(value = "sort", required = false, defaultValue = DEFAULT_SORT_BY_USER_NAME) String sort,
     		@RequestParam(value = "searchSpec", required = false) String searchSpec,
     		@RequestParam Map<String, String> allRequestParams) throws ApplicationException {
+    	
         return userService.getAllUser(offset, limit, sort, searchSpec, allRequestParams);
     }
     
@@ -79,7 +88,7 @@ public class UserController {
      * @param User object
      */
     @RequestMapping(method=RequestMethod.PUT, value="/{contactId}")
-	public ResponseEntity <User> updateUser(@PathVariable(name="contactId", value = "contactId") Integer contactId, @RequestBody User user) throws ApplicationException {
+	public ResponseEntity <User> updateUser(@PathVariable(name="contactId", value = "contactId") Integer contactId, @Valid @RequestBody User user) throws ApplicationException {
     	user.setContactId(contactId);
     	userService.updateUser(user);
         return new ResponseEntity<User> (user, HttpStatus.OK);

@@ -13,8 +13,13 @@ import javax.persistence.Lob;
 import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
+import javax.persistence.Transient;
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonInclude.Include;
 
 import lombok.Data;
 
@@ -45,14 +50,17 @@ public class User implements SearchableEntity {
 
 	private String addedBy;
 
+	@NotNull
 	@Column(name="blockedAccount",nullable=false)
 	private Integer blockedAccount;
 
+	@JsonIgnore
 	private Integer bounced;
 
 	private Integer brokerId;
 
 	@Column(name="client_hours")
+	@JsonIgnore
 	private String clientHours;
 
 	@Column(name="client_id")
@@ -62,8 +70,10 @@ public class User implements SearchableEntity {
 	private String clientName;
 
 	@Column(name="client_status")
+	@JsonIgnore
 	private String clientStatus;
 
+	@NotNull
 	@Column(name="codevalid", nullable=false)
 	private String codevalid;
 
@@ -74,9 +84,11 @@ public class User implements SearchableEntity {
 	private Date deactivationDate;
 
 	@Column(name="deactivationID")
+	@JsonIgnore
 	private Integer deactivationId;
 
 	@Column(name="decision_maker")
+	@JsonIgnore
 	private Integer decisionMaker;
 
 	private Integer deleted;
@@ -84,50 +96,70 @@ public class User implements SearchableEntity {
 	private String email;
 
 	@Temporal(TemporalType.DATE)
+	@JsonIgnore
 	private Date expirationDate;
 
 	private String fax;
+	
+	@Transient
+	@JsonInclude(Include.NON_NULL)
+	private Company company;
 
+	@NotNull
+	@Size(min = 1, max = 50)
 	@Column(name="first_Name")
 	private String firstName;
 
 	@Temporal(TemporalType.TIMESTAMP)
+	@JsonIgnore
 	private Date firstMail;
 
 	@Lob
+	@JsonIgnore
 	private String firstMailMessage;
 
+	@JsonIgnore
 	private String firstMailSuccess;
 
 	@Column(name="has_SPD")
+	@JsonIgnore
 	private Integer hasSPD;
 
 	@Column(name="hrhID")
+	@JsonIgnore
 	private Integer hrhId;
 
+	@JsonIgnore
 	private Integer international;
 
 	@Column(name="last_Name")
 	private String lastName;
 
 	@Column(name="learn_reminder")
+	@JsonIgnore
 	private Integer learnReminder;
 
+	@JsonIgnore
 	@Column(name="learn_sync")
 	private Integer learnSync;
 
 	private String location;
 
+	@JsonIgnore
 	private Integer mailStatus;
 
 	@Temporal(TemporalType.TIMESTAMP)
+	@JsonIgnore
 	private Date mailTime;
 
+	@JsonIgnore
 	private Integer master;
 
 	@Column(name="master_backup")
+	@JsonIgnore
 	private Integer masterBackup;
 
+	@NotNull
 	@Column(name="mkdate", nullable=false)
 	private String mkdate;
 
@@ -135,30 +167,40 @@ public class User implements SearchableEntity {
 
 	private Integer modified;
 
+	@JsonIgnore
 	private String password;
 
 	@Column(name="password_apps")
+	@JsonIgnore
 	private String passwordApps;
 
 	@Column(name="password_enc")
+	@JsonIgnore
 	private String passwordEnc;
 
 	@Column(name="password_reset")
+	@JsonIgnore
 	private Integer passwordReset;
 
 	private String phone;
 
 	@Column(name="phone_backup")
+	@JsonIgnore
 	private String phoneBackup;
 
 	@Temporal(TemporalType.DATE)
+	@JsonIgnore
 	private Date reminder;
 
+	@JsonIgnore
 	private String salesforceID;
 
+	@NotNull
+	@Size(min = 1)
 	@Column(name="search_help")
 	private String searchHelp;
 
+	@JsonIgnore
 	private String specialBlast;
 
 	@Column(name="t1_customfield1")
@@ -176,16 +218,19 @@ public class User implements SearchableEntity {
 	@Column(name="t1_roleId")
 	private Integer t1RoleId;
 
+	@JsonIgnore
 	private String tempId;
 
 	@Temporal(TemporalType.TIMESTAMP)
 	private Date terms;
 
+	@JsonIgnore
 	private Integer testAccount;
 
 	private String title;
 
-	@Column(name="update_password", nullable=false) 
+	@NotNull
+	@Column(name="update_password", nullable=false)
 	private String updatePassword;
 
 	private String userName;
