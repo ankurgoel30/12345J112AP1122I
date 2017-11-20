@@ -9,6 +9,7 @@ import static com.thinkhr.external.api.utils.ApiTestDataUtil.createCompany;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.fail;
+import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -128,7 +129,7 @@ public class CompanyServiceTest {
 	 */
 	@Test
 	public void testGetCompanyNotExists() {
-		Integer companyId = 16;
+		Integer companyId = 1;
 		when(companyRepository.findOne(companyId)).thenReturn(null);
 		Company result = companyService.getCompany(companyId);
 		assertNull("companyId " + companyId + " does not exist", result);
@@ -139,10 +140,13 @@ public class CompanyServiceTest {
 	 * 
 	 */
 	@Test
-	public void testAddCompany(){
+	public void testAddCompany() {
+		//When all data is correct, it should assert true 
 		Integer companyId = 1;
 		Company company = createCompany(1, "Pepcus", "Software", "PEP");
+		
 		when(companyRepository.save(company)).thenReturn(company);
+		
 		Company result = companyService.addCompany(company);
 		assertEquals(companyId, result.getCompanyId());
 		assertEquals("Pepcus", result.getCompanyName());
@@ -187,5 +191,13 @@ public class CompanyServiceTest {
         verify(companyRepository, times(1)).delete(companyId);
 	}
 
+	/**
+	 * To verify deleteCompany method throws ApplicationException
+	 * 
+	 */
+	@Test(expected=com.thinkhr.external.api.exception.ApplicationException.class)
+	public void testDeleteCompanyForEntityNotFound() {
+		companyService.deleteCompany(companyId);
+	}
 
 }
