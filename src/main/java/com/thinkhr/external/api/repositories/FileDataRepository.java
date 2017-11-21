@@ -25,7 +25,7 @@ public class FileDataRepository {
     JdbcTemplate jdbcTemplate;
     
     /**
-     * Saves company record in database
+     * Saves company & location records in database
      * 
      * @param companyColumns
      * @param companyColumnsValues
@@ -101,6 +101,7 @@ public class FileDataRepository {
             throw ex;
         }
     }
+
     
     /**
      * Returns a map of custom fields for given broker

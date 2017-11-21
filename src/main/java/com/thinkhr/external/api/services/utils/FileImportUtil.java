@@ -1,6 +1,10 @@
 package com.thinkhr.external.api.services.utils;
 
+import static com.thinkhr.external.api.ApplicationConstants.FILE_IMPORT_RESULT_MSG;
+
 import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -14,6 +18,10 @@ import java.util.Set;
 
 import org.apache.commons.io.FilenameUtils;
 import org.springframework.web.multipart.MultipartFile;
+
+import com.thinkhr.external.api.exception.MessageResourceHandler;
+import com.thinkhr.external.api.model.FileImportResult;
+import com.thinkhr.external.api.response.APIMessageUtil;
 
 public class FileImportUtil {
 	
@@ -121,17 +129,9 @@ public class FileImportUtil {
         columnsToHeaderMap.put("companysize", "COMPANY_SIZE");
         //producer
         columnsToHeaderMap.put("producer", "PRODUCER");
-        // get this map from app_throne_custom_fields table
-        //custom1 (default = BUSINESS_ID)
-        columnsToHeaderMap.put("custom1", "BUSINESS_ID");
-        //custom2 (default = BRANCH_ID)
-        columnsToHeaderMap.put("custom2", "BRANCH_ID");
-        //custom3 (default = CLIENT_ID)
-        columnsToHeaderMap.put("custom3", "CLIENT_ID");
-        //custom4 (default = CLIENT_TYPE)
-        columnsToHeaderMap.put("custom4", "CLIENT_TYPE");
-
-        return columnsToHeaderMap;
+       
+	   
+	    return columnsToHeaderMap;
     }
 
     /**
@@ -171,6 +171,35 @@ public class FileImportUtil {
                 columnValues[k++] = columnValueInCsv;
             }
         }
+    }
+    
+    /**
+     * This Function will create a response csv file from FileImportResult
+     * 
+     * @param FileimportResult fileImportResult
+     * @return File
+     * @throws IOException
+     */
+    public static File createReponseFile(FileImportResult fileImportResult, MessageResourceHandler resourceHandler) throws IOException {
+        File responseFile = File.createTempFile("fileImportResponse", ".csv");
+        FileWriter writer = new FileWriter(responseFile);
+
+        if (fileImportResult != null) {
+            String msg = APIMessageUtil.getMessageFromResourceBundle(resourceHandler, FILE_IMPORT_RESULT_MSG,
+                    String.valueOf(fileImportResult.getTotalRecords()), String.valueOf(fileImportResult.getNumSuccessRecords()),
+                    String.valueOf(fileImportResult.getNumFailedRecords()));
+
+            writer.write(msg);
+            if (fileImportResult.getNumFailedRecords() > 0) {
+                writer.write("Failed  Records\n");
+                writer.write(fileImportResult.getHeaderLine() + ",Record Number,FailureCause\n");
+                for (FileImportResult.FailedRecord failedRecord : fileImportResult.getFailedRecords()) {
+                    writer.write(failedRecord.getRecord() + "," + failedRecord.getIndex() + "," + failedRecord.getFailureCause() + "\n");
+                }
+            }
+        }
+        writer.close();
+        return responseFile;
     }
 
 }

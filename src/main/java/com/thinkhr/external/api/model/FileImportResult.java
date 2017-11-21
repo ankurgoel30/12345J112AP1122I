@@ -18,6 +18,7 @@ public class FileImportResult {
 	private int totalRecords;
 	private int numSuccessRecords;
 	private int numFailedRecords;
+	private String headerLine; // For storing header to be used for creating responseFile
 	private List<FailedRecord> failedRecords = new ArrayList<FailedRecord>();
 
 	public void increamentSuccessRecords() {

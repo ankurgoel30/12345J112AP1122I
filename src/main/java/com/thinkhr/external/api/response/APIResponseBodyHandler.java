@@ -1,7 +1,14 @@
 package com.thinkhr.external.api.response;
 
-import static com.thinkhr.external.api.ApplicationConstants.*;
-import static com.thinkhr.external.api.request.APIRequestHelper.*;
+import static com.thinkhr.external.api.ApplicationConstants.DEFAULT_LIMIT;
+import static com.thinkhr.external.api.ApplicationConstants.DEFAULT_OFFSET;
+import static com.thinkhr.external.api.ApplicationConstants.DEFAULT_SORT_BY_COMPANY_NAME;
+import static com.thinkhr.external.api.ApplicationConstants.LIMIT_PARAM;
+import static com.thinkhr.external.api.ApplicationConstants.OFFSET_PARAM;
+import static com.thinkhr.external.api.ApplicationConstants.SORT_PARAM;
+import static com.thinkhr.external.api.ApplicationConstants.SUCCESS_DELETED;
+import static com.thinkhr.external.api.ApplicationConstants.TOTAL_RECORDS;
+import static com.thinkhr.external.api.request.APIRequestHelper.getRequestAttribute;
 import static com.thinkhr.external.api.response.APIMessageUtil.getMessageFromResourceBundle;
 
 import java.util.List;
@@ -11,6 +18,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.MethodParameter;
+import org.springframework.core.io.InputStreamResource;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.converter.HttpMessageConverter;
@@ -25,6 +33,7 @@ import com.thinkhr.external.api.db.entities.Company;
 import com.thinkhr.external.api.exception.APIError;
 import com.thinkhr.external.api.exception.APIErrorCodes;
 import com.thinkhr.external.api.exception.MessageResourceHandler;
+import com.thinkhr.external.api.model.FileImportResult;
 import com.thinkhr.external.api.services.utils.EntitySearchUtil;
 
 
@@ -81,6 +90,10 @@ public class APIResponseBodyHandler implements ResponseBodyAdvice<Object> {
 		 */
 		if (body instanceof List) {
 			setListData((List)body, httpRequest, apiResponse);
+        } else if (body instanceof FileImportResult) {
+            apiResponse.setFileImportResult((FileImportResult) body);
+            String jobId = (String) httpRequest.getServletRequest().getAttribute("jobId");
+            apiResponse.setJobId(jobId);
 		} else {
 			/*
 			 * TODO: FIXME for generic object
@@ -92,6 +105,9 @@ public class APIResponseBodyHandler implements ResponseBodyAdvice<Object> {
 			if (body instanceof Integer && statusCode == HttpStatus.ACCEPTED.value()) {
 				apiResponse.setMessage(getMessageFromResourceBundle(resourceHandler, SUCCESS_DELETED, "Company", body.toString()));
 			}
+			if (body instanceof InputStreamResource) {
+	                return body;
+	        }
 		}
 		if (logger.isDebugEnabled()) {
 			logger.debug("Request processed and response is " + apiResponse);

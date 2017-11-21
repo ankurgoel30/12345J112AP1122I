@@ -8,6 +8,8 @@ package com.thinkhr.external.api;
  *
  */
 public class ApplicationConstants {
+	
+	//GENERIC CONSTANTS
     public static final int DEFAULT_OFFSET = 0;
     public static final int DEFAULT_LIMIT = 50;
     public static final String DESENDING = "-";
@@ -15,18 +17,18 @@ public class ApplicationConstants {
     public static final String DEFAULT_SORT_BY_COMPANY_NAME = "+companyName";
     public static final String DEFAULT_SORT_BY_USER_NAME = "+userName";
     public static final String SUCCESS_DELETED = "SUCCESSFULLY_DELETED";
-    
-    //COMPANY BULK IMPORT
-    public static final int DEFAULT_BROKER = 187624;
-    public static final int MAX_RECORDS_COMPANY_CSV_IMPORT = 11000;
-    public static final String SPACE = " ";
-    public static final String VALID_FILE_EXTENSION_IMPORT = "csv";
-    public static final String[] REQUIRED_HEADERS_COMPANY_CSV_IMPORT = {"CLIENT_NAME", "DISPLAY_NAME","PHONE","ADDRESS","ADDRESS2",
-    																	"CITY","STATE","ZIP","INDUSTRY", "COMPANY_SIZE", "PRODUCER"};
     public static final String TOTAL_RECORDS = "totalRecords";
     public static final String LIMIT_PARAM = "limit";
     public static final String OFFSET_PARAM = "offset";
     public static final String SORT_PARAM = "sort";
     public static final String VALID_FORMAT_YYYY_MM_DD = "yyyy-MM-dd";
+    public static final String VALID_FILE_EXTENSION_IMPORT = "csv";
+    public static final String[] REQUIRED_HEADERS_COMPANY_CSV_IMPORT = { "CLIENT_NAME", "DISPLAY_NAME", "PHONE", "ADDRESS", "ADDRESS2",
+            "CITY", "STATE", "ZIP", "INDUSTRY", "COMPANY_SIZE", "PRODUCER" };
+    public static final int MAX_RECORDS_COMPANY_CSV_IMPORT = 3500;
+    public static final String SPACE = " ";
+    public static final String DEFAULT_BROKERID_FOR_FILE_IMPORT = "187624";
+    public static final String FILE_IMPORT_RESULT_MSG = "FILE_IMPORT_RESULT";
+    
 
 }

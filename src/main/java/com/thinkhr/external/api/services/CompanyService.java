@@ -1,21 +1,23 @@
 package com.thinkhr.external.api.services;
 
-import static com.thinkhr.external.api.ApplicationConstants.DEFAULT_BROKER;
 import static com.thinkhr.external.api.ApplicationConstants.DEFAULT_SORT_BY_COMPANY_NAME;
 import static com.thinkhr.external.api.ApplicationConstants.MAX_RECORDS_COMPANY_CSV_IMPORT;
 import static com.thinkhr.external.api.ApplicationConstants.REQUIRED_HEADERS_COMPANY_CSV_IMPORT;
-import static com.thinkhr.external.api.ApplicationConstants.VALID_FILE_EXTENSION_IMPORT;
 import static com.thinkhr.external.api.ApplicationConstants.TOTAL_RECORDS;
+import static com.thinkhr.external.api.ApplicationConstants.VALID_FILE_EXTENSION_IMPORT;
+import static com.thinkhr.external.api.request.APIRequestHelper.setRequestAttribute;
 import static com.thinkhr.external.api.services.utils.EntitySearchUtil.getEntitySearchSpecification;
 import static com.thinkhr.external.api.services.utils.EntitySearchUtil.getPageable;
-import static com.thinkhr.external.api.request.APIRequestHelper.setRequestAttribute;
 
 import java.io.IOException;
+import java.sql.DataTruncation;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
@@ -25,7 +27,6 @@ import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
-import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StopWatch;
 import org.springframework.web.multipart.MultipartFile;
@@ -33,9 +34,11 @@ import org.springframework.web.multipart.MultipartFile;
 import com.thinkhr.external.api.db.entities.Company;
 import com.thinkhr.external.api.exception.APIErrorCodes;
 import com.thinkhr.external.api.exception.ApplicationException;
+import com.thinkhr.external.api.exception.MessageResourceHandler;
 import com.thinkhr.external.api.model.FileImportResult;
 import com.thinkhr.external.api.repositories.CompanyRepository;
 import com.thinkhr.external.api.repositories.FileDataRepository;
+import com.thinkhr.external.api.response.APIMessageUtil;
 import com.thinkhr.external.api.services.utils.FileImportUtil;
 
 /**
@@ -56,14 +59,14 @@ public class CompanyService  extends CommonService {
 	
     @Autowired
     private CompanyRepository companyRepository;
-    
-	@Autowired
-	private FileDataRepository fileDataRepository;
-	
-	 @Autowired
-	 JdbcTemplate jdbcTemplate;
+    @Autowired
+    private FileDataRepository fileDataRepository;
+
+    @Autowired
+    MessageResourceHandler resourceHandler;
 
     /**
+     *
      * To fetch companies records. Based on given parameters companies records will be filtered out.
      * 
      * @param Integer offset First record index from database after sorting. Default value is 0
@@ -73,6 +76,7 @@ public class CompanyService  extends CommonService {
      * @param Map<String, String>
      * @return List<Company> object 
      * @throws ApplicationException 
+     * 
      */
     public List<Company> getAllCompany(Integer offset, 
     		Integer limit,
@@ -90,7 +94,6 @@ public class CompanyService  extends CommonService {
 				requestParameters.entrySet().stream().forEach(entry -> { logger.debug(entry.getKey() + ":: " + entry.getValue()); });
 			}
 		}
-
     	
     	Specification<Company> spec = getEntitySearchSpecification(searchSpec, requestParameters, Company.class, new Company());
 
@@ -146,7 +149,7 @@ public class CompanyService  extends CommonService {
      * 
      * @param companyId
      */
-    public int deleteCompany(int companyId) throws ApplicationException {
+     public int deleteCompany(int companyId) throws ApplicationException {
     	try {
     		companyRepository.delete(companyId);
     	} catch (EmptyResultDataAccessException ex ) {
@@ -162,45 +165,42 @@ public class CompanyService  extends CommonService {
      * @param fileToImport
      * @throws ApplicationException
      */
-    public FileImportResult bulkUpload(MultipartFile fileToImport) throws ApplicationException {
+    public FileImportResult bulkUpload(MultipartFile fileToImport, int brokerId) throws ApplicationException {
         StopWatch stopWatchFileRead = new StopWatch();
         stopWatchFileRead.start();
 
         List<String> fileContents = new ArrayList<String>();
-        String[] headers = null;
-        validateAndReadFile(fileToImport, fileContents, headers);
+        validateAndReadFile(fileToImport, fileContents);
         stopWatchFileRead.stop();
         StopWatch stopWatchDBSave = new StopWatch();
         stopWatchDBSave.start();
 
         FileImportResult fileImportResult = new FileImportResult();
-        saveByNativeQuery(headers, fileContents.subList(1, fileContents.size()), fileImportResult);
+        String[] headers = fileContents.get(0).split(",");
+        saveByNativeQuery(headers, fileContents.subList(1, fileContents.size()), fileImportResult, brokerId);
+        fileImportResult.setHeaderLine(fileContents.get(0));
         stopWatchDBSave.stop();
 
         double totalFileReadTimeInSec = stopWatchFileRead.getTotalTimeSeconds();
         double totalDBSaveTimeInSec = stopWatchDBSave.getTotalTimeSeconds();
-        System.out.println("File Read Time:" + totalFileReadTimeInSec);
-        System.out.println("DB Save Time :" + totalDBSaveTimeInSec);
-        System.out.println(fileImportResult.getNumSuccessRecords());
-        System.out.println(fileImportResult.getNumFailedRecords());
+        logger.debug("Time taken in reading file :" + totalFileReadTimeInSec);
+        logger.debug("Time taken in Saving file  :" + totalDBSaveTimeInSec);
+
         return fileImportResult;
     }
     
     /**
-     * Validates fileToimport and populates fileContens and file headers
-     * 
+     * This function validates fileToimport and populates fileContens
      * @param fileToImport
      * @param fileContents
      * @param headers
      * @throws ApplicationException
+     * 
      */
-    public void validateAndReadFile(MultipartFile fileToImport, 
-    									   List<String> fileContents, 
-    									   String[] headers) throws ApplicationException {
-        
-    	String fileName = fileToImport.getOriginalFilename();
+    private void validateAndReadFile(MultipartFile fileToImport, List<String> fileContents) throws ApplicationException {
+        String fileName = fileToImport.getOriginalFilename();
 
-        // Validate if file has valid extension or empty
+        // Validate if file has valid extension
         if (!FileImportUtil.hasValidExtension(fileName, VALID_FILE_EXTENSION_IMPORT)) {
             throw ApplicationException.createFileImportError(APIErrorCodes.INVALID_FILE_EXTENTION, fileName, VALID_FILE_EXTENSION_IMPORT);
         }
@@ -211,13 +211,13 @@ public class CompanyService  extends CommonService {
 
         // Read all lines from file
         try {
-            fileContents = FileImportUtil.readFileContent(fileToImport);
+            fileContents.addAll(FileImportUtil.readFileContent(fileToImport));
         } catch (IOException ex) {
             throw ApplicationException.createFileImportError(APIErrorCodes.FILE_READ_ERROR, ex.getMessage());
         }
 
         // Validate for missing headers
-        headers = fileContents.get(0).split(",");
+        String[] headers = fileContents.get(0).split(",");
         String[] missingHeadersIfAny = FileImportUtil.getMissingHeaders(headers, REQUIRED_HEADERS_COMPANY_CSV_IMPORT);
         if (missingHeadersIfAny.length != 0) {
             String requiredHeaders = String.join(",", REQUIRED_HEADERS_COMPANY_CSV_IMPORT);
@@ -243,19 +243,18 @@ public class CompanyService  extends CommonService {
      * We don't want ORM mapping here as that will lead
      * additional mapping overhead and slow down operations. 
      * 
-     *  Not able to use batch processing here due to requirement of
-     *  dealing with failure records & adding data in more than one tables.
-     * 
-     *  
+     * Not able to use batch processing here due to requirement of
+     * dealing with failure records & adding data in more than one tables.
+     *   
      * @param headers
      * @param records
      * @param fileImportResult
      */
-    private void saveByNativeQuery(String[] headersInCSV, List<String> records, FileImportResult fileImportResult)
+    private void saveByNativeQuery(String[] headersInCSV, List<String> records, FileImportResult fileImportResult, int brokerId)
             throws ApplicationException {
         fileImportResult.setTotalRecords(records.size());
 
-        Map<String, String> columnToHeaderCompanyMap = getCompanyColumnsHeaderMap(DEFAULT_BROKER);
+        Map<String, String> columnToHeaderCompanyMap = getCompanyColumnsHeaderMap(brokerId); 
         Map<String, String> columnToHeaderLocationMap = FileImportUtil.getColumnsToHeaderMapForLocationRecord();
 
         Map<String, Integer> headerIndexMap = new HashMap<String, Integer>();
@@ -265,12 +264,16 @@ public class CompanyService  extends CommonService {
 
         String[] companyColumnsToInsert = columnToHeaderCompanyMap.keySet().toArray(new String[columnToHeaderCompanyMap.size()]);
         String[] locationColumnsToInsert = columnToHeaderLocationMap.keySet().toArray(new String[columnToHeaderLocationMap.size()]);
-
+        
+        Set<String> companyNames = new HashSet<String>();// To keep track of duplicate names in record
+           
         for (int recIdx = 0; recIdx < records.size(); recIdx++) {
             String record = records.get(recIdx).trim();
             if (StringUtils.isBlank(record)) {
                 fileImportResult.increamentFailedRecords();
-                fileImportResult.addFailedRecord(recIdx + 1, record, "Blank Record", "Skipped");
+                String causeBlankRecord = APIMessageUtil.getMessageFromResourceBundle(resourceHandler, "BLANK_RECORD");
+                String infoSkipped = APIMessageUtil.getMessageFromResourceBundle(resourceHandler, "SKIPPED");
+                fileImportResult.addFailedRecord(recIdx + 1, record, causeBlankRecord, infoSkipped);
                 continue;
             }
 
@@ -284,25 +287,56 @@ public class CompanyService  extends CommonService {
                         headerIndexMap);
 
                 // Populate locationColumnsValues from split record
-                FileImportUtil.populateColumnValues(locationColumnsValues, locationColumnsToInsert, columnToHeaderCompanyMap, values,
+                FileImportUtil.populateColumnValues(locationColumnsValues, locationColumnsToInsert, columnToHeaderLocationMap, values,
                         headerIndexMap);
             } catch (ArrayIndexOutOfBoundsException ex) {
                 fileImportResult.increamentFailedRecords();
-                fileImportResult.addFailedRecord(recIdx + 1, record, "Not All Fields available in record", "Skipped");
+                String causeMissingFields = APIMessageUtil.getMessageFromResourceBundle(resourceHandler, "MISSING_FIELDS");
+                String infoSkipped = APIMessageUtil.getMessageFromResourceBundle(resourceHandler, "SKIPPED");
+                fileImportResult.addFailedRecord(recIdx + 1, record, causeMissingFields, infoSkipped);
                 continue;
             } catch (Exception ex) {
                 throw ApplicationException.createFileImportError(APIErrorCodes.FILE_READ_ERROR, ex.getMessage());
             }
 
             try {
+                String companyName = values[0].trim();// Assuming first field in csv is company name
+                if (companyNames.contains(companyName)) {
+                    fileImportResult.increamentFailedRecords();
+                    String causeDuplicateName = APIMessageUtil.getMessageFromResourceBundle(resourceHandler, "DUPLICATE_NAME");
+                    causeDuplicateName = causeDuplicateName + " - " + companyName;
+                    String infoSkipped = APIMessageUtil.getMessageFromResourceBundle(resourceHandler, "SKIPPED");
+                    fileImportResult.addFailedRecord(recIdx + 1, record, causeDuplicateName, infoSkipped);
+                    continue;
+                }
                 fileDataRepository.saveCompanyRecord(companyColumnsToInsert, companyColumnsValues, locationColumnsToInsert,
                         locationColumnsValues);
+                companyNames.add(companyName);
                 fileImportResult.increamentSuccessRecords();
             } catch (Exception ex) {
                 fileImportResult.increamentFailedRecords();
-                fileImportResult.addFailedRecord(recIdx + 1, record, ex.getMessage(), "Record could not be added");
+                Throwable th = ex.getCause();
+                String cause = null;
+                String info = APIMessageUtil.getMessageFromResourceBundle(resourceHandler, "RECORD_NOT_ADDED");
+                if (th instanceof DataTruncation) {
+                    DataTruncation dte = (DataTruncation) th;
+                    cause = APIMessageUtil.getMessageFromResourceBundle(resourceHandler, "DATA_TRUNCTATION");
+                } else {
+                    cause = ex.getMessage();
+                }
+                fileImportResult.addFailedRecord(recIdx + 1, record, cause, info);
             }
         }
+        logger.debug("Total Number of Records: " + fileImportResult.getTotalRecords());
+        logger.debug("Total Number of Successful Records: " + fileImportResult.getNumSuccessRecords());
+        logger.debug("Total Number of Failure Records: " + fileImportResult.getNumFailedRecords());
+        if (fileImportResult.getNumFailedRecords() > 0) {
+            logger.debug("List of Failure Records");
+            for (FileImportResult.FailedRecord failedRecord : fileImportResult.getFailedRecords()) {
+                logger.debug(failedRecord.getRecord() + "," + failedRecord.getFailureCause());
+            }
+        }
+        logger.debug("************** COMPANY IMPORT ENDS *****************");
     }
 
     /**
@@ -338,11 +372,7 @@ public class CompanyService  extends CommonService {
         return columnToHeaderCompanyMap;
     }
     
-    
-
-    
-	
-	/**
+   	/**
 	 * 
 	 * SOME UTILITY METHODS
 	 * 

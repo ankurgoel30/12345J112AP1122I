@@ -1,15 +1,26 @@
 package com.thinkhr.external.api.controllers;
 
+import static com.thinkhr.external.api.ApplicationConstants.DEFAULT_BROKERID_FOR_FILE_IMPORT;
 import static com.thinkhr.external.api.ApplicationConstants.DEFAULT_SORT_BY_COMPANY_NAME;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
 import javax.validation.Valid;
 
 import org.hibernate.validator.constraints.Range;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.InputStreamResource;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -20,11 +31,14 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
+import com.thinkhr.external.api.ApplicationConstants;
 import com.thinkhr.external.api.db.entities.Company;
 import com.thinkhr.external.api.exception.APIErrorCodes;
 import com.thinkhr.external.api.exception.ApplicationException;
+import com.thinkhr.external.api.exception.MessageResourceHandler;
 import com.thinkhr.external.api.model.FileImportResult;
 import com.thinkhr.external.api.services.CompanyService;
+import com.thinkhr.external.api.services.utils.FileImportUtil;
 
 
 /**
@@ -41,8 +55,13 @@ import com.thinkhr.external.api.services.CompanyService;
 @RequestMapping(path="/v1/companies")
 public class CompanyController {
 	
+	private Logger logger = LoggerFactory.getLogger(CompanyService.class);
+	
     @Autowired
     CompanyService companyService;
+    
+    @Autowired
+    MessageResourceHandler resourceHandler;
 
     /**
      * List all companies from repository
@@ -128,7 +147,24 @@ public class CompanyController {
      * @param Multipart file
      */
     @RequestMapping(method=RequestMethod.POST,  value="/bulk")
-    public FileImportResult bulkUpload(@RequestParam("file") MultipartFile file) throws ApplicationException {
-    	return companyService.bulkUpload(file);
+    public ResponseEntity<InputStreamResource> bulkUpload(@RequestParam("file") MultipartFile file,
+            @RequestParam(value = "brokerId", required = false, defaultValue = DEFAULT_BROKERID_FOR_FILE_IMPORT) Integer brokerId,
+            @RequestParam(value = "jobId", required = false) String jobId)
+            throws ApplicationException, IOException {
+       	
+    	logger.info("########### ########### COMPANY IMPORT BEGINS ######### #####");
+        logger.info("Date & Time: " + new SimpleDateFormat(ApplicationConstants.VALID_FORMAT_YYYY_MM_DD).format(new Date()));
+        logger.info("job id: " + jobId);
+        FileImportResult fileImportResult = companyService.bulkUpload(file, brokerId);
+        
+        // Set the attachment header.
+        HttpHeaders headers = new HttpHeaders();
+        headers.add("Content-disposition", "attachment;filename=companiesImportResult.csv");
+
+        File responseFile = FileImportUtil.createReponseFile(fileImportResult, resourceHandler);
+
+        return ResponseEntity.ok().headers(headers).contentLength(responseFile.length()).contentType(MediaType.parseMediaType("text/csv"))
+                .body(new InputStreamResource(new FileInputStream(responseFile)));
     }
+   
 }
