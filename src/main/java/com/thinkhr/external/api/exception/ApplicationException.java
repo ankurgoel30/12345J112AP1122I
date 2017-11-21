@@ -21,7 +21,8 @@ public class ApplicationException extends RuntimeException {
     private HttpStatus httpStatus;
     
 	/**
-	 * TODO 
+	 * ApplicationException constructor 
+	 * 
 	 * @param msg
 	 */
 	public ApplicationException(String msg) {
@@ -29,7 +30,7 @@ public class ApplicationException extends RuntimeException {
 	}
 
     /**
-     * TODO
+	 * ApplicationException constructor 
      * 
      * @param errorCode
      * @param params
@@ -40,7 +41,8 @@ public class ApplicationException extends RuntimeException {
     }
     
     /**
-     * TODO
+	 * ApplicationException constructor 
+	 * 
      * @param errorCode
      * @param params
      * @param httpStatus
@@ -51,7 +53,8 @@ public class ApplicationException extends RuntimeException {
     }
 
     /**
-     * TODO
+	 * ApplicationException constructor 
+	 * 
      * @param errorCode
      * @param params
      * @return
@@ -63,7 +66,7 @@ public class ApplicationException extends RuntimeException {
     }
     
     /**
-     * TODO
+	 * ApplicationException constructor 
      * 
      * @param errorCode
      * @param params
@@ -76,7 +79,8 @@ public class ApplicationException extends RuntimeException {
     }
     
     /**
-     * TODO
+	 * ApplicationException constructor 
+	 * 
      * @param errorCode
      * @param params
      * @return
