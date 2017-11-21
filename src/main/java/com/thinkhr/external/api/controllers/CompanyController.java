@@ -142,22 +142,23 @@ public class CompanyController {
    	}
     
     /**
-     * Bulk import companies from a CSV upload
+     * Bulk import company records from a given CSV file.
      * 
-     * @param Multipart file
+     * @param Multipart file CSV files with records
+     * @param brokerId - brokerId from request. Originally retrieved as part of JWT token
+     * 
      */
     @RequestMapping(method=RequestMethod.POST,  value="/bulk")
-    public ResponseEntity<InputStreamResource> bulkUpload(@RequestParam("file") MultipartFile file,
-            @RequestParam(value = "brokerId", required = false, defaultValue = DEFAULT_BROKERID_FOR_FILE_IMPORT) Integer brokerId,
-            @RequestParam(value = "jobId", required = false) String jobId)
+    public ResponseEntity <InputStreamResource> bulkUpload(@RequestParam("file") MultipartFile file,
+            @RequestParam(value = "brokerId", required = false, defaultValue = DEFAULT_BROKERID_FOR_FILE_IMPORT) Integer brokerId )
             throws ApplicationException, IOException {
        	
     	logger.info("########### ########### COMPANY IMPORT BEGINS ######### #####");
         logger.info("Date & Time: " + new SimpleDateFormat(ApplicationConstants.VALID_FORMAT_YYYY_MM_DD).format(new Date()));
-        logger.info("job id: " + jobId);
         FileImportResult fileImportResult = companyService.bulkUpload(file, brokerId);
         
-        // Set the attachment header.
+        // Set the attachment header & set up response to return a CSV file with result and errroneous records
+        // This response CSV file can be used by users to resubmit records after fixing them.
         HttpHeaders headers = new HttpHeaders();
         headers.add("Content-disposition", "attachment;filename=companiesImportResult.csv");
 
