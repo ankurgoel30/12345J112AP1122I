@@ -82,7 +82,7 @@ public class EntitySearchUtil {
 			sortedBy = sortedBy.substring(1);
 		} 
 		
-		return sortedBy;
+		return sortedBy.trim();
 	}
     
     /**

@@ -75,9 +75,11 @@ public class CompanyService  extends CommonService {
     	Specification<Company> spec = getEntitySearchSpecification(searchSpec, requestParameters, Company.class, new Company());
 
     	Page<Company> companyList  = (Page<Company>) companyRepository.findAll(spec, pageable);
-
-    	companyList.getContent().forEach(c -> companies.add(c));
     	
+    	if (companyList != null) {
+        	companyList.getContent().forEach(c -> companies.add(c));
+    	}
+
     	//Get and set the total number of records
         setRequestAttribute(TOTAL_RECORDS, companyRepository.count());
         
