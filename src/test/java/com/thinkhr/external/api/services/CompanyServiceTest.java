@@ -201,7 +201,7 @@ public class CompanyServiceTest {
 			fail("Should be executed properly without any error");
 		}
 		//Verifying that internally companyRepository's delete method executed
-        verify(companyRepository, times(1)).delete(companyId);
+        verify(companyRepository, times(1)).softDelete(companyId);
 	}
 
 	/**
@@ -211,7 +211,7 @@ public class CompanyServiceTest {
 	@Test(expected=com.thinkhr.external.api.exception.ApplicationException.class)
 	public void testDeleteCompanyForEntityNotFound() {
 		int companyId = 1 ;
-		doThrow(new EmptyResultDataAccessException("Not found", 1)).when(companyRepository).delete(companyId);
+		doThrow(new EmptyResultDataAccessException("Not found", 1)).when(companyRepository).softDelete(companyId);
 		companyService.deleteCompany(companyId);
 	}
 
