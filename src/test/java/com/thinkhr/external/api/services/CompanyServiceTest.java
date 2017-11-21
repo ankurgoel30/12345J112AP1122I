@@ -195,6 +195,8 @@ public class CompanyServiceTest {
 	@Test
 	public void testDeleteCompany() {
 		Integer companyId = 1;
+		
+		when(companyRepository.findOne(companyId)).thenReturn(createCompany());
 		try {
 			companyService.deleteCompany(companyId);
 		} catch (ApplicationException e) {
@@ -211,7 +213,7 @@ public class CompanyServiceTest {
 	@Test(expected=com.thinkhr.external.api.exception.ApplicationException.class)
 	public void testDeleteCompanyForEntityNotFound() {
 		int companyId = 1 ;
-		doThrow(new EmptyResultDataAccessException("Not found", 1)).when(companyRepository).softDelete(companyId);
+		when(companyRepository.findOne(companyId)).thenReturn(null);
 		companyService.deleteCompany(companyId);
 	}
 
