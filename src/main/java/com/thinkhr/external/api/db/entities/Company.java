@@ -10,6 +10,7 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.PrePersist;
 import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
@@ -316,7 +317,18 @@ public class Company implements SearchableEntity {
 	private Integer sourceId;
 	
 	@Column(name = "t1_is_active", updatable= false)
+	@JsonIgnore
 	private Integer isActive;
+	
+	@PrePersist
+	public void prePersist() {
+		/* This check is to create new Company record as always active. 
+		 * It should be handled in database by making it's default value as 1 instead of 0.
+		 */
+		if (isActive == null) {
+			isActive = 1;
+		}
+	}
 
 	@Column(name = "t1_parent_company_id")
 	private Integer parentCompanyId;
