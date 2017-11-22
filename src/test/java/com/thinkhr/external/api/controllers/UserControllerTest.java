@@ -127,7 +127,7 @@ public class UserControllerTest {
 	 */
 	@Test
 	public void testGetUserByIdNotExists() throws Exception {
-		Integer contactId = new Integer(15);
+		Integer contactId = new Integer(1);
 		
 		given(userController.getById(contactId)).willThrow(ApplicationException.
 				createEntityNotFoundError(APIErrorCodes.ENTITY_NOT_FOUND, "user", "contactId=" + contactId));
@@ -478,6 +478,24 @@ public class UserControllerTest {
 		mockMvc.perform(delete(USER_API_BASE_PATH + user.getContactId())
 			   .accept(MediaType.APPLICATION_JSON))
 		.andExpect(status().is(204));
+	}
+	
+	/**
+	 * Test to verify delete user API (/v1/users/{contactId}) for EntityNotFound
+	 * 
+	 * @throws Exception
+	 */
+	@Test
+	public void testDeleteUserForEntityNotFound() throws Exception {
+		
+		User user = createUser(); 
+		
+		given(userController.deleteUser(user.getContactId())).willThrow(ApplicationException.
+				createEntityNotFoundError(APIErrorCodes.ENTITY_NOT_FOUND, String.valueOf(user.getContactId())));
+
+		mockMvc.perform(delete(USER_API_BASE_PATH + user.getContactId())
+			   .accept(MediaType.APPLICATION_JSON))
+		.andExpect(status().isNotFound());
 	}
 
 }

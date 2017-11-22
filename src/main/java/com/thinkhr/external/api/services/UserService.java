@@ -54,7 +54,9 @@ public class UserService extends CommonService {
     	
     	Page<User> userList  = (Page<User>) userRepository.findAll(spec,pageable);
 
-    	userList.getContent().forEach(c -> users.add(c));
+    	if (userList != null) {
+    		userList.getContent().forEach(c -> users.add(c));
+    	}
     	
     	return users;
     }

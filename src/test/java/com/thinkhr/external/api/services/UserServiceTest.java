@@ -1,15 +1,13 @@
 package com.thinkhr.external.api.services;
 
 import static com.thinkhr.external.api.services.utils.EntitySearchUtil.getPageable;
-import static com.thinkhr.external.api.utils.ApiTestDataUtil.LIMIT;
-import static com.thinkhr.external.api.utils.ApiTestDataUtil.OFFSET;
-import static com.thinkhr.external.api.utils.ApiTestDataUtil.SEARCH_SPEC;
-import static com.thinkhr.external.api.utils.ApiTestDataUtil.USER_SORT_BY;
+import static com.thinkhr.external.api.ApplicationConstants.DEFAULT_SORT_BY_USER_NAME;
 import static com.thinkhr.external.api.utils.ApiTestDataUtil.createUser;
 import static com.thinkhr.external.api.utils.ApiTestDataUtil.createUsers;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.fail;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -22,12 +20,13 @@ import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.jpa.domain.Specification;
 import org.springframework.test.context.junit4.SpringRunner;
 
 import com.thinkhr.external.api.db.entities.User;
+import com.thinkhr.external.api.exception.APIErrorCodes;
 import com.thinkhr.external.api.exception.ApplicationException;
 import com.thinkhr.external.api.repositories.UserRepository;
 
@@ -45,28 +44,26 @@ public class UserServiceTest {
 	@InjectMocks
 	private UserService userService;
 	
-	private String defaultSortField = "+userName";
-	
 	@Before
 	public void setup(){
 		MockitoAnnotations.initMocks(this);
 	}
 	
 	/**
-	 * To verify getAllUsers method when no specific (Default) method arguments are provided 
+	 * To verify getAllUsers method. 
 	 * 
 	 */
 	@Test
 	public void testGetAllUsers(){
 		List<User> userList = createUsers();
 		
-		Pageable pageable = getPageable(null, null, null, defaultSortField);
+		Pageable pageable = getPageable(null, null, null, DEFAULT_SORT_BY_USER_NAME);
 		
 		when(userRepository.findAll(null, pageable)).thenReturn(new PageImpl<User>(userList, pageable, userList.size()));
 
 		try {
 			List<User> result =  userService.getAllUser(null, null, null, null, null);
-			assertEquals(5, result.size());
+			assertEquals(10, result.size());
 		} catch (ApplicationException ex) {
 			fail("Not expected exception");
 		}
@@ -75,28 +72,20 @@ public class UserServiceTest {
 	}
 	
 	/**
-	 * To verify getAllUser method when specific method arguments are provided
+	 * To verify getAllCompany method specifically for pageable.
 	 * 
 	 */
 	@Test
-	public void testGetAllUserForParams(){
+	public void testGetAllToVerifyPageable(){
+		
 		List<User> userList = createUsers();
 		
-		Pageable pageable = getPageable(OFFSET, LIMIT, USER_SORT_BY, defaultSortField);
-		Specification<User> spec = null;
-    	if(SEARCH_SPEC != null && SEARCH_SPEC.trim() != "") {
-    		spec = new EntitySearchSpecification<User>(SEARCH_SPEC, new User());
-    	}
-		when(userRepository.findAll(spec, pageable)).thenReturn(new PageImpl<User>(userList, pageable, userList.size()));
-
-		List<User> result;
-		try {
-			result = userService.getAllUser(OFFSET, LIMIT, USER_SORT_BY, SEARCH_SPEC, null);
-			assertEquals(5, result.size());
-		} catch (ApplicationException e) {
-			fail("Not expecting application exception for a valid test case");
-		}
-
+		userService.getAllUser(null, null, null, null, null);
+		
+		Pageable pageable = getPageable(null, null, null, DEFAULT_SORT_BY_USER_NAME);
+		
+		//Verifying that internally pageable arguments is passed to userRepository's findAll method
+		verify(userRepository, times(1)).findAll(null, pageable);
 	}
 	
 	/**
@@ -110,10 +99,10 @@ public class UserServiceTest {
 		when(userRepository.findOne(user.getContactId())).thenReturn(user);
 		User result = userService.getUser(user.getContactId());
 		assertEquals(user.getContactId(), result.getContactId());
-		assertEquals("Pepcus", result.getFirstName());
-		assertEquals("Software", result.getLastName());
-		assertEquals("dummy help", result.getSearchHelp());
-		assertEquals("pepcus", result.getUserName());
+		assertEquals(user.getFirstName(), result.getFirstName());
+		assertEquals(user.getLastName(), result.getLastName());
+		assertEquals(user.getSearchHelp(), result.getSearchHelp());
+		assertEquals(user.getUserName(), result.getUserName());
 	}
 	
 	/**
@@ -122,10 +111,10 @@ public class UserServiceTest {
 	 */
 	@Test
 	public void testGetUserNotExists() {
-		Integer contactIdId = 16;
-		when(userRepository.findOne(contactIdId)).thenReturn(null);
-		User result = userService.getUser(contactIdId);
-		assertNull("contactId " + contactIdId + " does not exist", result);
+		Integer contactId = 1;
+		when(userRepository.findOne(contactId)).thenReturn(null);
+		User result = userService.getUser(contactId);
+		assertNull("contactId " + contactId + " does not exist", result);
 	}
 	
 	/**
@@ -134,16 +123,14 @@ public class UserServiceTest {
 	 */
 	@Test
 	public void testAddUser(){
-
 		User user = createUser();
-		
 		when(userRepository.save(user)).thenReturn(user);
 		User result = userService.addUser(user);
 		assertEquals(user.getContactId(), result.getContactId());
-		assertEquals("Pepcus", result.getFirstName());
-		assertEquals("Software", result.getLastName());
-		assertEquals("dummy help", result.getSearchHelp());
-		assertEquals("pepcus", result.getUserName());
+		assertEquals(user.getFirstName(), result.getFirstName());
+		assertEquals(user.getLastName(), result.getLastName());
+		assertEquals(user.getSearchHelp(), result.getSearchHelp());
+		assertEquals(user.getUserName(), result.getUserName());
 	}
 
 	/**
@@ -158,17 +145,32 @@ public class UserServiceTest {
 
 		when(userRepository.save(user)).thenReturn(user);
 		when(userRepository.findOne(user.getContactId())).thenReturn(user);
-		User result = null;
+		// Updating first name 
+		user.setFirstName("Pepcus - Updated");
+		User updatedUser = null;
 		try {
-			result = userService.updateUser(user);
+			updatedUser = userService.updateUser(user);
 		} catch (ApplicationException e) {
 			fail("Not expecting application exception for a valid test case");
 		}
-		assertEquals(user.getContactId(), result.getContactId());
-		assertEquals("Pepcus", result.getFirstName());
-		assertEquals("Software", result.getLastName());
-		assertEquals("dummy help", result.getSearchHelp());
-		assertEquals("pepcus", result.getUserName());
+		assertEquals("Pepcus - Updated", updatedUser.getFirstName());
+	}
+	
+	/**
+	 * To verify updateUser method when userRepository doesn't find a match for given contactId.
+	 * 
+	 */
+	
+	@Test
+	public void testUpdateUserForEntityNotFound(){
+		Integer contactId = 1;
+		User user = createUser(contactId, "Jason", "Garner", "dummy help", "jgarner", 1, "dummyDate", "dummyCode", "updated");
+		when(userRepository.findOne(contactId)).thenReturn(null);
+		try {
+			userService.updateUser(user);
+		} catch (ApplicationException e) {
+			assertEquals(APIErrorCodes.ENTITY_NOT_FOUND, e.getApiErrorCode());
+		}
 	}
 	
 	/**
@@ -183,6 +185,17 @@ public class UserServiceTest {
 		} catch (ApplicationException e) {
 		}
         verify(userRepository, times(1)).delete(contactId);
+	}
+	
+	/**
+	 * To verify deleteUser method throws ApplicationException when internally userRepository.delete method throws exception.
+	 * 
+	 */
+	@Test(expected=com.thinkhr.external.api.exception.ApplicationException.class)
+	public void testDeleteUserForEntityNotFound() {
+		int contactId = 1 ;
+		doThrow(new EmptyResultDataAccessException("Not found", 1)).when(userRepository).delete(contactId);
+		userService.deleteUser(contactId);
 	}
 
 }

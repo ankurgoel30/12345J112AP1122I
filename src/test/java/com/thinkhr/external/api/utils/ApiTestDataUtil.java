@@ -13,6 +13,7 @@ import org.springframework.http.ResponseEntity;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.thinkhr.external.api.db.entities.Company;
+import com.thinkhr.external.api.db.entities.User;
 
 /**
  * Utility class to keep all utilities required for Junits
@@ -25,6 +26,7 @@ public class ApiTestDataUtil {
 
 	public static final String API_BASE_PATH = "/v1/";
 	public static final String COMPANY_API_BASE_PATH = "/v1/companies/";
+	public static final String USER_API_BASE_PATH = "/v1/users/";
 	public static final String COMPANY_API_REQUEST_PARAM_OFFSET = "offset";
 	public static final String COMPANY_API_REQUEST_PARAM_LIMIT = "limit";
 	public static final String COMPANY_API_REQUEST_PARAM_SORT = "sort";
@@ -71,6 +73,62 @@ public class ApiTestDataUtil {
 		company.setSearchHelp(searchHelp); 
 		return company;
 	}
+	
+	/**
+	 * Create a User entity for given inputs
+	 * 
+	 * @param contactId
+	 * @param firstName
+	 * @param lastName
+	 * @param searchHelp
+	 * @return
+	 */
+	public static User createUser(Integer contactId, String firstName, String lastName,
+			String searchHelp, String userName, Integer blockedAccount, String mkdate, 
+			String codevalid, String updatePassword) {
+		User user = new User();
+		if (contactId != null) {
+			user.setContactId(contactId);
+		}
+		user.setFirstName(firstName);
+		user.setLastName(lastName);
+		user.setSearchHelp(searchHelp);
+		user.setUserName(userName);
+		user.setBlockedAccount(blockedAccount);
+		user.setMkdate(mkdate);
+		user.setCodevalid(codevalid);
+		user.setUpdatePassword(updatePassword); 
+		return user;
+	}
+	
+	/**
+	 * 
+	 * @return
+	 */
+	public static User createUser() {
+		User user = new User();
+		user.setContactId(1);
+		user.setFirstName("Pepcus");
+		user.setLastName("Software");
+		user.setSearchHelp("dummy help");
+		user.setUserName("pepcus");
+		user.setBlockedAccount(1);
+		user.setMkdate("dummyDate");
+		user.setCodevalid("dummyCode");
+		user.setUpdatePassword("updated");
+		return user;
+	}
+	
+	/**
+	 * Creates a user response object
+	 * 
+	 * @param user
+	 * @param httpStatus
+	 * @return
+	 */
+	public static ResponseEntity<User> createUserResponseEntity(User user, HttpStatus httpStatus) {
+		return new ResponseEntity<User>(user, httpStatus);
+	}
 
 	/**
 	 * Creates a company response object
@@ -92,6 +150,17 @@ public class ApiTestDataUtil {
 	 */
 	public static ResponseEntity<Integer> createCompanyIdResponseEntity(Integer companyId, HttpStatus httpStatus) {
 		return new ResponseEntity<Integer>(companyId, httpStatus);
+	}
+	
+	/**
+	 * createContactIdResponseEntity
+	 * 
+	 * @param contactId
+	 * @param httpStatus
+	 * @return
+	 */
+	public static ResponseEntity<Integer> createContactIdResponseEntity(Integer contactId, HttpStatus httpStatus) {
+		return new ResponseEntity<Integer>(contactId, httpStatus);
 	}
 
 	/**
@@ -122,6 +191,28 @@ public class ApiTestDataUtil {
 		companies.add(createCompany(10, "Thinkhr", "IT", "PEP", new Date(), "IT comp at Indore", "This is search help10"));
 		return companies;
 
+	}
+	
+	/**
+	 * Create List for User objects
+	 * 
+	 * @return
+	 */
+	public static List<User> createUsers() {
+		List<User> users = new ArrayList<User>();
+		
+		users.add(createUser(1, "PEPCUS", "Software", "dummy help pepcus", "pepcus", 1, "dummyDate", "dummyCode", "updated"));
+		users.add(createUser(2, "THINKHR", "Service Provider", "dummy help thr", "THR", 1, "dummyDate", "dummyCode", "updated"));
+		users.add(createUser(3, "ICICI", "Banking", "icici help", "icici", 1, "dummyDate", "dummyCode", "updated"));
+		users.add(createUser(4, "ASI", "Advisor Service Provider", "dummy help asi", "ASI", 1, "dummyDate", "dummyCode", "updated"));
+		users.add(createUser(5, "AJAY", "JAIN", "dummy help ajain", "ajain", 1, "dummyDate", "dummyCode", "updated"));
+		users.add(createUser(6, "SURABHI", "BHAWSAR", "dummy help sbhawsar", "sbhawsar", 1, "dummyDate", "dummyCode", "updated"));
+		users.add(createUser(7, "JSON", "GARNER", "dummy help jgarner", "jgarner", 1, "dummyDate", "dummyCode", "updated"));
+		users.add(createUser(8, "JOHN", "DOE", "dummy help jdoe", "jdoe", 1, "dummyDate", "dummyCode", "updated"));
+		users.add(createUser(9, "TERRENCE", "LEWIS", "dummy help tlewis", "tlewis", 1, "dummyDate", "dummyCode", "updated"));
+		users.add(createUser(10, "DONALD", "JOHNSON", "dummy help johnson", "johnson", 1, "dummyDate", "dummyCode", "updated"));
+		
+		return users;
 	}
 
 }

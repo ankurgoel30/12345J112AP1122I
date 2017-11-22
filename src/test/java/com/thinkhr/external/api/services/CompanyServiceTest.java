@@ -54,7 +54,7 @@ public class CompanyServiceTest {
 	}
 	
 	/**
-	 * To verify getAllCompany method when no specific (Default) method arguments are provided 
+	 * To verify getAllCompany method. 
 	 * 
 	 */
 	@Test
@@ -77,7 +77,7 @@ public class CompanyServiceTest {
 	}
 	
 	/**
-	 * To verify getAllCompany method when specific method arguments are provided
+	 * To verify getAllCompany method specifically for pageable.
 	 * 
 	 */
 	@Test
