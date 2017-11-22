@@ -153,9 +153,9 @@ public class CompanyController {
             @RequestParam(value = "brokerId", required = false, defaultValue = DEFAULT_BROKERID_FOR_FILE_IMPORT) Integer brokerId )
             throws ApplicationException, IOException {
        	
-    	logger.info("########### ########### COMPANY IMPORT BEGINS ######### #####");
-        logger.info("Date & Time: " + new SimpleDateFormat(ApplicationConstants.VALID_FORMAT_YYYY_MM_DD).format(new Date()));
+    	logger.info("##### ######### COMPANY IMPORT BEGINS ######### #####");
         FileImportResult fileImportResult = companyService.bulkUpload(file, brokerId);
+        logger.debug("************** COMPANY IMPORT ENDS *****************");
         
         // Set the attachment header & set up response to return a CSV file with result and errroneous records
         // This response CSV file can be used by users to resubmit records after fixing them.

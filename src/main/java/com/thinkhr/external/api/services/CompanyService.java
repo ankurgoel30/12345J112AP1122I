@@ -11,8 +11,10 @@ import static com.thinkhr.external.api.services.utils.EntitySearchUtil.getPageab
 
 import java.io.IOException;
 import java.sql.DataTruncation;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Collection;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -20,12 +22,12 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.TimeZone;
 
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
@@ -33,6 +35,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.StopWatch;
 import org.springframework.web.multipart.MultipartFile;
 
+import com.thinkhr.external.api.ApplicationConstants;
 import com.thinkhr.external.api.db.entities.Company;
 import com.thinkhr.external.api.exception.APIErrorCodes;
 import com.thinkhr.external.api.exception.ApplicationException;
@@ -40,7 +43,6 @@ import com.thinkhr.external.api.exception.MessageResourceHandler;
 import com.thinkhr.external.api.model.FileImportResult;
 import com.thinkhr.external.api.repositories.CompanyRepository;
 import com.thinkhr.external.api.repositories.FileDataRepository;
-import com.thinkhr.external.api.request.APIRequestHelper;
 import com.thinkhr.external.api.response.APIMessageUtil;
 import com.thinkhr.external.api.services.utils.FileImportUtil;
 
@@ -175,6 +177,9 @@ public class CompanyService  extends CommonService {
      */
     public FileImportResult bulkUpload(MultipartFile fileToImport, int brokerId) throws ApplicationException {
     	
+		 StopWatch stopWatchImportData = new StopWatch();
+		 stopWatchImportData.start();    	 
+    	
     	// Process files if submitted by a valid broker else throw an exception
     	if (!isValidBrokerId(brokerId)) {
               throw ApplicationException.createFileImportError(APIErrorCodes.INVALID_BROKER_ID, String.valueOf(brokerId));
@@ -191,6 +196,9 @@ public class CompanyService  extends CommonService {
         saveByNativeQuery(headers, fileContents.subList(1, fileContents.size()), fileImportResult, brokerId);
         fileImportResult.setHeaderLine(fileContents.get(0));
         
+        stopWatchImportData.stop();
+        double totalTimeTakenForImport = stopWatchImportData.getTotalTimeSeconds();
+        logger.debug("Time taken importing data :" + totalTimeTakenForImport+" seconds");
         return fileImportResult;
     }
     
@@ -357,7 +365,6 @@ public class CompanyService  extends CommonService {
                 logger.debug(failedRecord.getRecord() + "," + failedRecord.getFailureCause());
             }
         }
-        logger.debug("************** COMPANY IMPORT ENDS *****************");
     }
 
     /**
@@ -446,4 +453,5 @@ public class CompanyService  extends CommonService {
         Specification<Company> spec = getEntitySearchSpecification(searchSpec, filterParameters, Company.class, new Company());
         return companyRepository.count(spec);
     }
+    
 }

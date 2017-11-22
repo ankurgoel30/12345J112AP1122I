@@ -5,7 +5,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
-import java.util.Date;
+import java.sql.Date;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -40,12 +40,12 @@ public class FileDataRepository {
         StringBuffer insertClientSql = new StringBuffer();
         insertClientSql.append("INSERT into clients(");
         insertClientSql.append(StringUtils.join(companyColumns, ","));
-        insertClientSql.append(",search_help,client_type,special_note,client_since)");
+        insertClientSql.append(",search_help,client_type,special_note,client_since, t1_is_active)");
         insertClientSql.append(" Values(");
         for (int i = 0; i < companyColumns.length; i++) {
             insertClientSql.append(" ?,");
         }
-        insertClientSql.append("?,?,?,?)");
+        insertClientSql.append("?,?,?,?,?)"); //to set other defaults
 
         //INSERT INTO locations(address,address2,city,state,zip,client_id) values(?,?,?,?,?,?);
         StringBuffer insertLocationSql = new StringBuffer();
@@ -71,8 +71,8 @@ public class FileDataRepository {
                 statement.setString(++i, "");
                 statement.setString(++i, "");
                 statement.setString(++i, "");
-                Date now = new Date();
-                statement.setString(++i, now.getYear() + "-" + now.getMonth() + "-" + now.getDate());
+                statement.setDate(++i, new java.sql.Date(System.currentTimeMillis()));
+                statement.setInt(++i,1); //default all clients are active
                 return statement;
             }
         }, keyHolder);

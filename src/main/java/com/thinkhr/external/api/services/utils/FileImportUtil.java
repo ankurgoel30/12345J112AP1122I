@@ -29,6 +29,14 @@ import com.thinkhr.external.api.model.FileImportResult;
 import com.thinkhr.external.api.request.APIRequestHelper;
 import com.thinkhr.external.api.response.APIMessageUtil;
 
+/**
+ * A utility class for performing all operations
+ * on File Import.
+ *  
+ * @since 2-17-11-17
+ * @author Ajay
+ *
+ */
 public class FileImportUtil {
 	
     /**
