@@ -10,16 +10,19 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.PrePersist;
 import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 
+import lombok.Data;
+
+import org.hibernate.annotations.Where;
+
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
-
-import lombok.Data;
 
 /**
  * 
@@ -35,6 +38,7 @@ import lombok.Data;
 @Entity
 @Table(name = "clients")
 @Data
+@Where(clause="t1_is_active=1")
 public class Company implements SearchableEntity {
 	@Id
 	@GeneratedValue(strategy=GenerationType.AUTO)
@@ -174,6 +178,9 @@ public class Company implements SearchableEntity {
 	@Column(name = "partnerClientType") 
 	private String partnerCompanyType;
 	
+	@Column(name = "offering") 
+	private String offering;
+	
 	@Column(name = "marketID") 
 	private Integer marketID;
 	
@@ -308,7 +315,49 @@ public class Company implements SearchableEntity {
 	
 	@Column(name = "sourceID") 
 	private Integer sourceId;
+	
+	@Column(name = "t1_is_active", updatable= false)
+	@JsonIgnore
+	private Integer isActive;
+	
+	@PrePersist
+	public void prePersist() {
+		/* This check is to create new Company record as always active. 
+		 * It should be handled in database by making it's default value as 1 instead of 0.
+		 */
+		if (isActive == null) {
+			isActive = 1;
+		}
+	}
 
+	@Column(name = "t1_parent_company_id")
+	private Integer parentCompanyId;
+
+	@Column(name = "t1_configuration_id")
+	private Integer parentConfigurationId;
+	
+	@Column(name = "t1_customfield1")
+	private String customfield1;
+
+	@Column(name = "t1_customfield2")
+	private String customField2;
+
+	@Column(name = "t1_customfield3")
+	private String customField3;
+
+	@Column(name = "t1_customfield4")
+	private String customField4;
+
+	@Column(name = "t1_display_name")
+	private String customField5;
+
+	@Column(name = "t1_email_template_id")
+	private String emailTemplateId;
+
+	/**
+	 * Returns fields where "SearchSpec" searching acts on.
+	 * 
+	 */
 	@Override
 	@JsonIgnore
 	public List<String> getSearchFields() {

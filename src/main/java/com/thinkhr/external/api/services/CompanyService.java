@@ -129,12 +129,14 @@ public class CompanyService  extends CommonService {
      * @param companyId
      */
     public int deleteCompany(int companyId) throws ApplicationException {
-    	try {
-    		companyRepository.delete(companyId);
-    	} catch (EmptyResultDataAccessException ex ) {
+
+    	if (null == companyRepository.findOne(companyId)) {
     		throw ApplicationException.createEntityNotFoundError(APIErrorCodes.ENTITY_NOT_FOUND, "company", "companyId="+companyId);
     	}
-    	return companyId;
+
+		companyRepository.softDelete(companyId);
+
+		return companyId;
     }    
     /**
      * Return default sort field for company service

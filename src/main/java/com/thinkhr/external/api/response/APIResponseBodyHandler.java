@@ -93,9 +93,6 @@ public class APIResponseBodyHandler implements ResponseBodyAdvice<Object> {
 				apiResponse.setMessage(getMessageFromResourceBundle(resourceHandler, SUCCESS_DELETED, "Company", body.toString()));
 			}
 		}
-		if (logger.isDebugEnabled()) {
-			logger.debug("Request processed and response is " + apiResponse);
-		}
 		return apiResponse;
 	}
 
