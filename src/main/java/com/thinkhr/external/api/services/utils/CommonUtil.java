@@ -22,7 +22,6 @@ public class CommonUtil {
      * 
      * @return
      */
-    //TODO - Move this to some util file. 
     public static String getTodayInUTC() {
     	 TimeZone timeZone = TimeZone.getTimeZone("UTC");
     	 Calendar calendar = Calendar.getInstance(timeZone);
