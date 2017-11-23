@@ -55,17 +55,7 @@ public class FileImportUtil {
         return requiredHeadersSet.toArray(missingHeaders);
     }
 
-    /**
-     * This function checks if given file name has extention as per given valid extentions
-     * 
-     * @param fileName Name of the file to verify
-     * @param validExtention valid extensions
-     * @return
-     */
-    public static boolean hasValidExtension(String fileName, String... validExtention) {
-        return FilenameUtils.isExtension(fileName, validExtention);
-    }
-    
+  
     /**
      * Reads file content for given CSV
      * 
@@ -125,23 +115,16 @@ public class FileImportUtil {
      * 
      */
     public static void populateColumnValues(Object[] columnValues, String[] columns, Map<String, String> columnToHeaderMap,
-            String[] splitValues, Map<String, Integer> headerIndexMap) {
-        int k = 0;
-        for (String column : columns) {
-            String headerinCsv = columnToHeaderMap.get(column); // get the expected csv header corresponding to column
-            if (headerinCsv != null) { // Csv header i.e mapped to column found
-                if (headerIndexMap.containsKey(headerinCsv)) { // CSV contains the mapped header
+        String[] splitValues, Map<String, Integer> headerIndexMap) {
+           for (int k=0; k < columns.length; k++) {
+                String headerinCsv = columnToHeaderMap.get(columns[k]); // get the expected csv header corresponding to column
+                if (headerinCsv != null && headerIndexMap.containsKey(headerinCsv)) { // CSV contains the mapped header
                     Integer indexTolookInSplitRecord = headerIndexMap.get(headerinCsv); //get index at which value corresponding to this column is found in csv
-                    String columnValueInCsv = splitValues[indexTolookInSplitRecord]; // lookup split value . This line throwing ArrayIndexOutOfBound exception means split record does nt have the value for this column
-                    columnValues[k++] = columnValueInCsv;
-                } else { //// CSV does not contains the mapped header
-                    columnValues[k++] = null; // keep null as value for this column as its value not found in csv
-                }
-            } else { // No mapping header found
-                columnValues[k++] = null; // keep null as value for this column as its value not found in csv
-            }
-        }
+                    columnValues[k++] = splitValues[indexTolookInSplitRecord]; // lookup split value . This line throwing ArrayIndexOutOfBound exception means split record does nt have the value for this column
+                } 
+           }
     }
+
 
     /**
      * This Function will create a response csv file from FileImportResult

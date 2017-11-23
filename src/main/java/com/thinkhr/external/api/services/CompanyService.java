@@ -24,6 +24,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.TimeZone;
 
+import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -214,7 +215,7 @@ public class CompanyService  extends CommonService {
         String fileName = fileToImport.getOriginalFilename();
 
         // Validate if file has valid extension
-        if (!FileImportUtil.hasValidExtension(fileName, VALID_FILE_EXTENSION_IMPORT)) {
+        if (!FilenameUtils.isExtension(fileName, VALID_FILE_EXTENSION_IMPORT)) {
             throw ApplicationException.createFileImportError(APIErrorCodes.INVALID_FILE_EXTENTION, fileName, VALID_FILE_EXTENSION_IMPORT);
         }
         

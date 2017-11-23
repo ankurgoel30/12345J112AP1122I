@@ -1,10 +1,8 @@
 package com.thinkhr.external.api.services.utils;
 
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.TimeZone;
+import java.time.ZoneOffset;
+import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
 
 import com.thinkhr.external.api.ApplicationConstants;
 
@@ -23,12 +21,9 @@ public class CommonUtil {
      * @return
      */
     public static String getTodayInUTC() {
-    	 TimeZone timeZone = TimeZone.getTimeZone("UTC");
-    	 Calendar calendar = Calendar.getInstance(timeZone);
-    	 calendar.setTime(new Date());
-    	 DateFormat simpleDateFormat = new SimpleDateFormat(ApplicationConstants.VALID_FORMAT_YYYY_MM_DD);
-    	 simpleDateFormat.setTimeZone(timeZone);
-		return simpleDateFormat.format(calendar.getTime());
+        DateTimeFormatter format = DateTimeFormatter.ofPattern(ApplicationConstants.VALID_FORMAT_YYYY_MM_DD);
+        ZonedDateTime utcDateTime = ZonedDateTime.now(ZoneOffset.UTC);
+        return format.format(utcDateTime);
     }
     	
 	
