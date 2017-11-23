@@ -11,18 +11,14 @@ import static com.thinkhr.external.api.services.utils.EntitySearchUtil.getPageab
 
 import java.io.IOException;
 import java.sql.DataTruncation;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.TimeZone;
+import java.util.stream.Collectors;
 
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
@@ -40,6 +36,8 @@ import com.thinkhr.external.api.db.entities.Company;
 import com.thinkhr.external.api.exception.APIErrorCodes;
 import com.thinkhr.external.api.exception.ApplicationException;
 import com.thinkhr.external.api.exception.MessageResourceHandler;
+import com.thinkhr.external.api.model.BulkCompanyModel;
+import com.thinkhr.external.api.model.BulkCompanyModel.CompanyJSONModel;
 import com.thinkhr.external.api.model.FileImportResult;
 import com.thinkhr.external.api.repositories.CompanyRepository;
 import com.thinkhr.external.api.repositories.FileDataRepository;
@@ -175,7 +173,9 @@ public class CompanyService  extends CommonService {
      * @param brokerId
      * @throws ApplicationException
      */
-    public FileImportResult bulkUpload(MultipartFile fileToImport, int brokerId) throws ApplicationException {
+    public FileImportResult bulkUpload(MultipartFile fileToImport, 
+    								   int brokerId, 
+    								   BulkCompanyModel companyData) throws ApplicationException {
     	
 		 StopWatch stopWatchImportData = new StopWatch();
 		 stopWatchImportData.start();    	 
@@ -186,14 +186,24 @@ public class CompanyService  extends CommonService {
         }
         
     	List<String> fileContents = new ArrayList<String>();
-    	
+    	String[] headers;
     	//validate input file and read all content
-        validateAndReadFile(fileToImport, fileContents);
-        String[] headers = fileContents.get(0).split(",");
+    	if (null!= fileToImport && !fileToImport.isEmpty()) {
+    		validateAndReadFile(fileToImport, fileContents);
+    		headers = fileContents.get(0).split(",");
+    	} else if (companyData.getCompanies().isEmpty()) {
+            throw ApplicationException.createFileImportError(APIErrorCodes.NO_RECORDS_FOUND_FOR_IMPORT);
+    	} else {	// read company data from JSON
+    	 	fileContents = (List<String>) companyData.getCompanies().stream().map(CompanyJSONModel::toCsvRow).collect(Collectors.toList());
+    	 	fileContents.add(0, companyData.getCustomHeaders());
+    	 	headers = (ApplicationConstants.REQUIRED_HEADERS_COMPANY_CSV_IMPORT+companyData.getCustomHeaders()).split(",");;
+        }
         
+   
         //process file for import records 
         FileImportResult fileImportResult = new FileImportResult();
-        saveByNativeQuery(headers, fileContents.subList(1, fileContents.size()), fileImportResult, brokerId);
+        
+		saveByNativeQuery(headers, fileContents.subList(1, fileContents.size()), fileImportResult, brokerId);
         fileImportResult.setHeaderLine(fileContents.get(0));
         
         stopWatchImportData.stop();
@@ -210,7 +220,7 @@ public class CompanyService  extends CommonService {
      * @throws ApplicationException
      * 
      */
-    private void validateAndReadFile(MultipartFile fileToImport, List<String> fileContents) throws ApplicationException {
+    private void validateAndReadFile(MultipartFile fileToImport, List <String> fileContents) throws ApplicationException {
         String fileName = fileToImport.getOriginalFilename();
 
         // Validate if file has valid extension
@@ -222,15 +232,15 @@ public class CompanyService  extends CommonService {
         if (fileToImport.isEmpty()) {
             throw ApplicationException.createFileImportError(APIErrorCodes.NO_RECORDS_FOUND_FOR_IMPORT, fileName);
         }
-
-        // Read all records from file
+        
+        // Read all records from file or simply use string data
         try {
-            fileContents.addAll(FileImportUtil.readFileContent(fileToImport));
+        		fileContents.addAll(FileImportUtil.readFileContent(fileToImport)); 
         } catch (IOException ex) {
             throw ApplicationException.createFileImportError(APIErrorCodes.FILE_READ_ERROR, ex.getMessage());
         }
 
-        // Validate for missing headers. File must container all exepcted columns, if not, return from here.
+        // Validate for missing headers. File must container all expected columns, if not, return from here.
         String[] headers = fileContents.get(0).split(",");
         String[] missingHeadersIfAny = FileImportUtil.getMissingHeaders(headers, REQUIRED_HEADERS_COMPANY_CSV_IMPORT);
         if (missingHeadersIfAny.length != 0) {
@@ -249,7 +259,7 @@ public class CompanyService  extends CommonService {
             throw ApplicationException.createFileImportError(APIErrorCodes.MAX_RECORD_EXCEEDED,
                     String.valueOf(MAX_RECORDS_COMPANY_CSV_IMPORT));
         }
-    }
+     }
     
     /**
      * This function returns true if any Company exists with given broker id
@@ -280,7 +290,7 @@ public class CompanyService  extends CommonService {
         Map<String, String> columnToHeaderCompanyMap = getCompanyColumnsHeaderMap(brokerId); 
         Map<String, String> columnToHeaderLocationMap= getColumnsToHeaderMapForLocationRecord();
         
-        //Check every custom field from imported file has a corrosponding column in database. If not, retrun error here.
+        //Check every custom field from imported file has a corresponding column in database. If not, return error here.
         FileImportUtil.checkCustomHeaders(headersInCSV, columnToHeaderCompanyMap.values(), resourceHandler);
         
         Map<String, Integer> headerIndexMap = new HashMap<String, Integer>();

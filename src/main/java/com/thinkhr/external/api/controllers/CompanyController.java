@@ -1,13 +1,10 @@
 package com.thinkhr.external.api.controllers;
 
-import static com.thinkhr.external.api.ApplicationConstants.DEFAULT_BROKERID_FOR_FILE_IMPORT;
 import static com.thinkhr.external.api.ApplicationConstants.DEFAULT_SORT_BY_COMPANY_NAME;
 
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
-import java.text.SimpleDateFormat;
-import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
@@ -36,6 +33,7 @@ import com.thinkhr.external.api.db.entities.Company;
 import com.thinkhr.external.api.exception.APIErrorCodes;
 import com.thinkhr.external.api.exception.ApplicationException;
 import com.thinkhr.external.api.exception.MessageResourceHandler;
+import com.thinkhr.external.api.model.BulkCompanyModel;
 import com.thinkhr.external.api.model.FileImportResult;
 import com.thinkhr.external.api.services.CompanyService;
 import com.thinkhr.external.api.services.utils.FileImportUtil;
@@ -150,14 +148,16 @@ public class CompanyController {
      */
     @RequestMapping(method=RequestMethod.POST,  value="/bulk")
     public ResponseEntity <InputStreamResource> bulkUpload(@RequestParam("file") MultipartFile file,
-            @RequestParam(value = "brokerId", required = false, defaultValue = DEFAULT_BROKERID_FOR_FILE_IMPORT) Integer brokerId )
+    		@RequestBody BulkCompanyModel companies,
+            @RequestParam(value = "brokerId", required = false, 
+            			  defaultValue = ApplicationConstants.DEFAULT_BROKERID_FOR_FILE_IMPORT) Integer brokerId )
             throws ApplicationException, IOException {
-       	
+     
     	logger.info("##### ######### COMPANY IMPORT BEGINS ######### #####");
-        FileImportResult fileImportResult = companyService.bulkUpload(file, brokerId);
+        FileImportResult fileImportResult = companyService.bulkUpload(file, brokerId, companies);
         logger.debug("************** COMPANY IMPORT ENDS *****************");
         
-        // Set the attachment header & set up response to return a CSV file with result and errroneous records
+        // Set the attachment header & set up response to return a CSV file with result and erroneous records
         // This response CSV file can be used by users to resubmit records after fixing them.
         HttpHeaders headers = new HttpHeaders();
         headers.add("Content-disposition", "attachment;filename=companiesImportResult.csv");
