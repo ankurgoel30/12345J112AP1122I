@@ -72,7 +72,7 @@ public class User implements SearchableEntity {
 
 	@NotNull
 	@Column(name="blockedAccount",nullable=false)
-	private Integer blockedAccount;
+	private Integer blockedAccount = 0;
 	
 	@Column(name = "brokerID")
 	private Integer brokerId;
@@ -94,7 +94,7 @@ public class User implements SearchableEntity {
 	
 	@NotNull
 	@Column(name="mkdate", nullable=false)
-	private String mkdate;
+	private String mkdate = "";
 
 	@Column(name="Mobile")
 	private String mobile;
@@ -104,7 +104,7 @@ public class User implements SearchableEntity {
 	
 	@NotNull
 	@Column(name="search_help")
-	private String searchHelp;
+	private String searchHelp = ""; 
 	
 	@Column(name="Title")
 	private String title;
@@ -120,7 +120,7 @@ public class User implements SearchableEntity {
 
 	@NotNull
 	@Column(name="codevalid", nullable=false)
-	private String codevalid;
+	private String codevalid = "";
 
 	@Column(name = "active")
 	@JsonIgnore
@@ -266,8 +266,7 @@ public class User implements SearchableEntity {
 
 	@NotNull
 	@Column(name="update_password", nullable = false)
-	@Size(min = 1, max = 1)
-	private String updatePassword;
+	private String updatePassword = "";
 	
 	@Override
 	@JsonIgnore
