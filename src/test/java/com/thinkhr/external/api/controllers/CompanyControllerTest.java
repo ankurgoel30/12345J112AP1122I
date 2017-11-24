@@ -19,6 +19,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 import java.util.TimeZone;
 
 import org.hamcrest.core.IsNot;
@@ -79,8 +80,12 @@ public class CompanyControllerTest {
 		
 		List<Company> companyList = createCompanies();
 
-		given(companyController.getAllCompany(null, 10, null, null, null)).willReturn(companyList);
-		
+		given(companyController.getAllCompany(Mockito.any(Integer.class), 
+				Mockito.any(Integer.class), 
+				Mockito.any(String.class), 
+				Mockito.any(String.class), 
+				Mockito.any(Map.class))).willReturn(companyList);
+
 		mockMvc.perform(get(COMPANY_API_BASE_PATH+"?limit=10")
 			   .accept(MediaType.APPLICATION_JSON))
 		.andExpect(status().isOk())
