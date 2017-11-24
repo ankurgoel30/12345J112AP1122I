@@ -114,15 +114,16 @@ public class UserService extends CommonService {
      * Delete specific user from database
      * 
      * @param userId
-     * @throws ApplicationException 
      */
     public int deleteUser(int userId) throws ApplicationException {
-    	try {
-    		userRepository.delete(userId);
-    	} catch (EmptyResultDataAccessException ex ) {
+
+    	if (null == userRepository.findOne(userId)) {
     		throw ApplicationException.createEntityNotFoundError(APIErrorCodes.ENTITY_NOT_FOUND, "user", "userId="+userId);
     	}
-    	return userId;
+
+    	userRepository.softDelete(userId);
+
+		return userId;
     }    
     
     

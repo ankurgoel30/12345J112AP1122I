@@ -1,6 +1,7 @@
 package com.thinkhr.external.api.db.entities;
 
 import static com.thinkhr.external.api.ApplicationConstants.VALID_FORMAT_YYYY_MM_DD;
+
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -17,11 +18,11 @@ import javax.persistence.TemporalType;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 
+import org.hibernate.annotations.Where;
 import org.hibernate.validator.constraints.Email;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonInclude;
 
 import lombok.Data;
 
@@ -36,7 +37,7 @@ import lombok.Data;
 @Entity
 @Data
 @Table(name="contacts")
-@JsonInclude(JsonInclude.Include.NON_NULL)
+@Where(clause="active=1")
 public class User implements SearchableEntity {
 
 	@Id
@@ -44,6 +45,27 @@ public class User implements SearchableEntity {
 	@Column(name="contactID")
 	private Integer userId;
 
+	@NotNull
+	@Column(name="First_Name", nullable=false)
+	private String firstName;
+	
+	@NotNull
+	@Column(name="Last_Name")
+	private String lastName;
+	
+	@NotNull
+	@Column(name="UserName")
+	private String userName;
+
+	@NotNull
+	@Email
+	@Column(name="Email")
+	private String email;
+	
+	@NotNull
+	@Column(name="t1_roleId")
+	private Integer roleId;
+	
 	@Column(name="accountID")
 	private String accountId;
 
@@ -63,19 +85,8 @@ public class User implements SearchableEntity {
 	@Column(name="contact_Type")
 	private String userType;
 	
-	@Email
-	@Column(name="Email")
-	private String email;
-	
 	@Column(name="Fax")
 	private String fax;
-	
-	@NotNull
-	@Column(name="First_Name", nullable=false)
-	private String firstName;
-	
-	@Column(name="Last_Name")
-	private String lastName;
 	
 	@Column(name="Location")
 	private String location;
@@ -97,9 +108,6 @@ public class User implements SearchableEntity {
 	@Column(name="Title")
 	private String title;
 	
-	@Column(name="UserName")
-	private String userName;
-
 	@JsonIgnore
 	@Column(name = "bounced")
 	private Integer bounced;
@@ -115,18 +123,15 @@ public class User implements SearchableEntity {
 
 	@Column(name = "active")
 	@JsonIgnore
-	private Integer active;
+	private Integer isActive;
 
 	@Column(name = "addedBy")
-	@JsonIgnore
 	private String addedBy;
 
 	@Column(name="client_hours")
-	@JsonIgnore
 	private String clientHours;
 
 	@Column(name="client_status")
-	@JsonIgnore
 	private String clientStatus;
 
 	@JsonFormat(shape = JsonFormat.Shape.STRING, pattern = VALID_FORMAT_YYYY_MM_DD)
@@ -135,15 +140,12 @@ public class User implements SearchableEntity {
 	private Date deactivationDate;
 
 	@Column(name="deactivationID")
-	@JsonIgnore
 	private Integer deactivationId;
 
 	@Column(name="decision_maker")
-	@JsonIgnore
 	private Integer decisionMaker;
 
 	@Column(name="deleted")
-	@JsonIgnore
 	private Integer deleted;
 
 	@JsonFormat(shape = JsonFormat.Shape.STRING, pattern = VALID_FORMAT_YYYY_MM_DD)
@@ -239,8 +241,6 @@ public class User implements SearchableEntity {
 	@Column(name="t1_customfield4")
 	private String customField4;
 
-	@Column(name="t1_roleId")
-	private Integer roleId;
 
 	@Column(name="tempID")
 	private String tempId;
