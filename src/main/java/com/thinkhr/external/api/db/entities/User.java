@@ -228,16 +228,16 @@ public class User implements SearchableEntity {
 	private String specialBlast;
 
 	@Column(name="t1_customfield1")
-	private String t1Customfield1;
+	private String customField1;
 
 	@Column(name="t1_customfield2")
-	private String t1Customfield2;
+	private String customField2;
 
 	@Column(name="t1_customfield3")
-	private String t1Customfield3;
+	private String customField3;
 
 	@Column(name="t1_customfield4")
-	private String t1Customfield4;
+	private String customField4;
 
 	@Column(name="t1_roleId")
 	private Integer roleId;
