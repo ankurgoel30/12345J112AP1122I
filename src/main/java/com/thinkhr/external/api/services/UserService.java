@@ -110,10 +110,12 @@ public class UserService extends CommonService {
     public User updateUser(User user) throws ApplicationException  {
     	Integer userId = user.getUserId();
     	
-		if (null == userRepository.findOne(userId)) {
+		User userInDB = userRepository.findOne(userId);
+		if (null == userInDB) {
     		throw ApplicationException.createEntityNotFoundError(APIErrorCodes.ENTITY_NOT_FOUND, "user", "userId="+userId);
     	}
-		
+		//If not passed in model, then object will become in-active.
+		user.setIsActive(userInDB.getIsActive());
     	return userRepository.save(user);
     }
     
