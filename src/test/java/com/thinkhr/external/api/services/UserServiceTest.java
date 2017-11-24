@@ -3,7 +3,7 @@ package com.thinkhr.external.api.services;
 import static com.thinkhr.external.api.services.utils.EntitySearchUtil.getPageable;
 import static com.thinkhr.external.api.ApplicationConstants.DEFAULT_SORT_BY_USER_NAME;
 import static com.thinkhr.external.api.utils.ApiTestDataUtil.createUser;
-import static com.thinkhr.external.api.utils.ApiTestDataUtil.createUsers;
+import static com.thinkhr.external.api.utils.ApiTestDataUtil.createUserList;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.fail;
@@ -55,7 +55,7 @@ public class UserServiceTest {
 	 */
 	@Test
 	public void testGetAllUsers(){
-		List<User> userList = createUsers();
+		List<User> userList = createUserList();
 		
 		Pageable pageable = getPageable(null, null, null, DEFAULT_SORT_BY_USER_NAME);
 		
@@ -78,8 +78,6 @@ public class UserServiceTest {
 	@Test
 	public void testGetAllToVerifyPageable(){
 		
-		List<User> userList = createUsers();
-		
 		userService.getAllUser(null, null, null, null, null);
 		
 		Pageable pageable = getPageable(null, null, null, DEFAULT_SORT_BY_USER_NAME);
@@ -96,9 +94,9 @@ public class UserServiceTest {
 	public void testGetUser() {
 		User user = createUser();
 		
-		when(userRepository.findOne(user.getContactId())).thenReturn(user);
-		User result = userService.getUser(user.getContactId());
-		assertEquals(user.getContactId(), result.getContactId());
+		when(userRepository.findOne(user.getUserId())).thenReturn(user);
+		User result = userService.getUser(user.getUserId());
+		assertEquals(user.getUserId(), result.getUserId());
 		assertEquals(user.getFirstName(), result.getFirstName());
 		assertEquals(user.getLastName(), result.getLastName());
 		assertEquals(user.getSearchHelp(), result.getSearchHelp());
@@ -111,10 +109,10 @@ public class UserServiceTest {
 	 */
 	@Test
 	public void testGetUserNotExists() {
-		Integer contactId = 1;
-		when(userRepository.findOne(contactId)).thenReturn(null);
-		User result = userService.getUser(contactId);
-		assertNull("contactId " + contactId + " does not exist", result);
+		Integer userId = 1;
+		when(userRepository.findOne(userId)).thenReturn(null);
+		User result = userService.getUser(userId);
+		assertNull("userId " + userId + " does not exist", result);
 	}
 	
 	/**
@@ -126,7 +124,7 @@ public class UserServiceTest {
 		User user = createUser();
 		when(userRepository.save(user)).thenReturn(user);
 		User result = userService.addUser(user);
-		assertEquals(user.getContactId(), result.getContactId());
+		assertEquals(user.getUserId(), result.getUserId());
 		assertEquals(user.getFirstName(), result.getFirstName());
 		assertEquals(user.getLastName(), result.getLastName());
 		assertEquals(user.getSearchHelp(), result.getSearchHelp());
@@ -144,7 +142,7 @@ public class UserServiceTest {
 		User user = createUser();
 
 		when(userRepository.save(user)).thenReturn(user);
-		when(userRepository.findOne(user.getContactId())).thenReturn(user);
+		when(userRepository.findOne(user.getUserId())).thenReturn(user);
 		// Updating first name 
 		user.setFirstName("Pepcus - Updated");
 		User updatedUser = null;
@@ -157,15 +155,15 @@ public class UserServiceTest {
 	}
 	
 	/**
-	 * To verify updateUser method when userRepository doesn't find a match for given contactId.
+	 * To verify updateUser method when userRepository doesn't find a match for given userId.
 	 * 
 	 */
 	
 	@Test
 	public void testUpdateUserForEntityNotFound(){
-		Integer contactId = 1;
-		User user = createUser(contactId, "Jason", "Garner", "dummy help", "jgarner", 1, "dummyDate", "dummyCode", "updated");
-		when(userRepository.findOne(contactId)).thenReturn(null);
+		Integer userId = 1;
+		User user = createUser(userId, "Jason", "Garner", "dummy help", "jgarner", 1, "dummyDate", "dummyCode", "updated");
+		when(userRepository.findOne(userId)).thenReturn(null);
 		try {
 			userService.updateUser(user);
 		} catch (ApplicationException e) {
@@ -179,12 +177,12 @@ public class UserServiceTest {
 	 */
 	@Test
 	public void testDeleteUser() {
-		Integer contactId = 1;
+		Integer userId = 1;
 		try {
-			userService.deleteUser(contactId);
+			userService.deleteUser(userId);
 		} catch (ApplicationException e) {
 		}
-        verify(userRepository, times(1)).delete(contactId);
+        verify(userRepository, times(1)).delete(userId);
 	}
 	
 	/**
@@ -193,9 +191,9 @@ public class UserServiceTest {
 	 */
 	@Test(expected=com.thinkhr.external.api.exception.ApplicationException.class)
 	public void testDeleteUserForEntityNotFound() {
-		int contactId = 1 ;
-		doThrow(new EmptyResultDataAccessException("Not found", 1)).when(userRepository).delete(contactId);
-		userService.deleteUser(contactId);
+		int userId = 1 ;
+		doThrow(new EmptyResultDataAccessException("Not found", 1)).when(userRepository).delete(userId);
+		userService.deleteUser(userId);
 	}
 
 }

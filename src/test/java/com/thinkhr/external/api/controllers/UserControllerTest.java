@@ -2,8 +2,8 @@ package com.thinkhr.external.api.controllers;
 
 import static com.thinkhr.external.api.utils.ApiTestDataUtil.USER_API_BASE_PATH;
 import static com.thinkhr.external.api.utils.ApiTestDataUtil.createUserResponseEntity;
-import static com.thinkhr.external.api.utils.ApiTestDataUtil.createContactIdResponseEntity;
-import static com.thinkhr.external.api.utils.ApiTestDataUtil.createUsers;
+import static com.thinkhr.external.api.utils.ApiTestDataUtil.createUserIdResponseEntity;
+import static com.thinkhr.external.api.utils.ApiTestDataUtil.createUserList;
 import static com.thinkhr.external.api.utils.ApiTestDataUtil.createUser;
 import static com.thinkhr.external.api.utils.ApiTestDataUtil.getJsonString;
 import static org.hamcrest.core.Is.is;
@@ -49,94 +49,90 @@ import com.thinkhr.external.api.exception.ApplicationException;
 @ContextConfiguration(classes = ApiApplication.class)
 @SpringBootTest
 public class UserControllerTest {
-	
+
 	private MockMvc mockMvc;
 
 	@MockBean
 	private UserController userController;
-	
+
 	@Autowired
-    private WebApplicationContext wac;
-	
+	private WebApplicationContext wac;
+
 	@Before
 	public void setup() {
-        this.mockMvc = MockMvcBuilders.webAppContextSetup(wac).build();
+		this.mockMvc = MockMvcBuilders.webAppContextSetup(wac).build();
 	}
-	
+
 	/**
-	 * Test to verify Get users API (/v1/users) when no request parameters (default) are provided  
+	 * Test to verify Get users API (/v1/users) when no request parameters
+	 * (default) are provided
 	 * 
 	 * @throws Exception
 	 */
 	@Test
 	public void testAllUser() throws Exception {
-		
-		List<User> userList = createUsers();
+
+		List<User> userList = createUserList();
 
 		given(userController.getAllUser(null, 10, null, null, null)).willReturn(userList);
-		
-		mockMvc.perform(get(USER_API_BASE_PATH+"?limit=10")
-			   .accept(MediaType.APPLICATION_JSON))
-		.andExpect(status().isOk())
-		.andExpect(jsonPath("limit", is("10")))
-		.andExpect(jsonPath("sort", is("userName ASC")))
-		.andExpect(jsonPath("offset", is("0")));
+
+		mockMvc.perform(get(USER_API_BASE_PATH + "?limit=10").accept(MediaType.APPLICATION_JSON))
+				.andExpect(status().isOk())
+				.andExpect(jsonPath("limit", is("10")))
+				.andExpect(jsonPath("sort", is("userName ASC")))
+				.andExpect(jsonPath("offset", is("0")));
 	}
-	
+
 	/**
-	 * Test to verify Get All Users API (/v1/users) when no records are available
+	 * Test to verify Get All Users API (/v1/users) when no records are
+	 * available
 	 * 
 	 * @throws Exception
 	 */
 	@Test
 	public void testAllUserWithEmptyResponse() throws Exception {
-		
+
 		List<User> userList = null;
 
 		given(userController.getAllUser(null, null, null, null, null)).willReturn(userList);
-		
-		mockMvc.perform(get(USER_API_BASE_PATH)
-			   .accept(MediaType.APPLICATION_JSON))
-		.andExpect(status().isOk())
-		.andExpect(jsonPath("message", IsNot.not(""))); 
+
+		mockMvc.perform(get(USER_API_BASE_PATH).accept(MediaType.APPLICATION_JSON)).andExpect(status().isOk())
+				.andExpect(jsonPath("message", IsNot.not("")));
 	}
 
 	/**
-	 * Test to verify Get user by id API (/v1/users/{contactId}). 
+	 * Test to verify Get user by id API (/v1/users/{userId}).
 	 * 
 	 * @throws Exception
 	 */
 	@Test
 	public void testGetUserById() throws Exception {
-		User user = createUser(); 
-		
-		given(userController.getById(user.getContactId())).willReturn(user);
+		User user = createUser();
 
-		mockMvc.perform(get(USER_API_BASE_PATH + user.getContactId())
-			   .accept(MediaType.APPLICATION_JSON))
-		.andExpect(status().isOk())
-		.andExpect(jsonPath("user.contactId", is(user.getContactId())))
-		.andExpect(jsonPath("user.userName", is(user.getUserName())));
+		given(userController.getById(user.getUserId())).willReturn(user);
+
+		mockMvc.perform(get(USER_API_BASE_PATH + user.getUserId()).accept(MediaType.APPLICATION_JSON))
+				.andExpect(status().isOk())
+				.andExpect(jsonPath("user.userId", is(user.getUserId())))
+				.andExpect(jsonPath("user.userName", is(user.getUserName())));
 	}
-	
+
 	/**
-	 * Test to verify Get user by id API (/v1/users/{contactId}). 
-	 * API should return NOT_FOUND as response code
+	 * Test to verify Get user by id API (/v1/users/{userId}). API should
+	 * return NOT_FOUND as response code
 	 * 
 	 * @throws Exception
 	 */
 	@Test
 	public void testGetUserByIdNotExists() throws Exception {
-		Integer contactId = new Integer(1);
-		
-		given(userController.getById(contactId)).willThrow(ApplicationException.
-				createEntityNotFoundError(APIErrorCodes.ENTITY_NOT_FOUND, "user", "contactId=" + contactId));
+		Integer userId = new Integer(1);
 
-		MvcResult result = mockMvc.perform(get(USER_API_BASE_PATH + contactId)
-			   .accept(MediaType.APPLICATION_JSON))
-		.andExpect(status().isNotFound())
-		.andReturn();
-		
+		given(userController.getById(userId)).willThrow(ApplicationException
+				.createEntityNotFoundError(APIErrorCodes.ENTITY_NOT_FOUND, "user", "userId=" + userId));
+
+		MvcResult result = mockMvc.perform(get(USER_API_BASE_PATH + userId).accept(MediaType.APPLICATION_JSON))
+				.andExpect(status().isNotFound()).andReturn();
+
 		int status = result.getResponse().getStatus();
 		assertEquals("Incorrest Response Status", HttpStatus.NOT_FOUND.value(), status);
 	}
@@ -148,18 +144,15 @@ public class UserControllerTest {
 	 */
 	@Test
 	public void testAddUser() throws Exception {
-		User user = createUser(); 
-		
+		User user = createUser();
+
 		ResponseEntity<User> responseEntity = createUserResponseEntity(user, HttpStatus.CREATED);
-		
+
 		given(userController.addUser(user)).willReturn(responseEntity);
-		
-		mockMvc.perform(post(USER_API_BASE_PATH)
-			   .accept(MediaType.APPLICATION_JSON)
-			   .contentType(MediaType.APPLICATION_JSON)
-		       .content(getJsonString(user)))
-		.andExpect(status().isCreated())
-		.andExpect(jsonPath("user.userName", is(user.getUserName())));
+
+		mockMvc.perform(post(USER_API_BASE_PATH).accept(MediaType.APPLICATION_JSON)
+				.contentType(MediaType.APPLICATION_JSON).content(getJsonString(user))).andExpect(status().isCreated())
+				.andExpect(jsonPath("user.userName", is(user.getUserName())));
 	}
 
 	/**
@@ -169,20 +162,18 @@ public class UserControllerTest {
 	 */
 	@Test
 	public void testAddUserSearchHelpNullBadRequest() throws Exception {
-		User user = createUser(); 
+		User user = createUser();
 		user.setSearchHelp(null);
-		
-		mockMvc.perform(post(USER_API_BASE_PATH)
-			   .accept(MediaType.APPLICATION_JSON)
-			   .contentType(MediaType.APPLICATION_JSON)
-		       .content(getJsonString(user)))
-		.andExpect(status().isBadRequest())
-		.andExpect(jsonPath("errorCode", is(APIErrorCodes.VALIDATION_FAILED.getCode().toString())))
-		.andExpect(jsonPath("errorDetails[0].field", is("searchHelp")))
-		.andExpect(jsonPath("errorDetails[0].object", is("user")))
-		.andExpect(jsonPath("errorDetails[0].rejectedValue", is(user.getSearchHelp())));
+
+		mockMvc.perform(post(USER_API_BASE_PATH).accept(MediaType.APPLICATION_JSON)
+				.contentType(MediaType.APPLICATION_JSON).content(getJsonString(user)))
+				.andExpect(status().isBadRequest())
+				.andExpect(jsonPath("errorCode", is(APIErrorCodes.VALIDATION_FAILED.getCode().toString())))
+				.andExpect(jsonPath("errorDetails[0].field", is("searchHelp")))
+				.andExpect(jsonPath("errorDetails[0].object", is("user")))
+				.andExpect(jsonPath("errorDetails[0].rejectedValue", is(user.getSearchHelp())));
 	}
-	
+
 	/**
 	 * Test to verify post user API (/v1/users) with a In-valid request
 	 * 
@@ -190,20 +181,18 @@ public class UserControllerTest {
 	 */
 	@Test
 	public void testAddUserFirstNameNullBadRequest() throws Exception {
-		User user = createUser(); 
+		User user = createUser();
 		user.setFirstName(null);
-		
-		mockMvc.perform(post(USER_API_BASE_PATH)
-			   .accept(MediaType.APPLICATION_JSON)
-			   .contentType(MediaType.APPLICATION_JSON)
-		       .content(getJsonString(user)))
-		.andExpect(status().isBadRequest())
-		.andExpect(jsonPath("errorCode", is(APIErrorCodes.VALIDATION_FAILED.getCode().toString())))
-		.andExpect(jsonPath("errorDetails[0].field", is("firstName")))
-		.andExpect(jsonPath("errorDetails[0].object", is("user")))
-		.andExpect(jsonPath("errorDetails[0].rejectedValue", is(user.getFirstName())));
+
+		mockMvc.perform(post(USER_API_BASE_PATH).accept(MediaType.APPLICATION_JSON)
+				.contentType(MediaType.APPLICATION_JSON).content(getJsonString(user)))
+				.andExpect(status().isBadRequest())
+				.andExpect(jsonPath("errorCode", is(APIErrorCodes.VALIDATION_FAILED.getCode().toString())))
+				.andExpect(jsonPath("errorDetails[0].field", is("firstName")))
+				.andExpect(jsonPath("errorDetails[0].object", is("user")))
+				.andExpect(jsonPath("errorDetails[0].rejectedValue", is(user.getFirstName())));
 	}
-	
+
 	/**
 	 * Test to verify post user API (/v1/users) with a In-valid request
 	 * 
@@ -211,20 +200,18 @@ public class UserControllerTest {
 	 */
 	@Test
 	public void testAddUserBlockedAccountNullBadRequest() throws Exception {
-		User user = createUser(); 
+		User user = createUser();
 		user.setBlockedAccount(null);
-		
-		mockMvc.perform(post(USER_API_BASE_PATH)
-			   .accept(MediaType.APPLICATION_JSON)
-			   .contentType(MediaType.APPLICATION_JSON)
-		       .content(getJsonString(user)))
-		.andExpect(status().isBadRequest())
-		.andExpect(jsonPath("errorCode", is(APIErrorCodes.VALIDATION_FAILED.getCode().toString())))
-		.andExpect(jsonPath("errorDetails[0].field", is("blockedAccount")))
-		.andExpect(jsonPath("errorDetails[0].object", is("user")))
-		.andExpect(jsonPath("errorDetails[0].rejectedValue", is(user.getBlockedAccount())));
+
+		mockMvc.perform(post(USER_API_BASE_PATH).accept(MediaType.APPLICATION_JSON)
+				.contentType(MediaType.APPLICATION_JSON).content(getJsonString(user)))
+				.andExpect(status().isBadRequest())
+				.andExpect(jsonPath("errorCode", is(APIErrorCodes.VALIDATION_FAILED.getCode().toString())))
+				.andExpect(jsonPath("errorDetails[0].field", is("blockedAccount")))
+				.andExpect(jsonPath("errorDetails[0].object", is("user")))
+				.andExpect(jsonPath("errorDetails[0].rejectedValue", is(user.getBlockedAccount())));
 	}
-	
+
 	/**
 	 * Test to verify post user API (/v1/users) with a In-valid request
 	 * 
@@ -232,20 +219,18 @@ public class UserControllerTest {
 	 */
 	@Test
 	public void testAddUserMkDateNullBadRequest() throws Exception {
-		User user = createUser(); 
+		User user = createUser();
 		user.setMkdate(null);
-		
-		mockMvc.perform(post(USER_API_BASE_PATH)
-			   .accept(MediaType.APPLICATION_JSON)
-			   .contentType(MediaType.APPLICATION_JSON)
-		       .content(getJsonString(user)))
-		.andExpect(status().isBadRequest())
-		.andExpect(jsonPath("errorCode", is(APIErrorCodes.VALIDATION_FAILED.getCode().toString())))
-		.andExpect(jsonPath("errorDetails[0].field", is("mkdate")))
-		.andExpect(jsonPath("errorDetails[0].object", is("user")))
-		.andExpect(jsonPath("errorDetails[0].rejectedValue", is(user.getMkdate())));
+
+		mockMvc.perform(post(USER_API_BASE_PATH).accept(MediaType.APPLICATION_JSON)
+				.contentType(MediaType.APPLICATION_JSON).content(getJsonString(user)))
+				.andExpect(status().isBadRequest())
+				.andExpect(jsonPath("errorCode", is(APIErrorCodes.VALIDATION_FAILED.getCode().toString())))
+				.andExpect(jsonPath("errorDetails[0].field", is("mkdate")))
+				.andExpect(jsonPath("errorDetails[0].object", is("user")))
+				.andExpect(jsonPath("errorDetails[0].rejectedValue", is(user.getMkdate())));
 	}
-	
+
 	/**
 	 * Test to verify post user API (/v1/users) with a In-valid request
 	 * 
@@ -253,20 +238,18 @@ public class UserControllerTest {
 	 */
 	@Test
 	public void testAddUserCodevalidNullBadRequest() throws Exception {
-		User user = createUser(); 
+		User user = createUser();
 		user.setCodevalid(null);
-		
-		mockMvc.perform(post(USER_API_BASE_PATH)
-			   .accept(MediaType.APPLICATION_JSON)
-			   .contentType(MediaType.APPLICATION_JSON)
-		       .content(getJsonString(user)))
-		.andExpect(status().isBadRequest())
-		.andExpect(jsonPath("errorCode", is(APIErrorCodes.VALIDATION_FAILED.getCode().toString())))
-		.andExpect(jsonPath("errorDetails[0].field", is("codevalid")))
-		.andExpect(jsonPath("errorDetails[0].object", is("user")))
-		.andExpect(jsonPath("errorDetails[0].rejectedValue", is(user.getCodevalid())));
+
+		mockMvc.perform(post(USER_API_BASE_PATH).accept(MediaType.APPLICATION_JSON)
+				.contentType(MediaType.APPLICATION_JSON).content(getJsonString(user)))
+				.andExpect(status().isBadRequest())
+				.andExpect(jsonPath("errorCode", is(APIErrorCodes.VALIDATION_FAILED.getCode().toString())))
+				.andExpect(jsonPath("errorDetails[0].field", is("codevalid")))
+				.andExpect(jsonPath("errorDetails[0].object", is("user")))
+				.andExpect(jsonPath("errorDetails[0].rejectedValue", is(user.getCodevalid())));
 	}
-	
+
 	/**
 	 * Test to verify post user API (/v1/users) with a In-valid request
 	 * 
@@ -274,228 +257,213 @@ public class UserControllerTest {
 	 */
 	@Test
 	public void testAddUserUpdatePasswordNullBadRequest() throws Exception {
-		
-		User user = createUser(); 
-		
+
+		User user = createUser();
+
 		user.setUpdatePassword(null);
-		
-		mockMvc.perform(post(USER_API_BASE_PATH)
-			   .accept(MediaType.APPLICATION_JSON)
-			   .contentType(MediaType.APPLICATION_JSON)
-		       .content(getJsonString(user)))
-		.andExpect(status().isBadRequest())
-		.andExpect(jsonPath("errorCode", is(APIErrorCodes.VALIDATION_FAILED.getCode().toString())))
-		.andExpect(jsonPath("errorDetails[0].field", is("updatePassword")))
-		.andExpect(jsonPath("errorDetails[0].object", is("user")))
-		.andExpect(jsonPath("errorDetails[0].rejectedValue", is(user.getUpdatePassword())));
+
+		mockMvc.perform(post(USER_API_BASE_PATH).accept(MediaType.APPLICATION_JSON)
+				.contentType(MediaType.APPLICATION_JSON).content(getJsonString(user)))
+				.andExpect(status().isBadRequest())
+				.andExpect(jsonPath("errorCode", is(APIErrorCodes.VALIDATION_FAILED.getCode().toString())))
+				.andExpect(jsonPath("errorDetails[0].field", is("updatePassword")))
+				.andExpect(jsonPath("errorDetails[0].object", is("user")))
+				.andExpect(jsonPath("errorDetails[0].rejectedValue", is(user.getUpdatePassword())));
 	}
-	
+
 	/**
-	 * Test to verify put user API (/v1/users/{contactId}) without passing
-	 * contactId to path parameter.
+	 * Test to verify put user API (/v1/users/{userId}) without passing
+	 * userId to path parameter.
 	 * 
 	 * Expected - Should return 404 Not found response code
+	 * 
 	 * @throws Exception
 	 */
 	@Test
-	public void testUpdateUserWithNoContactIdInPath() throws Exception {
-		User user = createUser(); 
-		
-		ResponseEntity<User> responseEntity = createUserResponseEntity(user, HttpStatus.OK);
-		
-		given(userController.updateUser(user.getContactId(), user)).willReturn(responseEntity);
+	public void testUpdateUserWithNoUserIdInPath() throws Exception {
+		User user = createUser();
 
-		mockMvc.perform(put(USER_API_BASE_PATH)
-			   .accept(MediaType.APPLICATION_JSON)
-			   .contentType(MediaType.APPLICATION_JSON)
-		       .content(getJsonString(user)))
-		.andExpect(status().isMethodNotAllowed());
+		ResponseEntity<User> responseEntity = createUserResponseEntity(user, HttpStatus.OK);
+
+		given(userController.updateUser(user.getUserId(), user)).willReturn(responseEntity);
+
+		mockMvc.perform(put(USER_API_BASE_PATH).accept(MediaType.APPLICATION_JSON)
+				.contentType(MediaType.APPLICATION_JSON).content(getJsonString(user)))
+				.andExpect(status().isMethodNotAllowed());
 	}
 
-
 	/**
-	 * Test to verify put user API (/v1/users/{contactId}). 
+	 * Test to verify put user API (/v1/users/{userId}).
 	 * 
 	 * @throws Exception
 	 */
 	@Test
 	public void testUpdateUser() throws Exception {
-		User user = createUser(); 
-		
-		ResponseEntity<User> responseEntity = createUserResponseEntity(user, HttpStatus.OK);
-		
-		given(userController.updateUser(user.getContactId(), user)).willReturn(responseEntity);
+		User user = createUser();
 
-		mockMvc.perform(put(USER_API_BASE_PATH + user.getContactId())
-			   .accept(MediaType.APPLICATION_JSON)
-			   .contentType(MediaType.APPLICATION_JSON)
-		       .content(getJsonString(user)))
-		.andExpect(status().isOk())
-		.andExpect(jsonPath("user.firstName", is(user.getFirstName())));
+		ResponseEntity<User> responseEntity = createUserResponseEntity(user, HttpStatus.OK);
+
+		given(userController.updateUser(user.getUserId(), user)).willReturn(responseEntity);
+
+		mockMvc.perform(put(USER_API_BASE_PATH + user.getUserId()).accept(MediaType.APPLICATION_JSON)
+				.contentType(MediaType.APPLICATION_JSON).content(getJsonString(user))).andExpect(status().isOk())
+				.andExpect(jsonPath("user.firstName", is(user.getFirstName())));
 	}
-	
+
 	/**
-	 * Test to verify put user API (/v1/users/{contactId}) with a In-valid request
+	 * Test to verify put user API (/v1/users/{userId}) with a In-valid
+	 * request
 	 * 
 	 * @throws Exception
 	 */
 	@Test
 	public void testUpdateUserSearchHelpNullBadRequest() throws Exception {
-		User user = createUser(); 
+		User user = createUser();
 		user.setSearchHelp(null);
-		
-		mockMvc.perform(put(USER_API_BASE_PATH + user.getContactId())
-			   .accept(MediaType.APPLICATION_JSON)
-			   .contentType(MediaType.APPLICATION_JSON)
-		       .content(getJsonString(user)))
-		.andExpect(status().isBadRequest())
-		.andExpect(jsonPath("errorCode", is(APIErrorCodes.VALIDATION_FAILED.getCode().toString())))
-		.andExpect(jsonPath("errorDetails[0].field", is("searchHelp")))
-		.andExpect(jsonPath("errorDetails[0].object", is("user")))
-		.andExpect(jsonPath("errorDetails[0].rejectedValue", is(user.getSearchHelp())));
+
+		mockMvc.perform(put(USER_API_BASE_PATH + user.getUserId()).accept(MediaType.APPLICATION_JSON)
+				.contentType(MediaType.APPLICATION_JSON).content(getJsonString(user)))
+				.andExpect(status().isBadRequest())
+				.andExpect(jsonPath("errorCode", is(APIErrorCodes.VALIDATION_FAILED.getCode().toString())))
+				.andExpect(jsonPath("errorDetails[0].field", is("searchHelp")))
+				.andExpect(jsonPath("errorDetails[0].object", is("user")))
+				.andExpect(jsonPath("errorDetails[0].rejectedValue", is(user.getSearchHelp())));
 	}
-	
+
 	/**
-	 * Test to verify put user API (/v1/users/{contactId}) with a In-valid request
+	 * Test to verify put user API (/v1/users/{userId}) with a In-valid
+	 * request
 	 * 
 	 * @throws Exception
 	 */
 	@Test
 	public void testUpdateUserFirstNameNullBadRequest() throws Exception {
-		User user = createUser(); 
+		User user = createUser();
 		user.setFirstName(null);
-		
-		mockMvc.perform(put(USER_API_BASE_PATH + user.getContactId())
-			   .accept(MediaType.APPLICATION_JSON)
-			   .contentType(MediaType.APPLICATION_JSON)
-		       .content(getJsonString(user)))
-		.andExpect(status().isBadRequest())
-		.andExpect(jsonPath("errorCode", is(APIErrorCodes.VALIDATION_FAILED.getCode().toString())))
-		.andExpect(jsonPath("errorDetails[0].field", is("firstName")))
-		.andExpect(jsonPath("errorDetails[0].object", is("user")))
-		.andExpect(jsonPath("errorDetails[0].rejectedValue", is(user.getFirstName())));
+
+		mockMvc.perform(put(USER_API_BASE_PATH + user.getUserId()).accept(MediaType.APPLICATION_JSON)
+				.contentType(MediaType.APPLICATION_JSON).content(getJsonString(user)))
+				.andExpect(status().isBadRequest())
+				.andExpect(jsonPath("errorCode", is(APIErrorCodes.VALIDATION_FAILED.getCode().toString())))
+				.andExpect(jsonPath("errorDetails[0].field", is("firstName")))
+				.andExpect(jsonPath("errorDetails[0].object", is("user")))
+				.andExpect(jsonPath("errorDetails[0].rejectedValue", is(user.getFirstName())));
 	}
-	
+
 	/**
-	 * Test to verify put user API (/v1/users/{contactId}) with a In-valid request
+	 * Test to verify put user API (/v1/users/{userId}) with a In-valid
+	 * request
 	 * 
 	 * @throws Exception
 	 */
 	@Test
 	public void testUpdateUserBlockedAccountNullBadRequest() throws Exception {
-		User user = createUser(); 
+		User user = createUser();
 		user.setBlockedAccount(null);
-		
-		mockMvc.perform(put(USER_API_BASE_PATH + user.getContactId())
-			   .accept(MediaType.APPLICATION_JSON)
-			   .contentType(MediaType.APPLICATION_JSON)
-		       .content(getJsonString(user)))
-		.andExpect(status().isBadRequest())
-		.andExpect(jsonPath("errorCode", is(APIErrorCodes.VALIDATION_FAILED.getCode().toString())))
-		.andExpect(jsonPath("errorDetails[0].field", is("blockedAccount")))
-		.andExpect(jsonPath("errorDetails[0].object", is("user")))
-		.andExpect(jsonPath("errorDetails[0].rejectedValue", is(user.getBlockedAccount())));
+
+		mockMvc.perform(put(USER_API_BASE_PATH + user.getUserId()).accept(MediaType.APPLICATION_JSON)
+				.contentType(MediaType.APPLICATION_JSON).content(getJsonString(user)))
+				.andExpect(status().isBadRequest())
+				.andExpect(jsonPath("errorCode", is(APIErrorCodes.VALIDATION_FAILED.getCode().toString())))
+				.andExpect(jsonPath("errorDetails[0].field", is("blockedAccount")))
+				.andExpect(jsonPath("errorDetails[0].object", is("user")))
+				.andExpect(jsonPath("errorDetails[0].rejectedValue", is(user.getBlockedAccount())));
 	}
-	
+
 	/**
-	 * Test to verify put user API (/v1/users/{contactId}) with a In-valid request
+	 * Test to verify put user API (/v1/users/{userId}) with a In-valid
+	 * request
 	 * 
 	 * @throws Exception
 	 */
 	@Test
 	public void testUpdateUserMkDateNullBadRequest() throws Exception {
-		User user = createUser(); 
+		User user = createUser();
 		user.setMkdate(null);
-		
-		mockMvc.perform(put(USER_API_BASE_PATH + user.getContactId())
-			   .accept(MediaType.APPLICATION_JSON)
-			   .contentType(MediaType.APPLICATION_JSON)
-		       .content(getJsonString(user)))
-		.andExpect(status().isBadRequest())
-		.andExpect(jsonPath("errorCode", is(APIErrorCodes.VALIDATION_FAILED.getCode().toString())))
-		.andExpect(jsonPath("errorDetails[0].field", is("mkdate")))
-		.andExpect(jsonPath("errorDetails[0].object", is("user")))
-		.andExpect(jsonPath("errorDetails[0].rejectedValue", is(user.getMkdate())));
+
+		mockMvc.perform(put(USER_API_BASE_PATH + user.getUserId()).accept(MediaType.APPLICATION_JSON)
+				.contentType(MediaType.APPLICATION_JSON).content(getJsonString(user)))
+				.andExpect(status().isBadRequest())
+				.andExpect(jsonPath("errorCode", is(APIErrorCodes.VALIDATION_FAILED.getCode().toString())))
+				.andExpect(jsonPath("errorDetails[0].field", is("mkdate")))
+				.andExpect(jsonPath("errorDetails[0].object", is("user")))
+				.andExpect(jsonPath("errorDetails[0].rejectedValue", is(user.getMkdate())));
 	}
-	
+
 	/**
-	 * Test to verify put user API (/v1/users/{contactId}) with a In-valid request
+	 * Test to verify put user API (/v1/users/{userId}) with a In-valid
+	 * request
 	 * 
 	 * @throws Exception
 	 */
 	@Test
 	public void testUpdateUserCodevalidNullBadRequest() throws Exception {
-		User user = createUser(); 
-		user.setCodevalid(null);;
-		
-		mockMvc.perform(put(USER_API_BASE_PATH + user.getContactId())
-			   .accept(MediaType.APPLICATION_JSON)
-			   .contentType(MediaType.APPLICATION_JSON)
-		       .content(getJsonString(user)))
-		.andExpect(status().isBadRequest())
-		.andExpect(jsonPath("errorCode", is(APIErrorCodes.VALIDATION_FAILED.getCode().toString())))
-		.andExpect(jsonPath("errorDetails[0].field", is("codevalid")))
-		.andExpect(jsonPath("errorDetails[0].object", is("user")))
-		.andExpect(jsonPath("errorDetails[0].rejectedValue", is(user.getCodevalid())));
+		User user = createUser();
+		user.setCodevalid(null);
+		;
+
+		mockMvc.perform(put(USER_API_BASE_PATH + user.getUserId()).accept(MediaType.APPLICATION_JSON)
+				.contentType(MediaType.APPLICATION_JSON).content(getJsonString(user)))
+				.andExpect(status().isBadRequest())
+				.andExpect(jsonPath("errorCode", is(APIErrorCodes.VALIDATION_FAILED.getCode().toString())))
+				.andExpect(jsonPath("errorDetails[0].field", is("codevalid")))
+				.andExpect(jsonPath("errorDetails[0].object", is("user")))
+				.andExpect(jsonPath("errorDetails[0].rejectedValue", is(user.getCodevalid())));
 	}
-	
+
 	/**
-	 * Test to verify put user API (/v1/users/{contactId}) with a In-valid request
+	 * Test to verify put user API (/v1/users/{userId}) with a In-valid
+	 * request
 	 * 
 	 * @throws Exception
 	 */
 	@Test
 	public void testUpdateUserUpdatePasswordNullBadRequest() throws Exception {
-		User user = createUser(); 
+		User user = createUser();
 		user.setUpdatePassword(null);
-		
-		mockMvc.perform(put(USER_API_BASE_PATH + user.getContactId())
-			   .accept(MediaType.APPLICATION_JSON)
-			   .contentType(MediaType.APPLICATION_JSON)
-		       .content(getJsonString(user)))
-		.andExpect(status().isBadRequest())
-		.andExpect(jsonPath("errorCode", is(APIErrorCodes.VALIDATION_FAILED.getCode().toString())))
-		.andExpect(jsonPath("errorDetails[0].field", is("updatePassword")))
-		.andExpect(jsonPath("errorDetails[0].object", is("user")))
-		.andExpect(jsonPath("errorDetails[0].rejectedValue", is(user.getUpdatePassword())));
+
+		mockMvc.perform(put(USER_API_BASE_PATH + user.getUserId()).accept(MediaType.APPLICATION_JSON)
+				.contentType(MediaType.APPLICATION_JSON).content(getJsonString(user)))
+				.andExpect(status().isBadRequest())
+				.andExpect(jsonPath("errorCode", is(APIErrorCodes.VALIDATION_FAILED.getCode().toString())))
+				.andExpect(jsonPath("errorDetails[0].field", is("updatePassword")))
+				.andExpect(jsonPath("errorDetails[0].object", is("user")))
+				.andExpect(jsonPath("errorDetails[0].rejectedValue", is(user.getUpdatePassword())));
 	}
 
-	
 	/**
-	 * Test to verify delete user API (/v1/users/{contactId}) . 
+	 * Test to verify delete user API (/v1/users/{userId}) .
 	 * 
 	 * @throws Exception
 	 */
 	@Test
 	public void testDeleteUser() throws Exception {
-		
-		User user = createUser(); 
-		
-		ResponseEntity<Integer> responseEntity = createContactIdResponseEntity(user.getContactId(), HttpStatus.NO_CONTENT);
 
-		given(userController.deleteUser(user.getContactId())).willReturn(responseEntity);
+		User user = createUser();
 
-		mockMvc.perform(delete(USER_API_BASE_PATH + user.getContactId())
-			   .accept(MediaType.APPLICATION_JSON))
-		.andExpect(status().is(204));
+		ResponseEntity<Integer> responseEntity = createUserIdResponseEntity(user.getUserId(), HttpStatus.NO_CONTENT);
+
+		given(userController.deleteUser(user.getUserId())).willReturn(responseEntity);
+
+		mockMvc.perform(delete(USER_API_BASE_PATH + user.getUserId()).accept(MediaType.APPLICATION_JSON))
+				.andExpect(status().is(204));
 	}
-	
+
 	/**
-	 * Test to verify delete user API (/v1/users/{contactId}) for EntityNotFound
+	 * Test to verify delete user API (/v1/users/{userId}) for EntityNotFound
 	 * 
 	 * @throws Exception
 	 */
 	@Test
 	public void testDeleteUserForEntityNotFound() throws Exception {
-		
-		User user = createUser(); 
-		
-		given(userController.deleteUser(user.getContactId())).willThrow(ApplicationException.
-				createEntityNotFoundError(APIErrorCodes.ENTITY_NOT_FOUND, String.valueOf(user.getContactId())));
 
-		mockMvc.perform(delete(USER_API_BASE_PATH + user.getContactId())
-			   .accept(MediaType.APPLICATION_JSON))
-		.andExpect(status().isNotFound());
+		User user = createUser();
+
+		given(userController.deleteUser(user.getUserId())).willThrow(ApplicationException
+				.createEntityNotFoundError(APIErrorCodes.ENTITY_NOT_FOUND, String.valueOf(user.getUserId())));
+
+		mockMvc.perform(delete(USER_API_BASE_PATH + user.getUserId()).accept(MediaType.APPLICATION_JSON))
+				.andExpect(status().isNotFound());
 	}
 
 }

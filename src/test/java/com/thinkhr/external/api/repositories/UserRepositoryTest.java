@@ -6,7 +6,7 @@ import static org.junit.Assert.fail;
 import static com.thinkhr.external.api.ApplicationConstants.DEFAULT_SORT_BY_USER_NAME;
 import static com.thinkhr.external.api.services.utils.EntitySearchUtil.getPageable;
 import static com.thinkhr.external.api.utils.ApiTestDataUtil.createUser;
-import static com.thinkhr.external.api.utils.ApiTestDataUtil.createUsers;
+import static com.thinkhr.external.api.utils.ApiTestDataUtil.createUserList;
 
 import java.util.List;
 
@@ -50,7 +50,7 @@ public class UserRepositoryTest {
 		User userSaved = userRepository.save(user);
 		
 		assertNotNull(userSaved);
-		assertNotNull(userSaved.getContactId());// As user is saved successfully.
+		assertNotNull(userSaved.getUserId());// As user is saved successfully.
 		assertEquals(user.getSearchHelp(), userSaved.getSearchHelp());
 		assertEquals(user.getFirstName(), userSaved.getFirstName());
 		assertEquals(user.getLastName(), userSaved.getLastName());
@@ -63,7 +63,7 @@ public class UserRepositoryTest {
 	@Test
 	public void testFindAll() {
 		
-		for (User user : createUsers()) {
+		for (User user : createUserList()) {
 			userRepository.save(user);
 		}
 		
@@ -83,7 +83,7 @@ public class UserRepositoryTest {
 		//SAVE a User
 		User savedUser = userRepository.save(user);
 
-		User findUser =  userRepository.findOne(savedUser.getContactId());
+		User findUser =  userRepository.findOne(savedUser.getUserId());
 		assertNotNull(findUser);
 		assertEquals(user.getSearchHelp(), findUser.getSearchHelp());
 		assertEquals(user.getFirstName(), findUser.getFirstName());
@@ -104,7 +104,7 @@ public class UserRepositoryTest {
 		userRepository.delete(savedUser);
 		
 		//FIND saved user with find and it should not  return
-		User findUser =  userRepository.findOne(savedUser.getContactId());
+		User findUser =  userRepository.findOne(savedUser.getUserId());
 		assertEquals(null, findUser);
 	}
 	
@@ -113,9 +113,9 @@ public class UserRepositoryTest {
 	 */
 	@Test(expected = EmptyResultDataAccessException.class)
 	public void testDeleteForFailure() {
-		Integer contactId = 1;	// No record is available in H2 DB
+		Integer userId = 1;	// No record is available in H2 DB
 		// DELETING record here. 
-		userRepository.delete(contactId);
+		userRepository.delete(userId);
 	}
 	
 	/**
@@ -137,134 +137,9 @@ public class UserRepositoryTest {
 		} catch (ApplicationException e) {
 			fail("Not expecting application exception for a valid test case");
 		}
-		assertEquals(user.getContactId(), updatedUser.getContactId());
+		assertEquals(user.getUserId(), updatedUser.getUserId());
 		assertEquals("Pepcus - Updated", updatedUser.getFirstName());
 	}
-	
-	/**
-	 * Test to verify get all users when no parameters are provided 
-	 * i.e., all parameters are default provided.  
-	 * 
-	 * @throws Exception
-	 *//*
-	@Test
-	public void testAllUsersWithDefault() throws Exception {
-		
-		for (User user : createUsers()) {
-			userRepository.save(user);
-		}
-		
-		String searchSpec = null;
-		Pageable pageable = getPageable(null, null, null, defaultSortField);
-    	Specification<User> spec = null;
-    	if(StringUtils.isNotBlank(searchSpec)) {
-    		spec = new EntitySearchSpecification<User>(searchSpec, new User());
-    	}
-    	Page<User> users  = (Page<User>) userRepository.findAll(spec, pageable);
-    	
-    	assertNotNull(users.getContent());
-    	assertEquals(5, users.getContent().size());
-	}
-
-	*//**
-	 * Test to verify get all users when searchSpec is default and all other 
-	 * parameters are provided (sort is ascending)  
-	 * 
-	 * @throws Exception
-	 *//*
-	@Test
-	public void testAllUsersWithParamsAndSearchSpecNull() throws Exception {
-		
-		for (User user : createUsers()) {
-			userRepository.save(user);
-		}
-		
-		String searchSpec = null;
-		Pageable pageable = getPageable(3, 3, "+firstName", defaultSortField);
-    	Specification<User> spec = null;
-    	if(StringUtils.isNotBlank(searchSpec)) {
-    		spec = new EntitySearchSpecification<User>(searchSpec, new User());
-    	}
-    	Page<User> users  = (Page<User>) userRepository.findAll(spec, pageable);
-    	
-    	assertNotNull(users.getContent());
-    	assertEquals(2, users.getContent().size());
-	}
-	
-	*//**
-	 * Test to verify get all users searchSpec is provided and other parameters are default.  
-	 * 
-	 * @throws Exception
-	 *//*
-	@Test
-	public void testAllUsersWithParamsAndPageableNull() throws Exception {
-		
-		for (User user : createUsers()) {
-			userRepository.save(user);
-		}
-		
-		String searchSpec = "help";
-		Pageable pageable = getPageable(null, null, null, defaultSortField);
-    	Specification<User> spec = null;
-    	if(StringUtils.isNotBlank(searchSpec)) {
-    		spec = new EntitySearchSpecification<User>(searchSpec, new User());
-    	}
-    	Page<User> users  = (Page<User>) userRepository.findAll(spec, pageable);
-    	
-    	assertNotNull(users.getContent());
-    	assertEquals(3, users.getContent().size());
-	}
-	
-	*//**
-	 * Test to verify get all users when all parameters are provided 
-	 * and sort is ascending   
-	 * 
-	 * @throws Exception
-	 *//*
-	@Test
-	public void testAllUsersWithParamsAndAscSort() throws Exception {
-		
-		for (User user : createUsers()) {
-			userRepository.save(user);
-		}
-		
-		String searchSpec = "icici";
-		Pageable pageable = getPageable(0, null, "+firstName", defaultSortField);
-    	Specification<User> spec = null;
-    	if(StringUtils.isNotBlank(searchSpec)) {
-    		spec = new EntitySearchSpecification<User>(searchSpec, new User());
-    	}
-    	Page<User> users  = (Page<User>) userRepository.findAll(spec, pageable);
-    	
-    	assertNotNull(users.getContent());
-    	assertEquals(1, users.getContent().size());
-	}
-	
-	*//**
-	 * Test to verify get all users when all parameters are provided
-	 * and sort is descending.  
-	 * 
-	 * @throws Exception
-	 *//*
-	@Test
-	public void testAllUsersWithParamsAndDescSort() throws Exception {
-		
-		for (User user : createUsers()) {
-			userRepository.save(user);
-		}
-		
-		String searchSpec = "thr";
-		Pageable pageable = getPageable(null, null, "-firstName", defaultSortField);
-    	Specification<User> spec = null;
-    	if(StringUtils.isNotBlank(searchSpec)) {
-    		spec = new EntitySearchSpecification<User>(searchSpec, new User());
-    	}
-    	Page<User> users  = (Page<User>) userRepository.findAll(spec, pageable);
-    	
-    	
-    	assertNotNull(users.getContent());
-    	assertEquals(1, users.getContent().size());
-	}*/
 	
 	/**
 	 * Test userRepository.pageable with limit = 5 
@@ -273,7 +148,7 @@ public class UserRepositoryTest {
 	@Test
 	public void testFindAllWithPageableWithLimit() throws Exception {
 		
-		for (User user : createUsers()) {
+		for (User user : createUserList()) {
 			userRepository.save(user);
 		}
 		
@@ -292,7 +167,7 @@ public class UserRepositoryTest {
 	@Test
 	public void testFindAllWithPageableWithOffset() throws Exception {
 		
-		for (User user : createUsers()) {
+		for (User user : createUserList()) {
 			userRepository.save(user);
 		}
 		
@@ -312,7 +187,7 @@ public class UserRepositoryTest {
 	@Test
 	public void testFindAllWithSpecification() throws Exception {
 		
-		for (User user : createUsers()) {
+		for (User user : createUserList()) {
 			userRepository.save(user);
 		}
 		

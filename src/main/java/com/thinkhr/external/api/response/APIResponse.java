@@ -5,6 +5,7 @@ import java.util.List;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.thinkhr.external.api.db.entities.Company;
+import com.thinkhr.external.api.db.entities.User;
 
 import lombok.Data;
 
@@ -35,4 +36,6 @@ public class APIResponse {
 	private List<Company> companies;
 	private Company company; 
 	private String nodeName;
+	private List<User> users;
+	private User user;
 }

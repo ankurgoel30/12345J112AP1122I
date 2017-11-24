@@ -61,11 +61,11 @@ public class UserController {
      * @throws ApplicationException 
      * 
      */
-    @RequestMapping(method=RequestMethod.GET, value="/{contactId}")
-    public User getById(@PathVariable(name="contactId", value = "contactId") Integer contactId) throws ApplicationException { 
-        User user = userService.getUser(contactId);
+    @RequestMapping(method=RequestMethod.GET, value="/{userId}")
+    public User getById(@PathVariable(name="userId", value = "userId") Integer userId) throws ApplicationException { 
+        User user = userService.getUser(userId);
         if (user == null) {
-        	throw ApplicationException.createEntityNotFoundError(APIErrorCodes.ENTITY_NOT_FOUND, "user", "contactId="+ contactId);
+        	throw ApplicationException.createEntityNotFoundError(APIErrorCodes.ENTITY_NOT_FOUND, "user", "userId = "+ userId);
         }
         return user;
     }
@@ -76,10 +76,10 @@ public class UserController {
      * 
      * @param userId
      */
-    @RequestMapping(method=RequestMethod.DELETE, value="/{contactId}")
-    public ResponseEntity<Integer> deleteUser(@PathVariable(name="contactId", value = "contactId") Integer contactId) throws ApplicationException{
-    	userService.deleteUser(contactId);
-    	return new ResponseEntity <Integer>(contactId, HttpStatus.NO_CONTENT);
+    @RequestMapping(method=RequestMethod.DELETE, value="/{userId}")
+    public ResponseEntity<Integer> deleteUser(@PathVariable(name="userId", value = "userId") Integer userId) throws ApplicationException{
+    	userService.deleteUser(userId);
+    	return new ResponseEntity <Integer>(userId, HttpStatus.ACCEPTED);
     }
     
     /**
@@ -87,9 +87,10 @@ public class UserController {
      * 
      * @param User object
      */
-    @RequestMapping(method=RequestMethod.PUT, value="/{contactId}")
-	public ResponseEntity <User> updateUser(@PathVariable(name="contactId", value = "contactId") Integer contactId, @Valid @RequestBody User user) throws ApplicationException {
-    	user.setContactId(contactId);
+    @RequestMapping(method=RequestMethod.PUT, value="/{userId}")
+	public ResponseEntity <User> updateUser(@PathVariable(name="userId", value = "userId") Integer userId, 
+			@Valid @RequestBody User user) throws ApplicationException {
+    	user.setUserId(userId);
     	userService.updateUser(user);
         return new ResponseEntity<User> (user, HttpStatus.OK);
 	}

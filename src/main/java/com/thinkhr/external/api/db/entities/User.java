@@ -1,5 +1,6 @@
 package com.thinkhr.external.api.db.entities;
 
+import static com.thinkhr.external.api.ApplicationConstants.VALID_FORMAT_YYYY_MM_DD;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -13,13 +14,14 @@ import javax.persistence.Lob;
 import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
-import javax.persistence.Transient;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 
+import org.hibernate.validator.constraints.Email;
+
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.annotation.JsonInclude.Include;
 
 import lombok.Data;
 
@@ -34,53 +36,102 @@ import lombok.Data;
 @Entity
 @Data
 @Table(name="contacts")
+@JsonInclude(JsonInclude.Include.NON_NULL)
 public class User implements SearchableEntity {
 
 	@Id
 	@GeneratedValue(strategy=GenerationType.AUTO)
-	private Integer contactId;
+	@Column(name="contactID")
+	private Integer userId;
 
 	@Column(name="accountID")
 	private String accountId;
 
-	@Temporal(TemporalType.DATE)
-	private Date activationDate;
-
-	private Integer active;
-
-	private String addedBy;
-
 	@NotNull
 	@Column(name="blockedAccount",nullable=false)
 	private Integer blockedAccount;
-
-	@JsonIgnore
-	private Integer bounced;
-
+	
+	@Column(name = "brokerID")
 	private Integer brokerId;
-
-	@Column(name="client_hours")
-	@JsonIgnore
-	private String clientHours;
-
+	
 	@Column(name="client_id")
-	private Integer clientId;
+	private Integer companyId;
 
 	@Column(name="client_name")
-	private String clientName;
+	private String companyName;
+	
+	@Column(name="contact_Type")
+	private String userType;
+	
+	@Email
+	@Column(name="Email")
+	private String email;
+	
+	@Column(name="Fax")
+	private String fax;
+	
+	@NotNull
+	@Column(name="First_Name", nullable=false)
+	private String firstName;
+	
+	@Column(name="Last_Name")
+	private String lastName;
+	
+	@Column(name="Location")
+	private String location;
+	
+	@NotNull
+	@Column(name="mkdate", nullable=false)
+	private String mkdate;
 
-	@Column(name="client_status")
+	@Column(name="Mobile")
+	private String mobile;
+	
+	@Column(name="Phone")
+	private String phone;
+	
+	@NotNull
+	@Column(name="search_help")
+	private String searchHelp;
+	
+	@Column(name="Title")
+	private String title;
+	
+	@Column(name="UserName")
+	private String userName;
+
 	@JsonIgnore
-	private String clientStatus;
+	@Column(name = "bounced")
+	private Integer bounced;
+	
+	@JsonFormat(shape = JsonFormat.Shape.STRING, pattern = VALID_FORMAT_YYYY_MM_DD)
+	@Temporal(TemporalType.TIMESTAMP)
+	@Column(name = "activationDate")
+	private Date activationDate;
 
 	@NotNull
 	@Column(name="codevalid", nullable=false)
 	private String codevalid;
 
-	@Column(name="contact_Type")
-	private String contactType;
+	@Column(name = "active")
+	@JsonIgnore
+	private Integer active;
 
-	@Temporal(TemporalType.DATE)
+	@Column(name = "addedBy")
+	@JsonIgnore
+	private String addedBy;
+
+	@Column(name="client_hours")
+	@JsonIgnore
+	private String clientHours;
+
+	@Column(name="client_status")
+	@JsonIgnore
+	private String clientStatus;
+
+	@JsonFormat(shape = JsonFormat.Shape.STRING, pattern = VALID_FORMAT_YYYY_MM_DD)
+	@Temporal(TemporalType.TIMESTAMP)
+	@Column(name = "deactivationDate")
 	private Date deactivationDate;
 
 	@Column(name="deactivationID")
@@ -91,83 +142,62 @@ public class User implements SearchableEntity {
 	@JsonIgnore
 	private Integer decisionMaker;
 
+	@Column(name="deleted")
+	@JsonIgnore
 	private Integer deleted;
 
-	private String email;
-
-	@Temporal(TemporalType.DATE)
-	@JsonIgnore
+	@JsonFormat(shape = JsonFormat.Shape.STRING, pattern = VALID_FORMAT_YYYY_MM_DD)
+	@Temporal(TemporalType.TIMESTAMP)
+	@Column(name="expirationDate")
 	private Date expirationDate;
 
-	private String fax;
-	
-	@Transient
-	@JsonInclude(Include.NON_NULL)
-	private Company company;
-
-	@NotNull
-	@Size(min = 1, max = 50)
-	@Column(name="first_Name")
-	private String firstName;
-
+	@JsonFormat(shape = JsonFormat.Shape.STRING, pattern = VALID_FORMAT_YYYY_MM_DD)
 	@Temporal(TemporalType.TIMESTAMP)
-	@JsonIgnore
+	@Column(name="firstMail")
 	private Date firstMail;
 
 	@Lob
-	@JsonIgnore
+	@Column(name="firstMailMessage")
 	private String firstMailMessage;
 
-	@JsonIgnore
+	@Column(name="firstMailSuccess")
 	private String firstMailSuccess;
 
 	@Column(name="has_SPD")
-	@JsonIgnore
 	private Integer hasSPD;
 
 	@Column(name="hrhID")
-	@JsonIgnore
 	private Integer hrhId;
 
-	@JsonIgnore
+	@Column(name="International")
 	private Integer international;
 
-	@Column(name="last_Name")
-	private String lastName;
-
 	@Column(name="learn_reminder")
-	@JsonIgnore
 	private Integer learnReminder;
 
-	@JsonIgnore
 	@Column(name="learn_sync")
 	private Integer learnSync;
 
-	private String location;
-
-	@JsonIgnore
+	@Column(name="mailStatus")
 	private Integer mailStatus;
 
+	@JsonFormat(shape = JsonFormat.Shape.STRING, pattern = VALID_FORMAT_YYYY_MM_DD)
 	@Temporal(TemporalType.TIMESTAMP)
-	@JsonIgnore
+	@Column(name="mailTime")
 	private Date mailTime;
 
-	@JsonIgnore
+	@Column(name="master")
 	private Integer master;
 
 	@Column(name="master_backup")
-	@JsonIgnore
 	private Integer masterBackup;
 
-	@NotNull
-	@Column(name="mkdate", nullable=false)
-	private String mkdate;
-
-	private String mobile;
-
+	@Column(name="modified")
 	private Integer modified;
 
 	@JsonIgnore
+	@Size(min = 1, max = 25)
+	@Column(name="Password")
 	private String password;
 
 	@Column(name="password_apps")
@@ -182,25 +212,19 @@ public class User implements SearchableEntity {
 	@JsonIgnore
 	private Integer passwordReset;
 
-	private String phone;
-
-	@Column(name="phone_backup")
-	@JsonIgnore
+	@Column(name="Phone_Backup")
 	private String phoneBackup;
 
-	@Temporal(TemporalType.DATE)
-	@JsonIgnore
+	@JsonFormat(shape = JsonFormat.Shape.STRING, pattern = VALID_FORMAT_YYYY_MM_DD)
+	@Temporal(TemporalType.TIMESTAMP)
+	@Column(name="reminder")
 	private Date reminder;
 
+	@Column(name="salesforceID")
 	@JsonIgnore
 	private String salesforceID;
 
-	@NotNull
-	@Size(min = 1)
-	@Column(name="search_help")
-	private String searchHelp;
-
-	@JsonIgnore
+	@Column(name="specialBlast")
 	private String specialBlast;
 
 	@Column(name="t1_customfield1")
@@ -216,25 +240,24 @@ public class User implements SearchableEntity {
 	private String t1Customfield4;
 
 	@Column(name="t1_roleId")
-	private Integer t1RoleId;
+	private Integer roleId;
 
-	@JsonIgnore
+	@Column(name="tempID")
 	private String tempId;
 
+	@JsonFormat(shape = JsonFormat.Shape.STRING, pattern = VALID_FORMAT_YYYY_MM_DD)
 	@Temporal(TemporalType.TIMESTAMP)
+	@Column(name="terms")
 	private Date terms;
 
-	@JsonIgnore
+	@Column(name="testAccount")
 	private Integer testAccount;
 
-	private String title;
-
 	@NotNull
-	@Column(name="update_password", nullable=false)
+	@Column(name="update_password", nullable = false)
+	@Size(min = 1, max = 1)
 	private String updatePassword;
-
-	private String userName;
-
+	
 	@Override
 	@JsonIgnore
 	public List<String> getSearchFields() {

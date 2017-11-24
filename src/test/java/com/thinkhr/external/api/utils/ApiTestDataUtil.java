@@ -59,7 +59,8 @@ public class ApiTestDataUtil {
 	 * @param specialNotes
 	 * @return
 	 */
-	public static Company createCompany(Integer companyId, String companyName, String companyType, String displayName, 
+	public static Company createCompany(Integer companyId, String companyName,
+			String companyType, String displayName, 
 			Date companySince, String specialNotes, String searchHelp) {
 		Company company = new Company();
 		if (companyId != null) {
@@ -83,12 +84,12 @@ public class ApiTestDataUtil {
 	 * @param searchHelp
 	 * @return
 	 */
-	public static User createUser(Integer contactId, String firstName, String lastName,
+	public static User createUser(Integer userId, String firstName, String lastName,
 			String searchHelp, String userName, Integer blockedAccount, String mkdate, 
 			String codevalid, String updatePassword) {
 		User user = new User();
-		if (contactId != null) {
-			user.setContactId(contactId);
+		if (userId != null) {
+			user.setUserId(userId);
 		}
 		user.setFirstName(firstName);
 		user.setLastName(lastName);
@@ -106,17 +107,7 @@ public class ApiTestDataUtil {
 	 * @return
 	 */
 	public static User createUser() {
-		User user = new User();
-		user.setContactId(1);
-		user.setFirstName("Pepcus");
-		user.setLastName("Software");
-		user.setSearchHelp("dummy help");
-		user.setUserName("pepcus");
-		user.setBlockedAccount(1);
-		user.setMkdate("dummyDate");
-		user.setCodevalid("dummyCode");
-		user.setUpdatePassword("updated");
-		return user;
+		return createUser(1, "Surabhi", "Bhawsar", "Software Developer", "sbhawsar", 1, "2017-08-08", "y", "y");
 	}
 	
 	/**
@@ -159,8 +150,8 @@ public class ApiTestDataUtil {
 	 * @param httpStatus
 	 * @return
 	 */
-	public static ResponseEntity<Integer> createContactIdResponseEntity(Integer contactId, HttpStatus httpStatus) {
-		return new ResponseEntity<Integer>(contactId, httpStatus);
+	public static ResponseEntity<Integer> createUserIdResponseEntity(Integer userId, HttpStatus httpStatus) {
+		return new ResponseEntity<Integer>(userId, httpStatus);
 	}
 
 	/**
@@ -198,19 +189,19 @@ public class ApiTestDataUtil {
 	 * 
 	 * @return
 	 */
-	public static List<User> createUsers() {
+	public static List<User> createUserList() {
 		List<User> users = new ArrayList<User>();
 		
-		users.add(createUser(1, "PEPCUS", "Software", "dummy help pepcus", "pepcus", 1, "dummyDate", "dummyCode", "updated"));
-		users.add(createUser(2, "THINKHR", "Service Provider", "dummy help thr", "THR", 1, "dummyDate", "dummyCode", "updated"));
-		users.add(createUser(3, "ICICI", "Banking", "icici help", "icici", 1, "dummyDate", "dummyCode", "updated"));
-		users.add(createUser(4, "ASI", "Advisor Service Provider", "dummy help asi", "ASI", 1, "dummyDate", "dummyCode", "updated"));
-		users.add(createUser(5, "AJAY", "JAIN", "dummy help ajain", "ajain", 1, "dummyDate", "dummyCode", "updated"));
-		users.add(createUser(6, "SURABHI", "BHAWSAR", "dummy help sbhawsar", "sbhawsar", 1, "dummyDate", "dummyCode", "updated"));
-		users.add(createUser(7, "JSON", "GARNER", "dummy help jgarner", "jgarner", 1, "dummyDate", "dummyCode", "updated"));
-		users.add(createUser(8, "JOHN", "DOE", "dummy help jdoe", "jdoe", 1, "dummyDate", "dummyCode", "updated"));
-		users.add(createUser(9, "TERRENCE", "LEWIS", "dummy help tlewis", "tlewis", 1, "dummyDate", "dummyCode", "updated"));
-		users.add(createUser(10, "DONALD", "JOHNSON", "dummy help johnson", "johnson", 1, "dummyDate", "dummyCode", "updated"));
+		users.add(createUser(1, "Isha", "Khandelwal", "ishaa", "ishaa", 1, "2017-08-08", "dummyCode", "updated"));
+		users.add(createUser(2, "Sharmila", "Tagore", "stagore", "stagore", 1, "2017-08-08", "dummyCode", "updated"));
+		users.add(createUser(3, "Surabhi", "Bhawsar", "sbhawsar", "sbhawsar", 1, "2017-08-08", "dummyCode", "updated"));
+		users.add(createUser(4, "Shubham", "Solanki", "ssolanki", "ssolanki", 1, "2017-08-08", "dummyCode", "updated"));
+		users.add(createUser(5, "Ajay", "Jain", "ajain", "ajain", 1, "dummyDate", "2017-08-08", "updated"));
+		users.add(createUser(6, "Sandeep", "Vishwakarma", "svishwakarma", "svishwakarma", 1, "2017-08-08", "dummyCode", "updated"));
+		users.add(createUser(7, "Sushil", "Mahajan", "smahajan", "smahajan", 1, "2017-08-08", "dummyCode", "updated"));
+		users.add(createUser(8, "Sumedha", "Wani", "swani", "swani", 1, "2017-08-08", "dummyCode", "updated"));
+		users.add(createUser(9, "Mohit", "Jain", "mjain", "mjain", 1, "2017-08-08", "dummyCode", "updated"));
+		users.add(createUser(10, "Avi", "Jain", "ajain", "ajain", 1, "2017-08-08", "dummyCode", "updated"));
 		
 		return users;
 	}
