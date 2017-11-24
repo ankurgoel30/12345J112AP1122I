@@ -88,7 +88,7 @@ public class APIResponseBodyHandler implements ResponseBodyAdvice<Object> {
 			}
 		} else {
 			if (statusCode == HttpStatus.ACCEPTED.value()) {
-				apiResponse.setMessage(getMessageFromResourceBundle(resourceHandler, SUCCESS_DELETED, "entity", body.toString()));
+				apiResponse.setMessage(getMessageFromResourceBundle(resourceHandler, SUCCESS_DELETED, "id", body.toString()));
 			} else if (body instanceof SearchableEntity) {
 				apiResponse.setSearchEntity((SearchableEntity)body);
 			}
