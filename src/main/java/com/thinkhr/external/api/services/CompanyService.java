@@ -115,12 +115,9 @@ public class CompanyService  extends CommonService {
     public Company updateCompany(Company company) throws ApplicationException  {
     	Integer companyId = company.getCompanyId();
     	
-    	Company companyInDB = companyRepository.findOne(companyId);
-		if (null == companyInDB) {
+		if (null == companyRepository.findOne(companyId)) {
     		throw ApplicationException.createEntityNotFoundError(APIErrorCodes.ENTITY_NOT_FOUND, "company", "companyId="+companyId);
     	}
-		//To keep user's state as is
-		company.setIsActive(companyInDB.getIsActive());
     	return companyRepository.save(company);
 
     }
