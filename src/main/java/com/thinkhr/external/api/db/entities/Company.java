@@ -318,7 +318,7 @@ public class Company implements SearchableEntity {
 	
 	@Column(name = "t1_is_active", updatable= false)
 	@JsonIgnore
-	private Integer isActive;
+	private Integer isActive = 1;
 	
 	@PrePersist
 	public void prePersist() {

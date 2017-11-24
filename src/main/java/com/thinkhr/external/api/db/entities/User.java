@@ -142,9 +142,9 @@ public class User implements SearchableEntity {
 	@Column(name="codevalid", nullable=false)
 	private String codevalid = "";
 
-	@Column(name = "active")
+	@Column(name = "active", updatable = false)
 	@JsonIgnore
-	private Integer isActive;
+	private Integer isActive = 1;
 
 	@PrePersist
 	public void prePersist() {
