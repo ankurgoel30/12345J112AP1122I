@@ -285,7 +285,7 @@ public class User implements SearchableEntity {
 		searchColumns.add("firstName");
 		searchColumns.add("fax");
 		searchColumns.add("email");
-		searchColumns.add("clientName");
+		searchColumns.add("companyName");
 		return searchColumns;
 	}
 }
