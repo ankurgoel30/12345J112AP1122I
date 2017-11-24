@@ -369,4 +369,15 @@ public class Company implements SearchableEntity {
 		return searchColumns;
 	}
 	
+	@Override
+	@JsonIgnore
+	public String getNodeName() {
+		return "company";
+	}
+
+	@Override
+	@JsonIgnore
+	public String getMultiDataNodeName() {
+		return "companies";
+	}
 }

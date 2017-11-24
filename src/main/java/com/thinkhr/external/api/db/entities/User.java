@@ -291,4 +291,18 @@ public class User implements SearchableEntity {
 		searchColumns.add("companyName");
 		return searchColumns;
 	}
+	
+	@Override
+	@JsonIgnore
+	public String getNodeName() {
+		return "user";
+	}
+	
+	@Override
+	@JsonIgnore
+	public String getMultiDataNodeName() {
+		return "users";
+	}
+
+	
 }

@@ -21,8 +21,7 @@ import org.springframework.http.server.ServletServerHttpResponse;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseBodyAdvice;
 
-import com.thinkhr.external.api.db.entities.Company;
-import com.thinkhr.external.api.db.entities.User;
+import com.thinkhr.external.api.db.entities.SearchableEntity;
 import com.thinkhr.external.api.exception.APIError;
 import com.thinkhr.external.api.exception.APIErrorCodes;
 import com.thinkhr.external.api.exception.MessageResourceHandler;
@@ -82,40 +81,18 @@ public class APIResponseBodyHandler implements ResponseBodyAdvice<Object> {
 		 */
 		if (body instanceof List) {
 			if ((List)body == null || ((List)body).isEmpty()) {
-				if (httpRequest.getURI().getPath().contains("companies")) {
-					apiResponse.setMessage(getMessageFromResourceBundle(resourceHandler, APIErrorCodes.NO_RECORDS_FOUND, "company"));
-				}
-				if (httpRequest.getURI().getPath().contains("users")) {
-					apiResponse.setMessage(getMessageFromResourceBundle(resourceHandler, APIErrorCodes.NO_RECORDS_FOUND, "user"));
-				}
+				apiResponse.setMessage(getMessageFromResourceBundle(resourceHandler, APIErrorCodes.NO_RECORDS_FOUND, "company"));
 			} else {
-				if (httpRequest.getURI().getPath().contains("companies")) {
-					setCompanyListData((List)body, httpRequest, apiResponse);
-				}
-				if (httpRequest.getURI().getPath().contains("users")) {
-					setUserListData((List)body, httpRequest, apiResponse);
-				}
+				apiResponse.setList((List)body);
+				setCompanyListData((List)body, httpRequest, apiResponse);
 			}
 		} else {
-			/*
-			 * TODO: FIXME for generic object
-			 */
-			if (body != null && body instanceof Company) {
-				apiResponse.setCompany((Company)body);
-			} 
-			
-			if (body != null && body instanceof User) {
-				apiResponse.setUser((User)body);
+			if (statusCode == HttpStatus.ACCEPTED.value()) {
+				apiResponse.setMessage(getMessageFromResourceBundle(resourceHandler, SUCCESS_DELETED, "entity", body.toString()));
+			} else if (body instanceof SearchableEntity) {
+				apiResponse.setSearchEntity((SearchableEntity)body);
 			}
-			
-			if (body instanceof Integer && statusCode == HttpStatus.ACCEPTED.value()) {
-				if (httpRequest.getURI().getPath().contains("companies")) {
-					apiResponse.setMessage(getMessageFromResourceBundle(resourceHandler, SUCCESS_DELETED, "Company", body.toString()));
-				}
-				if (httpRequest.getURI().getPath().contains("users")) {
-					apiResponse.setMessage(getMessageFromResourceBundle(resourceHandler, SUCCESS_DELETED, "User", body.toString()));
-				}
-			}
+				
 		}
 		return apiResponse;
 	}
@@ -146,44 +123,8 @@ public class APIResponseBodyHandler implements ResponseBodyAdvice<Object> {
 			apiResponse.setTotalRecords(String.valueOf(totalRecObj));
 		}
 		
-		/*
-		 * TODO: FIXME for generic list
-		 */
-		apiResponse.setCompanies(list);
+		apiResponse.setList(list);
 		
 	}
 	
-	/**
-	 * To set list of user specific information into ApiResponse object 
-	 * 
-	 * @param list
-	 * @param httpRequest
-	 * @param apiResponse
-	 */
-	private void setUserListData(List list, ServletServerHttpRequest httpRequest, APIResponse apiResponse) {
-		
-		String limit = httpRequest.getServletRequest().getParameter(LIMIT_PARAM);
-		limit = StringUtils.isNotBlank(limit) ? limit : String.valueOf(DEFAULT_LIMIT);
-		apiResponse.setLimit(limit);
-		
-		String offset = httpRequest.getServletRequest().getParameter(OFFSET_PARAM);
-		offset = StringUtils.isNotBlank(offset) ? offset : String.valueOf(DEFAULT_OFFSET);
-		apiResponse.setOffset(offset);
-		
-		String sort = httpRequest.getServletRequest().getParameter(SORT_PARAM);
-		sort = StringUtils.isNotBlank(sort) ? sort : DEFAULT_SORT_BY_USER_NAME;
-		apiResponse.setSort(EntitySearchUtil.getFormattedString(sort));
-		
-		Object totalRecObj = getRequestAttribute(TOTAL_RECORDS);
-		if (totalRecObj != null) {
-			apiResponse.setTotalRecords(String.valueOf(totalRecObj));
-		}
-		
-		/*
-		 * TODO: FIXME for generic list
-		 */
-		apiResponse.setUsers(list);
-		
-	}
-
 }

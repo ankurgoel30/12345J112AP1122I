@@ -4,8 +4,8 @@ import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
-import com.thinkhr.external.api.db.entities.Company;
-import com.thinkhr.external.api.db.entities.User;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.thinkhr.external.api.db.entities.SearchableEntity;
 
 import lombok.Data;
 
@@ -21,6 +21,7 @@ import lombok.Data;
  */
 @Data
 @JsonInclude(Include.NON_EMPTY)
+@JsonSerialize(using=APIResponseSerializer.class)
 public class APIResponse {
 
 	private String status;
@@ -33,9 +34,6 @@ public class APIResponse {
 	/*
 	 * TODO: Replace with generic attribute like list
 	 */
-	private List<Company> companies;
-	private Company company; 
-	private String nodeName;
-	private List<User> users;
-	private User user;
+	private List list;
+	private SearchableEntity searchEntity; 
 }
