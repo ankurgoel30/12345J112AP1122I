@@ -79,7 +79,6 @@ public class FileDataRepository {
         int clientId = keyHolder.getKey().intValue();
 
         try {
-            //jdbcTemplate.update(insertLocationSql.toString(), locationColumnValues, clientId);
             jdbcTemplate.update(new PreparedStatementCreator() {
 
                 @Override

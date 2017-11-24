@@ -140,21 +140,40 @@ public class CompanyController {
    	}
     
     /**
+     * Bulk import company records from a given JSON Data.
+     * 
+     * @param Multipart file CSV files with records
+     * @param brokerId - brokerId from request. Originally retrieved as part of JWT token
+     * 
+     */
+    @RequestMapping(method=RequestMethod.POST,  value="/bulk/json")
+    public ResponseEntity <FileImportResult> bulkUploadJSON(@RequestBody BulkCompanyModel companies,
+            @RequestParam(value = "brokerId", required = false, 
+            			  defaultValue = ApplicationConstants.DEFAULT_BROKERID_FOR_FILE_IMPORT) Integer brokerId )
+            throws ApplicationException, IOException {
+     
+    	logger.info("##### ######### COMPANY IMPORT BEGINS ######### #####");
+        FileImportResult fileImportResult = companyService.bulkUpload(null, brokerId, companies);
+        logger.debug("************** COMPANY IMPORT ENDS *****************");
+  
+        return new ResponseEntity <FileImportResult> (fileImportResult, HttpStatus.OK);
+    }
+    
+    /**
      * Bulk import company records from a given CSV file.
      * 
      * @param Multipart file CSV files with records
      * @param brokerId - brokerId from request. Originally retrieved as part of JWT token
      * 
      */
-    @RequestMapping(method=RequestMethod.POST,  value="/bulk")
-    public ResponseEntity <InputStreamResource> bulkUpload(@RequestParam("file") MultipartFile file,
-    		@RequestBody BulkCompanyModel companies,
-            @RequestParam(value = "brokerId", required = false, 
+    @RequestMapping(method=RequestMethod.POST,  value="/bulk/file")
+    public ResponseEntity <InputStreamResource> bulkUploadFile(@RequestParam(value="file", required=false) MultipartFile file, 
+    		@RequestParam(value = "brokerId", required = false, 
             			  defaultValue = ApplicationConstants.DEFAULT_BROKERID_FOR_FILE_IMPORT) Integer brokerId )
             throws ApplicationException, IOException {
      
     	logger.info("##### ######### COMPANY IMPORT BEGINS ######### #####");
-        FileImportResult fileImportResult = companyService.bulkUpload(file, brokerId, companies);
+        FileImportResult fileImportResult = companyService.bulkUpload(file, brokerId, null);
         logger.debug("************** COMPANY IMPORT ENDS *****************");
         
         // Set the attachment header & set up response to return a CSV file with result and erroneous records

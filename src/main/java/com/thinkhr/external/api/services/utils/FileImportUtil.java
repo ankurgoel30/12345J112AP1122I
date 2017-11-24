@@ -80,6 +80,9 @@ public class FileImportUtil {
         InputStream is = file.getInputStream();
         br = new BufferedReader(new InputStreamReader(is));
         while ((line = br.readLine()) != null) {
+        	if (StringUtils.isEmpty(StringUtils.deleteWhitespace(line).replaceAll(",", ""))) {
+        		continue; //skip any fully blank line 
+        	}
             result.add(line);
         }
         return result;
@@ -186,7 +189,6 @@ public class FileImportUtil {
         Set<String> allHeadersInCSVSet = new HashSet<String>(Arrays.asList(allHeadersInCSV));
         Set<String> requiredHeadersSet = new HashSet<String>(Arrays.asList(requiredHeaders));
         allHeadersInCSVSet.removeAll(requiredHeadersSet);// after this operation allHeadersInCSVSet will have only custom headers
-
         return allHeadersInCSVSet;
     }
     
@@ -207,9 +209,8 @@ public class FileImportUtil {
         String failedCauseColumn = APIMessageUtil.getMessageFromResourceBundle(resourceHandler, "FAILURE_CAUSE");
 
         Set<String> customHeaders = FileImportUtil.getCustomFieldHeaders(allHeadersInCsv, REQUIRED_HEADERS_COMPANY_CSV_IMPORT);
-
-        customHeaders.remove(failedCauseColumn); // this column may come as resubmitted file. If yes, let's remove. 
-        customHeaders.removeAll(allMappedHeaders);// = customHeaders - allMappedHeaders
+        customHeaders.remove(failedCauseColumn); // this column may come as resubmitted file. If yes, let's remove.
+	    customHeaders.removeAll(allMappedHeaders);// = customHeaders - allMappedHeaders
         if (!customHeaders.isEmpty()) {
             throw ApplicationException.createFileImportError(APIErrorCodes.UNMAPPED_CUSTOM_HEADERS, StringUtils.join(customHeaders, ","));
         }

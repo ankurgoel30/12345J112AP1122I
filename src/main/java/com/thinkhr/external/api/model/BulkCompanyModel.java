@@ -7,6 +7,10 @@ import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import org.apache.commons.lang.StringUtils;
+
+import com.thinkhr.external.api.ApplicationConstants;
+
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -20,6 +24,8 @@ import lombok.NoArgsConstructor;
  */
 
 @Data
+@NoArgsConstructor
+@AllArgsConstructor
 public class BulkCompanyModel {
 	
 	public String customHeaders;
@@ -29,7 +35,7 @@ public class BulkCompanyModel {
 	@Data
 	@NoArgsConstructor
 	@AllArgsConstructor
-	public class CompanyJSONModel {
+	public static class CompanyJSONModel {
 	public String clientName;
 	public String displayName; 
 	public String phone;
@@ -41,10 +47,10 @@ public class BulkCompanyModel {
 	public String industry;
 	public String companySize;
 	public String producer;
-	public String custom1;
-	public String custom2;
-	public String custom3;
-	public String custom4;
+	public String customHeader1;
+	public String customHeader2;
+	public String customHeader3;
+	public String customHeader4;
 	
 	
 	/**
@@ -54,11 +60,27 @@ public class BulkCompanyModel {
 	 */
 	public String toCsvRow() {
 	    return Stream.of(clientName, displayName, phone, address, address2, city, 
-				  state, zip, industry, companySize, producer, custom1, 
-				  custom2, custom3, custom4)
+				  state, zip, industry, companySize, producer, customHeader1, 
+				  customHeader2, customHeader3, customHeader4)
 	            .map(value -> value.replaceAll("\"", "\"\""))
 	            .map(value -> Stream.of("\"", ",").anyMatch(value::contains) ? "\"" + value + "\"" : value)
 	            .collect(Collectors.joining(","));
 	}
   }
+    
+	
+	/**
+     * Get refined headers for JSON data
+     * 
+     * @param customHeaders
+     * @return
+     */
+	public String determineHeaders() {
+       	String requiredHeaders =  StringUtils.join(ApplicationConstants.REQUIRED_HEADERS_COMPANY_CSV_IMPORT, ","); 
+    	if (StringUtils.isEmpty(customHeaders)) {
+    		return requiredHeaders;
+    	} 
+       	return requiredHeaders+","+StringUtils.deleteWhitespace(customHeaders);
+    }    	
+		
 }

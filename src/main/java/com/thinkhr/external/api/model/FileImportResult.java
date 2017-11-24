@@ -6,6 +6,9 @@ import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonInclude;
+
 /**
  * This class is used to collect information when records from csv file
  * 
@@ -18,7 +21,11 @@ public class FileImportResult {
 	private int totalRecords;
 	private int numSuccessRecords;
 	private int numFailedRecords;
+	
+	@JsonIgnore
 	private String headerLine; // For storing header to be used for creating responseFile
+
+	@JsonInclude(JsonInclude.Include.NON_EMPTY)
 	private List<FailedRecord> failedRecords = new ArrayList<FailedRecord>();
 
 	public void increamentSuccessRecords() {
