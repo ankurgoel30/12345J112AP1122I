@@ -146,16 +146,6 @@ public class User implements SearchableEntity {
 	@JsonIgnore
 	private Integer isActive = 1;
 
-	@PrePersist
-	public void prePersist() {
-		/* This check is to create new User record as always active. 
-		 * It should be handled in database by making it's default value as 1 instead of 0.
-		 */
-		if (isActive == null) {
-			isActive = 1;
-		}
-	}
-	
 	@Column(name = "addedBy")
 	private String addedBy;
 
