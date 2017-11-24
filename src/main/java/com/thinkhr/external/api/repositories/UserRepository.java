@@ -24,4 +24,8 @@ public interface UserRepository extends PagingAndSortingRepository<User, Integer
 	@Transactional
 	public void softDelete(int userID);
 	
+	public User findByUserName(String userName);
+	
+	public User findByEmail(String email);
+	
 }
