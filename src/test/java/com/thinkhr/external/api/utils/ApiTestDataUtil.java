@@ -86,20 +86,16 @@ public class ApiTestDataUtil {
 	 * @return
 	 */
 	public static User createUser(Integer userId, String firstName, String lastName,
-			String searchHelp, String userName, Integer blockedAccount, String mkdate, 
-			String codevalid, String updatePassword) {
+			String email, String userName, String companyName) {
 		User user = new User();
 		if (userId != null) {
 			user.setUserId(userId);
 		}
 		user.setFirstName(firstName);
 		user.setLastName(lastName);
-		user.setSearchHelp(searchHelp);
+		user.setEmail(email);
 		user.setUserName(userName);
-		user.setBlockedAccount(blockedAccount);
-		user.setMkdate(mkdate);
-		user.setCodevalid(codevalid);
-		user.setUpdatePassword(updatePassword); 
+		user.setCompanyName(companyName);   
 		return user;
 	}
 	
@@ -108,7 +104,7 @@ public class ApiTestDataUtil {
 	 * @return
 	 */
 	public static User createUser() {
-		return createUser(1, "Surabhi", "Bhawsar", "Software Developer", "sbhawsar", 1, "2017-08-08", "y", "y");
+		return createUser(1, "Surabhi", "Bhawsar", "surabhi.bhawsar@pepcus.com", "sbhawsar", "Pepcus");
 	}
 	
 	/**
@@ -193,16 +189,16 @@ public class ApiTestDataUtil {
 	public static List<User> createUserList() {
 		List<User> users = new ArrayList<User>();
 		
-		users.add(createUser(1, "Isha", "Khandelwal", "ishaa", "ishaa", 1, "2017-08-08", "dummyCode", "updated"));
-		users.add(createUser(2, "Sharmila", "Tagore", "stagore", "stagore", 1, "2017-08-08", "dummyCode", "updated"));
-		users.add(createUser(3, "Surabhi", "Bhawsar", "sbhawsar", "sbhawsar", 1, "2017-08-08", "dummyCode", "updated"));
-		users.add(createUser(4, "Shubham", "Solanki", "ssolanki", "ssolanki", 1, "2017-08-08", "dummyCode", "updated"));
-		users.add(createUser(5, "Ajay", "Jain", "ajain", "ajain", 1, "dummyDate", "2017-08-08", "updated"));
-		users.add(createUser(6, "Sandeep", "Vishwakarma", "svishwakarma", "svishwakarma", 1, "2017-08-08", "dummyCode", "updated"));
-		users.add(createUser(7, "Sushil", "Mahajan", "smahajan", "smahajan", 1, "2017-08-08", "dummyCode", "updated"));
-		users.add(createUser(8, "Sumedha", "Wani", "swani", "swani", 1, "2017-08-08", "dummyCode", "updated"));
-		users.add(createUser(9, "Mohit", "Jain", "mjain", "mjain", 1, "2017-08-08", "dummyCode", "updated"));
-		users.add(createUser(10, "Avi", "Jain", "ajain", "ajain", 1, "2017-08-08", "dummyCode", "updated"));
+		users.add(createUser(1, "Isha", "Khandelwal", "isha.khandelwal@gmail.com", "ishaa", "ThinkHR"));
+		users.add(createUser(2, "Sharmila", "Tagore", "stagore@gmail.com", "stagore", "ASI"));
+		users.add(createUser(3, "Surabhi", "Bhawsar", "sbhawsar@gmail.com", "sbhawsar", "Pepcus"));
+		users.add(createUser(4, "Shubham", "Solanki", "ssolanki@gmail.com", "ssolanki", "Pepcus"));
+		users.add(createUser(5, "Ajay", "Jain", "ajain@gmail.com", "ajain", "TCS"));
+		users.add(createUser(6, "Sandeep", "Vishwakarma", "svishwakarma@gmail.com", "svishwakarma", "CIS"));
+		users.add(createUser(7, "Sushil", "Mahajan", "smahajan@gmail.com", "smahajan", "ASI"));
+		users.add(createUser(8, "Sumedha", "Wani", "swani@gmail.com", "swani", "InfoBeans"));
+		users.add(createUser(9, "Mohit", "Jain", "mjain@gmail.com", "mjain", "Pepcus"));
+		users.add(createUser(10, "Avi", "Jain", "ajain@gmail.com", "ajain", "Pepcus"));
 		
 		return users;
 	}

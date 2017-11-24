@@ -45,16 +45,17 @@ public class UserRepositoryTest {
 	@Test
 	public void testSaveForAdd() {
 		
-		User user = createUser(null, "Jason", "Garner", "dummy help", "jgarner", 1, "dummyDate", "dummyCode", "updated");
+		User user = createUser(null, "Jason", "Garner", "jgarner@gmail.com", "jgarner", "Pepcus");
 		
 		User userSaved = userRepository.save(user);
 		
 		assertNotNull(userSaved);
 		assertNotNull(userSaved.getUserId());// As user is saved successfully.
-		assertEquals(user.getSearchHelp(), userSaved.getSearchHelp());
 		assertEquals(user.getFirstName(), userSaved.getFirstName());
 		assertEquals(user.getLastName(), userSaved.getLastName());
 		assertEquals(user.getUserName(), userSaved.getUserName());
+		assertEquals(user.getEmail(), userSaved.getEmail());
+		assertEquals(user.getCompanyName(), userSaved.getCompanyName());
 	}
 	
 	/**
@@ -78,16 +79,18 @@ public class UserRepositoryTest {
 	 */
 	@Test
 	public void testFindOne() {
-		User user = createUser(null, "PEPCUS", "Services", "dummy Help PEP", "pepcus", 1, "dummyDate", "dummyCode", "updated");
+		User user = createUser(null, "Jason", "Garner", "jgarner@gmail.com", "jgarner", "Pepcus");
 		
 		//SAVE a User
 		User savedUser = userRepository.save(user);
 
 		User findUser =  userRepository.findOne(savedUser.getUserId());
 		assertNotNull(findUser);
-		assertEquals(user.getSearchHelp(), findUser.getSearchHelp());
 		assertEquals(user.getFirstName(), findUser.getFirstName());
 		assertEquals(user.getLastName(), findUser.getLastName());
+		assertEquals(user.getEmail(), findUser.getEmail());
+		assertEquals(user.getUserName(), findUser.getUserName());
+		assertEquals(user.getCompanyName(), findUser.getCompanyName());
 	}
 	
 	/**
@@ -95,7 +98,7 @@ public class UserRepositoryTest {
 	 */
 	@Test
 	public void testDeleteForSuccess() {
-		User user = createUser(null, "PEPCUS", "Services", "dummy Help PEP", "pepcus", 1, "dummyDate", "dummyCode", "updated");
+		User user = createUser(null, "Jason", "Garner", "jgarner@gmail.com", "jgarner", "Pepcus");
 		
 		//SAVE a User
 		User savedUser = userRepository.save(user);
@@ -126,7 +129,7 @@ public class UserRepositoryTest {
 	@Test
 	public void testSaveForUpdate(){
 
-		User user = userRepository.save(createUser(null, "PEPCUS", "Services", "dummy Help PEP", "pepcus", 1, "dummyDate", "dummyCode", "updated"));
+		User user = userRepository.save(createUser(null, "Jason", "Garner", "jgarner@gmail.com", "jgarner", "Pepcus"));
 		
 		// Updating company name
 		user.setFirstName("Pepcus - Updated");
@@ -194,12 +197,12 @@ public class UserRepositoryTest {
 		Pageable pageable = getPageable(null, null, null, DEFAULT_SORT_BY_USER_NAME);
 
 		EntitySearchSpecification<User> specification = (EntitySearchSpecification<User>) EntitySearchUtil.
-				getEntitySearchSpecification("ICICI", null, User.class, new User());
+				getEntitySearchSpecification("Sandeep", null, User.class, new User());
 		
 		Page<User> users  = (Page<User>) userRepository.findAll(specification, pageable);
 		
 		assertNotNull(users.getContent());
-		assertEquals(1, users.getContent().size()); //As we have only one record have searchKey = "icici"
+		assertEquals(1, users.getContent().size()); //As we have only one record have searchKey = "Sandeep"
 	}
 
 }

@@ -7,7 +7,6 @@ import static com.thinkhr.external.api.utils.ApiTestDataUtil.createUserList;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.fail;
-import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -20,7 +19,6 @@ import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
-import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.test.context.junit4.SpringRunner;
@@ -68,7 +66,6 @@ public class UserServiceTest {
 			fail("Not expected exception");
 		}
 		
-		//TODO: ADD MORE test cases to verify limit, offset, sort and other search parameters.
 	}
 	
 	/**
@@ -99,8 +96,9 @@ public class UserServiceTest {
 		assertEquals(user.getUserId(), result.getUserId());
 		assertEquals(user.getFirstName(), result.getFirstName());
 		assertEquals(user.getLastName(), result.getLastName());
-		assertEquals(user.getSearchHelp(), result.getSearchHelp());
+		assertEquals(user.getEmail(), result.getEmail());
 		assertEquals(user.getUserName(), result.getUserName());
+		assertEquals(user.getCompanyName(), result.getCompanyName());
 	}
 	
 	/**
@@ -127,8 +125,9 @@ public class UserServiceTest {
 		assertEquals(user.getUserId(), result.getUserId());
 		assertEquals(user.getFirstName(), result.getFirstName());
 		assertEquals(user.getLastName(), result.getLastName());
-		assertEquals(user.getSearchHelp(), result.getSearchHelp());
+		assertEquals(user.getEmail(), result.getEmail());
 		assertEquals(user.getUserName(), result.getUserName());
+		assertEquals(user.getCompanyName(), result.getCompanyName());
 	}
 
 	/**
@@ -162,7 +161,7 @@ public class UserServiceTest {
 	@Test
 	public void testUpdateUserForEntityNotFound(){
 		Integer userId = 1;
-		User user = createUser(userId, "Jason", "Garner", "dummy help", "jgarner", 1, "dummyDate", "dummyCode", "updated");
+		User user = createUser(null, "Jason", "Garner", "jgarner@gmail.com", "jgarner", "Pepcus");
 		when(userRepository.findOne(userId)).thenReturn(null);
 		try {
 			userService.updateUser(user);
@@ -178,11 +177,14 @@ public class UserServiceTest {
 	@Test
 	public void testDeleteUser() {
 		Integer userId = 1;
+		when(userRepository.findOne(userId)).thenReturn(createUser());
 		try {
 			userService.deleteUser(userId);
 		} catch (ApplicationException e) {
+			fail("Should be executed properly without any error");
 		}
-        verify(userRepository, times(1)).delete(userId);
+		//Verifying that internally userRepository's delete method executed
+        verify(userRepository, times(1)).softDelete(userId);
 	}
 	
 	/**
@@ -192,7 +194,7 @@ public class UserServiceTest {
 	@Test(expected=com.thinkhr.external.api.exception.ApplicationException.class)
 	public void testDeleteUserForEntityNotFound() {
 		int userId = 1 ;
-		doThrow(new EmptyResultDataAccessException("Not found", 1)).when(userRepository).delete(userId);
+		when(userRepository.findOne(userId)).thenReturn(null);
 		userService.deleteUser(userId);
 	}
 
