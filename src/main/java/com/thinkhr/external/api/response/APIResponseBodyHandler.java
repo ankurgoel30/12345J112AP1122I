@@ -117,9 +117,6 @@ public class APIResponseBodyHandler implements ResponseBodyAdvice<Object> {
 				}
 			}
 		}
-		if (logger.isDebugEnabled()) {
-			logger.debug("Request processed and response is " + apiResponse);
-		}
 		return apiResponse;
 	}
 

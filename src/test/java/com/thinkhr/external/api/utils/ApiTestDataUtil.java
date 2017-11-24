@@ -72,6 +72,7 @@ public class ApiTestDataUtil {
 		company.setCompanySince(companySince);
 		company.setSpecialNote(specialNotes);
 		company.setSearchHelp(searchHelp); 
+		company.setIsActive(1);
 		return company;
 	}
 	
