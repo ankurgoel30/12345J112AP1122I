@@ -89,7 +89,7 @@ public class UserController {
      */
     @RequestMapping(method=RequestMethod.PUT, value="/{userId}")
 	public ResponseEntity <User> updateUser(@PathVariable(name="userId", value = "userId") Integer userId, 
-			@Valid @RequestBody User user) throws ApplicationException {
+			@RequestBody User user) throws ApplicationException {
     	user.setUserId(userId);
     	userService.updateUser(user);
         return new ResponseEntity<User> (user, HttpStatus.OK);

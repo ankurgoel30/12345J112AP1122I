@@ -24,6 +24,8 @@ import org.hibernate.validator.constraints.Email;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonInclude.Include;
 
 import lombok.Data;
 
@@ -39,6 +41,7 @@ import lombok.Data;
 @Data
 @Table(name="contacts")
 @Where(clause="active=1")
+@JsonInclude(Include.NON_EMPTY) 
 public class User implements SearchableEntity {
 
 	@Id
@@ -64,43 +67,52 @@ public class User implements SearchableEntity {
 	private String email;
 	
 	@NotNull
-	@Column(name="t1_roleId")
-	private Integer roleId;
-	
-	@Column(name="accountID")
-	private String accountId;
+	@Column(name="client_name")
+	private String companyName;
 
-	@NotNull
-	@Column(name="blockedAccount",nullable=false)
-	private Integer blockedAccount = 0;
-	
 	@Column(name = "brokerID")
 	private Integer brokerId;
 	
 	@Column(name="client_id")
 	private Integer companyId;
 
-	@Column(name="client_name")
-	private String companyName;
+	@Column(name="t1_roleId")
+	private Integer roleId;
 	
-	@Column(name="contact_Type")
-	private String userType;
-	
-	@Column(name="Fax")
-	private String fax;
-	
-	@Column(name="Location")
-	private String location;
-	
-	@NotNull
-	@Column(name="mkdate", nullable=false)
-	private String mkdate = "";
+	@Column(name="accountID")
+	private String accountId;
 
 	@Column(name="Mobile")
 	private String mobile;
 	
 	@Column(name="Phone")
 	private String phone;
+
+	@Column(name="Fax")
+	private String fax;
+	
+	@Column(name="Location")
+	private String location;
+
+	@JsonIgnore
+	@Size(min = 1, max = 25)
+	@Column(name="Password")
+	private String password;
+
+	@Column(name="password_apps")
+	@JsonIgnore
+	private String passwordApps;
+
+	@Column(name="password_enc")
+	@JsonIgnore
+	private String passwordEnc;
+
+	@Column(name="password_reset")
+	@JsonIgnore
+	private Integer passwordReset;
+
+	@Column(name="contact_Type")
+	private String userType;
 	
 	@NotNull
 	@Column(name="search_help")
@@ -109,6 +121,14 @@ public class User implements SearchableEntity {
 	@Column(name="Title")
 	private String title;
 	
+	@NotNull
+	@Column(name="blockedAccount", nullable=false)
+	private Integer blockedAccount = 0;
+
+	@NotNull
+	@Column(name="mkdate", nullable=false)
+	private String mkdate = "";
+
 	@JsonIgnore
 	@Column(name = "bounced")
 	private Integer bounced;
@@ -207,23 +227,6 @@ public class User implements SearchableEntity {
 
 	@Column(name="modified")
 	private Integer modified;
-
-	@JsonIgnore
-	@Size(min = 1, max = 25)
-	@Column(name="Password")
-	private String password;
-
-	@Column(name="password_apps")
-	@JsonIgnore
-	private String passwordApps;
-
-	@Column(name="password_enc")
-	@JsonIgnore
-	private String passwordEnc;
-
-	@Column(name="password_reset")
-	@JsonIgnore
-	private Integer passwordReset;
 
 	@Column(name="Phone_Backup")
 	private String phoneBackup;
