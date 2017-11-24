@@ -1,5 +1,8 @@
 package com.thinkhr.external.api.response;
 
+import static com.thinkhr.external.api.ApplicationConstants.DEFAULT_SORT_BY_COMPANY_NAME;
+import static com.thinkhr.external.api.ApplicationConstants.DEFAULT_SORT_BY_USER_NAME;
+
 import java.io.IOException;
 import java.util.List;
 
@@ -9,8 +12,10 @@ import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.JsonSerializer;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import com.thinkhr.external.api.db.entities.SearchableEntity;
+import com.thinkhr.external.api.db.entities.User;
 import com.thinkhr.external.api.exception.APIErrorCodes;
 import com.thinkhr.external.api.exception.ApplicationException;
+import com.thinkhr.external.api.services.utils.EntitySearchUtil;
 
 /**
  * Custom serializer to handle json attribute name for different data
@@ -100,7 +105,16 @@ public class APIResponseSerializer extends JsonSerializer<APIResponse> {
 				SearchableEntity searchEnity = (SearchableEntity) object;
 				jGen.writeStringField("limit", apiResponse.getLimit());
 				jGen.writeStringField("offset", apiResponse.getOffset());
-				jGen.writeStringField("sort", apiResponse.getSort());
+				String sort = apiResponse.getSort();
+				//TODO: FIX ME, hard coded check for 
+				if (sort == null) {
+					if (searchEnity instanceof User) {
+						sort = EntitySearchUtil.getFormattedString(DEFAULT_SORT_BY_USER_NAME);
+					} else {
+						sort = EntitySearchUtil.getFormattedString(DEFAULT_SORT_BY_COMPANY_NAME);
+					}
+				}
+				jGen.writeStringField("sort", sort);
 				jGen.writeStringField("totalRecords", apiResponse.getTotalRecords());
 				jGen.writeFieldName(searchEnity.getMultiDataNodeName());
 				jGen.writeStartArray();
