@@ -105,12 +105,11 @@ public class UserServiceTest {
 	 * To verify getUser method when user does not exist.
 	 * 
 	 */
-	@Test
+	@Test(expected=com.thinkhr.external.api.exception.ApplicationException.class)
 	public void testGetUserNotExists() {
 		Integer userId = 1;
 		when(userRepository.findOne(userId)).thenReturn(null);
 		User result = userService.getUser(userId);
-		assertNull("userId " + userId + " does not exist", result);
 	}
 	
 	/**

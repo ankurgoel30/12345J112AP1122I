@@ -82,7 +82,12 @@ public class UserService extends CommonService {
      * @return User object 
      */
     public User getUser(Integer userId) {
-    	return userRepository.findOne(userId);
+    	User user = userRepository.findOne(userId);
+        if (user == null) {
+            throw ApplicationException.createEntityNotFoundError(APIErrorCodes.ENTITY_NOT_FOUND, "user", "userId = "+ userId);
+        }
+        
+        return user;
     }
     
     /**
@@ -90,14 +95,6 @@ public class UserService extends CommonService {
      * @param User object
      */
     public User addUser(User user)  {
-    	User userExistsByUserName = userRepository.findByUserName(user.getUserName());
-    	if (userExistsByUserName != null) {
-    		throw ApplicationException.createBadRequest(APIErrorCodes.ALREADY_EXISTS, "user", "userName="+user.getUserName());
-    	}
-    	User userExistsByEmail = userRepository.findByEmail(user.getEmail());
-    	if (userExistsByEmail != null) {
-    		throw ApplicationException.createBadRequest(APIErrorCodes.ALREADY_EXISTS, "user", "email="+user.getEmail());
-    	}
     	return userRepository.save(user);
     }
     

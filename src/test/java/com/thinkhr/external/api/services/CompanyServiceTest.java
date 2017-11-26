@@ -116,12 +116,11 @@ public class CompanyServiceTest {
 	 * To verify createCompany method
 	 * 
 	 */
-	@Test
+	@Test(expected=com.thinkhr.external.api.exception.ApplicationException.class)
 	public void testGetCompanyNotExists() {
 		Integer companyId = 1;
 		when(companyRepository.findOne(companyId)).thenReturn(null);
 		Company result = companyService.getCompany(companyId);
-		assertNull("companyId " + companyId + " does not exist", result);
 	}
 	
 	/**

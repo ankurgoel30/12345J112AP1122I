@@ -63,11 +63,7 @@ public class UserController {
      */
     @RequestMapping(method=RequestMethod.GET, value="/{userId}")
     public User getById(@PathVariable(name="userId", value = "userId") Integer userId) throws ApplicationException { 
-        User user = userService.getUser(userId);
-        if (user == null) {
-        	throw ApplicationException.createEntityNotFoundError(APIErrorCodes.ENTITY_NOT_FOUND, "user", "userId = "+ userId);
-        }
-        return user;
+        return userService.getUser(userId);
     }
     
     
