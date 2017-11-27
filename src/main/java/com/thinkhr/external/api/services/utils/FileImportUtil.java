@@ -1,5 +1,7 @@
 package com.thinkhr.external.api.services.utils;
 
+import static com.thinkhr.external.api.ApplicationConstants.COMMA_SEPARATOR;
+import static com.thinkhr.external.api.ApplicationConstants.FAILED_COLUMN_TO_IMPORT;
 import static com.thinkhr.external.api.ApplicationConstants.FILE_IMPORT_RESULT_MSG;
 import static com.thinkhr.external.api.ApplicationConstants.REQUIRED_HEADERS_COMPANY_CSV_IMPORT;
 
@@ -13,12 +15,11 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashSet;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 
-import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -63,44 +64,16 @@ public class FileImportUtil {
      * @return
      * @throws IOException
      */
-    public static List<String> readFileContent(MultipartFile file) throws IOException {
-        BufferedReader br;
-        List<String> result = new ArrayList<>();
-        String line;
-        InputStream is = file.getInputStream();
-        br = new BufferedReader(new InputStreamReader(is));
-        while ((line = br.readLine()) != null) {
-            result.add(line);
+    public static List<String> readFileContent(MultipartFile file) {
+        BufferedReader br = null;
+        try {
+            br = new BufferedReader(new InputStreamReader(file.getInputStream()));
+            return br.lines().collect(Collectors.toList());
+        } catch (IOException ioe) {
+            throw ApplicationException.createBadRequest(APIErrorCodes.FILE_READ_ERROR, file.getName());
         }
-        return result;
     }
   
-
-    /**
-     * This method returns a map for columns in table for Company entity to headers in csv.
-     * 
-     * Key in map is the name of column in db.
-     * Value in map is name corresponding column in CSV file.
-     */
-    public static Map<String, String> getColumnsToHeaderMapForCompanyRecord() {
-        Map<String, String> columnsToHeaderMap = new LinkedHashMap<String, String>();
-
-        //clientName
-        columnsToHeaderMap.put("client_name", "CLIENT_NAME");
-        //displayName
-        columnsToHeaderMap.put("display_name", "DISPLAY_NAME");
-        //companyPhone
-        columnsToHeaderMap.put("client_phone", "PHONE");
-        //industry
-        columnsToHeaderMap.put("industry", "INDUSTRY");
-        //companySize
-        columnsToHeaderMap.put("companysize", "COMPANY_SIZE");
-        //producer
-        columnsToHeaderMap.put("producer", "PRODUCER");
-
-        return columnsToHeaderMap;
-    }
-
     /**
      * This method populates the given array columnValues from 
      * columns,columnToHeaderMap,splitValues,headerIndexMap
@@ -114,17 +87,32 @@ public class FileImportUtil {
      * Difference in sizes will have unpredictable results.
      * 
      */
-    public static void populateColumnValues(Object[] columnValues, String[] columns, Map<String, String> columnToHeaderMap,
-        String[] splitValues, Map<String, Integer> headerIndexMap) {
-           for (int k=0; k < columns.length; k++) {
-                String headerinCsv = columnToHeaderMap.get(columns[k]); // get the expected csv header corresponding to column
-                if (headerinCsv != null && headerIndexMap.containsKey(headerinCsv)) { // CSV contains the mapped header
-                    Integer indexTolookInSplitRecord = headerIndexMap.get(headerinCsv); //get index at which value corresponding to this column is found in csv
-                    columnValues[k++] = splitValues[indexTolookInSplitRecord]; // lookup split value . This line throwing ArrayIndexOutOfBound exception means split record does nt have the value for this column
-                } 
-           }
-    }
+    public static Object[] populateColumnValues(String fileRow, Map<String, String> columnToHeaderMap,
+         Map<String, Integer> headerIndexMap) {
+        
+        String[] rowColValues = fileRow.split(COMMA_SEPARATOR);
+        
+        Object[] companyColumnsValues = new Object[columnToHeaderMap.size()];
+        
+        int k = 0;
+       
+        for (String column: rowColValues) {
+            
+            String headerinCsv = columnToHeaderMap.get(column); // get the expected csv header corresponding to column
 
+            //get index at which value corresponding to this column is found in csv
+            Integer headerIndex = headerIndexMap.get(headerinCsv);
+
+            if (headerinCsv == null && headerIndex == null) { // CSV contains the mapped header
+                // SKIP and continue;
+                continue;
+            }
+
+            companyColumnsValues[k++] = rowColValues[headerIndex]; //This line throwing ArrayIndexOutOfBound exception means split record does nt have the value for this column
+        }
+        
+        return companyColumnsValues;
+    }
 
     /**
      * This Function will create a response csv file from FileImportResult
@@ -158,20 +146,6 @@ public class FileImportUtil {
         return responseFile;
     }
 
-    /**
-     * This  function returns list of custom headers in csv.
-     * Custom Headers =  allHeadersInCSV - requiredHeaders.
-     * @param allHeadersInCSV Array of all headers found in csv.
-     * @param requiredHeaders Array of required headers.
-     * @return List<String>
-     */
-    public static Set<String> getCustomFieldHeaders(String[] allHeadersInCSV, String[] requiredHeaders) {
-        Set<String> allHeadersInCSVSet = new HashSet<String>(Arrays.asList(allHeadersInCSV));
-        Set<String> requiredHeadersSet = new HashSet<String>(Arrays.asList(requiredHeaders));
-        allHeadersInCSVSet.removeAll(requiredHeadersSet);// after this operation allHeadersInCSVSet will have only custom headers
-
-        return allHeadersInCSVSet;
-    }
     
     /**
      * Check if all customHeaders in csv has a database field  to which its value should be mapped.
@@ -179,22 +153,21 @@ public class FileImportUtil {
      * 
      * Not able to use batch processing here due to requirement of
      * dealing with failure records & adding data in more than one tables.
-     *   
-     * @param headers
-     * @param records
-     * @param fileImportResult
+     * 
+     * @param allHeadersInCsv
+     * @param allMappedHeaders
      */
-    public static void checkCustomHeaders(String[] allHeadersInCsv, 
-    									  Collection<String> allMappedHeaders,
-    									  MessageResourceHandler resourceHandler) {
-        String failedCauseColumn = APIMessageUtil.getMessageFromResourceBundle(resourceHandler, "FAILURE_CAUSE");
-
-        Set<String> customHeaders = FileImportUtil.getCustomFieldHeaders(allHeadersInCsv, REQUIRED_HEADERS_COMPANY_CSV_IMPORT);
-
-        customHeaders.remove(failedCauseColumn); // this column may come as resubmitted file. If yes, let's remove. 
-        customHeaders.removeAll(allMappedHeaders);// = customHeaders - allMappedHeaders
-        if (!customHeaders.isEmpty()) {
-            throw ApplicationException.createFileImportError(APIErrorCodes.UNMAPPED_CUSTOM_HEADERS, StringUtils.join(customHeaders, ","));
+    public static void validateAndFilterCustomHeaders(String[] allHeadersInCsv, 
+    									  Collection<String> allMappedHeaders) {
+        
+        Set<String> requiredHeadersSet = new HashSet<String>(Arrays.asList(REQUIRED_HEADERS_COMPANY_CSV_IMPORT));
+        
+        // Filter failedCausedColumn and already mapped columns from custom header list.  
+        String[] customHeaders = (String[]) Arrays.stream(allHeadersInCsv).filter(x -> !requiredHeadersSet.contains(x) && 
+                                                                                       !allMappedHeaders.contains(x) && 
+                                                                                       !FAILED_COLUMN_TO_IMPORT.equalsIgnoreCase(x)).toArray();
+        if (customHeaders == null || customHeaders.length <= 0) {
+            throw ApplicationException.createFileImportError(APIErrorCodes.UNMAPPED_CUSTOM_HEADERS, StringUtils.join(customHeaders, COMMA_SEPARATOR));
         }
     }
 

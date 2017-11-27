@@ -30,5 +30,8 @@ public class ApplicationConstants {
     public static final String DEFAULT_BROKERID_FOR_FILE_IMPORT = "187624";
     public static final String FILE_IMPORT_RESULT_MSG = "FILE_IMPORT_RESULT";
     
+    public static final String COMMA_SEPARATOR = ",";
+    public static final String FAILED_COLUMN_TO_IMPORT = "FAILURE_REASON";
+    
 
 }

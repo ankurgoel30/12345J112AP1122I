@@ -38,6 +38,8 @@ import com.thinkhr.external.api.exception.ApplicationException;
 import com.thinkhr.external.api.exception.MessageResourceHandler;
 import com.thinkhr.external.api.model.FileImportResult;
 import com.thinkhr.external.api.services.CompanyService;
+import com.thinkhr.external.api.services.upload.FileImportService;
+import com.thinkhr.external.api.services.upload.FileUploadEnum;
 import com.thinkhr.external.api.services.utils.FileImportUtil;
 
 
@@ -59,6 +61,9 @@ public class CompanyController {
 	
     @Autowired
     CompanyService companyService;
+    
+    @Autowired
+    FileImportService fileService;
     
     @Autowired
     MessageResourceHandler resourceHandler;
@@ -154,7 +159,7 @@ public class CompanyController {
             throws ApplicationException, IOException {
        	
     	logger.info("##### ######### COMPANY IMPORT BEGINS ######### #####");
-        FileImportResult fileImportResult = companyService.bulkUpload(file, brokerId);
+        FileImportResult fileImportResult = fileService.bulkUpload(file, brokerId, FileUploadEnum.COMPANY.getResource());
         logger.debug("************** COMPANY IMPORT ENDS *****************");
         
         // Set the attachment header & set up response to return a CSV file with result and errroneous records
