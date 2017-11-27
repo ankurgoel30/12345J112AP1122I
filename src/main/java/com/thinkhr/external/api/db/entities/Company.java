@@ -47,12 +47,12 @@ public class Company implements SearchableEntity {
 	
 	@NotNull
 	@Column(name = "search_help") 
-	private String searchHelp;
+	private String searchHelp="";
 		
 	@NotNull
 	@Size(min=1)
 	@Column(name = "Client_Type") 
-	private String companyType;
+	private String companyType="";
 	
 	@NotNull
 	@Size(min=1)
@@ -78,7 +78,7 @@ public class Company implements SearchableEntity {
 	@JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")  
 	@Temporal(TemporalType.TIMESTAMP)
 	@Column(name = "Client_Since", nullable=false) 
-	private Date companySince;
+	private Date companySince=new Date();
 	
 	@Column(name = "tempID") 
 	private String tempID;
@@ -310,8 +310,8 @@ public class Company implements SearchableEntity {
 	private String salesforceID;
 
 	@NotNull
-	@Column(name = "special_note",nullable=false) 
-	private String specialNote;
+	@Column(name = "special_note", nullable=false) 
+	private String specialNote = ""; //assigned default empty string
 	
 	@Column(name = "sourceID") 
 	private Integer sourceId;

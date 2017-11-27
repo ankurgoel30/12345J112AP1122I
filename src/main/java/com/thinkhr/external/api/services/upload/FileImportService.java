@@ -20,6 +20,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
+import com.thinkhr.external.api.ApplicationConstants;
+import com.thinkhr.external.api.db.entities.Company;
 import com.thinkhr.external.api.db.entities.CustomFields;
 import com.thinkhr.external.api.exception.APIErrorCodes;
 import com.thinkhr.external.api.exception.ApplicationException;
@@ -65,7 +67,8 @@ public class FileImportService {
     public FileImportResult bulkUpload(MultipartFile fileToImport, int brokerId, String resource) throws ApplicationException {
 
         // Process files if submitted by a valid broker else throw an exception
-        if (null == companyRepository.findOne(brokerId)) {
+        Company broker = companyRepository.findOne(brokerId);
+        if (null == broker) {
               throw ApplicationException.createFileImportError(APIErrorCodes.INVALID_BROKER_ID, String.valueOf(brokerId));
         }
         
@@ -73,7 +76,7 @@ public class FileImportService {
         
         validateHeaders(fileContents.get(0), resource, fileToImport.getName());
         
-        return importFileDataToDB (fileContents, brokerId, resource);
+        return importFileDataToDB (fileContents, broker, resource);
         
     }
     
@@ -85,7 +88,7 @@ public class FileImportService {
      * @param resource
      * @throws ApplicationException
      */
-    private FileImportResult importFileDataToDB(List<String> fileContents, int brokerId, String resource) throws ApplicationException {
+    private FileImportResult importFileDataToDB(List<String> fileContents, Company broker, String resource) throws ApplicationException {
 
         FileImportResult fileImportResult = new FileImportResult();
 
@@ -105,7 +108,7 @@ public class FileImportService {
         String[] headersInCSV = headerLine.split(COMMA_SEPARATOR);
 
         //DO not assume that CSV file shall contains fixed column position. Let's read and map then with database column
-        Map<String, String> companyFileHeaderColumnMap = getCompanyColumnsHeaderMap(brokerId); 
+        Map<String, String> companyFileHeaderColumnMap = getCompanyColumnsHeaderMap(broker.getCompanyId()); 
 
         Map<String, String> locationFileHeaderColumnMap = FileUploadEnum.LOCATION.prepareColumnHeaderMap();
 
@@ -128,13 +131,25 @@ public class FileImportService {
 
             String[] rowColValues = record.split(COMMA_SEPARATOR);
 
-            String companyName = rowColValues[0]; 
+            boolean isSpecial = StringUtils.equalsIgnoreCase(broker.getCompanyName(), ApplicationConstants.SPECIAL_CASE_FOR_DUPLICATE);
+            
+            boolean isDuplicate=false;
+            String companyName = rowColValues[0].trim(); //TODO Fix this hardcoding.
+            String custom1Value = rowColValues[11].trim();
+                         
 
-            if (companyNames.contains(companyName)) {
-                addDuplicateRecordToResult(fileImportResult,
-                        recCount, record, companyName);
-                continue;
-            } 
+            if (null!=companyRepository.findFirstByCompanyName(companyName)) { //A DB query is must here to check duplicates in data
+                if (!isSpecial) isDuplicate = true;
+                //handle special case of Paychex
+                if (isSpecial && companyRepository.findFirstByCompanyNameAndCustom1(companyName, custom1Value) != null) {  
+                    isDuplicate = true;
+                }
+                if(isDuplicate) {
+                    addDuplicateRecordToResult(fileImportResult,
+                            recCount, record, companyName, isSpecial, custom1Value);
+                    continue;
+                } 
+            }
             companyNames.add(companyName);
 
             Object[] companyColumnsValues = null;
@@ -196,12 +211,11 @@ public class FileImportService {
     }
 
     private void addDuplicateRecordToResult(FileImportResult fileImportResult,
-            int recCount, String record, String companyName) {
-        
+            int recCount, String record, String companyName, boolean isSpecial, String custom1Value) { 
         fileImportResult.increamentFailedRecords();
-        String causeDuplicateName = APIMessageUtil.getMessageFromResourceBundle(resourceHandler, APIErrorCodes.DUPLICATE_RECORD);
-        causeDuplicateName = causeDuplicateName + " - " + companyName;
-        String infoSkipped = APIMessageUtil.getMessageFromResourceBundle(resourceHandler, APIErrorCodes.SKIPPED_RECORD);
+        String causeDuplicateName = APIMessageUtil.getMessageFromResourceBundle(resourceHandler, "DUPLICATE_NAME");
+        causeDuplicateName = (!isSpecial ? causeDuplicateName + " - " + companyName : causeDuplicateName + " - " + companyName +", " +custom1Value);
+        String infoSkipped = APIMessageUtil.getMessageFromResourceBundle(resourceHandler, "SKIPPED");
         fileImportResult.addFailedRecord(recCount++, record, causeDuplicateName, infoSkipped);
     }
 

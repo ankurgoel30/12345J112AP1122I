@@ -34,5 +34,8 @@ public class ApplicationConstants {
     public static final String QUERY_SEPARATOR = "?";
     public static final String FAILED_COLUMN_TO_IMPORT = "FAILURE_REASON";
     
+	//Paychex has special treatment for determining duplicate records
+    public static final String SPECIAL_CASE_FOR_DUPLICATE = "Paychex";
+    
 
 }
