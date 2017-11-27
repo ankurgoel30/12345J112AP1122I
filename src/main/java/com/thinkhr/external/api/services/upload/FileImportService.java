@@ -93,7 +93,8 @@ public class FileImportService {
 
         //TODO: review to modify
         List<String> records = new ArrayList<String>();
-        records.addAll(1, fileContents);
+        records.addAll(fileContents);
+        records.remove(0);
 
         fileImportResult.setTotalRecords(records.size());
         fileImportResult.setHeaderLine(headerLine);
@@ -106,7 +107,7 @@ public class FileImportService {
         //DO not assume that CSV file shall contains fixed column position. Let's read and map then with database column
         Map<String, String> companyFileHeaderColumnMap = getCompanyColumnsHeaderMap(brokerId); 
 
-        Map<String, String> locationFileHeaderColumnMap = FileUploadEnum.LOCATION.prepareMapForResource();
+        Map<String, String> locationFileHeaderColumnMap = FileUploadEnum.LOCATION.prepareColumnHeaderMap();
 
         //Check every custom field from imported file has a corrosponding column in database. If not, retrun error here.
         FileImportUtil.validateAndFilterCustomHeaders(headersInCSV, companyFileHeaderColumnMap.values());
@@ -115,10 +116,6 @@ public class FileImportService {
         for (int i = 0; i < headersInCSV.length; i++) {
             headerIndexMap.put(headersInCSV[i], i);
         }
-
-        //final company columns after merging custom fields too. Also final location columns too.
-        String[] companyColumnsToInsert = companyFileHeaderColumnMap.keySet().toArray(new String[companyFileHeaderColumnMap.size()]);
-        String[] locationColumnsToInsert = locationFileHeaderColumnMap.keySet().toArray(new String[locationFileHeaderColumnMap.size()]);
 
         int recCount = 0;
        
@@ -157,8 +154,9 @@ public class FileImportService {
             }
 
             try {
+
                 //Finally save companies one by one
-                fileDataRepository.saveCompanyRecord(companyColumnsToInsert, companyColumnsValues, locationColumnsToInsert,
+                fileDataRepository.saveCompanyRecord(companyFileHeaderColumnMap.keySet(), companyColumnsValues, locationFileHeaderColumnMap.keySet(),
                         locationColumnsValues);
 
                 fileImportResult.increamentSuccessRecords();
@@ -242,13 +240,13 @@ public class FileImportService {
      */
     private Map<String, String> getCompanyColumnsHeaderMap(int companyId) {
         
-        Map<String, String> columnToHeaderCompanyMap = FileUploadEnum.COMPANY.prepareMapForResource();
+        Map<String, String> companyColumnHeaderMap = FileUploadEnum.COMPANY.prepareColumnHeaderMap();
         
-        Map<String, String> customColumnToHeaderMap = getCustomFieldsMap(companyId);//customColumnsLookUpId - gets custom fields from database
+        Map<String, String> customColumnHeaderMap = getCustomFieldsMap(companyId);//customColumnsLookUpId - gets custom fields from database
         
-        columnToHeaderCompanyMap.putAll(customColumnToHeaderMap);
+        companyColumnHeaderMap.putAll(customColumnHeaderMap);
         
-        return customColumnToHeaderMap;
+        return customColumnHeaderMap;
     }
     
 }

@@ -103,7 +103,7 @@ public enum FileUploadEnum {
      * 
      * @return
      */
-    public Map<String, String> prepareMapForResource() {
+    public Map<String, String> prepareColumnHeaderMap() {
         Map<String, String> columnToHeaderMap = new HashMap<String, String>();
         for (FileUploadEnum value : FileUploadEnum.values()) {
             if (value.getResource().equalsIgnoreCase(this.getResource())) {

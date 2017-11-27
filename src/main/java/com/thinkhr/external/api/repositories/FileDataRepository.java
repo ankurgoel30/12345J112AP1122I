@@ -2,8 +2,10 @@ package com.thinkhr.external.api.repositories;
 
 import static com.thinkhr.external.api.repositories.PrepareStatementBuilder.buildPreparedStatement;
 import static com.thinkhr.external.api.repositories.QueryBuilder.buildCompanyInsertQuery;
+import static com.thinkhr.external.api.repositories.QueryBuilder.DELETE_COMPANY_QUERY;
 import static com.thinkhr.external.api.repositories.QueryBuilder.buildLocationInsertQuery;
-import static com.thinkhr.external.api.repositories.QueryBuilder.buildDeleteQuery;
+
+import java.util.Set;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -26,7 +28,7 @@ public class FileDataRepository {
      * @param locationColumnValues
      */
   
-    public void saveCompanyRecord(String[] companyColumns, Object[] companyColumnsValues, String[] locationColumns,
+    public void saveCompanyRecord(Set<String> companyColumns, Object[] companyColumnsValues, Set<String> locationColumns,
             Object[] locationColumnValues) {
         
         String insertClientSql = buildCompanyInsertQuery(companyColumns);
@@ -44,7 +46,7 @@ public class FileDataRepository {
             jdbcTemplate.update(buildPreparedStatement(insertLocationSql.toString(), locationColumnValues));
         } catch (Exception ex) {
             //rollback client table  insert if location table insert fails
-            jdbcTemplate.update(buildDeleteQuery(), clientId);
+            jdbcTemplate.update(DELETE_COMPANY_QUERY, clientId);
             throw ex;
         }
     }

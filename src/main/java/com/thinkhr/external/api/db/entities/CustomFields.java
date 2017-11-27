@@ -7,8 +7,6 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Table;
 
-import org.hibernate.annotations.Where;
-
 import lombok.Data;
 
 /**
@@ -21,7 +19,6 @@ import lombok.Data;
 @Entity
 @Table(name = "app_throne_custom_fields")
 @Data
-@Where(clause="t1_is_active=1")
 public class CustomFields {
     
     @Id
