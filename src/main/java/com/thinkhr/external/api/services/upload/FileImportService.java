@@ -121,6 +121,7 @@ public class FileImportService {
         String[] locationColumnsToInsert = locationFileHeaderColumnMap.keySet().toArray(new String[locationFileHeaderColumnMap.size()]);
 
         int recCount = 0;
+       
         for (String record : records ) {
 
             if (StringUtils.isBlank(record)) {
