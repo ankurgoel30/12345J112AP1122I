@@ -8,10 +8,10 @@ import java.sql.DataTruncation;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
@@ -114,6 +114,9 @@ public class FileImportService {
 
         //Check every custom field from imported file has a corrosponding column in database. If not, retrun error here.
         FileImportUtil.validateAndFilterCustomHeaders(headersInCSV, companyFileHeaderColumnMap.values());
+        
+        List<String> companyColumnsToInsert = new ArrayList<String>(companyFileHeaderColumnMap.keySet());
+        List<String> locationColumnsToInsert = new ArrayList<String>(locationFileHeaderColumnMap.keySet());
 
         Map<String, Integer> headerIndexMap = new HashMap<String, Integer>();
         for (int i = 0; i < headersInCSV.length; i++) {
@@ -152,15 +155,18 @@ public class FileImportService {
             }
             companyNames.add(companyName);
 
-            Object[] companyColumnsValues = null;
-            Object[] locationColumnsValues = null;
+            List<Object> companyColumnsValues = null;
+            List<Object> locationColumnsValues = null;
 
             try {
                 // Populate companyColumnsValues from split record
-                companyColumnsValues = FileImportUtil.populateColumnValues(record, companyFileHeaderColumnMap, headerIndexMap);
+                companyColumnsValues = FileImportUtil.populateColumnValues(record, companyColumnsToInsert, companyFileHeaderColumnMap,
+                        headerIndexMap);
 
                 // Populate locationColumnsValues from split record
-                locationColumnsValues = FileImportUtil.populateColumnValues(record, locationFileHeaderColumnMap, headerIndexMap);
+                locationColumnsValues = FileImportUtil.populateColumnValues(record, locationColumnsToInsert, locationFileHeaderColumnMap,
+                        headerIndexMap);
+
             } catch (ArrayIndexOutOfBoundsException ex) {
                 addFailedRecordToResult(fileImportResult, record, recCount);
                 continue;
@@ -171,7 +177,7 @@ public class FileImportService {
             try {
 
                 //Finally save companies one by one
-                fileDataRepository.saveCompanyRecord(companyFileHeaderColumnMap.keySet(), companyColumnsValues, locationFileHeaderColumnMap.keySet(),
+                fileDataRepository.saveCompanyRecord(companyColumnsToInsert, companyColumnsValues, locationColumnsToInsert,
                         locationColumnsValues);
 
                 fileImportResult.increamentSuccessRecords();
@@ -241,9 +247,12 @@ public class FileImportService {
             return null;
         }
         
-        return (Map<String, String>)list.stream().collect(
-                Collectors.toMap(x -> "custom" + x.getCustomFieldColumnName(), x -> x.getCustomFieldDisplayLabel()));
-
+        Map<String, String> customFieldsToHeaderMap = new LinkedHashMap<String, String>();
+        for (CustomFields customField : list) {
+            String customFieldName = "custom" + customField.getCustomFieldColumnName();
+            customFieldsToHeaderMap.put(customFieldName, customField.getCustomFieldDisplayLabel());
+        }
+        return customFieldsToHeaderMap;
     }
     
     /**
@@ -260,7 +269,7 @@ public class FileImportService {
         
         companyColumnHeaderMap.putAll(customColumnHeaderMap);
         
-        return customColumnHeaderMap;
+        return companyColumnHeaderMap;
     }
     
 }

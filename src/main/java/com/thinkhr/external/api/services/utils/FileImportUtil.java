@@ -10,6 +10,7 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashSet;
@@ -113,6 +114,43 @@ public class FileImportUtil {
     }
 
     /**
+     * This method populates the given array columnValues from 
+     * columns,columnToHeaderMap,splitValues,headerIndexMap
+     * 
+     * columns is array of columns in database
+     * columnToHeaderMap is a map containing key as column name and value as its mapping column name in csv
+     * splitValues is array of values created by splitting comma seperated csv record
+     * headerIndexMap is a map containing column name in csv as key and value is the index at which this column is found in imported csv. Starting index is 1
+     * 
+     * Currently this function assumes size for columnValues array and columns array is same. 
+     * Difference in sizes will have unpredictable results.
+     * 
+     */
+    public static List<Object> populateColumnValues(String fileRow, List<String> columns, Map<String, String> columnToHeaderMap,
+            Map<String, Integer> headerIndexMap) {
+        List<Object> columnValues = new ArrayList<Object>();
+
+        String[] rowColValues = fileRow.split(COMMA_SEPARATOR);
+
+        int k = 0;
+        for (String column : columns) {
+            String headerinCsv = columnToHeaderMap.get(column); // get the expected csv header corresponding to column
+            if (headerinCsv != null) { // Csv header i.e mapped to column found
+                if (headerIndexMap.containsKey(headerinCsv)) { // CSV contains the mapped header
+                    Integer indexTolookInSplitRecord = headerIndexMap.get(headerinCsv); //get index at which value corresponding to this column is found in csv
+                    String columnValueInCsv = rowColValues[indexTolookInSplitRecord].trim(); // lookup split value . This line throwing ArrayIndexOutOfBound exception means split record does nt have the value for this column
+                    columnValues.add(columnValueInCsv);
+                } else { //// CSV does not contains the mapped header
+                    columnValues.add(null); // keep null as value for this column as its value not found in csv
+                }
+            } else { // No mapping header found
+                columnValues.add(null); // keep null as value for this column as its value not found in csv
+            }
+        }
+        return columnValues;
+    }
+
+    /**
      * This Function will create a response csv file from FileImportResult
      * @param FileimportResult fileImportResult
      * @return File
@@ -158,15 +196,38 @@ public class FileImportUtil {
     public static void validateAndFilterCustomHeaders(String[] allHeadersInCsv, 
     									  Collection<String> allMappedHeaders) {
         
-        Set<String> requiredHeadersSet = new HashSet<String>(Arrays.asList(REQUIRED_HEADERS_COMPANY_CSV_IMPORT));
+        Set<String> customHeaders = FileImportUtil.getCustomFieldHeaders(allHeadersInCsv, REQUIRED_HEADERS_COMPANY_CSV_IMPORT);
+        customHeaders.remove(FAILED_COLUMN_TO_IMPORT);// need to remove failedCauseColumn from customHeaders for the case when user tries to import response csv file
         
-        // Filter failedCausedColumn and already mapped columns from custom header list.  
-        String[] customHeaders = (String[]) Arrays.stream(allHeadersInCsv).filter(x -> !requiredHeadersSet.contains(x) && 
-                                                                                       !allMappedHeaders.contains(x) && 
-                                                                                       !FAILED_COLUMN_TO_IMPORT.equalsIgnoreCase(x)).toArray();
-        if (customHeaders == null || customHeaders.length <= 0) {
+        customHeaders.removeAll(allMappedHeaders);// = customHeaders - allMappedHeaders
+        if (!customHeaders.isEmpty()) {
             throw ApplicationException.createFileImportError(APIErrorCodes.UNMAPPED_CUSTOM_HEADERS, StringUtils.join(customHeaders, COMMA_SEPARATOR));
         }
+    }
+
+    /**
+     * This  function returns list of custom headers in csv.
+     * Custom Headers =  allHeadersInCSV - requiredHeaders.
+     * @param allHeadersInCSV Array of all headers found in csv.
+     * @param requiredHeaders Array of required headers.
+     * @return List<String>
+     */
+    public static Set<String> getCustomFieldHeaders(String[] allHeadersInCSV, String[] requiredHeaders) {
+
+        if (allHeadersInCSV == null && requiredHeaders == null) {
+            return new HashSet<String>();
+        }
+        if (allHeadersInCSV == null) {
+            return new HashSet<String>();
+        }
+        if (requiredHeaders == null) {
+            return new HashSet<String>(Arrays.asList(allHeadersInCSV));
+        }
+        Set<String> allHeadersInCSVSet = new HashSet<String>(Arrays.asList(allHeadersInCSV));
+        Set<String> requiredHeadersSet = new HashSet<String>(Arrays.asList(requiredHeaders));
+        allHeadersInCSVSet.removeAll(requiredHeadersSet);// after this operation allHeadersInCSVSet will have only custom headers
+
+        return allHeadersInCSVSet;
     }
 
 

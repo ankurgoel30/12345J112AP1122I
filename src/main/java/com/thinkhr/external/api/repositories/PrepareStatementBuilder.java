@@ -4,6 +4,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.List;
 
 import org.springframework.jdbc.core.PreparedStatementCreator;
 
@@ -21,20 +22,15 @@ public class PrepareStatementBuilder {
      * @param values
      * @return
      */
-    public static PreparedStatementCreator buildPreparedStatement(String query, Object[] values) {
+    public static PreparedStatementCreator buildPreparedStatementCreator(String query, List<Object> values) {
         return new PreparedStatementCreator() {
             @Override
             public PreparedStatement createPreparedStatement(Connection con) throws SQLException {
                 PreparedStatement statement = con.prepareStatement(query.toString(), Statement.RETURN_GENERATED_KEYS);
                 int i;
-                for (i = 0; i < values.length; i++) {
-                    statement.setString(i + 1, (String) values[i]);
+                for (i = 0; i < values.size(); i++) {
+                    statement.setString(i + 1, (String) values.get(i));
                 }
-                statement.setString(++i, "");
-                statement.setString(++i, "");
-                statement.setString(++i, "");
-                statement.setDate(++i, new java.sql.Date(System.currentTimeMillis()));
-                statement.setInt(++i,1); //default all clients are active
                 return statement;
             }
         };

@@ -1,11 +1,12 @@
 package com.thinkhr.external.api.repositories;
 
-import java.util.HashSet;
-import java.util.Set;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.apache.commons.lang.StringUtils;
 
 import com.thinkhr.external.api.ApplicationConstants;
+import com.thinkhr.external.api.services.utils.CommonUtil;
 
 /**
  * Query build to build queries
@@ -29,7 +30,7 @@ public class QueryBuilder {
      * @param locationColumns
      * @return
      */
-    public static String buildLocationInsertQuery(Set<String> locationColumns) {
+    public static String buildLocationInsertQuery(List<String> locationColumns) {
         locationColumns.add("client_id");
         return buildQuery(INSERT_LOCATION, locationColumns);
     }
@@ -40,15 +41,13 @@ public class QueryBuilder {
      * @param locationColumns
      * @return
      */
-    private static String buildQuery(String insertQueryType, Set<String> locationColumns) {
+    private static String buildQuery(String insertQueryType, List<String> columns) {
         StringBuffer insertLocationSql = new StringBuffer();
         insertLocationSql.append(insertQueryType)
-        .append(START_BRACES)
-        .append(StringUtils.join(locationColumns, ApplicationConstants.COMMA_SEPARATOR))
+                .append(START_BRACES).append(StringUtils.join(columns, ApplicationConstants.COMMA_SEPARATOR))
         .append(END_BRACES)
         .append(VALUES)
-        .append(START_BRACES)
-        .append(getQueryParaSpecifiers(locationColumns.size()))
+                .append(START_BRACES).append(getQueryParaSpecifiers(columns.size()))
         .append(END_BRACES);
         return insertLocationSql.toString();
     }
@@ -60,7 +59,7 @@ public class QueryBuilder {
      * @param companyColumns
      * @return
      */
-    public static String buildCompanyInsertQuery(Set<String> companyColumns) {
+    public static String buildCompanyInsertQuery(List<String> companyColumns) {
         companyColumns.addAll(defaultCompanyColumnsForNewRecord());
         return buildQuery(INSERT_COMPANY, companyColumns);
     }
@@ -68,14 +67,28 @@ public class QueryBuilder {
     /**
      * @return
      */
-    public static Set<String> defaultCompanyColumnsForNewRecord() {
-        Set<String> companyColumns = new HashSet<String>();
+    public static List<String> defaultCompanyColumnsForNewRecord() {
+        List<String> companyColumns = new ArrayList<String>();
         companyColumns.add("search_help");
         companyColumns.add("client_type");
         companyColumns.add("special_note");
         companyColumns.add("client_since");
         companyColumns.add("t1_is_active");
         return companyColumns;
+    }
+
+    /**
+     * 
+     * @return
+     */
+    public static List<Object> companyDefaultColumnsValuesForNewRecord() {
+        List<Object> companyColumnsValues = new ArrayList<Object>();
+        companyColumnsValues.add("");
+        companyColumnsValues.add("");
+        companyColumnsValues.add("");
+        companyColumnsValues.add(CommonUtil.getTodayInUTC());
+        companyColumnsValues.add("1"); //default all clients are active
+        return companyColumnsValues;
     }
 
     /**
