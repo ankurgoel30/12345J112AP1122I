@@ -1,8 +1,12 @@
 package com.thinkhr.external.api.model;
 
+import static com.thinkhr.external.api.ApplicationConstants.COMMA_SEPARATOR;
+import static com.thinkhr.external.api.ApplicationConstants.NEW_LINE;
+
 import java.util.ArrayList;
 import java.util.List;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 
 import lombok.AllArgsConstructor;
@@ -46,6 +50,40 @@ public class FileImportResult {
         String record;// Actual record in file
         String failureCause;
         String info;//additional information
+    }
+    
+    /**
+     * Print report
+     * 
+     * @param jobId
+     * @param reportTitle
+     * @param failureTitle
+     * @param failureCause
+     * @return
+     */
+    @JsonIgnore
+    public String printReport(String jobId, String reportTitle, String failureTitle, String failureCause) {
+        StringBuffer stb = new StringBuffer();
+        stb.append("Job Id : " + jobId) 
+        .append(NEW_LINE)
+        .append(reportTitle)
+        .append(NEW_LINE);
+        if (numFailedRecords > 0) {
+            stb.append(failureTitle)
+            .append(NEW_LINE)
+            .append(failureCause)
+            .append(NEW_LINE)
+            .append(getHeaderLine())
+            .append(COMMA_SEPARATOR)
+            .append(failureCause)
+            .append(NEW_LINE);
+        }
+        
+        for (FileImportResult.FailedRecord failedRecord : getFailedRecords()) {
+            stb.append(failedRecord.getRecord()).append(COMMA_SEPARATOR).append(failedRecord.getFailureCause()).append(NEW_LINE);
+        }
+        
+        return stb.toString();
     }
 
 }

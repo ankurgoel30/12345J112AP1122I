@@ -145,7 +145,7 @@ public class CompanyController {
      * @param brokerId - brokerId from request. Originally retrieved as part of JWT token
      * 
      */
-    @RequestMapping(method=RequestMethod.POST,  value="/bulk")
+    @RequestMapping(method=RequestMethod.POST,  value="/bulk", produces="application/csv")
     public ResponseEntity <InputStreamResource> bulkUploadFile(@RequestParam(value="file", required=false) MultipartFile file, 
     		@RequestParam(value = "brokerId", required = false, 
             			  defaultValue = ApplicationConstants.DEFAULT_BROKERID_FOR_FILE_IMPORT) Integer brokerId )
@@ -162,7 +162,7 @@ public class CompanyController {
 
         File responseFile = FileImportUtil.createReponseFile(fileImportResult, resourceHandler);
 
-        return ResponseEntity.ok().headers(headers).contentLength(responseFile.length()).contentType(MediaType.parseMediaType("text/csv"))
+        return ResponseEntity.ok().headers(headers)
                 .body(new InputStreamResource(new FileInputStream(responseFile)));
     }
    

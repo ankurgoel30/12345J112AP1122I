@@ -36,6 +36,8 @@ public class ApplicationConstants {
     
 	//Paychex has special treatment for determining duplicate records
     public static final String SPECIAL_CASE_FOR_DUPLICATE = "Paychex";
+    public static final String NEW_LINE = "\n";
+
     
 
 }

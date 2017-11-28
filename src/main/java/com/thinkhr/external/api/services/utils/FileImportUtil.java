@@ -114,24 +114,18 @@ public class FileImportUtil {
         FileWriter writer = new FileWriter(responseFile);
 
         if (fileImportResult != null) {
+            String jobId = (String) APIRequestHelper.getRequestAttribute("jobId");
+
             String msg = APIMessageUtil.getMessageFromResourceBundle(resourceHandler, FILE_IMPORT_RESULT_MSG,
                     String.valueOf(fileImportResult.getTotalRecords()), String.valueOf(fileImportResult.getNumSuccessRecords()),
                     String.valueOf(fileImportResult.getNumFailedRecords()));
 
-            String jobId = (String) APIRequestHelper.getRequestAttribute("jobId");
-            writer.write("Job Id :" + jobId + "\n");
-            writer.write(msg);
-            
-            if (fileImportResult.getNumFailedRecords() > 0) {
-                String title = APIMessageUtil.getMessageFromResourceBundle(resourceHandler, "FAILED_RECORDS");
-                writer.write(title + "\n");
-                String columnForFailureCause = APIMessageUtil.getMessageFromResourceBundle(resourceHandler, "FAILURE_CAUSE");
-                writer.write(fileImportResult.getHeaderLine() + "," + columnForFailureCause + "\n");
-                for (FileImportResult.FailedRecord failedRecord : fileImportResult.getFailedRecords()) {
-                    writer.write(failedRecord.getRecord() + "," + failedRecord.getFailureCause() + "\n");
-                }
-            }
+            String printResponse =  fileImportResult.printReport(jobId, msg, 
+                    APIMessageUtil.getMessageFromResourceBundle(resourceHandler, APIErrorCodes.FAILED_RECORD),
+                    APIMessageUtil.getMessageFromResourceBundle(resourceHandler, APIErrorCodes.FAILURE_CAUSE));
+            writer.write(printResponse);
         }
+        
         writer.close();
         return responseFile;
     }
