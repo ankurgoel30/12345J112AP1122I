@@ -1,0 +1,166 @@
+{
+	"variables": [],
+	"info": {
+		"name": "ExternalAPI",
+		"_postman_id": "442bbace-33bc-ec47-401a-46f58458edee",
+		"description": "Mocks for external APIs",
+		"schema": "https://schema.getpostman.com/json/collection/v2.0.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "companies",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"type": "text/javascript",
+						"exec": [
+							"tests[\"Status code is 200\"] = responseCode.code === 200;",
+							"",
+							"var jsonData = JSON.parse(responseBody);",
+							"",
+							"var handbooks = jsonData.results;",
+							"if (handbooks) {",
+							"    tests[\"Handbooks returned.\"] = handbooks.totalRecords !== 0;",
+							"}",
+							"",
+							""
+						]
+					}
+				}
+			],
+			"request": {
+				"url": "https://t442b7lq9h.execute-api.us-west-2.amazonaws.com/dev/companies",
+				"method": "GET",
+				"header": [],
+				"body": {},
+				"description": ""
+			},
+			"response": []
+		},
+		{
+			"name": "companies/1",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"type": "text/javascript",
+						"exec": [
+							"tests[\"Status code is 200\"] = responseCode.code === 200;",
+							"",
+							"var jsonData = JSON.parse(responseBody);",
+							"",
+							"var handbooks = jsonData.results;",
+							"if (handbooks) {",
+							"    tests[\"Handbooks returned.\"] = handbooks.totalRecords !== 0;",
+							"}",
+							"",
+							""
+						]
+					}
+				}
+			],
+			"request": {
+				"url": "https://t442b7lq9h.execute-api.us-west-2.amazonaws.com/dev/companies/1",
+				"method": "GET",
+				"header": [],
+				"body": {},
+				"description": ""
+			},
+			"response": []
+		},
+		{
+			"name": "companies/1/users",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"type": "text/javascript",
+						"exec": [
+							"tests[\"Status code is 200\"] = responseCode.code === 200;",
+							"",
+							"var jsonData = JSON.parse(responseBody);",
+							"",
+							"var handbooks = jsonData.results;",
+							"if (handbooks) {",
+							"    tests[\"Handbooks returned.\"] = handbooks.totalRecords !== 0;",
+							"}",
+							"",
+							""
+						]
+					}
+				}
+			],
+			"request": {
+				"url": "https://t442b7lq9h.execute-api.us-west-2.amazonaws.com/dev/companies/1/users",
+				"method": "GET",
+				"header": [],
+				"body": {},
+				"description": ""
+			},
+			"response": []
+		},
+		{
+			"name": "companies/1/users/1",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"type": "text/javascript",
+						"exec": [
+							"tests[\"Status code is 200\"] = responseCode.code === 200;",
+							"",
+							"var jsonData = JSON.parse(responseBody);",
+							"",
+							"var handbooks = jsonData.results;",
+							"if (handbooks) {",
+							"    tests[\"Handbooks returned.\"] = handbooks.totalRecords !== 0;",
+							"}",
+							"",
+							""
+						]
+					}
+				}
+			],
+			"request": {
+				"url": "https://t442b7lq9h.execute-api.us-west-2.amazonaws.com/dev/companies/1/users/1",
+				"method": "GET",
+				"header": [],
+				"body": {},
+				"description": ""
+			},
+			"response": []
+		},
+		{
+			"name": "Root",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"type": "text/javascript",
+						"exec": [
+							"tests[\"Status code is 200\"] = responseCode.code === 200;",
+							"",
+							"var jsonData = JSON.parse(responseBody);",
+							"",
+							"var handbooks = jsonData.results;",
+							"if (handbooks) {",
+							"    tests[\"Handbooks returned.\"] = handbooks.totalRecords !== 0;",
+							"}",
+							"",
+							""
+						]
+					}
+				}
+			],
+			"request": {
+				"url": "https://t442b7lq9h.execute-api.us-west-2.amazonaws.com/dev",
+				"method": "GET",
+				"header": [],
+				"body": {},
+				"description": ""
+			},
+			"response": []
+		}
+	]
+}

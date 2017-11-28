@@ -1,0 +1,1227 @@
+{
+  "swagger": "2.0",
+  "info": {
+    "description": "This is the ThinkHR API",
+    "version": "1.0.0",
+    "title": "ThinkHR API V 1.0"
+  },
+  "host": "t442b7lq9h.execute-api.us-west-2.amazonaws.com",
+  "basePath": "/dev",
+  "schemes": [
+    "https"
+  ],
+  "paths": {
+    "/": {
+      "get": {
+        "tags": [
+          "root"
+        ],
+        "summary": "ThinkHR HTML web page containing API usage information",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "text/html"
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful operation",
+            "headers": {
+              "Content-Type": {
+                "type": "string",
+                "description": "Media type of request"
+              }
+            }
+          }
+        },
+        "x-amazon-apigateway-integration": {
+          "responses": {
+            "default": {
+              "statusCode": "200",
+              "responseParameters": {
+                "method.response.header.Content-Type": "'text/html'"
+              },
+              "responseTemplates": {
+                "text/html": "<html>\n    <head>\n        <style>\n        body {\n            color: #333;\n            font-family: Sans-serif;\n            max-width: 800px;\n            margin: auto;\n        }\n        </style>\n    </head>\n    <body>\n        <h1>Welcome to ThinkHR API</h1>\n        <p>\n            You have succesfully deployed your first API. You are seeing this HTML page because the <code>GET</code> method to the root resource of your API returns this content as a Mock integration.\n        </p>\n        <p>\n            The ThinkHR API contains the <code>/companies</code> and <code>/companies/{companyId}</code> resources. By making a <a href=\"/$context.stage/companies/\" target=\"_blank\"><code>GET</code> request</a> to <code>/companies</code> you can retrieve a list of companies in your API. If you are looking for a specific company, for example the company with ID 1, you can make a <a href=\"/$context.stage/companies/1\" target=\"_blank\"><code>GET</code> request</a> to <code>/companies/1</code>.\n        </p>\n        <p>\n            You can use a REST client such as <a href=\"https://www.getpostman.com/\" target=\"_blank\">Postman</a> to test the <code>POST</code> methods in your API to create a new company Use the sample body below to send the <code>POST</code> request:\n        </p>\n        <pre>\n{\n    \"type\" : \"Broker\",\n    \"Employee Count\" : 123\n}\n        </pre>\n    </body>\n</html>"
+              }
+            }
+          },
+          "requestTemplates": {
+            "application/json": "{\"statusCode\": 200}"
+          },
+          "passthroughBehavior": "when_no_templates",
+          "type": "mock"
+        }
+      }
+    },
+    "/companies": {
+      "get": {
+        "tags": [
+          "companies"
+        ],
+        "summary": "List all companies",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful operation",
+            "schema": {
+              "$ref": "#/definitions/Empty"
+            }
+          }
+        },
+        "x-amazon-apigateway-integration": {
+          "responses": {
+            "default": {
+              "statusCode": "200",
+              "responseTemplates": {
+                "application/json": "[{\n  \"id\" : 1,\n  \"CLIENT_NAME\" : \"Acme\",\n  \"DISPLAY_NAME\" : \"Acme Inc\",\n  \"PHONE\" : \"18008008888\",\n  \"ADDRESS\" : \"123 Disney Land Ave\",\n  \"ADDRESS2\" : \"foo\",\n  \"CITY\" : \"Disney Land\",\n  \"STATE\" : \"CA\",\n  \"ZIP\" : \"12345\",\n  \"INDUSTRY\" : \"Cartoons\",\n  \"COMPANY_SIZE\" : \"7\",\n  \"PRODUCER\" : \"Daffy\",\n  \"GROUP_ID\" : \"ENTMT\",\n  \"MARKETING\" : \"ENT\",\n  \"THEME\" : \"sky\",\n  \"MESSAGE\" : \"Hello There\"\n},\n{\n  \"id\" : 2,\n  \"CLIENT_NAME\" : \"Games\",\n  \"DISPLAY_NAME\" : \"Games Inc\",\n  \"PHONE\" : \"18008008887\",\n  \"ADDRESS\" : \"123 Game Land Ave\",\n  \"ADDRESS2\" : \"N/A\",\n  \"CITY\" : \"Game Land\",\n  \"STATE\" : \"CA\",\n  \"ZIP\" : \"12345\",\n  \"INDUSTRY\" : \"Games\",\n  \"COMPANY_SIZE\" : \"10\",\n  \"PRODUCER\" : \"Micky\",\n  \"GROUP_ID\" : \"ENTMT\",\n  \"MARKETING\" : \"ENT\",\n  \"THEME\" : \"sky\",\n  \"MESSAGE\" : \"Hello Grandmaster\"\n}] \n"
+              }
+            }
+          },
+          "requestTemplates": {
+            "application/json": "{\"statusCode\" : 200}\n"
+          },
+          "passthroughBehavior": "when_no_match",
+          "type": "mock"
+        }
+      },
+      "post": {
+        "tags": [
+          "companies"
+        ],
+        "summary": "Create a company",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful operation",
+            "schema": {
+              "$ref": "#/definitions/Empty"
+            }
+          }
+        },
+        "x-amazon-apigateway-integration": {
+          "responses": {
+            "default": {
+              "statusCode": "200",
+              "responseTemplates": {
+                "application/json": "{\n  \"id\" : 1,\n  \"CLIENT_NAME\" : \"Acme\",\n  \"DISPLAY_NAME\" : \"Acme Inc\",\n  \"PHONE\" : \"18008008888\",\n  \"ADDRESS\" : \"123 Disney Land Ave\",\n  \"ADDRESS2\" : \"foo\",\n  \"CITY\" : \"Disney Land\",\n  \"STATE\" : \"CA\",\n  \"ZIP\" : \"12345\",\n  \"INDUSTRY\" : \"Cartoons\",\n  \"COMPANY_SIZE\" : \"7\",\n  \"PRODUCER\" : \"Daffy\",\n  \"GROUP_ID\" : \"ENTMT\",\n  \"MARKETING\" : \"ENT\",\n  \"THEME\" : \"sky\",\n  \"MESSAGE\" : \"Hello There\"\n}"
+              }
+            }
+          },
+          "requestTemplates": {
+            "application/json": "{\"statusCode\": 200}"
+          },
+          "passthroughBehavior": "when_no_match",
+          "type": "mock"
+        }
+      },
+      "options": {
+        "tags": [
+          "companies"
+        ],
+        "summary": "Options for companies resource access",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful operation",
+            "schema": {
+              "$ref": "#/definitions/Empty"
+            },
+            "headers": {
+              "Access-Control-Allow-Origin": {
+                "type": "string",
+                "description": "URI that may access the resource"
+              },
+              "Access-Control-Allow-Methods": {
+                "type": "string",
+                "description": "Method or methods allowed when accessing the resource"
+              },
+              "Access-Control-Allow-Headers": {
+                "type": "string",
+                "description": "Used in response to a preflight request to indicate which HTTP headers can be used when making the request."
+              }
+            }
+          }
+        },
+        "x-amazon-apigateway-integration": {
+          "responses": {
+            "default": {
+              "statusCode": "200",
+              "responseParameters": {
+                "method.response.header.Access-Control-Allow-Methods": "'POST,GET,OPTIONS'",
+                "method.response.header.Access-Control-Allow-Headers": "'Content-Type,X-Amz-Date,Authorization,X-Api-Key'",
+                "method.response.header.Access-Control-Allow-Origin": "'*'"
+              }
+            }
+          },
+          "requestTemplates": {
+            "application/json": "{\"statusCode\": 200}"
+          },
+          "passthroughBehavior": "when_no_match",
+          "type": "mock"
+        }
+      }
+    },
+    "/companies/bulk": {
+      "get": {
+        "tags": [
+          "companies"
+        ],
+        "summary": "Export the Companies under the current broker in a CSV file",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful operation",
+            "schema": {
+              "$ref": "#/definitions/Empty"
+            }
+          }
+        },
+        "x-amazon-apigateway-integration": {
+          "responses": {
+            "default": {
+              "statusCode": "200"
+            }
+          },
+          "requestTemplates": {
+            "application/json": "{\"statusCode\": 200}"
+          },
+          "passthroughBehavior": "when_no_match",
+          "type": "mock"
+        }
+      },
+      "post": {
+        "tags": [
+          "companies"
+        ],
+        "summary": "Import companies under a broker using a CSV file",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful operation",
+            "schema": {
+              "$ref": "#/definitions/Empty"
+            }
+          }
+        },
+        "x-amazon-apigateway-integration": {
+          "responses": {
+            "default": {
+              "statusCode": "200"
+            }
+          },
+          "requestTemplates": {
+            "application/json": "{\"statusCode\": 200}"
+          },
+          "passthroughBehavior": "when_no_match",
+          "type": "mock"
+        }
+      },
+      "options": {
+        "tags": [
+          "companies"
+        ],
+        "summary": "Options for companies resource access",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful operation",
+            "schema": {
+              "$ref": "#/definitions/Empty"
+            }
+          }
+        },
+        "x-amazon-apigateway-integration": {
+          "responses": {
+            "default": {
+              "statusCode": "200"
+            }
+          },
+          "requestTemplates": {
+            "application/json": "{\"statusCode\": 200}"
+          },
+          "passthroughBehavior": "when_no_match",
+          "type": "mock"
+        }
+      }
+    },
+    "/companies/{companyId}": {
+      "get": {
+        "tags": [
+          "companies"
+        ],
+        "summary": "Info for a specific company",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "companyId",
+            "in": "path",
+            "description": "The id of the company to retrieve",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful operation",
+            "schema": {
+              "$ref": "#/definitions/Empty"
+            }
+          }
+        },
+        "x-amazon-apigateway-integration": {
+          "responses": {
+            "default": {
+              "statusCode": "200",
+              "responseTemplates": {
+                "application/json": "{\n  \"id\" : 1,\n  \"CLIENT_NAME\" : \"Acme\",\n  \"DISPLAY_NAME\" : \"Acme Inc\",\n  \"PHONE\" : \"18008008888\",\n  \"ADDRESS\" : \"123 Disney Land Ave\",\n  \"ADDRESS2\" : \"foo\",\n  \"CITY\" : \"Disney Land\",\n  \"STATE\" : \"CA\",\n  \"ZIP\" : \"12345\",\n  \"INDUSTRY\" : \"Cartoons\",\n  \"COMPANY_SIZE\" : \"7\",\n  \"PRODUCER\" : \"Daffy\",\n  \"GROUP_ID\" : \"ENTMT\",\n  \"MARKETING\" : \"ENT\",\n  \"THEME\" : \"sky\",\n  \"MESSAGE\" : \"Hello There\"\n}"
+              }
+            }
+          },
+          "requestTemplates": {
+            "application/json": "{\"statusCode\": 200}"
+          },
+          "passthroughBehavior": "when_no_match",
+          "type": "mock"
+        }
+      },
+      "put": {
+        "tags": [
+          "companies"
+        ],
+        "summary": "Update the information of a company",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "companyId",
+            "in": "path",
+            "description": "The id of the company to retrieve",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful operation",
+            "schema": {
+              "$ref": "#/definitions/Empty"
+            }
+          }
+        },
+        "x-amazon-apigateway-integration": {
+          "responses": {
+            "default": {
+              "statusCode": "200",
+              "responseTemplates": {
+                "application/json": "{\n  \"id\" : 1,\n  \"CLIENT_NAME\" : \"Acme\",\n  \"DISPLAY_NAME\" : \"Acme Inc\",\n  \"PHONE\" : \"18008008888\",\n  \"ADDRESS\" : \"123 Disney Land Ave\",\n  \"ADDRESS2\" : \"foo\",\n  \"CITY\" : \"Disney Land\",\n  \"STATE\" : \"CA\",\n  \"ZIP\" : \"12345\",\n  \"INDUSTRY\" : \"Cartoons\",\n  \"COMPANY_SIZE\" : \"7\",\n  \"PRODUCER\" : \"Daffy\",\n  \"GROUP_ID\" : \"ENTMT\",\n  \"MARKETING\" : \"ENT\",\n  \"THEME\" : \"sky\",\n  \"MESSAGE\" : \"Hello There\"\n}"
+              }
+            }
+          },
+          "requestTemplates": {
+            "application/json": "{\"statusCode\": 200}"
+          },
+          "passthroughBehavior": "when_no_match",
+          "type": "mock"
+        }
+      },
+      "options": {
+        "tags": [
+          "companies"
+        ],
+        "summary": "Options for companies resource access",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "companyId",
+            "in": "path",
+            "description": "The id of the company to retrieve",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful operation",
+            "schema": {
+              "$ref": "#/definitions/Empty"
+            },
+            "headers": {
+              "Access-Control-Allow-Origin": {
+                "type": "string",
+                "description": "URI that may access the resource"
+              },
+              "Access-Control-Allow-Methods": {
+                "type": "string",
+                "description": "Method or methods allowed when accessing the resource"
+              },
+              "Access-Control-Allow-Headers": {
+                "type": "string",
+                "description": "Used in response to a preflight request to indicate which HTTP headers can be used when making the request."
+              }
+            }
+          }
+        },
+        "x-amazon-apigateway-integration": {
+          "responses": {
+            "default": {
+              "statusCode": "200",
+              "responseParameters": {
+                "method.response.header.Access-Control-Allow-Methods": "'GET,OPTIONS'",
+                "method.response.header.Access-Control-Allow-Headers": "'Content-Type,X-Amz-Date,Authorization,X-Api-Key'",
+                "method.response.header.Access-Control-Allow-Origin": "'*'"
+              }
+            }
+          },
+          "requestTemplates": {
+            "application/json": "{\"statusCode\": 200}"
+          },
+          "passthroughBehavior": "when_no_match",
+          "type": "mock"
+        }
+      }
+    },
+    "/companies/{companyId}/users": {
+      "get": {
+        "tags": [
+          "users"
+        ],
+        "summary": "Get a list of users based on a search criteria",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "companyId",
+            "in": "path",
+            "description": "The id of the company to retrieve",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful operation",
+            "schema": {
+              "$ref": "#/definitions/Empty"
+            }
+          }
+        },
+        "x-amazon-apigateway-integration": {
+          "responses": {
+            "default": {
+              "statusCode": "200",
+              "responseTemplates": {
+                "application/json": "[\n{\n  \"id\" : 1,\n  \"FIRST_NAME\" : \"John\",\n  \"LAST_NAME\" : \"Smith\",\n  \"CLIENT_NAME\" : \"Acme\",\n  \"EMAIL\" : \"jsmith@acme.com\",\n  \"USER_NAME\" : \"jsmith\",\n  \"PHONE\" : \"12002002222\",\n  \"CUSTOM_FIELD_1\" : \"foo1\",\n  \"CUSTOM_FIELD_2\" : \"foo2\",\n  \"CUSTOM_FIELD_3\" : \"foo3\",\n  \"CUSTOM_FIELD_4\" : \"foo4\"\n},\n{\n  \"id\" : 2,\n  \"FIRST_NAME\" : \"Jane\",\n  \"LAST_NAME\" : \"Smith\",\n  \"CLIENT_NAME\" : \"Acme\",\n  \"EMAIL\" : \"janesmith@acme.com\",\n  \"USER_NAME\" : \"janesmith\",\n  \"PHONE\" : \"12002002222\",\n  \"CUSTOM_FIELD_1\" : \"foo1\",\n  \"CUSTOM_FIELD_2\" : \"foo2\",\n  \"CUSTOM_FIELD_3\" : \"foo3\",\n  \"CUSTOM_FIELD_4\" : \"foo4\"\n}\n]"
+              }
+            }
+          },
+          "requestTemplates": {
+            "application/json": "{\"statusCode\": 200}"
+          },
+          "passthroughBehavior": "when_no_match",
+          "type": "mock"
+        }
+      },
+      "post": {
+        "tags": [
+          "users"
+        ],
+        "summary": "Create a new user",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "companyId",
+            "in": "path",
+            "description": "The id of the company to retrieve",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful operation",
+            "schema": {
+              "$ref": "#/definitions/Empty"
+            }
+          }
+        },
+        "x-amazon-apigateway-integration": {
+          "responses": {
+            "default": {
+              "statusCode": "200",
+              "responseTemplates": {
+                "application/json": "{\n  \"id\" : 1,\n  \"FIRST_NAME\" : \"John\",\n  \"LAST_NAME\" : \"Smith\",\n  \"CLIENT_NAME\" : \"Acme\",\n  \"EMAIL\" : \"jsmith@acme.com\",\n  \"USER_NAME\" : \"jsmith\",\n  \"PHONE\" : \"12002002222\",\n  \"CUSTOM_FIELD_1\" : \"foo1\",\n  \"CUSTOM_FIELD_2\" : \"foo2\",\n  \"CUSTOM_FIELD_3\" : \"foo3\",\n  \"CUSTOM_FIELD_4\" : \"foo4\"\n}"
+              }
+            }
+          },
+          "requestTemplates": {
+            "application/json": "{\"statusCode\": 200}"
+          },
+          "passthroughBehavior": "when_no_match",
+          "type": "mock"
+        }
+      },
+      "options": {
+        "tags": [
+          "users"
+        ],
+        "summary": "Options for user resoruce access",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "companyId",
+            "in": "path",
+            "description": "The id of the company to retrieve",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful operation",
+            "schema": {
+              "$ref": "#/definitions/Empty"
+            }
+          }
+        },
+        "x-amazon-apigateway-integration": {
+          "responses": {
+            "default": {
+              "statusCode": "200"
+            }
+          },
+          "requestTemplates": {
+            "application/json": "{\"statusCode\": 200}"
+          },
+          "passthroughBehavior": "when_no_match",
+          "type": "mock"
+        }
+      }
+    },
+    "/companies/{companyId}/users/bulk": {
+      "get": {
+        "tags": [
+          "users"
+        ],
+        "summary": "Export users under a company into a CSV file",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "companyId",
+            "in": "path",
+            "description": "The id of the company to retrieve",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful operation",
+            "schema": {
+              "$ref": "#/definitions/Empty"
+            }
+          }
+        },
+        "x-amazon-apigateway-integration": {
+          "responses": {
+            "default": {
+              "statusCode": "200"
+            }
+          },
+          "requestTemplates": {
+            "application/json": "{\"statusCode\": 200}"
+          },
+          "passthroughBehavior": "when_no_match",
+          "type": "mock"
+        }
+      },
+      "post": {
+        "tags": [
+          "users"
+        ],
+        "summary": "Import Users within a company into a CSV file",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "companyId",
+            "in": "path",
+            "description": "The id of the company to retrieve",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful operation",
+            "schema": {
+              "$ref": "#/definitions/Empty"
+            }
+          }
+        },
+        "x-amazon-apigateway-integration": {
+          "responses": {
+            "default": {
+              "statusCode": "200"
+            }
+          },
+          "requestTemplates": {
+            "application/json": "{\"statusCode\": 200}"
+          },
+          "passthroughBehavior": "when_no_match",
+          "type": "mock"
+        }
+      }
+    },
+    "/companies/{companyId}/users/{userid}": {
+      "get": {
+        "tags": [
+          "users"
+        ],
+        "summary": "Get the details for a specific user",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "userid",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "companyId",
+            "in": "path",
+            "description": "The id of the company to retrieve",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful operation",
+            "schema": {
+              "$ref": "#/definitions/Empty"
+            }
+          }
+        },
+        "x-amazon-apigateway-integration": {
+          "responses": {
+            "default": {
+              "statusCode": "200",
+              "responseTemplates": {
+                "application/json": "{\n  \"id\" : 1,\n  \"FIRST_NAME\" : \"John\",\n  \"LAST_NAME\" : \"Smith\",\n  \"CLIENT_NAME\" : \"Acme\",\n  \"EMAIL\" : \"jsmith@acme.com\",\n  \"USER_NAME\" : \"jsmith\",\n  \"PHONE\" : \"12002002222\",\n  \"CUSTOM_FIELD_1\" : \"foo1\",\n  \"CUSTOM_FIELD_2\" : \"foo2\",\n  \"CUSTOM_FIELD_3\" : \"foo3\",\n  \"CUSTOM_FIELD_4\" : \"foo4\"\n}"
+              }
+            }
+          },
+          "requestTemplates": {
+            "application/json": "{\"statusCode\": 200}"
+          },
+          "passthroughBehavior": "when_no_match",
+          "type": "mock"
+        }
+      },
+      "put": {
+        "tags": [
+          "users"
+        ],
+        "summary": "Update a user's information",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "userid",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "companyId",
+            "in": "path",
+            "description": "The id of the company to retrieve",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful operation",
+            "schema": {
+              "$ref": "#/definitions/Empty"
+            }
+          }
+        },
+        "x-amazon-apigateway-integration": {
+          "responses": {
+            "default": {
+              "statusCode": "200",
+              "responseTemplates": {
+                "application/json": "{\n  \"id\" : 1,\n  \"FIRST_NAME\" : \"John\",\n  \"LAST_NAME\" : \"Smith\",\n  \"CLIENT_NAME\" : \"Acme\",\n  \"EMAIL\" : \"jsmith@acme.com\",\n  \"USER_NAME\" : \"jsmith\",\n  \"PHONE\" : \"12002002222\",\n  \"CUSTOM_FIELD_1\" : \"foo1\",\n  \"CUSTOM_FIELD_2\" : \"foo2\",\n  \"CUSTOM_FIELD_3\" : \"foo3\",\n  \"CUSTOM_FIELD_4\" : \"foo4\"\n}"
+              }
+            }
+          },
+          "requestTemplates": {
+            "application/json": "{\"statusCode\": 200}"
+          },
+          "passthroughBehavior": "when_no_match",
+          "type": "mock"
+        }
+      },
+      "options": {
+        "tags": [
+          "users"
+        ],
+        "summary": "Options for user resource access",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "userid",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "companyId",
+            "in": "path",
+            "description": "The id of the company to retrieve",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful operation",
+            "schema": {
+              "$ref": "#/definitions/Empty"
+            }
+          }
+        },
+        "x-amazon-apigateway-integration": {
+          "responses": {
+            "default": {
+              "statusCode": "200"
+            }
+          },
+          "requestTemplates": {
+            "application/json": "{\"statusCode\": 200}"
+          },
+          "passthroughBehavior": "when_no_match",
+          "type": "mock"
+        }
+      }
+    }
+  },
+  "definitions": {
+    "Empty": {
+      "type": "object"
+    }
+  },
+  "x-amazon-apigateway-documentation": {
+    "version": "1.3",
+    "createdDate": "2017-11-03T22:56:47Z",
+    "documentationParts": [
+      {
+        "location": {
+          "type": "API"
+        },
+        "properties": {
+          "info": {
+            "description": "This is the ThinkHR API"
+          }
+        }
+      },
+      {
+        "location": {
+          "type": "METHOD",
+          "method": "GET"
+        },
+        "properties": {
+          "tags": [
+            "root"
+          ],
+          "summary": "ThinkHR HTML web page containing API usage information"
+        }
+      },
+      {
+        "location": {
+          "type": "METHOD",
+          "path": "/companies/bulk",
+          "method": "GET"
+        },
+        "properties": {
+          "tags": [
+            "companies"
+          ],
+          "summary": "Export the Companies under the current broker in a CSV file"
+        }
+      },
+      {
+        "location": {
+          "type": "METHOD",
+          "path": "/companies/bulk",
+          "method": "OPTIONS"
+        },
+        "properties": {
+          "tags": [
+            "companies"
+          ],
+          "summary": "Options for companies resource access"
+        }
+      },
+      {
+        "location": {
+          "type": "METHOD",
+          "path": "/companies/bulk",
+          "method": "POST"
+        },
+        "properties": {
+          "tags": [
+            "companies"
+          ],
+          "summary": "Import companies under a broker using a CSV file"
+        }
+      },
+      {
+        "location": {
+          "type": "METHOD",
+          "path": "/companies/{companyId}/users/bulk",
+          "method": "GET"
+        },
+        "properties": {
+          "tags": [
+            "users"
+          ],
+          "summary": "Export users under a company into a CSV file"
+        }
+      },
+      {
+        "location": {
+          "type": "METHOD",
+          "path": "/companies/{companyId}/users/bulk",
+          "method": "POST"
+        },
+        "properties": {
+          "tags": [
+            "users"
+          ],
+          "summary": "Import Users within a company into a CSV file"
+        }
+      },
+      {
+        "location": {
+          "type": "METHOD",
+          "path": "/companies/{companyId}/users/{userid}",
+          "method": "GET"
+        },
+        "properties": {
+          "tags": [
+            "users"
+          ],
+          "summary": "Get the details for a specific user"
+        }
+      },
+      {
+        "location": {
+          "type": "METHOD",
+          "path": "/companies/{companyId}/users/{userid}",
+          "method": "OPTIONS"
+        },
+        "properties": {
+          "tags": [
+            "users"
+          ],
+          "summary": "Options for user resource access"
+        }
+      },
+      {
+        "location": {
+          "type": "METHOD",
+          "path": "/companies/{companyId}/users/{userid}",
+          "method": "PUT"
+        },
+        "properties": {
+          "tags": [
+            "users"
+          ],
+          "summary": "Update a user's information"
+        }
+      },
+      {
+        "location": {
+          "type": "METHOD",
+          "path": "/companies/{companyId}/users",
+          "method": "GET"
+        },
+        "properties": {
+          "tags": [
+            "users"
+          ],
+          "summary": "Get a list of users based on a search criteria"
+        }
+      },
+      {
+        "location": {
+          "type": "METHOD",
+          "path": "/companies/{companyId}/users",
+          "method": "OPTIONS"
+        },
+        "properties": {
+          "tags": [
+            "users"
+          ],
+          "summary": "Options for user resoruce access"
+        }
+      },
+      {
+        "location": {
+          "type": "METHOD",
+          "path": "/companies/{companyId}/users",
+          "method": "POST"
+        },
+        "properties": {
+          "tags": [
+            "users"
+          ],
+          "summary": "Create a new user"
+        }
+      },
+      {
+        "location": {
+          "type": "METHOD",
+          "path": "/companies/{companyId}",
+          "method": "GET"
+        },
+        "properties": {
+          "tags": [
+            "companies"
+          ],
+          "summary": "Info for a specific company"
+        }
+      },
+      {
+        "location": {
+          "type": "METHOD",
+          "path": "/companies/{companyId}",
+          "method": "OPTIONS"
+        },
+        "properties": {
+          "tags": [
+            "companies"
+          ],
+          "summary": "Options for companies resource access"
+        }
+      },
+      {
+        "location": {
+          "type": "METHOD",
+          "path": "/companies/{companyId}",
+          "method": "PUT"
+        },
+        "properties": {
+          "tags": [
+            "companies"
+          ],
+          "summary": "Update the information of a company"
+        }
+      },
+      {
+        "location": {
+          "type": "METHOD",
+          "path": "/companies",
+          "method": "GET"
+        },
+        "properties": {
+          "tags": [
+            "companies"
+          ],
+          "summary": "List all companies"
+        }
+      },
+      {
+        "location": {
+          "type": "METHOD",
+          "path": "/companies",
+          "method": "OPTIONS"
+        },
+        "properties": {
+          "tags": [
+            "companies"
+          ],
+          "summary": "Options for companies resource access"
+        }
+      },
+      {
+        "location": {
+          "type": "METHOD",
+          "path": "/companies",
+          "method": "POST"
+        },
+        "properties": {
+          "tags": [
+            "companies"
+          ],
+          "summary": "Create a company"
+        }
+      },
+      {
+        "location": {
+          "type": "PATH_PARAMETER",
+          "path": "/companies/{companyId}",
+          "method": "*",
+          "name": "companyId"
+        },
+        "properties": {
+          "description": "The id of the company to retrieve"
+        }
+      },
+      {
+        "location": {
+          "type": "QUERY_PARAMETER",
+          "path": "/companies",
+          "method": "GET",
+          "name": "page"
+        },
+        "properties": {
+          "description": "Page number of results to return."
+        }
+      },
+      {
+        "location": {
+          "type": "QUERY_PARAMETER",
+          "path": "/companies",
+          "method": "GET",
+          "name": "type"
+        },
+        "properties": {
+          "description": "The type of company to retrieve"
+        }
+      },
+      {
+        "location": {
+          "type": "REQUEST_BODY",
+          "path": "/companies",
+          "method": "POST"
+        },
+        "properties": {
+          "description": "Company object that needs to be added"
+        }
+      },
+      {
+        "location": {
+          "type": "RESOURCE"
+        },
+        "properties": {
+          "tags": [
+            "root"
+          ],
+          "summary": "ThinkHR Platform"
+        }
+      },
+      {
+        "location": {
+          "type": "RESOURCE",
+          "path": "/companies/bulk"
+        },
+        "properties": {
+          "tags": [
+            "companies"
+          ],
+          "summary": "Bluk operations on companies resource"
+        }
+      },
+      {
+        "location": {
+          "type": "RESOURCE",
+          "path": "/companies/{companyId}/users/bulk"
+        },
+        "properties": {
+          "tags": [
+            "users"
+          ],
+          "summary": "Bulk operations on users resource"
+        }
+      },
+      {
+        "location": {
+          "type": "RESOURCE",
+          "path": "/companies/{companyId}/users/{userid}"
+        },
+        "properties": {
+          "tags": [
+            "users"
+          ],
+          "summary": "Operations on a single user resource"
+        }
+      },
+      {
+        "location": {
+          "type": "RESOURCE",
+          "path": "/companies/{companyId}/users"
+        },
+        "properties": {
+          "tags": [
+            "users"
+          ],
+          "summary": "Operations on users resource"
+        }
+      },
+      {
+        "location": {
+          "type": "RESOURCE",
+          "path": "/companies/{companyId}"
+        },
+        "properties": {
+          "tags": [
+            "companies"
+          ],
+          "summary": "Operations on a single company resource"
+        }
+      },
+      {
+        "location": {
+          "type": "RESOURCE",
+          "path": "/companies"
+        },
+        "properties": {
+          "tags": [
+            "companies"
+          ],
+          "summary": "Manage companies resource"
+        }
+      },
+      {
+        "location": {
+          "type": "RESPONSE",
+          "method": "*",
+          "statusCode": "200"
+        },
+        "properties": {
+          "description": "Successful operation"
+        }
+      },
+      {
+        "location": {
+          "type": "RESPONSE_HEADER",
+          "method": "OPTIONS",
+          "statusCode": "200",
+          "name": "Access-Control-Allow-Headers"
+        },
+        "properties": {
+          "description": "Used in response to a preflight request to indicate which HTTP headers can be used when making the request."
+        }
+      },
+      {
+        "location": {
+          "type": "RESPONSE_HEADER",
+          "method": "OPTIONS",
+          "statusCode": "200",
+          "name": "Access-Control-Allow-Methods"
+        },
+        "properties": {
+          "description": "Method or methods allowed when accessing the resource"
+        }
+      },
+      {
+        "location": {
+          "type": "RESPONSE_HEADER",
+          "method": "*",
+          "statusCode": "200",
+          "name": "Access-Control-Allow-Origin"
+        },
+        "properties": {
+          "description": "URI that may access the resource"
+        }
+      },
+      {
+        "location": {
+          "type": "RESPONSE_HEADER",
+          "method": "GET",
+          "statusCode": "200",
+          "name": "Content-Type"
+        },
+        "properties": {
+          "description": "Media type of request"
+        }
+      }
+    ]
+  }
+}
