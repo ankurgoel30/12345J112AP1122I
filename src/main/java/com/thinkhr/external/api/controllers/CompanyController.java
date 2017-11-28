@@ -152,13 +152,13 @@ public class CompanyController {
      * 
      */
     @RequestMapping(method=RequestMethod.POST,  value="/bulk/json")
-    public ResponseEntity <FileImportResult> bulkUploadJSON(@RequestBody BulkCompanyModel companies,
+    public ResponseEntity <FileImportResult> bulkUploadJSON(@RequestBody BulkCompanyModel companyData,
             @RequestParam(value = "brokerId", required = false, 
             			  defaultValue = ApplicationConstants.DEFAULT_BROKERID_FOR_FILE_IMPORT) Integer brokerId )
             throws ApplicationException, IOException {
      
     	logger.info("##### ######### COMPANY IMPORT BEGINS ######### #####");
-        FileImportResult fileImportResult = fileService.bulkUpload(null, brokerId, FileUploadEnum.COMPANY.getResource());
+        FileImportResult fileImportResult = fileService.bulkUpload(companyData, brokerId, FileUploadEnum.COMPANY.getResource());
         logger.debug("************** COMPANY IMPORT ENDS *****************");
   
         return new ResponseEntity <FileImportResult> (fileImportResult, HttpStatus.OK);
