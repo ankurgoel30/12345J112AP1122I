@@ -95,7 +95,6 @@ public class FileImportUtil {
 
         String[] rowColValues = fileRow.split(COMMA_SEPARATOR);
 
-        int k = 0;
         for (String column : columns) {
             String headerinCsv = columnToHeaderMap.get(column); // get the expected csv header corresponding to column
             if (headerinCsv != null) { // Csv header i.e mapped to column found
@@ -164,7 +163,8 @@ public class FileImportUtil {
         
         customHeaders.removeAll(allMappedHeaders);// = customHeaders - allMappedHeaders
         if (!customHeaders.isEmpty()) {
-            throw ApplicationException.createFileImportError(APIErrorCodes.UNMAPPED_CUSTOM_HEADERS, StringUtils.join(customHeaders, COMMA_SEPARATOR));
+            throw ApplicationException.createFileImportError(APIErrorCodes.UNMAPPED_CUSTOM_HEADERS,
+                    StringUtils.join(customHeaders, COMMA_SEPARATOR));
         }
     }
 

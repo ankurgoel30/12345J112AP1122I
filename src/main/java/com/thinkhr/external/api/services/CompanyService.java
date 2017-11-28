@@ -367,7 +367,8 @@ public class CompanyService  extends CommonService {
             }
             if (isDuplicate) {
                 String causeDuplicateName = getMessageFromResourceBundle(resourceHandler, APIErrorCodes.DUPLICATE_RECORD);
-                causeDuplicateName = (!isSpecial ? causeDuplicateName + " - " + companyName : causeDuplicateName + " - " + companyName +", " + custom1Value);
+                causeDuplicateName = (!isSpecial ? causeDuplicateName + " - " + companyName : 
+                                    causeDuplicateName + " - " + companyName +", " + custom1Value);
                 fileImportResult.addFailedRecord(recCount++ , record, causeDuplicateName,
                         getMessageFromResourceBundle(resourceHandler, APIErrorCodes.SKIPPED_RECORD));
             } 
