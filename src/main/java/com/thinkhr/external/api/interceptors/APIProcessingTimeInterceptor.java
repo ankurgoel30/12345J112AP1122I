@@ -1,5 +1,6 @@
 package com.thinkhr.external.api.interceptors;
 
+
 import java.util.UUID;
 
 import javax.servlet.http.HttpServletRequest;
@@ -9,6 +10,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.handler.HandlerInterceptorAdapter;
+
+import com.thinkhr.external.api.services.utils.CommonUtil;
 
 /**
  * Interceptor to log each API request's start time, end time
@@ -35,9 +38,9 @@ public class APIProcessingTimeInterceptor extends HandlerInterceptorAdapter {
 		
 		String jobId = UUID.randomUUID().toString();
 
-		logger.info("###### Request JobID:: ##### " + jobId);
+		logger.info("Request JobID: " + jobId);
 		logger.info(" Request URL::" + request.getRequestURL().toString());
-		logger.info("API execution Start Time " + System.currentTimeMillis());
+		logger.info("API execution Start Time " + CommonUtil.getTodayInUTC());
 		
 		request.setAttribute("startTime", startTime);
 		request.setAttribute("jobId", jobId);
@@ -54,9 +57,7 @@ public class APIProcessingTimeInterceptor extends HandlerInterceptorAdapter {
 	public void postHandle(HttpServletRequest request,
 			HttpServletResponse response, Object handler,
 			ModelAndView modelAndView) throws Exception {
-		
-		logger.info("Request URL::" + request.getRequestURL().toString());
-		logger.info("Sent to controller to process :: Current Time=" + System.currentTimeMillis());
+		//TODO - Keep it for more enhancements 
 	}
 
 	/* (non-Javadoc)
@@ -67,14 +68,7 @@ public class APIProcessingTimeInterceptor extends HandlerInterceptorAdapter {
 	public void afterCompletion(HttpServletRequest request,
 			HttpServletResponse response, Object handler, Exception ex)
 			throws Exception {
-		
-		long startTime = (Long) request.getAttribute("startTime");
-		String jobId = (String) request.getAttribute("jobId");
-		
-		logger.info("###### Request JobID:: ##### " + jobId);
-		logger.info(" Request URL::" + request.getRequestURL().toString());
-		logger.info("API execution End Time " + System.currentTimeMillis());
-		logger.info(" Total Time taken to complete request :: Time Taken=" + (System.currentTimeMillis() - startTime));
+		logger.info("API execution End Time " + CommonUtil.getTodayInUTC());
 	}
 
 }

@@ -1,16 +1,16 @@
 package com.thinkhr.external.api.services;
 
-import com.thinkhr.external.api.response.HealthCheckResponse;
+import java.sql.SQLException;
+
+import javax.sql.DataSource;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Service;
 
-import javax.sql.DataSource;
-import java.sql.SQLException;
-import java.util.Arrays;
+import com.thinkhr.external.api.response.HealthCheckResponse;
 
 /**
 *
