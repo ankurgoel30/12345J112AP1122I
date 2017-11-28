@@ -55,7 +55,7 @@ public class FileImportValidator {
         // Read all records from file
         List<String> fileContents = FileImportUtil.readFileContent(fileToImport);
 
-        validateFileContents(fileName, fileContents);
+        validateFileContents(fileContents, fileName);
 
         return fileContents;
     }
@@ -63,11 +63,11 @@ public class FileImportValidator {
 
     /**
      * Validate file contents
-     * @param fileName
      * @param fileContents
+     * @param fileName
      */
-    public static void validateFileContents(String fileName,
-            List<String> fileContents) {
+    public static void validateFileContents(List<String> fileContents, String fileName) {
+        
         if (fileContents == null || fileContents.isEmpty() || fileContents.size() < 2) {
             throw ApplicationException.createFileImportError(APIErrorCodes.NO_RECORDS_FOUND_FOR_IMPORT, fileName);
         }
@@ -76,17 +76,9 @@ public class FileImportValidator {
             throw ApplicationException.createFileImportError(APIErrorCodes.MAX_RECORD_EXCEEDED,
                     String.valueOf(MAX_RECORDS_COMPANY_CSV_IMPORT));
         }
-    }
 
-    /**
-     * Validate headers
-     * 
-     * @param headerLine
-     * @param resource
-     * @param fileName
-     */
-    public static void validateHeaders(String headerLine, String resource, String fileName) {
-
+        String headerLine = fileContents.get(0);
+        
         // Validate for missing headers. File must container all expected columns, if not, return from here.
         String[] headers = headerLine.split(",");
 

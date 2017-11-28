@@ -86,48 +86,11 @@ public class FileImportUtil {
      * Difference in sizes will have unpredictable results.
      * 
      */
-    public static Object[] populateColumnValues(String fileRow, Map<String, String> columnToHeaderMap,
-         Map<String, Integer> headerIndexMap) {
-        
-        String[] rowColValues = fileRow.split(COMMA_SEPARATOR);
-        
-        Object[] companyColumnsValues = new Object[columnToHeaderMap.size()];
-        
-        int k = 0;
-       
-        for (String column: rowColValues) {
-            
-            String headerinCsv = columnToHeaderMap.get(column); // get the expected csv header corresponding to column
-
-            //get index at which value corresponding to this column is found in csv
-            Integer headerIndex = headerIndexMap.get(headerinCsv);
-
-            if (headerinCsv == null && headerIndex == null) { // CSV contains the mapped header
-                // SKIP and continue;
-                continue;
-            }
-
-            companyColumnsValues[k++] = rowColValues[headerIndex]; //This line throwing ArrayIndexOutOfBound exception means split record does nt have the value for this column
-        }
-        
-        return companyColumnsValues;
-    }
-
-    /**
-     * This method populates the given array columnValues from 
-     * columns,columnToHeaderMap,splitValues,headerIndexMap
-     * 
-     * columns is array of columns in database
-     * columnToHeaderMap is a map containing key as column name and value as its mapping column name in csv
-     * splitValues is array of values created by splitting comma seperated csv record
-     * headerIndexMap is a map containing column name in csv as key and value is the index at which this column is found in imported csv. Starting index is 1
-     * 
-     * Currently this function assumes size for columnValues array and columns array is same. 
-     * Difference in sizes will have unpredictable results.
-     * 
-     */
-    public static List<Object> populateColumnValues(String fileRow, List<String> columns, Map<String, String> columnToHeaderMap,
+    public static List<Object> populateColumnValues(String fileRow, Map<String, String> columnToHeaderMap,
             Map<String, Integer> headerIndexMap) {
+        
+        List<String> columns = new ArrayList<String>(columnToHeaderMap.keySet());
+
         List<Object> columnValues = new ArrayList<Object>();
 
         String[] rowColValues = fileRow.split(COMMA_SEPARATOR);
