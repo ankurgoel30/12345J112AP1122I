@@ -33,7 +33,6 @@ import com.thinkhr.external.api.db.entities.Company;
 import com.thinkhr.external.api.exception.APIErrorCodes;
 import com.thinkhr.external.api.exception.ApplicationException;
 import com.thinkhr.external.api.exception.MessageResourceHandler;
-import com.thinkhr.external.api.model.BulkCompanyModel;
 import com.thinkhr.external.api.model.FileImportResult;
 import com.thinkhr.external.api.services.CompanyService;
 import com.thinkhr.external.api.services.utils.FileImportUtil;
@@ -140,33 +139,13 @@ public class CompanyController {
    	}
     
     /**
-     * Bulk import company records from a given JSON Data.
-     * 
-     * @param Multipart file CSV files with records
-     * @param brokerId - brokerId from request. Originally retrieved as part of JWT token
-     * 
-     */
-    @RequestMapping(method=RequestMethod.POST,  value="/bulk/json")
-    public ResponseEntity <FileImportResult> bulkUploadJSON(@RequestBody BulkCompanyModel companyData,
-            @RequestParam(value = "brokerId", required = false, 
-            			  defaultValue = ApplicationConstants.DEFAULT_BROKERID_FOR_FILE_IMPORT) Integer brokerId )
-            throws ApplicationException, IOException {
-     
-    	logger.info("##### ######### COMPANY IMPORT BEGINS ######### #####");
-        FileImportResult fileImportResult = companyService.bulkUpload(companyData, brokerId);
-        logger.debug("************** COMPANY IMPORT ENDS *****************");
-  
-        return new ResponseEntity <FileImportResult> (fileImportResult, HttpStatus.OK);
-    }
-    
-    /**
      * Bulk import company records from a given CSV file.
      * 
      * @param Multipart file CSV files with records
      * @param brokerId - brokerId from request. Originally retrieved as part of JWT token
      * 
      */
-    @RequestMapping(method=RequestMethod.POST,  value="/bulk/file")
+    @RequestMapping(method=RequestMethod.POST,  value="/bulk")
     public ResponseEntity <InputStreamResource> bulkUploadFile(@RequestParam(value="file", required=false) MultipartFile file, 
     		@RequestParam(value = "brokerId", required = false, 
             			  defaultValue = ApplicationConstants.DEFAULT_BROKERID_FOR_FILE_IMPORT) Integer brokerId )
