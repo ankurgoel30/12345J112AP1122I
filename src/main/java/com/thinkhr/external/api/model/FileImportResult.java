@@ -3,13 +3,10 @@ package com.thinkhr.external.api.model;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
+
 import lombok.AllArgsConstructor;
 import lombok.Data;
-
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonInclude;
-import com.thinkhr.external.api.exception.APIErrorCodes;
-import com.thinkhr.external.api.response.APIMessageUtil;
 
 /**
  * This class is used to collect information when records from csv file
@@ -24,7 +21,6 @@ public class FileImportResult {
     private int numSuccessRecords;
     private int numFailedRecords;
 
-    @JsonIgnore
     private String headerLine; // For storing header to be used for creating responseFile
 
     @JsonInclude(JsonInclude.Include.NON_EMPTY)
