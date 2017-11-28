@@ -230,10 +230,6 @@ public class CompanyService  extends CommonService {
 
         for (String record : records ) {
 
-            String[] rowColValues = record.split(COMMA_SEPARATOR);
-            String companyName = rowColValues[0].trim(); //TODO Fix this hardcoding.
-            companyNames.add(companyName);
-            
             //Check to validate empty record
             if (StringUtils.isBlank(record)) {
                 fileImportResult.addFailedRecord(recCount++ , record, 
@@ -242,6 +238,11 @@ public class CompanyService  extends CommonService {
 
                 continue;
             }
+
+            String[] rowColValues = record.split(COMMA_SEPARATOR);
+            String companyName = rowColValues[0].trim(); //TODO Fix this hardcoding.
+            companyNames.add(companyName);
+            
 
             //Check to validate duplicate record
             if (checkDuplicate(recCount, record, fileImportResult)) {
@@ -343,10 +344,14 @@ public class CompanyService  extends CommonService {
             FileImportResult fileImportResult) {
 
         String[] rowColValues = record.split(COMMA_SEPARATOR);
-
+        
         String companyName = rowColValues[0].trim(); //TODO Fix this hardcoding.
 
-        String custom1Value = rowColValues[11].trim();
+        String custom1Value = null; 
+
+        if (rowColValues.length > 11) {
+           custom1Value = rowColValues[11].trim();
+        }
 
         boolean isDuplicate = false;
 
@@ -365,7 +370,7 @@ public class CompanyService  extends CommonService {
             if (isDuplicate) {
                 String causeDuplicateName = getMessageFromResourceBundle(resourceHandler, APIErrorCodes.DUPLICATE_RECORD);
                 causeDuplicateName = (!isSpecial ? causeDuplicateName + " - " + companyName : 
-                                causeDuplicateName + " - " + companyName +", " + custom1Value);
+                                causeDuplicateName + " - " + companyName + ", " + custom1Value);
                 fileImportResult.addFailedRecord(recCount++ , record, causeDuplicateName,
                         getMessageFromResourceBundle(resourceHandler, APIErrorCodes.SKIPPED_RECORD));
             } 

@@ -10,19 +10,18 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
-import javax.persistence.PrePersist;
 import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 
-import lombok.Data;
-
 import org.hibernate.annotations.Where;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+
+import lombok.Data;
 
 /**
  * 
@@ -47,12 +46,12 @@ public class Company implements SearchableEntity {
 	
 	@NotNull
 	@Column(name = "search_help") 
-	private String searchHelp="";
+	private String searchHelp;
 		
 	@NotNull
 	@Size(min=1)
 	@Column(name = "Client_Type") 
-	private String companyType="";
+	private String companyType;
 	
 	@NotNull
 	@Size(min=1)
@@ -78,7 +77,7 @@ public class Company implements SearchableEntity {
 	@JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")  
 	@Temporal(TemporalType.TIMESTAMP)
 	@Column(name = "Client_Since", nullable=false) 
-	private Date companySince=new Date();
+	private Date companySince;
 	
 	@Column(name = "tempID") 
 	private String tempID;
@@ -311,25 +310,15 @@ public class Company implements SearchableEntity {
 
 	@NotNull
 	@Column(name = "special_note", nullable=false) 
-	private String specialNote = ""; //assigned default empty string
+	private String specialNote; 
 	
 	@Column(name = "sourceID") 
 	private Integer sourceId;
 	
 	@Column(name = "t1_is_active", updatable= false)
 	@JsonIgnore
-	private Integer isActive;
+	private Integer isActive = 1;
 	
-	@PrePersist
-	public void prePersist() {
-		/* This check is to create new Company record as always active. 
-		 * It should be handled in database by making it's default value as 1 instead of 0.
-		 */
-		if (isActive == null) {
-			isActive = 1;
-		}
-	}
-
 	@Column(name = "t1_parent_company_id")
 	private Integer parentCompanyId;
 
