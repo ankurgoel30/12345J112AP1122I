@@ -52,7 +52,7 @@ import com.thinkhr.external.api.services.utils.FileImportUtil;
 @RequestMapping(path="/v1/companies")
 public class CompanyController {
 	
-	private Logger logger = LoggerFactory.getLogger(CompanyService.class);
+	private Logger logger = LoggerFactory.getLogger(CompanyController.class);
 	
     @Autowired
     CompanyService companyService;
