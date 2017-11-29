@@ -43,255 +43,255 @@ import lombok.Data;
 @JsonInclude(Include.NON_EMPTY) 
 public class User implements SearchableEntity {
 
-	@Id
-	@GeneratedValue(strategy=GenerationType.AUTO)
-	@Column(name="contactID")
-	private Integer userId;
+    @Id
+    @GeneratedValue(strategy=GenerationType.AUTO)
+    @Column(name="contactID")
+    private Integer userId;
 
-	@NotNull
-	@Column(name="First_Name", nullable=false)
-	private String firstName;
-	
-	@NotNull
-	@Column(name="Last_Name")
-	private String lastName;
-	
-	@NotNull
-	@Column(name="UserName")
-	private String userName;
+    @NotNull
+    @Column(name="First_Name", nullable=false)
+    private String firstName;
 
-	@NotNull
-	@Email
-	@Column(name="Email")
-	private String email;
-	
-	@NotNull
-	@Column(name="client_name")
-	private String companyName;
+    @NotNull
+    @Column(name="Last_Name")
+    private String lastName;
 
-	@Column(name = "brokerID")
-	private Integer brokerId;
-	
-	@Column(name="client_id")
-	private Integer companyId;
+    @NotNull
+    @Column(name="UserName")
+    private String userName;
 
-	@Column(name="t1_roleId")
-	private Integer roleId;
-	
-	@Column(name="accountID")
-	private String accountId;
+    @NotNull
+    @Email
+    @Column(name="Email")
+    private String email;
 
-	@Column(name="Mobile")
-	private String mobile;
-	
-	@Column(name="Phone")
-	private String phone;
+    @NotNull
+    @Column(name="client_name")
+    private String companyName;
 
-	@Column(name="Fax")
-	private String fax;
-	
-	@Column(name="Location")
-	private String location;
+    @Column(name = "brokerID")
+    private Integer brokerId;
 
-	@JsonIgnore
-	@Size(min = 1, max = 25)
-	@Column(name="Password")
-	private String password;
+    @Column(name="client_id")
+    private Integer companyId;
 
-	@Column(name="password_apps")
-	@JsonIgnore
-	private String passwordApps;
+    @Column(name="t1_roleId")
+    private Integer roleId;
 
-	@Column(name="password_enc")
-	@JsonIgnore
-	private String passwordEnc;
+    @Column(name="accountID")
+    private String accountId;
 
-	@Column(name="password_reset")
-	@JsonIgnore
-	private Integer passwordReset;
+    @Column(name="Mobile")
+    private String mobile;
 
-	@Column(name="contact_Type")
-	private String userType;
-	
-	@NotNull
-	@Column(name="search_help")
-	private String searchHelp = ""; 
-	
-	@Column(name="Title")
-	private String title;
-	
-	@NotNull
-	@Column(name="blockedAccount", nullable=false)
-	private Integer blockedAccount = 0;
+    @Column(name="Phone")
+    private String phone;
 
-	@NotNull
-	@Column(name="mkdate", nullable=false)
-	private String mkdate = "";
+    @Column(name="Fax")
+    private String fax;
 
-	@JsonIgnore
-	@Column(name = "bounced")
-	private Integer bounced;
-	
-	@JsonFormat(shape = JsonFormat.Shape.STRING, pattern = VALID_FORMAT_YYYY_MM_DD)
-	@Temporal(TemporalType.TIMESTAMP)
-	@Column(name = "activationDate")
-	private Date activationDate;
+    @Column(name="Location")
+    private String location;
 
-	@NotNull
-	@Column(name="codevalid", nullable=false)
-	private String codevalid = "";
+    @JsonIgnore
+    @Size(min = 1, max = 25)
+    @Column(name="Password")
+    private String password;
 
-	@Column(name = "active", updatable = false)
-	@JsonIgnore
-	private Integer isActive = 1;
+    @Column(name="password_apps")
+    @JsonIgnore
+    private String passwordApps;
 
-	@Column(name = "addedBy")
-	private String addedBy;
+    @Column(name="password_enc")
+    @JsonIgnore
+    private String passwordEnc;
 
-	@Column(name="client_hours")
-	private String clientHours;
+    @Column(name="password_reset")
+    @JsonIgnore
+    private Integer passwordReset;
 
-	@Column(name="client_status")
-	private String clientStatus;
+    @Column(name="contact_Type")
+    private String userType;
 
-	@JsonFormat(shape = JsonFormat.Shape.STRING, pattern = VALID_FORMAT_YYYY_MM_DD)
-	@Temporal(TemporalType.TIMESTAMP)
-	@Column(name = "deactivationDate")
-	private Date deactivationDate;
+    @NotNull
+    @Column(name="search_help")
+    private String searchHelp = ""; 
 
-	@Column(name="deactivationID")
-	private Integer deactivationId;
+    @Column(name="Title")
+    private String title;
 
-	@Column(name="decision_maker")
-	private Integer decisionMaker;
+    @NotNull
+    @Column(name="blockedAccount", nullable=false)
+    private Integer blockedAccount = 0;
 
-	@Column(name="deleted")
-	private Integer deleted;
+    @NotNull
+    @Column(name="mkdate", nullable=false)
+    private String mkdate = "";
 
-	@JsonFormat(shape = JsonFormat.Shape.STRING, pattern = VALID_FORMAT_YYYY_MM_DD)
-	@Temporal(TemporalType.TIMESTAMP)
-	@Column(name="expirationDate")
-	private Date expirationDate;
+    @JsonIgnore
+    @Column(name = "bounced")
+    private Integer bounced;
 
-	@JsonFormat(shape = JsonFormat.Shape.STRING, pattern = VALID_FORMAT_YYYY_MM_DD)
-	@Temporal(TemporalType.TIMESTAMP)
-	@Column(name="firstMail")
-	private Date firstMail;
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = VALID_FORMAT_YYYY_MM_DD)
+    @Temporal(TemporalType.TIMESTAMP)
+    @Column(name = "activationDate")
+    private Date activationDate;
 
-	@Lob
-	@Column(name="firstMailMessage")
-	private String firstMailMessage;
+    @NotNull
+    @Column(name="codevalid", nullable=false)
+    private String codevalid = "";
 
-	@Column(name="firstMailSuccess")
-	private String firstMailSuccess;
+    @Column(name = "active", updatable = false)
+    @JsonIgnore
+    private Integer isActive = 1;
 
-	@Column(name="has_SPD")
-	private Integer hasSPD;
+    @Column(name = "addedBy")
+    private String addedBy;
 
-	@Column(name="hrhID")
-	private Integer hrhId;
+    @Column(name="client_hours")
+    private String clientHours;
 
-	@Column(name="International")
-	private Integer international;
+    @Column(name="client_status")
+    private String clientStatus;
 
-	@Column(name="learn_reminder")
-	private Integer learnReminder;
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = VALID_FORMAT_YYYY_MM_DD)
+    @Temporal(TemporalType.TIMESTAMP)
+    @Column(name = "deactivationDate")
+    private Date deactivationDate;
 
-	@Column(name="learn_sync")
-	private Integer learnSync;
+    @Column(name="deactivationID")
+    private Integer deactivationId;
 
-	@Column(name="mailStatus")
-	private Integer mailStatus;
+    @Column(name="decision_maker")
+    private Integer decisionMaker;
 
-	@JsonFormat(shape = JsonFormat.Shape.STRING, pattern = VALID_FORMAT_YYYY_MM_DD)
-	@Temporal(TemporalType.TIMESTAMP)
-	@Column(name="mailTime")
-	private Date mailTime;
+    @Column(name="deleted")
+    private Integer deleted;
 
-	@Column(name="master")
-	private Integer master;
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = VALID_FORMAT_YYYY_MM_DD)
+    @Temporal(TemporalType.TIMESTAMP)
+    @Column(name="expirationDate")
+    private Date expirationDate;
 
-	@Column(name="master_backup")
-	private Integer masterBackup;
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = VALID_FORMAT_YYYY_MM_DD)
+    @Temporal(TemporalType.TIMESTAMP)
+    @Column(name="firstMail")
+    private Date firstMail;
 
-	@Column(name="modified")
-	private Integer modified;
+    @Lob
+    @Column(name="firstMailMessage")
+    private String firstMailMessage;
 
-	@Column(name="Phone_Backup")
-	private String phoneBackup;
+    @Column(name="firstMailSuccess")
+    private String firstMailSuccess;
 
-	@JsonFormat(shape = JsonFormat.Shape.STRING, pattern = VALID_FORMAT_YYYY_MM_DD)
-	@Temporal(TemporalType.TIMESTAMP)
-	@Column(name="reminder")
-	private Date reminder;
+    @Column(name="has_SPD")
+    private Integer hasSPD;
 
-	@Column(name="salesforceID")
-	@JsonIgnore
-	private String salesforceID;
+    @Column(name="hrhID")
+    private Integer hrhId;
 
-	@Column(name="specialBlast")
-	private String specialBlast;
+    @Column(name="International")
+    private Integer international;
 
-	@Column(name="t1_customfield1")
-	private String customField1;
+    @Column(name="learn_reminder")
+    private Integer learnReminder;
 
-	@Column(name="t1_customfield2")
-	private String customField2;
+    @Column(name="learn_sync")
+    private Integer learnSync;
 
-	@Column(name="t1_customfield3")
-	private String customField3;
+    @Column(name="mailStatus")
+    private Integer mailStatus;
 
-	@Column(name="t1_customfield4")
-	private String customField4;
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = VALID_FORMAT_YYYY_MM_DD)
+    @Temporal(TemporalType.TIMESTAMP)
+    @Column(name="mailTime")
+    private Date mailTime;
+
+    @Column(name="master")
+    private Integer master;
+
+    @Column(name="master_backup")
+    private Integer masterBackup;
+
+    @Column(name="modified")
+    private Integer modified;
+
+    @Column(name="Phone_Backup")
+    private String phoneBackup;
+
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = VALID_FORMAT_YYYY_MM_DD)
+    @Temporal(TemporalType.TIMESTAMP)
+    @Column(name="reminder")
+    private Date reminder;
+
+    @Column(name="salesforceID")
+    @JsonIgnore
+    private String salesforceID;
+
+    @Column(name="specialBlast")
+    private String specialBlast;
+
+    @Column(name="t1_customfield1")
+    private String customField1;
+
+    @Column(name="t1_customfield2")
+    private String customField2;
+
+    @Column(name="t1_customfield3")
+    private String customField3;
+
+    @Column(name="t1_customfield4")
+    private String customField4;
 
 
-	@Column(name="tempID")
-	private String tempId;
+    @Column(name="tempID")
+    private String tempId;
 
-	@JsonFormat(shape = JsonFormat.Shape.STRING, pattern = VALID_FORMAT_YYYY_MM_DD)
-	@Temporal(TemporalType.TIMESTAMP)
-	@Column(name="terms")
-	private Date terms;
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = VALID_FORMAT_YYYY_MM_DD)
+    @Temporal(TemporalType.TIMESTAMP)
+    @Column(name="terms")
+    private Date terms;
 
-	@Column(name="testAccount")
-	private Integer testAccount;
+    @Column(name="testAccount")
+    private Integer testAccount;
 
-	@NotNull
-	@Column(name="update_password", nullable = false)
-	private String updatePassword = "";
-	
-	@Override
-	@JsonIgnore
-	public List<String> getSearchFields() {
-		List<String> searchColumns = new ArrayList<String>();
-		searchColumns.add("userName");
-		searchColumns.add("title");
-		searchColumns.add("searchHelp");
-		searchColumns.add("phoneBackup");
-		
-		searchColumns.add("phone");
-		searchColumns.add("mobile");
-		searchColumns.add("lastName");
-		searchColumns.add("firstMailMessage");
-		
-		searchColumns.add("firstName");
-		searchColumns.add("fax");
-		searchColumns.add("email");
-		searchColumns.add("companyName");
-		return searchColumns;
-	}
-	
-	@Override
-	@JsonIgnore
-	public String getNodeName() {
-		return "user";
-	}
-	
-	@Override
-	@JsonIgnore
-	public String getMultiDataNodeName() {
-		return "users";
-	}
+    @NotNull
+    @Column(name="update_password", nullable = false)
+    private String updatePassword = "";
 
-	
+    @Override
+    @JsonIgnore
+    public List<String> getSearchFields() {
+        List<String> searchColumns = new ArrayList<String>();
+        searchColumns.add("userName");
+        searchColumns.add("title");
+        searchColumns.add("searchHelp");
+        searchColumns.add("phoneBackup");
+
+        searchColumns.add("phone");
+        searchColumns.add("mobile");
+        searchColumns.add("lastName");
+        searchColumns.add("firstMailMessage");
+
+        searchColumns.add("firstName");
+        searchColumns.add("fax");
+        searchColumns.add("email");
+        searchColumns.add("companyName");
+        return searchColumns;
+    }
+
+    @Override
+    @JsonIgnore
+    public String getNodeName() {
+        return "user";
+    }
+
+    @Override
+    @JsonIgnore
+    public String getMultiDataNodeName() {
+        return "users";
+    }
+
+
 }

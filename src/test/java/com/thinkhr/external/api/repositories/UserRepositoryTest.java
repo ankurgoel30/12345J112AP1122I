@@ -6,7 +6,6 @@ import static com.thinkhr.external.api.utils.ApiTestDataUtil.createUser;
 import static com.thinkhr.external.api.utils.ApiTestDataUtil.createUserList;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.fail;
 
 import java.util.List;
 
