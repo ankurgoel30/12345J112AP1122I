@@ -67,7 +67,15 @@ public class FileImportUtil {
         BufferedReader br = null;
         try {
             br = new BufferedReader(new InputStreamReader(file.getInputStream()));
-            return br.lines().collect(Collectors.toList());
+            String line;
+            List<String> result = new ArrayList<>();
+            while ((line = br.readLine()) != null) {
+                if (StringUtils.isEmpty(StringUtils.deleteWhitespace(line).replaceAll(",", ""))) {
+                    continue; //skip any fully blank line 
+                }
+                result.add(line);
+            }
+            return result;
         } catch (IOException ioe) {
             throw ApplicationException.createBadRequest(APIErrorCodes.FILE_READ_ERROR, file.getName());
         }
