@@ -221,11 +221,6 @@ public class CompanyService  extends CommonService {
                 continue;
             }
 
-            String[] rowColValues = record.split(COMMA_SEPARATOR);
-            String companyName = rowColValues[0].trim(); //TODO Fix this hardcoding.
-            companyNames.add(companyName);
-
-
             //Check to validate duplicate record
             if (checkDuplicate(recCount, record, fileImportResult)) {
                 continue;

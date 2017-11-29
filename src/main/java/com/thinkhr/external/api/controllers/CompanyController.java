@@ -17,6 +17,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -139,7 +140,7 @@ public class CompanyController {
      * @param brokerId - brokerId from request. Originally retrieved as part of JWT token
      * 
      */
-    @RequestMapping(method=RequestMethod.POST,  value="/bulk", produces="application/csv")
+    @RequestMapping(method=RequestMethod.POST,  value="/bulk")
     public ResponseEntity <InputStreamResource> bulkUploadFile(@RequestParam(value="file", required=false) MultipartFile file, 
             @RequestParam(value = "brokerId", required = false, 
             defaultValue = ApplicationConstants.DEFAULT_BROKERID_FOR_FILE_IMPORT) Integer brokerId )
@@ -156,7 +157,7 @@ public class CompanyController {
 
         File responseFile = FileImportUtil.createReponseFile(fileImportResult, resourceHandler);
 
-        return ResponseEntity.ok().headers(headers)
+        return ResponseEntity.ok().headers(headers).contentLength(responseFile.length()).contentType(MediaType.parseMediaType("text/csv"))
                 .body(new InputStreamResource(new FileInputStream(responseFile)));
     }
 
