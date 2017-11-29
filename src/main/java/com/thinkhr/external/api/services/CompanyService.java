@@ -103,7 +103,13 @@ public class CompanyService  extends CommonService {
      * @return Company object 
      */
     public Company getCompany(Integer companyId) {
-        return companyRepository.findOne(companyId);
+        Company company =  companyRepository.findOne(companyId);
+        
+        if (null == company) {
+            throw ApplicationException.createEntityNotFoundError(APIErrorCodes.ENTITY_NOT_FOUND, "company", "companyId="+ companyId);
+        }
+
+    	return company;
     }
 
     /**
@@ -122,8 +128,8 @@ public class CompanyService  extends CommonService {
      * @throws ApplicationException 
      */
     public Company updateCompany(Company company) throws ApplicationException  {
-        Integer companyId = company.getCompanyId();
-
+    	Integer companyId = company.getCompanyId();
+    	
         if (null == companyRepository.findOne(companyId)) {
             throw ApplicationException.createEntityNotFoundError(APIErrorCodes.ENTITY_NOT_FOUND, "company", "companyId="+companyId);
         }

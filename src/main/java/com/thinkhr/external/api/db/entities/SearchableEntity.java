@@ -10,5 +10,7 @@ import java.util.List;
  */
 public interface SearchableEntity {
     public List<String> getSearchFields();
+    public String getNodeName();
+    public String getMultiDataNodeName();
     
 }

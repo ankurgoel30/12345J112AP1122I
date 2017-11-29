@@ -29,7 +29,7 @@ import org.springframework.http.server.ServletServerHttpResponse;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseBodyAdvice;
 
-import com.thinkhr.external.api.db.entities.Company;
+import com.thinkhr.external.api.db.entities.SearchableEntity;
 import com.thinkhr.external.api.exception.APIError;
 import com.thinkhr.external.api.exception.APIErrorCodes;
 import com.thinkhr.external.api.exception.MessageResourceHandler;
@@ -89,21 +89,21 @@ public class APIResponseBodyHandler implements ResponseBodyAdvice<Object> {
 		 * the same code reference will be used by all APIs for different entities as well.
 		 */
 		if (body instanceof List) {
-			setListData((List)body, httpRequest, apiResponse);
+			if ((List)body == null || ((List)body).isEmpty()) {
+				apiResponse.setMessage(getMessageFromResourceBundle(resourceHandler, APIErrorCodes.NO_RECORDS_FOUND, "company"));
+			} else {
+				apiResponse.setList((List)body);
+				setCompanyListData((List)body, httpRequest, apiResponse);
+			}
         } else if (body instanceof FileImportResult) {
             apiResponse.setFileImportResult((FileImportResult) body);
             String jobId = (String) httpRequest.getServletRequest().getAttribute("jobId");
             apiResponse.setJobId(jobId);
 		} else {
-			/*
-			 * TODO: FIXME for generic object
-			 */
-			if (body != null && body instanceof Company) {
-				apiResponse.setCompany((Company)body);
-			} 
-			
-			if (body instanceof Integer && statusCode == HttpStatus.ACCEPTED.value()) {
-				apiResponse.setMessage(getMessageFromResourceBundle(resourceHandler, SUCCESS_DELETED, "Company", body.toString()));
+			if (statusCode == HttpStatus.ACCEPTED.value()) {
+				apiResponse.setMessage(getMessageFromResourceBundle(resourceHandler, SUCCESS_DELETED, "id", body.toString()));
+			} else if (body instanceof SearchableEntity) {
+				apiResponse.setSearchEntity((SearchableEntity)body);
 			}
 			if (body instanceof InputStreamResource) {
 	                return body;
@@ -116,13 +116,13 @@ public class APIResponseBodyHandler implements ResponseBodyAdvice<Object> {
 	}
 
 	/**
-	 * To set list specific information into ApiResponse object 
+	 * To set list of company specific information into ApiResponse object 
 	 * 
 	 * @param list
 	 * @param httpRequest
 	 * @param apiResponse
 	 */
-	private void setListData(List list, ServletServerHttpRequest httpRequest, APIResponse apiResponse) {
+	private void setCompanyListData(List list, ServletServerHttpRequest httpRequest, APIResponse apiResponse) {
 		
 		String limit = httpRequest.getServletRequest().getParameter(LIMIT_PARAM);
 		limit = StringUtils.isNotBlank(limit) ? limit : String.valueOf(DEFAULT_LIMIT);
@@ -133,7 +133,6 @@ public class APIResponseBodyHandler implements ResponseBodyAdvice<Object> {
 		apiResponse.setOffset(offset);
 		
 		String sort = httpRequest.getServletRequest().getParameter(SORT_PARAM);
-		sort = StringUtils.isNotBlank(sort) ? sort : DEFAULT_SORT_BY_COMPANY_NAME;
 		apiResponse.setSort(EntitySearchUtil.getFormattedString(sort));
 		
 		Object totalRecObj = getRequestAttribute(TOTAL_RECORDS);
@@ -141,13 +140,8 @@ public class APIResponseBodyHandler implements ResponseBodyAdvice<Object> {
 			apiResponse.setTotalRecords(String.valueOf(totalRecObj));
 		}
 		
-		/*
-		 * TODO: FIXME for generic list
-		 */
-		apiResponse.setCompanies(list);
-		if (list == null || list.isEmpty()) {
-			apiResponse.setMessage(getMessageFromResourceBundle(resourceHandler, APIErrorCodes.NO_RECORDS_FOUND, "company"));
-		}
+		apiResponse.setList(list);
+		
 	}
-
+	
 }

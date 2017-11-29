@@ -54,7 +54,7 @@ public class CompanyServiceTest {
 	}
 	
 	/**
-	 * To verify getAllCompany method when no specific (Default) method arguments are provided 
+	 * To verify getAllCompany method. 
 	 * 
 	 */
 	@Test
@@ -77,7 +77,7 @@ public class CompanyServiceTest {
 	}
 	
 	/**
-	 * To verify getAllCompany method when specific method arguments are provided
+	 * To verify getAllCompany method specifically for pageable.
 	 * 
 	 */
 	@Test
@@ -116,12 +116,11 @@ public class CompanyServiceTest {
 	 * To verify createCompany method
 	 * 
 	 */
-	@Test
+	@Test(expected=com.thinkhr.external.api.exception.ApplicationException.class)
 	public void testGetCompanyNotExists() {
 		Integer companyId = 1;
 		when(companyRepository.findOne(companyId)).thenReturn(null);
 		Company result = companyService.getCompany(companyId);
-		assertNull("companyId " + companyId + " does not exist", result);
 	}
 	
 	/**

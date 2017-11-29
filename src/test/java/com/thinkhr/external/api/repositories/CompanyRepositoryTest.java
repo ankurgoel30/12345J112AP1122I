@@ -43,7 +43,7 @@ public class CompanyRepositoryTest {
 	private CompanyRepository companyRepository;
 	
 	/**
-	 * To test companyRepository.save method. 
+	 * To test companyRepository.save method when adding company. 
 	 */
 	@Test
 	public void testSaveForAdd() {
@@ -130,7 +130,7 @@ public class CompanyRepositoryTest {
 	}
 	
 	/**
-	 * To verify updateCompany method
+	 * To verify companyRepository.save method when updating company.
 	 * 
 	 */
 	

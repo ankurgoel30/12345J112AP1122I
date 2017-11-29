@@ -91,11 +91,7 @@ public class CompanyController {
     @RequestMapping(method=RequestMethod.GET, value="/{companyId}")
     public Company getById(@PathVariable(name="companyId", value = "companyId") Integer companyId) 
     		throws ApplicationException {
-        Company company = companyService.getCompany(companyId);
-        if (null == company) {
-        	throw ApplicationException.createEntityNotFoundError(APIErrorCodes.ENTITY_NOT_FOUND, "company", "companyId="+ companyId);
-        }
-        return company;
+        return companyService.getCompany(companyId);
     }
     
     

@@ -13,6 +13,7 @@ import org.springframework.http.ResponseEntity;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.thinkhr.external.api.db.entities.Company;
+import com.thinkhr.external.api.db.entities.User;
 
 /**
  * Utility class to keep all utilities required for Junits
@@ -25,6 +26,7 @@ public class ApiTestDataUtil {
 
 	public static final String API_BASE_PATH = "/v1/";
 	public static final String COMPANY_API_BASE_PATH = "/v1/companies/";
+	public static final String USER_API_BASE_PATH = "/v1/users/";
 	public static final String COMPANY_API_REQUEST_PARAM_OFFSET = "offset";
 	public static final String COMPANY_API_REQUEST_PARAM_LIMIT = "limit";
 	public static final String COMPANY_API_REQUEST_PARAM_SORT = "sort";
@@ -57,7 +59,8 @@ public class ApiTestDataUtil {
 	 * @param specialNotes
 	 * @return
 	 */
-	public static Company createCompany(Integer companyId, String companyName, String companyType, String displayName, 
+	public static Company createCompany(Integer companyId, String companyName,
+			String companyType, String displayName, 
 			Date companySince, String specialNotes, String searchHelp) {
 		Company company = new Company();
 		if (companyId != null) {
@@ -71,6 +74,48 @@ public class ApiTestDataUtil {
 		company.setSearchHelp(searchHelp); 
 		company.setIsActive(1);
 		return company;
+	}
+	
+	/**
+	 * Create a User entity for given inputs
+	 * 
+	 * @param contactId
+	 * @param firstName
+	 * @param lastName
+	 * @param searchHelp
+	 * @return
+	 */
+	public static User createUser(Integer userId, String firstName, String lastName,
+			String email, String userName, String companyName) {
+		User user = new User();
+		if (userId != null) {
+			user.setUserId(userId);
+		}
+		user.setFirstName(firstName);
+		user.setLastName(lastName);
+		user.setEmail(email);
+		user.setUserName(userName);
+		user.setCompanyName(companyName);   
+		return user;
+	}
+	
+	/**
+	 * 
+	 * @return
+	 */
+	public static User createUser() {
+		return createUser(1, "Surabhi", "Bhawsar", "surabhi.bhawsar@pepcus.com", "sbhawsar", "Pepcus");
+	}
+	
+	/**
+	 * Creates a user response object
+	 * 
+	 * @param user
+	 * @param httpStatus
+	 * @return
+	 */
+	public static ResponseEntity<User> createUserResponseEntity(User user, HttpStatus httpStatus) {
+		return new ResponseEntity<User>(user, httpStatus);
 	}
 
 	/**
@@ -93,6 +138,17 @@ public class ApiTestDataUtil {
 	 */
 	public static ResponseEntity<Integer> createCompanyIdResponseEntity(Integer companyId, HttpStatus httpStatus) {
 		return new ResponseEntity<Integer>(companyId, httpStatus);
+	}
+	
+	/**
+	 * createContactIdResponseEntity
+	 * 
+	 * @param contactId
+	 * @param httpStatus
+	 * @return
+	 */
+	public static ResponseEntity<Integer> createUserIdResponseEntity(Integer userId, HttpStatus httpStatus) {
+		return new ResponseEntity<Integer>(userId, httpStatus);
 	}
 
 	/**
@@ -123,6 +179,28 @@ public class ApiTestDataUtil {
 		companies.add(createCompany(10, "Thinkhr", "IT", "PEP", new Date(), "IT comp at Indore", "This is search help10"));
 		return companies;
 
+	}
+	
+	/**
+	 * Create List for User objects
+	 * 
+	 * @return
+	 */
+	public static List<User> createUserList() {
+		List<User> users = new ArrayList<User>();
+		
+		users.add(createUser(1, "Isha", "Khandelwal", "isha.khandelwal@gmail.com", "ishaa", "ThinkHR"));
+		users.add(createUser(2, "Sharmila", "Tagore", "stagore@gmail.com", "stagore", "ASI"));
+		users.add(createUser(3, "Surabhi", "Bhawsar", "sbhawsar@gmail.com", "sbhawsar", "Pepcus"));
+		users.add(createUser(4, "Shubham", "Solanki", "ssolanki@gmail.com", "ssolanki", "Pepcus"));
+		users.add(createUser(5, "Ajay", "Jain", "ajain@gmail.com", "ajain", "TCS"));
+		users.add(createUser(6, "Sandeep", "Vishwakarma", "svishwakarma@gmail.com", "svishwakarma", "CIS"));
+		users.add(createUser(7, "Sushil", "Mahajan", "smahajan@gmail.com", "smahajan", "ASI"));
+		users.add(createUser(8, "Sumedha", "Wani", "swani@gmail.com", "swani", "InfoBeans"));
+		users.add(createUser(9, "Mohit", "Jain", "mjain@gmail.com", "mjain", "Pepcus"));
+		users.add(createUser(10, "Avi", "Jain", "ajain@gmail.com", "ajain", "Pepcus"));
+		
+		return users;
 	}
 
 }

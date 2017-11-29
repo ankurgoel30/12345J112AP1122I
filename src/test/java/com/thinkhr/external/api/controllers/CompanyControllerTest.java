@@ -19,6 +19,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 import java.util.TimeZone;
 
 import org.hamcrest.core.IsNot;
@@ -79,8 +80,12 @@ public class CompanyControllerTest {
 		
 		List<Company> companyList = createCompanies();
 
-		given(companyController.getAllCompany(null, 10, null, null, null)).willReturn(companyList);
-		
+		given(companyController.getAllCompany(Mockito.any(Integer.class), 
+				Mockito.any(Integer.class), 
+				Mockito.any(String.class), 
+				Mockito.any(String.class), 
+				Mockito.any(Map.class))).willReturn(companyList);
+
 		mockMvc.perform(get(COMPANY_API_BASE_PATH+"?limit=10")
 			   .accept(MediaType.APPLICATION_JSON))
 		.andExpect(status().isOk())
@@ -458,17 +463,22 @@ public class CompanyControllerTest {
 	@Test
 	public void testUpdateCompanyCompanySinceInvalidBadRequest() throws Exception {
 		Company company = createCompany(); 
-		company.setCompanySince(null);
+		
+		SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd");
+		simpleDateFormat.setTimeZone(TimeZone.getTimeZone("UTC"));
+		Date date = simpleDateFormat.parse("2011-07-11");
+		
+		company.setCompanySince(date);
+		
+		String request = getJsonString(company);
+		request = request.replaceAll("2011-07-11", "08/07/2011"); //As mm/dd/yyyy is not supported date format
 		
 		mockMvc.perform(put(COMPANY_API_BASE_PATH + company.getCompanyId())
 			   .accept(MediaType.APPLICATION_JSON)
 			   .contentType(MediaType.APPLICATION_JSON)
-		       .content(getJsonString(company)))
+		       .content(request))
 		.andExpect(status().isBadRequest())
-		.andExpect(jsonPath("errorCode", is(APIErrorCodes.VALIDATION_FAILED.getCode().toString())))
-		.andExpect(jsonPath("errorDetails[0].field", is("companySince")))
-		.andExpect(jsonPath("errorDetails[0].object", is("company")))
-		.andExpect(jsonPath("errorDetails[0].rejectedValue", is(company.getCompanySince())));
+		.andExpect(jsonPath("errorCode", is(APIErrorCodes.MALFORMED_JSON_REQUEST.getCode().toString())));
 	}
 
 	

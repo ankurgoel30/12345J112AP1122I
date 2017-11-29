@@ -1,0 +1,191 @@
+{
+	"id": "27e3da27-93aa-be14-4442-0d14d5013a7d",
+	"name": "UserService",
+	"description": "",
+	"order": [
+		"4ecfa563-40c6-3038-6b89-56d6a56a1880",
+		"1a084ad0-37b4-279e-6e7f-802401117eb0",
+		"329a6a19-b4c9-919d-9385-5a4eb51a06aa",
+		"36a27ad4-fb35-d84a-1f9f-9b26401cc4c8",
+		"e0913543-4b92-1082-3dac-7a2ced3938bf"
+	],
+	"folders": [],
+	"folders_order": [],
+	"timestamp": 1511546994967,
+	"owner": 0,
+	"public": false,
+	"requests": [
+		{
+			"id": "1a084ad0-37b4-279e-6e7f-802401117eb0",
+			"headers": "Content-Type: application/json\nAccept: application/json\n",
+			"headerData": [
+				{
+					"key": "Content-Type",
+					"value": "application/json",
+					"description": "",
+					"enabled": true
+				},
+				{
+					"key": "Accept",
+					"value": "application/json",
+					"description": "",
+					"enabled": true
+				}
+			],
+			"url": "http://localhost:8080/v1/users/393150",
+			"queryParams": [],
+			"pathVariables": {},
+			"pathVariableData": [],
+			"preRequestScript": null,
+			"method": "PUT",
+			"collectionId": "27e3da27-93aa-be14-4442-0d14d5013a7d",
+			"data": [],
+			"dataMode": "raw",
+			"name": "http://localhost:8080/v1/users/393150",
+			"description": "",
+			"descriptionFormat": "html",
+			"time": 1511547043083,
+			"version": 2,
+			"responses": [],
+			"tests": null,
+			"currentHelper": "normal",
+			"helperAttributes": {},
+			"rawModeData": "{\n\t\"firstName\" : \"Kathleen\",\n\t\"lastName\" : \"Mason\",\n\t\"userName\" : \"kat23\",\n\t\"email\" : \"test23@gmail.com\",\n\t\"companyName\" : \"THR\",\n\t\"companyId\" : \"\",\n\t\"brokerId\" : \"\",\n\t\"roleId\" : \"\",\n\t\"accountId\" : \"\",\n\t\"fax\" : \"\",\n\t\"mobile\" : \"\",\n\t\"phone\" : \"\",\n\t\"customField1\" : \"\",\n\t\"customField2\" : \"\",\n\t\"customField3\" : \"\",\n\t\"customField4\" : \"\"\n}"
+		},
+		{
+			"id": "329a6a19-b4c9-919d-9385-5a4eb51a06aa",
+			"headers": "",
+			"headerData": [],
+			"url": "http://localhost:8080/v1/users?sort=-userName&searchSpec=Mason&offset=0&limit=2",
+			"queryParams": [
+				{
+					"key": "sort",
+					"value": "-userName",
+					"equals": true,
+					"description": "",
+					"enabled": true
+				},
+				{
+					"key": "searchSpec",
+					"value": "Mason",
+					"equals": true,
+					"description": "",
+					"enabled": true
+				},
+				{
+					"key": "offset",
+					"value": "0",
+					"equals": true,
+					"description": "",
+					"enabled": true
+				},
+				{
+					"key": "limit",
+					"value": "2",
+					"equals": true,
+					"description": "",
+					"enabled": true
+				}
+			],
+			"pathVariables": {},
+			"pathVariableData": [],
+			"preRequestScript": null,
+			"method": "GET",
+			"collectionId": "27e3da27-93aa-be14-4442-0d14d5013a7d",
+			"data": null,
+			"dataMode": "params",
+			"name": "http://localhost:8080/v1/users?sort=-userName&searchSpec=Mason&offset=0&limit=2",
+			"description": "",
+			"descriptionFormat": "html",
+			"time": 1511547053876,
+			"version": 2,
+			"responses": [],
+			"tests": null,
+			"currentHelper": "normal",
+			"helperAttributes": {}
+		},
+		{
+			"id": "36a27ad4-fb35-d84a-1f9f-9b26401cc4c8",
+			"headers": "",
+			"headerData": [],
+			"url": "http://localhost:8080/v1/users/393150",
+			"queryParams": [],
+			"pathVariables": {},
+			"pathVariableData": [],
+			"preRequestScript": null,
+			"method": "GET",
+			"collectionId": "27e3da27-93aa-be14-4442-0d14d5013a7d",
+			"data": null,
+			"dataMode": "params",
+			"name": "http://localhost:8080/v1/users/393150",
+			"description": "",
+			"descriptionFormat": "html",
+			"time": 1511547064439,
+			"version": 2,
+			"responses": [],
+			"tests": null,
+			"currentHelper": "normal",
+			"helperAttributes": {}
+		},
+		{
+			"id": "4ecfa563-40c6-3038-6b89-56d6a56a1880",
+			"headers": "Accept: application/json\nContent-Type: application/json\n",
+			"headerData": [
+				{
+					"key": "Accept",
+					"value": "application/json",
+					"description": "",
+					"enabled": true
+				},
+				{
+					"key": "Content-Type",
+					"value": "application/json",
+					"description": "",
+					"enabled": true
+				}
+			],
+			"url": "http://localhost:8080/v1/users/",
+			"queryParams": [],
+			"pathVariables": {},
+			"pathVariableData": [],
+			"preRequestScript": null,
+			"method": "POST",
+			"collectionId": "27e3da27-93aa-be14-4442-0d14d5013a7d",
+			"data": [],
+			"dataMode": "raw",
+			"name": "http://localhost:8080/v1/users/",
+			"description": "",
+			"descriptionFormat": "html",
+			"time": 1511547009538,
+			"version": 2,
+			"responses": [],
+			"tests": null,
+			"currentHelper": "normal",
+			"helperAttributes": {},
+			"rawModeData": "{\n\t\"firstName\" : \"Kathleen\",\n\t\"lastName\" : \"Mason\",\n\t\"userName\" : \"kat23\",\n\t\"email\" : \"test23@gmail.com\",\n\t\"companyName\" : \"THR\",\n\t\"companyId\" : \"\",\n\t\"brokerId\" : \"\",\n\t\"roleId\" : \"\",\n\t\"accountId\" : \"\",\n\t\"fax\" : \"\",\n\t\"mobile\" : \"\",\n\t\"phone\" : \"\",\n\t\"customField1\" : \"\",\n\t\"customField2\" : \"\",\n\t\"customField3\" : \"\",\n\t\"customField4\" : \"\"\n}"
+		},
+		{
+			"id": "e0913543-4b92-1082-3dac-7a2ced3938bf",
+			"headers": "",
+			"headerData": [],
+			"url": "http://localhost:8080/v1/users/393150",
+			"queryParams": [],
+			"pathVariables": {},
+			"pathVariableData": [],
+			"preRequestScript": null,
+			"method": "DELETE",
+			"collectionId": "27e3da27-93aa-be14-4442-0d14d5013a7d",
+			"data": null,
+			"dataMode": "params",
+			"name": "http://localhost:8080/v1/users/393150",
+			"description": "",
+			"descriptionFormat": "html",
+			"time": 1511547075724,
+			"version": 2,
+			"responses": [],
+			"tests": null,
+			"currentHelper": "normal",
+			"helperAttributes": {}
+		}
+	]
+}
