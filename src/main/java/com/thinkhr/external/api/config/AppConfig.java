@@ -20,6 +20,6 @@ public class AppConfig extends WebMvcConfigurerAdapter {
 	
     @Override
     public void addInterceptors(InterceptorRegistry registry) {
-        registry.addInterceptor(new APIProcessingTimeInterceptor()).addPathPatterns("/v1/*");
+        registry.addInterceptor(new APIProcessingTimeInterceptor()).addPathPatterns("/v1/**");
     }
 }

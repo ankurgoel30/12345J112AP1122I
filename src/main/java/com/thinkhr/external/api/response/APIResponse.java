@@ -6,6 +6,7 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.thinkhr.external.api.db.entities.SearchableEntity;
+import com.thinkhr.external.api.model.FileImportResult;
 
 import lombok.Data;
 
@@ -31,9 +32,15 @@ public class APIResponse {
 	private String sort;
 	private String totalRecords;
 	private String message;
+	private String jobId;
+
+	
 	/*
-	 * TODO: Replace with generic attribute like list
+	 * TODO: Replace with generic attribute like list, objects
 	 */
 	private List list;
 	private SearchableEntity searchEntity; 
+	private FileImportResult fileImportResult;
+	
+	
 }
