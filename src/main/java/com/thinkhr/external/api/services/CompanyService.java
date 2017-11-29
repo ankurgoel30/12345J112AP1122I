@@ -14,10 +14,8 @@ import static com.thinkhr.external.api.services.utils.FileImportUtil.validateAnd
 import java.sql.DataTruncation;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
@@ -190,9 +188,6 @@ public class CompanyService  extends CommonService {
         fileImportResult.setTotalRecords(records.size());
         fileImportResult.setHeaderLine(headerLine);
 
-        //To keep track of duplicate records in imported file. A duplicate record = duplicate client_name
-        Set<String> companyNames = new HashSet<String>();
-
         String[] headersInCSV = headerLine.split(COMMA_SEPARATOR);
 
         //DO not assume that CSV file shall contains fixed column position. Let's read and map then with database column
@@ -222,7 +217,7 @@ public class CompanyService  extends CommonService {
             }
 
             //Check to validate duplicate record
-            if (checkDuplicate(recCount, record, fileImportResult)) {
+            if (checkDuplicate(recCount, record, fileImportResult, broker.getCompanyId())) {
                 continue;
             }
 
@@ -318,7 +313,7 @@ public class CompanyService  extends CommonService {
      * @return
      */
     public boolean checkDuplicate(int recCount, String record,
-            FileImportResult fileImportResult) {
+            FileImportResult fileImportResult, Integer brokerId) {
 
         String[] rowColValues = record.split(COMMA_SEPARATOR);
 
@@ -332,16 +327,19 @@ public class CompanyService  extends CommonService {
 
         boolean isDuplicate = false;
 
-        boolean isSpecial = StringUtils.equalsIgnoreCase(companyName, ApplicationConstants.SPECIAL_CASE_FOR_DUPLICATE);
+        boolean isSpecial = (brokerId.intValue() == ApplicationConstants.SPECIAL_CASE_BROKER1.intValue() ||
+                             brokerId.intValue() == ApplicationConstants.SPECIAL_CASE_BROKER2.intValue()); 
+        
+        //find matching company by given company name and broker id
+        Company companyFromDB = companyRepository.findFirstByCompanyNameAndBroker(companyName, brokerId);
 
-        Company companyByFirstName = companyRepository.findFirstByCompanyName(companyName);
-
-        if (null != companyByFirstName) { //A DB query is must here to check duplicates in data
+        if (null != companyFromDB) { //A DB query is must here to check duplicates in data
             if (!isSpecial) {
                 isDuplicate = true;
             }
             //handle special case of Paychex
-            if (isSpecial && companyRepository.findFirstByCompanyNameAndCustom1(companyName, custom1Value) != null) {  
+          //find matching company by given company name, custom1 field and broker id
+            if (isSpecial && companyRepository.findFirstByCompanyNameAndCustom1AndBroker(companyName, custom1Value, brokerId) != null) {  
                 isDuplicate = true;
             }
             if (isDuplicate) {

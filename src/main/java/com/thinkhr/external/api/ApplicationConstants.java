@@ -35,7 +35,8 @@ public class ApplicationConstants {
     public static final String FAILED_COLUMN_TO_IMPORT = "FAILURE_REASON";
 
     //Paychex has special treatment for determining duplicate records
-    public static final String SPECIAL_CASE_FOR_DUPLICATE = "Paychex";
+    public static final Integer SPECIAL_CASE_BROKER1 = 187624;
+    public static final Integer SPECIAL_CASE_BROKER2 = 205111;
     public static final String NEW_LINE = "\n";
 
 
