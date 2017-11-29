@@ -20,33 +20,33 @@ import com.thinkhr.external.api.db.entities.Company;
  *
  */
 public class CompanySearchSpecification implements Specification<Company>{
-	
-	private String searchSpec ;
-	
-	private static final List<String> searchColumns = new ArrayList<String>();
-	
-	static {
-		searchColumns.add("searchHelp");
-		searchColumns.add("companyName");
-		searchColumns.add("companyPhone");
-		searchColumns.add("website");
-	}
-	
-	/**
-	 * @param searchSpec
-	 */
-	public CompanySearchSpecification(String searchSpec) {
-		super();
-		this.searchSpec =  searchSpec;
-	}
 
-	@Override
-	public Predicate toPredicate(Root<Company> from, CriteriaQuery<?> criteria, CriteriaBuilder criteriaBuilder) {
-		Predicate p = criteriaBuilder.disjunction();
-		if(StringUtils.isNotBlank(searchSpec)) {
-			searchColumns.stream().forEach(column -> p.getExpressions().add(criteriaBuilder.like(from.get(column), "%" + searchSpec +"%")));
-		}
-		return p;
-	}
+    private String searchSpec ;
+
+    private static final List<String> searchColumns = new ArrayList<String>();
+
+    static {
+        searchColumns.add("searchHelp");
+        searchColumns.add("companyName");
+        searchColumns.add("companyPhone");
+        searchColumns.add("website");
+    }
+
+    /**
+     * @param searchSpec
+     */
+    public CompanySearchSpecification(String searchSpec) {
+        super();
+        this.searchSpec =  searchSpec;
+    }
+
+    @Override
+    public Predicate toPredicate(Root<Company> from, CriteriaQuery<?> criteria, CriteriaBuilder criteriaBuilder) {
+        Predicate p = criteriaBuilder.disjunction();
+        if(StringUtils.isNotBlank(searchSpec)) {
+            searchColumns.stream().forEach(column -> p.getExpressions().add(criteriaBuilder.like(from.get(column), "%" + searchSpec +"%")));
+        }
+        return p;
+    }
 
 }

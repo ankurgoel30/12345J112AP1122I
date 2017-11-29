@@ -39,9 +39,9 @@ import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExcep
 @RestController
 public class APIExceptionHandler extends ResponseEntityExceptionHandler {
 
-	@Autowired
-	MessageResourceHandler resourceHandler;
-	
+    @Autowired
+    MessageResourceHandler resourceHandler;
+
     /**
      * Handle MissingServletRequestParameterException when a 'required' request parameter is missing.
      *
@@ -57,9 +57,9 @@ public class APIExceptionHandler extends ResponseEntityExceptionHandler {
             HttpHeaders headers,
             HttpStatus status, 
             WebRequest request) {
-    	logger.error(ex);
-    	APIError apiError = new APIError(BAD_REQUEST, ex);
-    	apiError.setMessage(getMessageFromResourceBundle(resourceHandler, APIErrorCodes.REQUIRED_PARAMETER, ex.getParameterName()));
+        logger.error(ex);
+        APIError apiError = new APIError(BAD_REQUEST, ex);
+        apiError.setMessage(getMessageFromResourceBundle(resourceHandler, APIErrorCodes.REQUIRED_PARAMETER, ex.getParameterName()));
         return buildResponseEntity(apiError);
     }
 
@@ -79,12 +79,12 @@ public class APIExceptionHandler extends ResponseEntityExceptionHandler {
             HttpHeaders headers,
             HttpStatus status,
             WebRequest request) {
-    	logger.error(ex);
-    	APIError apiError = new APIError(HttpStatus.UNSUPPORTED_MEDIA_TYPE, ex);
-    	StringBuilder builder = new StringBuilder();
+        logger.error(ex);
+        APIError apiError = new APIError(HttpStatus.UNSUPPORTED_MEDIA_TYPE, ex);
+        StringBuilder builder = new StringBuilder();
         ex.getSupportedMediaTypes().forEach(t -> builder.append(t).append(", "));
-    	apiError.setMessage(getMessageFromResourceBundle(resourceHandler, APIErrorCodes.REQUIRED_PARAMETER, 
-    			ex.getContentType().toString(), builder.toString()));
+        apiError.setMessage(getMessageFromResourceBundle(resourceHandler, APIErrorCodes.REQUIRED_PARAMETER, 
+                ex.getContentType().toString(), builder.toString()));
         return buildResponseEntity(apiError);
     }
 
@@ -103,13 +103,13 @@ public class APIExceptionHandler extends ResponseEntityExceptionHandler {
             HttpHeaders headers,
             HttpStatus status,
             WebRequest request) {
-    	logger.error(ex);
-	    APIError apiError = new APIError(BAD_REQUEST, APIErrorCodes.VALIDATION_FAILED);
-	    apiError.setMessage(resourceHandler.get(APIErrorCodes.VALIDATION_FAILED.name()));
+        logger.error(ex);
+        APIError apiError = new APIError(BAD_REQUEST, APIErrorCodes.VALIDATION_FAILED);
+        apiError.setMessage(resourceHandler.get(APIErrorCodes.VALIDATION_FAILED.name()));
         apiError.addErrorDetail(ex.getBindingResult().getFieldErrors());
         return buildResponseEntity(apiError);
     }
-            
+
     /**
      * Handles javax.validation.ConstraintViolationException. Thrown when @Validated fails.
      *
@@ -119,14 +119,14 @@ public class APIExceptionHandler extends ResponseEntityExceptionHandler {
     @ExceptionHandler(javax.validation.ConstraintViolationException.class)
     protected ResponseEntity<Object> handleConstraintViolation(
             javax.validation.ConstraintViolationException ex) {
-    	
-    	logger.error(ex);
-	    APIError apiError = new APIError(BAD_REQUEST, APIErrorCodes.VALIDATION_FAILED, ex);
-	    ex.getConstraintViolations().forEach(obj -> { String messageTemplate = obj.getConstraintDescriptor().getMessageTemplate();
-	    if (StringUtils.isNotBlank(messageTemplate)) {
-	    	apiError.setExceptionDetail(messageTemplate);
-	    } } );
-	    apiError.setMessage(resourceHandler.get(APIErrorCodes.VALIDATION_FAILED.name()));
+
+        logger.error(ex);
+        APIError apiError = new APIError(BAD_REQUEST, APIErrorCodes.VALIDATION_FAILED, ex);
+        ex.getConstraintViolations().forEach(obj -> { String messageTemplate = obj.getConstraintDescriptor().getMessageTemplate();
+        if (StringUtils.isNotBlank(messageTemplate)) {
+            apiError.setExceptionDetail(messageTemplate);
+        } } );
+        apiError.setMessage(resourceHandler.get(APIErrorCodes.VALIDATION_FAILED.name()));
         return buildResponseEntity(apiError);
     }
 
@@ -138,16 +138,16 @@ public class APIExceptionHandler extends ResponseEntityExceptionHandler {
      * @return
      */
     @ExceptionHandler({org.springframework.web.method.annotation.MethodArgumentTypeMismatchException.class,
-    		org.springframework.data.mapping.PropertyReferenceException.class,
-    		java.lang.IllegalArgumentException.class})
+        org.springframework.data.mapping.PropertyReferenceException.class,
+        java.lang.IllegalArgumentException.class})
     protected ResponseEntity<Object> handleExceptions(
             Exception ex) {
-    	logger.error(ex);
-	    APIError apiError = new APIError(BAD_REQUEST, APIErrorCodes.VALIDATION_FAILED, ex);
-	    if (ex instanceof MethodArgumentTypeMismatchException) {
-	    	apiError.addErrorDetail((MethodArgumentTypeMismatchException)ex);
-	    }
-	    apiError.setMessage(resourceHandler.get(APIErrorCodes.VALIDATION_FAILED.name()));
+        logger.error(ex);
+        APIError apiError = new APIError(BAD_REQUEST, APIErrorCodes.VALIDATION_FAILED, ex);
+        if (ex instanceof MethodArgumentTypeMismatchException) {
+            apiError.addErrorDetail((MethodArgumentTypeMismatchException)ex);
+        }
+        apiError.setMessage(resourceHandler.get(APIErrorCodes.VALIDATION_FAILED.name()));
         return buildResponseEntity(apiError);
     }
 
@@ -162,10 +162,10 @@ public class APIExceptionHandler extends ResponseEntityExceptionHandler {
      */
     @Override
     protected ResponseEntity<Object> handleHttpMessageNotReadable(HttpMessageNotReadableException ex, 
-    		HttpHeaders headers, HttpStatus status, WebRequest request) {
-    	logger.error(ex);
-	    APIError apiError = new APIError(BAD_REQUEST, APIErrorCodes.MALFORMED_JSON_REQUEST, ex);
-	    apiError.setMessage(resourceHandler.get(APIErrorCodes.MALFORMED_JSON_REQUEST.name()));
+            HttpHeaders headers, HttpStatus status, WebRequest request) {
+        logger.error(ex);
+        APIError apiError = new APIError(BAD_REQUEST, APIErrorCodes.MALFORMED_JSON_REQUEST, ex);
+        apiError.setMessage(resourceHandler.get(APIErrorCodes.MALFORMED_JSON_REQUEST.name()));
         return buildResponseEntity(apiError);
     }
 
@@ -180,13 +180,13 @@ public class APIExceptionHandler extends ResponseEntityExceptionHandler {
      */
     @Override
     protected ResponseEntity<Object> handleHttpMessageNotWritable(HttpMessageNotWritableException ex,
-    		HttpHeaders headers, HttpStatus status, WebRequest request) {
-    	logger.error(ex);
-	    APIError apiError = new APIError(HttpStatus.INTERNAL_SERVER_ERROR, APIErrorCodes.ERROR_WRITING_JSON_OUTPUT, ex);
-	    apiError.setMessage(resourceHandler.get(APIErrorCodes.ERROR_WRITING_JSON_OUTPUT.name()));
+            HttpHeaders headers, HttpStatus status, WebRequest request) {
+        logger.error(ex);
+        APIError apiError = new APIError(HttpStatus.INTERNAL_SERVER_ERROR, APIErrorCodes.ERROR_WRITING_JSON_OUTPUT, ex);
+        apiError.setMessage(resourceHandler.get(APIErrorCodes.ERROR_WRITING_JSON_OUTPUT.name()));
         return buildResponseEntity(apiError);
     }
-    
+
     /**
      * Handle Exception, handle generic ApplicationException.class
      *
@@ -195,9 +195,9 @@ public class APIExceptionHandler extends ResponseEntityExceptionHandler {
      */
     @ExceptionHandler(ApplicationException.class)
     protected ResponseEntity<Object> handleAPIBadRequest(ApplicationException ex) {
-    	logger.error(ex);
-    	APIError apiError = new APIError(ex.getHttpStatus(), ex.getApiErrorCode());
-    	apiError.setMessage(getMessageFromResourceBundle(resourceHandler, ex.getApiErrorCode(), ex.getErrorMessageParameters()));
+        logger.error(ex);
+        APIError apiError = new APIError(ex.getHttpStatus(), ex.getApiErrorCode());
+        apiError.setMessage(getMessageFromResourceBundle(resourceHandler, ex.getApiErrorCode(), ex.getErrorMessageParameters()));
         return buildResponseEntity(apiError);
     }
 
@@ -209,18 +209,18 @@ public class APIExceptionHandler extends ResponseEntityExceptionHandler {
      */
     @ExceptionHandler(DataIntegrityViolationException.class)
     protected ResponseEntity<Object> handleDataIntegrityViolation(DataIntegrityViolationException ex,
-                                                                  WebRequest request) {
-    	logger.error(ex);
-    	APIError apiError = null;
+            WebRequest request) {
+        logger.error(ex);
+        APIError apiError = null;
         if (ex.getCause() instanceof ConstraintViolationException) {
-        	apiError = new APIError(HttpStatus.CONFLICT, APIErrorCodes.DATABASE_ERROR, ex);
-    	    apiError.setMessage(resourceHandler.get(APIErrorCodes.DATABASE_ERROR.name()));
+            apiError = new APIError(HttpStatus.CONFLICT, APIErrorCodes.DATABASE_ERROR, ex);
+            apiError.setMessage(resourceHandler.get(APIErrorCodes.DATABASE_ERROR.name()));
         } else {
-        	apiError = new APIError(HttpStatus.INTERNAL_SERVER_ERROR, ex);
+            apiError = new APIError(HttpStatus.INTERNAL_SERVER_ERROR, ex);
         }
         return buildResponseEntity(apiError);
     }
-    
+
     /**
      * Handle JDBC Exception, inspects the cause for different DB causes.
      *
@@ -229,10 +229,10 @@ public class APIExceptionHandler extends ResponseEntityExceptionHandler {
      */
     @ExceptionHandler(JDBCException.class)
     protected ResponseEntity<Object> handleDatabaseException(JDBCException ex,
-                                                                  WebRequest request) {
-    	logger.error(ex);
-    	APIError apiError = new APIError(HttpStatus.INTERNAL_SERVER_ERROR, APIErrorCodes.DATABASE_ERROR, ex);
-	    apiError.setMessage(resourceHandler.get(APIErrorCodes.DATABASE_ERROR.name()));
+            WebRequest request) {
+        logger.error(ex);
+        APIError apiError = new APIError(HttpStatus.INTERNAL_SERVER_ERROR, APIErrorCodes.DATABASE_ERROR, ex);
+        apiError.setMessage(resourceHandler.get(APIErrorCodes.DATABASE_ERROR.name()));
         return buildResponseEntity(apiError);
     }
 
@@ -244,10 +244,10 @@ public class APIExceptionHandler extends ResponseEntityExceptionHandler {
      * @return
      */
     private ResponseEntity<Object> buildResponseEntity(APIError apiError) {
-    	logger.error("API throws an exception " + apiError);
+        logger.error("API throws an exception " + apiError);
         return new ResponseEntity<Object>(apiError, HttpStatus.valueOf(apiError.getCode()));
     }
-    
-    
-    
+
+
+
 }

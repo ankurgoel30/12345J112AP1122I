@@ -15,83 +15,83 @@ import lombok.Data;
 @Data
 public class ApplicationException extends RuntimeException {
 
-	private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 1L;
     private APIErrorCodes apiErrorCode;
     private String[] errorMessageParameters;
     private HttpStatus httpStatus;
-    
-	/**
-	 * ApplicationException constructor 
-	 * 
-	 * @param msg
-	 */
-	public ApplicationException(String msg) {
-		super(msg);
-	}
 
     /**
-	 * ApplicationException constructor 
+     * ApplicationException constructor 
+     * 
+     * @param msg
+     */
+    public ApplicationException(String msg) {
+        super(msg);
+    }
+
+    /**
+     * ApplicationException constructor 
      * 
      * @param errorCode
      * @param params
      */
     public ApplicationException(APIErrorCodes errorCode, String...params) {
-    	this.apiErrorCode = errorCode;
-    	this.errorMessageParameters = params;
+        this.apiErrorCode = errorCode;
+        this.errorMessageParameters = params;
     }
-    
+
     /**
-	 * ApplicationException constructor 
-	 * 
+     * ApplicationException constructor 
+     * 
      * @param errorCode
      * @param params
      * @param httpStatus
      */
     public ApplicationException(APIErrorCodes errorCode, HttpStatus httpStatus, String...params) {
-    	this(errorCode, params);
-    	this.setHttpStatus(httpStatus);
+        this(errorCode, params);
+        this.setHttpStatus(httpStatus);
     }
 
     /**
-	 * ApplicationException constructor 
-	 * 
+     * ApplicationException constructor 
+     * 
      * @param errorCode
      * @param params
      * @return
      */
     public static ApplicationException createBadRequest(APIErrorCodes errorCode, String...params) {
-    	ApplicationException appException = new ApplicationException(errorCode, params);
-    	appException.setHttpStatus(HttpStatus.BAD_REQUEST);
-    	return appException;
+        ApplicationException appException = new ApplicationException(errorCode, params);
+        appException.setHttpStatus(HttpStatus.BAD_REQUEST);
+        return appException;
     }
-    
+
     /**
-	 * ApplicationException constructor 
+     * ApplicationException constructor 
      * 
      * @param errorCode
      * @param params
      * @return
      */
     public static ApplicationException createInternalError(APIErrorCodes errorCode, String...params) {
-    	ApplicationException appException = new ApplicationException(errorCode, params);
-    	appException.setHttpStatus(HttpStatus.INTERNAL_SERVER_ERROR);
-    	return appException;
+        ApplicationException appException = new ApplicationException(errorCode, params);
+        appException.setHttpStatus(HttpStatus.INTERNAL_SERVER_ERROR);
+        return appException;
     }
-    
+
     /**
-	 * ApplicationException constructor 
-	 * 
+     * ApplicationException constructor 
+     * 
      * @param errorCode
      * @param params
      * @return
      */
     public static ApplicationException createEntityNotFoundError(APIErrorCodes errorCode, String...params) {
-    	ApplicationException appException = new ApplicationException(errorCode, params);
-    	appException.setHttpStatus(HttpStatus.NOT_FOUND);
-    	return appException;
+        ApplicationException appException = new ApplicationException(errorCode, params);
+        appException.setHttpStatus(HttpStatus.NOT_FOUND);
+        return appException;
     }
-    
-    
+
+
     /**
      * TODO
      * @param errorCode
@@ -99,9 +99,9 @@ public class ApplicationException extends RuntimeException {
      * @return
      */
     public static ApplicationException createFileImportError(APIErrorCodes errorCode, String...params) {
-    	ApplicationException appException = new ApplicationException(errorCode, params);
-    	appException.setHttpStatus(HttpStatus.NOT_ACCEPTABLE);
-    	return appException;
+        ApplicationException appException = new ApplicationException(errorCode, params);
+        appException.setHttpStatus(HttpStatus.NOT_ACCEPTABLE);
+        return appException;
     }
-    
+
 }

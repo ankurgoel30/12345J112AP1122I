@@ -51,7 +51,7 @@ public class FileImportResult {
         String failureCause;
         String info;//additional information
     }
-    
+
     /**
      * Print report
      * 
@@ -78,11 +78,11 @@ public class FileImportResult {
             .append(failureCause)
             .append(NEW_LINE);
         }
-        
+
         for (FileImportResult.FailedRecord failedRecord : getFailedRecords()) {
             stb.append(failedRecord.getRecord()).append(COMMA_SEPARATOR).append(failedRecord.getFailureCause()).append(NEW_LINE);
         }
-        
+
         return stb.toString();
     }
 

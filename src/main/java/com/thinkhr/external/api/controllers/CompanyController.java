@@ -17,7 +17,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -30,7 +29,6 @@ import org.springframework.web.multipart.MultipartFile;
 
 import com.thinkhr.external.api.ApplicationConstants;
 import com.thinkhr.external.api.db.entities.Company;
-import com.thinkhr.external.api.exception.APIErrorCodes;
 import com.thinkhr.external.api.exception.ApplicationException;
 import com.thinkhr.external.api.exception.MessageResourceHandler;
 import com.thinkhr.external.api.model.FileImportResult;
@@ -51,12 +49,12 @@ import com.thinkhr.external.api.services.utils.FileImportUtil;
 @Validated
 @RequestMapping(path="/v1/companies")
 public class CompanyController {
-	
-	private Logger logger = LoggerFactory.getLogger(CompanyController.class);
-	
+
+    private Logger logger = LoggerFactory.getLogger(CompanyController.class);
+
     @Autowired
     CompanyService companyService;
-    
+
     @Autowired
     MessageResourceHandler resourceHandler;
 
@@ -69,17 +67,17 @@ public class CompanyController {
      */
     @RequestMapping(method=RequestMethod.GET)
     public List<Company> getAllCompany(@Range(min=0l, message="Please select positive integer value for 'offset'") 
-    		@RequestParam(value = "offset", required = false, defaultValue = "0") Integer offset,
-    		@Range(min=1l, message="Please select positive integer and should be greater than 0 for 'limit'") 
-    		@RequestParam(value = "limit", required = false, defaultValue= "50" ) Integer limit, 
-    		@RequestParam(value = "sort", required = false, defaultValue = DEFAULT_SORT_BY_COMPANY_NAME) String sort,
-    		@RequestParam(value = "searchSpec", required = false) String searchSpec, 
-    		@RequestParam Map<String, String> allRequestParams) 
-    				throws ApplicationException {
-    	
-    		return companyService.getAllCompany(offset, limit, sort, searchSpec, allRequestParams); 
+    @RequestParam(value = "offset", required = false, defaultValue = "0") Integer offset,
+    @Range(min=1l, message="Please select positive integer and should be greater than 0 for 'limit'") 
+    @RequestParam(value = "limit", required = false, defaultValue= "50" ) Integer limit, 
+    @RequestParam(value = "sort", required = false, defaultValue = DEFAULT_SORT_BY_COMPANY_NAME) String sort,
+    @RequestParam(value = "searchSpec", required = false) String searchSpec, 
+    @RequestParam Map<String, String> allRequestParams) 
+            throws ApplicationException {
+
+        return companyService.getAllCompany(offset, limit, sort, searchSpec, allRequestParams); 
     }
-    
+
     /**
      * Get company for a given id from database
      * 
@@ -90,11 +88,11 @@ public class CompanyController {
      */
     @RequestMapping(method=RequestMethod.GET, value="/{companyId}")
     public Company getById(@PathVariable(name="companyId", value = "companyId") Integer companyId) 
-    		throws ApplicationException {
+            throws ApplicationException {
         return companyService.getCompany(companyId);
     }
-    
-    
+
+
     /**
      * Delete specific company from database
      * 
@@ -102,38 +100,38 @@ public class CompanyController {
      */
     @RequestMapping(method=RequestMethod.DELETE,value="/{companyId}")
     public ResponseEntity<Integer> deleteCompany(@PathVariable(name="companyId", value = "companyId") Integer companyId) 
-    		throws ApplicationException {
-    	companyService.deleteCompany(companyId);
-    	return new ResponseEntity <Integer>(companyId, HttpStatus.ACCEPTED);
+            throws ApplicationException {
+        companyService.deleteCompany(companyId);
+        return new ResponseEntity <Integer>(companyId, HttpStatus.ACCEPTED);
     }
-    
-    
+
+
     /**
      * Update a company in database
      * 
      * @param Company object
      */
     @RequestMapping(method=RequestMethod.PUT,value="/{companyId}")
-	public ResponseEntity <Company> updateCompany(@PathVariable(name="companyId", value = "companyId") Integer companyId, 
-			@Valid @RequestBody Company company) throws ApplicationException {
-    	company.setCompanyId(companyId);
-    	companyService.updateCompany(company);
+    public ResponseEntity <Company> updateCompany(@PathVariable(name="companyId", value = "companyId") Integer companyId, 
+            @Valid @RequestBody Company company) throws ApplicationException {
+        company.setCompanyId(companyId);
+        companyService.updateCompany(company);
         return new ResponseEntity<Company> (company, HttpStatus.OK);
 
-	}
-    
-    
+    }
+
+
     /**
      * Add a company in database
      * 
      * @param Company object
      */
     @RequestMapping(method=RequestMethod.POST)
-   	public ResponseEntity<Company> addCompany(@Valid @RequestBody Company company) throws ApplicationException {
-    	companyService.addCompany(company);
+    public ResponseEntity<Company> addCompany(@Valid @RequestBody Company company) throws ApplicationException {
+        companyService.addCompany(company);
         return new ResponseEntity<Company>(company, HttpStatus.CREATED);
-   	}
-    
+    }
+
     /**
      * Bulk import company records from a given CSV file.
      * 
@@ -143,14 +141,14 @@ public class CompanyController {
      */
     @RequestMapping(method=RequestMethod.POST,  value="/bulk", produces="application/csv")
     public ResponseEntity <InputStreamResource> bulkUploadFile(@RequestParam(value="file", required=false) MultipartFile file, 
-    		@RequestParam(value = "brokerId", required = false, 
-            			  defaultValue = ApplicationConstants.DEFAULT_BROKERID_FOR_FILE_IMPORT) Integer brokerId )
-            throws ApplicationException, IOException {
-     
-    	logger.info("##### ######### COMPANY IMPORT BEGINS ######### #####");
+            @RequestParam(value = "brokerId", required = false, 
+            defaultValue = ApplicationConstants.DEFAULT_BROKERID_FOR_FILE_IMPORT) Integer brokerId )
+                    throws ApplicationException, IOException {
+
+        logger.info("##### ######### COMPANY IMPORT BEGINS ######### #####");
         FileImportResult fileImportResult = companyService.bulkUpload(file, brokerId);
         logger.debug("************** COMPANY IMPORT ENDS *****************");
-        
+
         // Set the attachment header & set up response to return a CSV file with result and erroneous records
         // This response CSV file can be used by users to resubmit records after fixing them.
         HttpHeaders headers = new HttpHeaders();
@@ -161,5 +159,5 @@ public class CompanyController {
         return ResponseEntity.ok().headers(headers)
                 .body(new InputStreamResource(new FileInputStream(responseFile)));
     }
-   
+
 }

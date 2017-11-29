@@ -104,12 +104,12 @@ public class CompanyService  extends CommonService {
      */
     public Company getCompany(Integer companyId) {
         Company company =  companyRepository.findOne(companyId);
-        
+
         if (null == company) {
             throw ApplicationException.createEntityNotFoundError(APIErrorCodes.ENTITY_NOT_FOUND, "company", "companyId="+ companyId);
         }
 
-    	return company;
+        return company;
     }
 
     /**
@@ -128,8 +128,8 @@ public class CompanyService  extends CommonService {
      * @throws ApplicationException 
      */
     public Company updateCompany(Company company) throws ApplicationException  {
-    	Integer companyId = company.getCompanyId();
-    	
+        Integer companyId = company.getCompanyId();
+
         if (null == companyRepository.findOne(companyId)) {
             throw ApplicationException.createEntityNotFoundError(APIErrorCodes.ENTITY_NOT_FOUND, "company", "companyId="+companyId);
         }
@@ -180,7 +180,7 @@ public class CompanyService  extends CommonService {
      * @throws ApplicationException
      */
     private FileImportResult processRecords (List<String> records, 
-                                                 Company broker) throws ApplicationException {
+            Company broker) throws ApplicationException {
 
         FileImportResult fileImportResult = new FileImportResult();
 
@@ -224,7 +224,7 @@ public class CompanyService  extends CommonService {
             String[] rowColValues = record.split(COMMA_SEPARATOR);
             String companyName = rowColValues[0].trim(); //TODO Fix this hardcoding.
             companyNames.add(companyName);
-            
+
 
             //Check to validate duplicate record
             if (checkDuplicate(recCount, record, fileImportResult)) {
@@ -232,10 +232,10 @@ public class CompanyService  extends CommonService {
             }
 
             populateAndSaveToDB(record, companyFileHeaderColumnMap,
-                                locationFileHeaderColumnMap,
-                                headerIndexMap,
-                                fileImportResult,
-                                recCount);
+                    locationFileHeaderColumnMap,
+                    headerIndexMap,
+                    fileImportResult,
+                    recCount);
         }
 
         logger.debug("Total Number of Records: " + fileImportResult.getTotalRecords());
@@ -252,7 +252,7 @@ public class CompanyService  extends CommonService {
         return fileImportResult;
     }
 
-    
+
     /**
      * Populate values to columns and insert record into DB
      * 
@@ -264,12 +264,12 @@ public class CompanyService  extends CommonService {
      * @param recCount
      */
     public void populateAndSaveToDB(String record, 
-                                    Map<String, String> companyFileHeaderColumnMap, 
-                                    Map<String, String> locationFileHeaderColumnMap, 
-                                    Map<String, Integer> headerIndexMap,
-                                    FileImportResult fileImportResult, 
-                                    int recCount) {
-        
+            Map<String, String> companyFileHeaderColumnMap, 
+            Map<String, String> locationFileHeaderColumnMap, 
+            Map<String, Integer> headerIndexMap,
+            FileImportResult fileImportResult, 
+            int recCount) {
+
         List<Object> companyColumnsValues = null;
         List<Object> locationColumnsValues = null;
 
@@ -326,13 +326,13 @@ public class CompanyService  extends CommonService {
             FileImportResult fileImportResult) {
 
         String[] rowColValues = record.split(COMMA_SEPARATOR);
-        
+
         String companyName = rowColValues[0].trim(); //TODO Fix this hardcoding.
 
         String custom1Value = null; 
 
         if (rowColValues.length > 11) {
-           custom1Value = rowColValues[11].trim();
+            custom1Value = rowColValues[11].trim();
         }
 
         boolean isDuplicate = false;
@@ -352,7 +352,7 @@ public class CompanyService  extends CommonService {
             if (isDuplicate) {
                 String causeDuplicateName = getMessageFromResourceBundle(resourceHandler, APIErrorCodes.DUPLICATE_RECORD);
                 causeDuplicateName = (!isSpecial ? causeDuplicateName + " - " + companyName : 
-                                causeDuplicateName + " - " + companyName + ", " + custom1Value);
+                    causeDuplicateName + " - " + companyName + ", " + custom1Value);
                 fileImportResult.addFailedRecord(recCount++ , record, causeDuplicateName,
                         getMessageFromResourceBundle(resourceHandler, APIErrorCodes.SKIPPED_RECORD));
             } 
@@ -360,7 +360,7 @@ public class CompanyService  extends CommonService {
 
         return isDuplicate;
     }
-    
+
     /**
      * Get a map of Company columns
      * 
@@ -368,11 +368,11 @@ public class CompanyService  extends CommonService {
      * @return
      */
     public Map<String, String> getCompanyColumnHeaderMap(int companyId) {
-        
+
         Map<String, String> companyColumnHeaderMap = FileUploadEnum.COMPANY.prepareColumnHeaderMap();
-        
+
         Map<String, String> customColumnHeaderMap = getCustomFieldsMap(companyId);//customColumnsLookUpId - gets custom fields from database
-        
+
         if (customColumnHeaderMap != null) {
             companyColumnHeaderMap.putAll(customColumnHeaderMap);
         }

@@ -15,7 +15,7 @@ import com.thinkhr.external.api.exception.MessageResourceHandler;
  */
 public class APIMessageUtil {
 
-	/**
+    /**
      * Prepare error message for the apiErrorCode from resource bundle
      * It will replace all dynamic arguments from error message by paramList values 
      * E.g. 
@@ -43,38 +43,38 @@ public class APIMessageUtil {
         String errorMessage = resourceHandler.get(messageKey);
         return replaceParameters(errorMessage, paramList);
     }
-   
-	/**
-	 * Method to replace dynamic parameters from given message with passed parameter values.
-	 * 
-	 * @param message
-	 * @param paramList
-	 * @return
-	 */
-	public static String replaceParameters(String message, String... paramList) {
-		if(paramList != null && paramList.length > 0) {
-          Pattern pattern = Pattern.compile("\\{(\\d+)([^\\}.]*)\\.\\.(n?)(\\d*)\\}", Pattern.DOTALL);
-          Matcher matcher = pattern.matcher(message);
-          if ( matcher.find() ) {
-            int offset = Integer.parseInt(matcher.group(1));
-            String sep = matcher.group(2);
-            int length = ("n".equals(matcher.group(3))?paramList.length:Math.min(paramList.length,Integer.parseInt(matcher.group(4))-offset+1));
-            StringBuilder sb = new StringBuilder();
-            for (int i=offset; i<length+offset; i++) {
-              if (i > offset) {
-                sb.append(sep);
-              }
-              sb.append("{").append(i).append("}");
+
+    /**
+     * Method to replace dynamic parameters from given message with passed parameter values.
+     * 
+     * @param message
+     * @param paramList
+     * @return
+     */
+    public static String replaceParameters(String message, String... paramList) {
+        if(paramList != null && paramList.length > 0) {
+            Pattern pattern = Pattern.compile("\\{(\\d+)([^\\}.]*)\\.\\.(n?)(\\d*)\\}", Pattern.DOTALL);
+            Matcher matcher = pattern.matcher(message);
+            if ( matcher.find() ) {
+                int offset = Integer.parseInt(matcher.group(1));
+                String sep = matcher.group(2);
+                int length = ("n".equals(matcher.group(3))?paramList.length:Math.min(paramList.length,Integer.parseInt(matcher.group(4))-offset+1));
+                StringBuilder sb = new StringBuilder();
+                for (int i=offset; i<length+offset; i++) {
+                    if (i > offset) {
+                        sb.append(sep);
+                    }
+                    sb.append("{").append(i).append("}");
+                }
+                message = matcher.replaceAll(sb.toString());
             }
-            message = matcher.replaceAll(sb.toString());
-          }
-          //It will replace "{0}, {1},{2}... {n}" number of parameter from error message
-          for (int i=0; i<paramList.length; i++) {
-            String param = paramList[i];
-            message = message.replace("{"+i+"}", param);
-          }
+            //It will replace "{0}, {1},{2}... {n}" number of parameter from error message
+            for (int i=0; i<paramList.length; i++) {
+                String param = paramList[i];
+                message = message.replace("{"+i+"}", param);
+            }
         }
-        
+
         return message;
-	}
+    }
 }

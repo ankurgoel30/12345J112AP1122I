@@ -60,7 +60,7 @@ public class FileImportValidator {
      * @param fileName
      */
     public static void validateFileContents(List<String> fileContents, String fileName) {
-        
+
         if (fileContents == null || fileContents.isEmpty() || fileContents.size() < 2) {
             throw ApplicationException.createFileImportError(APIErrorCodes.NO_RECORDS_FOUND_FOR_IMPORT, fileName);
         }
@@ -71,7 +71,7 @@ public class FileImportValidator {
         }
 
         String headerLine = fileContents.get(0);
-        
+
         // Validate for missing headers. File must container all expected columns, if not, return from here.
         String[] headers = headerLine.split(",");
 

@@ -16,10 +16,10 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public class FileDataRepository {
-    
+
     @Autowired
     JdbcTemplate jdbcTemplate;
-    
+
     /**
      * Saves company & location records in database
      * 
@@ -28,16 +28,16 @@ public class FileDataRepository {
      * @param locationColumns
      * @param locationColumnValues
      */
-  
+
     public void saveCompanyRecord(List<String> companyColumns, List<Object> companyColumnsValues, List<String> locationColumns,
             List<Object> locationColumnValues) {
-        
+
         String insertClientSql = buildCompanyInsertQuery(companyColumns);
 
         String insertLocationSql = buildLocationInsertQuery(locationColumns);
 
         KeyHolder keyHolder = new GeneratedKeyHolder();
-        
+
         companyColumnsValues.addAll(companyDefaultColumnsValuesForNewRecord());
         jdbcTemplate.update(buildPreparedStatementCreator(insertClientSql.toString(), companyColumnsValues), keyHolder);
 

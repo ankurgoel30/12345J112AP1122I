@@ -32,7 +32,7 @@ public enum FileUploadEnum {
     private String header;
     private String column;
     private String resource;
-    
+
     /**
      * Constructor
      * 
@@ -41,7 +41,7 @@ public enum FileUploadEnum {
     private FileUploadEnum(String resource) {
         this.resource = resource;
     }
-    
+
     /**
      * Constructor 
      * 
@@ -96,8 +96,8 @@ public enum FileUploadEnum {
     public void setResource(String resource) {
         this.resource = resource;
     }
-    
-    
+
+
     /**
      * Construct map
      * 
@@ -115,8 +115,8 @@ public enum FileUploadEnum {
         }
         return columnToHeaderMap;
     }
-    
-    
 
-   
+
+
+
 }

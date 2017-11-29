@@ -39,7 +39,7 @@ import com.thinkhr.external.api.services.OffsetPageRequest;
  */
 public class EntitySearchUtil {
 
-	private static Logger logger = LoggerFactory.getLogger(EntitySearchUtil.class);
+    private static Logger logger = LoggerFactory.getLogger(EntitySearchUtil.class);
 
     /**
      * Get Pageable instance
@@ -49,27 +49,27 @@ public class EntitySearchUtil {
      * @return
      */
     public static Pageable getPageable(Integer offset, Integer limit, String sortedBy, String defaultSortedBy) {
-    	
-    	OffsetPageRequest pageable = null;
-    	
-    	offset = offset == null ? DEFAULT_OFFSET : offset;
-    	limit = limit == null ? DEFAULT_LIMIT : limit;
-    	
-    	sortedBy = StringUtils.isBlank(sortedBy) ? defaultSortedBy : sortedBy.trim();
 
-    	Sort.Direction sortDirection = getSortDirection(sortedBy);
-    	
-		sortedBy = extractSortDirection(sortedBy, sortDirection); // Extracted out + or - character from sortBy string
+        OffsetPageRequest pageable = null;
 
-		Sort sort = new Sort(sortDirection, sortedBy);
-		
-    	pageable = new OffsetPageRequest(offset/limit, limit, sort);
-    	
-    	pageable.setOffset(offset);
-    	
-    	return pageable;
+        offset = offset == null ? DEFAULT_OFFSET : offset;
+        limit = limit == null ? DEFAULT_LIMIT : limit;
+
+        sortedBy = StringUtils.isBlank(sortedBy) ? defaultSortedBy : sortedBy.trim();
+
+        Sort.Direction sortDirection = getSortDirection(sortedBy);
+
+        sortedBy = extractSortDirection(sortedBy, sortDirection); // Extracted out + or - character from sortBy string
+
+        Sort sort = new Sort(sortDirection, sortedBy);
+
+        pageable = new OffsetPageRequest(offset/limit, limit, sort);
+
+        pageable.setOffset(offset);
+
+        return pageable;
     }
-    
+
     /**
      * It will extract + or - character those stands for sort direction from column field name
      * @param sortedBy
@@ -77,166 +77,166 @@ public class EntitySearchUtil {
      * @return
      */
     public static String extractSortDirection(String sortedBy, Sort.Direction sortDirection) {
-    	String directionIndicator = sortedBy.substring(0,1);
-		if(directionIndicator.equals(ASCENDING) || directionIndicator.equals(DESENDING) ) {
-			sortedBy = sortedBy.substring(1);
-		} 
-		
-		return sortedBy.trim();
-	}
-    
+        String directionIndicator = sortedBy.substring(0,1);
+        if(directionIndicator.equals(ASCENDING) || directionIndicator.equals(DESENDING) ) {
+            sortedBy = sortedBy.substring(1);
+        } 
+
+        return sortedBy.trim();
+    }
+
     /**
      * Return formatted string to display like +-fieldName will be formatted as 
      * 
      * fieldName ASC or fieldName DESC
      */
     public static String getFormattedString(String sortBy) {
-    	if (StringUtils.isBlank(sortBy)) {
-    		return sortBy;
-    	}
-    	Sort.Direction sortDirection = getSortDirection(sortBy);
-    	String sortedBy = extractSortDirection(sortBy, sortDirection);
-    	
-    	return sortedBy + " " + sortDirection.name();
+        if (StringUtils.isBlank(sortBy)) {
+            return sortBy;
+        }
+        Sort.Direction sortDirection = getSortDirection(sortBy);
+        String sortedBy = extractSortDirection(sortBy, sortDirection);
+
+        return sortedBy + " " + sortDirection.name();
     }
 
-	/**
+    /**
      * Get the first character out from sortedBy value. 
      * like +companyName
      * @param sortedBy
      * @return
      */
     public static Direction getSortDirection(String sortedBy) {
-    	String sortDirection =  sortedBy.substring(0, 1);
-    	return DESENDING.equalsIgnoreCase(sortDirection) ? Direction.DESC : Direction.ASC;
-	}
+        String sortDirection =  sortedBy.substring(0, 1);
+        return DESENDING.equalsIgnoreCase(sortDirection) ? Direction.DESC : Direction.ASC;
+    }
 
     /**
      * @return
      */
     public static Set<String> getSortAndLimitRequestParams() {
-    	//TODO: To externalize them
-    	String requestParams[] = {"offset", "limit", "sort", "searchSpec"};
-    	return new HashSet<String>(Arrays.asList(requestParams));
+        //TODO: To externalize them
+        String requestParams[] = {"offset", "limit", "sort", "searchSpec"};
+        return new HashSet<String>(Arrays.asList(requestParams));
     }
-    
-	/**
-	 * To validate given Class has field with fieldName or not
-	 * @param <T>
-	 * 
-	 * @param kclass
-	 * @param fieldName
-	 * @return
-	 * @throws SecurityException 
-	 * @throws NoSuchFieldException 
-	 */
-	public static <T> boolean classHasField(Class<T> kclass, String fieldName) {
-		try {
-			Field field = kclass.getDeclaredField(fieldName);
-			if (field == null) {
-				return false;
-			}
-		} catch(NoSuchFieldException | SecurityException ex) {
-			return false;
-		}
 
-		return true;
-	}
+    /**
+     * To validate given Class has field with fieldName or not
+     * @param <T>
+     * 
+     * @param kclass
+     * @param fieldName
+     * @return
+     * @throws SecurityException 
+     * @throws NoSuchFieldException 
+     */
+    public static <T> boolean classHasField(Class<T> kclass, String fieldName) {
+        try {
+            Field field = kclass.getDeclaredField(fieldName);
+            if (field == null) {
+                return false;
+            }
+        } catch(NoSuchFieldException | SecurityException ex) {
+            return false;
+        }
 
-	/**
-	 * To check type of field for given parameters and validate it is java.lang.String or not
-	 * 
-	 * @param <T>
-	 * @param kclass
-	 * @param fieldName
-	 * @param fieldType
-	 * @return
-	 */
-	public static <T> boolean isFieldOfType(Class<T> kclass, String fieldName,  Class<?> fieldType) {
-		Field field = null;
-		try {
-			field = kclass.getDeclaredField(fieldName);
-		} catch(NoSuchFieldException | SecurityException ex) {
-			return false;
-		}
-		if (field.getType().isAssignableFrom(fieldType)) {
-			return true;
-		}
+        return true;
+    }
 
-		return false;
-	}
-	
-	/**
-	 * To check type of field for given parameters and validate it is java.lang.String or not
-	 * 
-	 * @param <T>
-	 * @param kclass
-	 * @param fieldName
-	 * @return
-	 */
-	public static <T> boolean isStringField(Class<T> kclass, String fieldName) {
-		return isFieldOfType(kclass, fieldName, String.class);
-	}
+    /**
+     * To check type of field for given parameters and validate it is java.lang.String or not
+     * 
+     * @param <T>
+     * @param kclass
+     * @param fieldName
+     * @param fieldType
+     * @return
+     */
+    public static <T> boolean isFieldOfType(Class<T> kclass, String fieldName,  Class<?> fieldType) {
+        Field field = null;
+        try {
+            field = kclass.getDeclaredField(fieldName);
+        } catch(NoSuchFieldException | SecurityException ex) {
+            return false;
+        }
+        if (field.getType().isAssignableFrom(fieldType)) {
+            return true;
+        }
 
-	/**
-	 * To check type of field for given parameters and validate it is java.util.Date or not
-	 * 
-	 * @param <T>
-	 * @param kclass
-	 * @param fieldName
-	 * @return
-	 */
-	public static <T> boolean isDateField(Class<T> kclass, String fieldName) {
-		return isFieldOfType(kclass, fieldName, Date.class);
-	}
+        return false;
+    }
 
-	/**
-	 * Get the date for a given string
-	 * @param dateStr
-	 * @param key
-	 * @return
-	 * @throws ApplicationException 
-	 */
-	public static Date convertToDate(String value, String key) throws ApplicationException {
+    /**
+     * To check type of field for given parameters and validate it is java.lang.String or not
+     * 
+     * @param <T>
+     * @param kclass
+     * @param fieldName
+     * @return
+     */
+    public static <T> boolean isStringField(Class<T> kclass, String fieldName) {
+        return isFieldOfType(kclass, fieldName, String.class);
+    }
 
-		SimpleDateFormat sdf = new SimpleDateFormat(VALID_FORMAT_YYYY_MM_DD);
-		sdf.setLenient(false);
- 		try {
- 			return sdf.parse(value);
- 		} catch (ParseException e) {
- 			throw ApplicationException.createBadRequest(APIErrorCodes.INVALID_DATE_FORMAT, key, value);
-		} catch (Exception e) {
-			throw ApplicationException.createBadRequest(APIErrorCodes.INVALID_DATE_FORMAT, key, value);
-		}
-	}
+    /**
+     * To check type of field for given parameters and validate it is java.util.Date or not
+     * 
+     * @param <T>
+     * @param kclass
+     * @param fieldName
+     * @return
+     */
+    public static <T> boolean isDateField(Class<T> kclass, String fieldName) {
+        return isFieldOfType(kclass, fieldName, Date.class);
+    }
 
-	/**
-	 * To filter request parameters on field Name
-	 * @param <T>
-	 * 
-	 * @param allRequestParams
-	 * @param kclass
-	 * @return 
-	 */
-	public static <T> Map<String, String> extractParametersForFilterRecords(Map<String, String> allRequestParams,
-			Class<T> kclass) throws ApplicationException {
-		
-		    Set<String> excludedParams = getSortAndLimitRequestParams();
-		    
-		    Map<String, String> filteredParameters = new HashMap<String, String>();
-		    
-		    for(Entry<String, String> entry : allRequestParams.entrySet()) { 
-		    	if (excludedParams.contains(entry.getKey())) {
-		    		continue;
-		    	} else if (!classHasField(kclass, entry.getKey())) {
-		    		throw ApplicationException.createBadRequest(APIErrorCodes.REQUEST_PARAM_INVALID, entry.getKey(), kclass.getName());
-		    	} 
-		    	filteredParameters.put(entry.getKey(), entry.getValue());
-		    }
-		    
-		    return filteredParameters;
-	}
-	
+    /**
+     * Get the date for a given string
+     * @param dateStr
+     * @param key
+     * @return
+     * @throws ApplicationException 
+     */
+    public static Date convertToDate(String value, String key) throws ApplicationException {
+
+        SimpleDateFormat sdf = new SimpleDateFormat(VALID_FORMAT_YYYY_MM_DD);
+        sdf.setLenient(false);
+        try {
+            return sdf.parse(value);
+        } catch (ParseException e) {
+            throw ApplicationException.createBadRequest(APIErrorCodes.INVALID_DATE_FORMAT, key, value);
+        } catch (Exception e) {
+            throw ApplicationException.createBadRequest(APIErrorCodes.INVALID_DATE_FORMAT, key, value);
+        }
+    }
+
+    /**
+     * To filter request parameters on field Name
+     * @param <T>
+     * 
+     * @param allRequestParams
+     * @param kclass
+     * @return 
+     */
+    public static <T> Map<String, String> extractParametersForFilterRecords(Map<String, String> allRequestParams,
+            Class<T> kclass) throws ApplicationException {
+
+        Set<String> excludedParams = getSortAndLimitRequestParams();
+
+        Map<String, String> filteredParameters = new HashMap<String, String>();
+
+        for(Entry<String, String> entry : allRequestParams.entrySet()) { 
+            if (excludedParams.contains(entry.getKey())) {
+                continue;
+            } else if (!classHasField(kclass, entry.getKey())) {
+                throw ApplicationException.createBadRequest(APIErrorCodes.REQUEST_PARAM_INVALID, entry.getKey(), kclass.getName());
+            } 
+            filteredParameters.put(entry.getKey(), entry.getValue());
+        }
+
+        return filteredParameters;
+    }
+
     /**
      * Create Entity Search Specification
      * It will give priority over requestParameters on searchSpec
@@ -247,25 +247,25 @@ public class EntitySearchUtil {
      * @throws ApplicationException 
      */
     @SuppressWarnings({ "unchecked", "rawtypes" })
-	public static <T> Specification<T> getEntitySearchSpecification(String searchSpec,
-    		Map<String, String> requestParameters, Class<T> kclass, SearchableEntity entity) throws ApplicationException {
-    	
-    	//To get any other requestParameter like Company's fieldName to filter record on filterName with this case we will ignore searchSpec.
-    	if (requestParameters != null) {
-    		Map<String, String> requestParametersForFilterRecords = EntitySearchUtil.extractParametersForFilterRecords(requestParameters, kclass);
-    		if (requestParametersForFilterRecords != null && !requestParametersForFilterRecords.isEmpty()) {
-    			return new EntitySearchSpecification(requestParametersForFilterRecords, entity);
-    		} 
-    	}
+    public static <T> Specification<T> getEntitySearchSpecification(String searchSpec,
+            Map<String, String> requestParameters, Class<T> kclass, SearchableEntity entity) throws ApplicationException {
 
-    	if (StringUtils.isNotBlank(searchSpec)) {
-    		if(logger.isDebugEnabled()) {
-				logger.debug("Applying searchSpec filter on records " + searchSpec);
-			}
-    		return new EntitySearchSpecification (searchSpec, entity);
-    	}
-    	
-    	return null;
+        //To get any other requestParameter like Company's fieldName to filter record on filterName with this case we will ignore searchSpec.
+        if (requestParameters != null) {
+            Map<String, String> requestParametersForFilterRecords = EntitySearchUtil.extractParametersForFilterRecords(requestParameters, kclass);
+            if (requestParametersForFilterRecords != null && !requestParametersForFilterRecords.isEmpty()) {
+                return new EntitySearchSpecification(requestParametersForFilterRecords, entity);
+            } 
+        }
+
+        if (StringUtils.isNotBlank(searchSpec)) {
+            if(logger.isDebugEnabled()) {
+                logger.debug("Applying searchSpec filter on records " + searchSpec);
+            }
+            return new EntitySearchSpecification (searchSpec, entity);
+        }
+
+        return null;
     }
 
 

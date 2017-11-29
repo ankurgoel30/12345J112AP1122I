@@ -13,14 +13,14 @@ import org.springframework.stereotype.Service;
 import com.thinkhr.external.api.response.HealthCheckResponse;
 
 /**
-*
-* Provides a collection of all services for system health check
-*
-* @author Sudhakar Kaki
-* @Since 2017-11-18
-*
-* 
-*/
+ *
+ * Provides a collection of all services for system health check
+ *
+ * @author Sudhakar Kaki
+ * @Since 2017-11-18
+ *
+ * 
+ */
 
 @Service
 public class HealthCheckService  {
@@ -31,14 +31,14 @@ public class HealthCheckService  {
 
     private ApplicationContext appContext;
 
-   /**
+    /**
      * Provide System Health checks
      * 
      * @param companyId , default to ThinkHR
      * @return HealthCheckResponse object
      */
     public HealthCheckResponse getHeartBeat(Integer companyId) {
-		HealthCheckResponse hr = new HealthCheckResponse();
+        HealthCheckResponse hr = new HealthCheckResponse();
         hr.setVersion(version);
         try {
             // See if we have a database connection
@@ -48,10 +48,10 @@ public class HealthCheckService  {
             e.printStackTrace();
             hr.setStatus(0);
         }
-    	return hr;
+        return hr;
     }
 
     public void setAppContext(ApplicationContext appContext) {
         this.appContext = appContext;
     }
- }
+}

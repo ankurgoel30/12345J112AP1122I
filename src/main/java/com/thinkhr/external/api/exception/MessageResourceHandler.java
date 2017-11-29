@@ -26,7 +26,7 @@ public class MessageResourceHandler {
     private MessageSource messageSource;
 
     private MessageSourceAccessor accessor;
-    
+
     /**
      * TODO
      */
@@ -34,18 +34,18 @@ public class MessageResourceHandler {
     private void init() {
         accessor = new MessageSourceAccessor(messageSource, Locale.ENGLISH);
     }
-    
+
     /**
      * TODO
      * @param code
      * @return
      */
     public String get(String code) {
-    	try {
-        return accessor.getMessage(code);
-    	} catch (NoSuchMessageException ex ) {
-    		return code; //When message is not found for given key, then return key as message instead of breaking.
-    	}
+        try {
+            return accessor.getMessage(code);
+        } catch (NoSuchMessageException ex ) {
+            return code; //When message is not found for given key, then return key as message instead of breaking.
+        }
     }
 
 }
