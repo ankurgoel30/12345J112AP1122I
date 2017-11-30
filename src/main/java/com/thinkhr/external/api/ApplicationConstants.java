@@ -8,8 +8,8 @@ package com.thinkhr.external.api;
  *
  */
 public class ApplicationConstants {
-	
-	//GENERIC CONSTANTS
+
+    //GENERIC CONSTANTS
     public static final int DEFAULT_OFFSET = 0;
     public static final int DEFAULT_LIMIT = 50;
     public static final String DESENDING = "-";
@@ -29,15 +29,15 @@ public class ApplicationConstants {
     public static final String SPACE = " ";
     public static final String DEFAULT_BROKERID_FOR_FILE_IMPORT = "187624";
     public static final String FILE_IMPORT_RESULT_MSG = "FILE_IMPORT_RESULT";
-    
+
     public static final String COMMA_SEPARATOR = ",";
     public static final String QUERY_SEPARATOR = "?";
     public static final String FAILED_COLUMN_TO_IMPORT = "FAILURE_REASON";
-    
-	//Paychex has special treatment for determining duplicate records
+
+    //Paychex has special treatment for determining duplicate records
     public static final String SPECIAL_CASE_FOR_DUPLICATE = "Paychex";
     public static final String NEW_LINE = "\n";
 
-    
+
 
 }

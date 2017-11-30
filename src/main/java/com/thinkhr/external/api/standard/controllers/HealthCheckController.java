@@ -27,9 +27,9 @@ import com.thinkhr.external.api.services.HealthCheckService;
 @RestController
 @RequestMapping(path="/v1/healthcheck")
 public class HealthCheckController {
-	
+
     @Autowired
-	HealthCheckService healthCheckService;
+    HealthCheckService healthCheckService;
 
     @Autowired
     private ApplicationContext appContext;
@@ -44,9 +44,9 @@ public class HealthCheckController {
      */
     @RequestMapping(method=RequestMethod.GET, value="/{companyId}")
     public ResponseEntity checkHeartBeat(@PathVariable(name="companyId", value = "companyId") Integer companyId)
-    		throws ApplicationException {
+            throws ApplicationException {
         healthCheckService.setAppContext(appContext);
-		HealthCheckResponse hr  = healthCheckService.getHeartBeat(companyId);
+        HealthCheckResponse hr  = healthCheckService.getHeartBeat(companyId);
         return new ResponseEntity<HealthCheckResponse> (hr, HttpStatus.OK);
     }
 }

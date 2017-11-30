@@ -24,6 +24,7 @@ public class FileImportResult {
     private int totalRecords;
     private int numSuccessRecords;
     private int numFailedRecords;
+    private int numBlankRecords;
 
     private String headerLine; // For storing header to be used for creating responseFile
 
@@ -37,12 +38,16 @@ public class FileImportResult {
     public void increamentFailedRecords() {
         numFailedRecords++;
     }
+    
+    public void increamentBlankRecords() {
+        numBlankRecords++;
+    }
 
     public void addFailedRecord(int index, String record, String failureCause, String info) {
         increamentFailedRecords();
         this.getFailedRecords().add(new FailedRecord(index, record, failureCause, info));
     }
-
+    
     @Data
     @AllArgsConstructor
     public class FailedRecord {
@@ -51,7 +56,7 @@ public class FileImportResult {
         String failureCause;
         String info;//additional information
     }
-    
+
     /**
      * Print report
      * 
@@ -64,7 +69,7 @@ public class FileImportResult {
     @JsonIgnore
     public String printReport(String jobId, String reportTitle, String failureTitle, String failureCause) {
         StringBuffer stb = new StringBuffer();
-        stb.append("Job Id : " + jobId) 
+        stb.append("Job Id : " + jobId)
         .append(NEW_LINE)
         .append(reportTitle)
         .append(NEW_LINE);
@@ -78,11 +83,11 @@ public class FileImportResult {
             .append(failureCause)
             .append(NEW_LINE);
         }
-        
+
         for (FileImportResult.FailedRecord failedRecord : getFailedRecords()) {
             stb.append(failedRecord.getRecord()).append(COMMA_SEPARATOR).append(failedRecord.getFailureCause()).append(NEW_LINE);
         }
-        
+
         return stb.toString();
     }
 

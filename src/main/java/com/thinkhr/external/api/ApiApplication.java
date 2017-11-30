@@ -16,27 +16,27 @@ import org.springframework.context.support.ResourceBundleMessageSource;
 
 @SpringBootApplication
 public class ApiApplication {
-	
-	/**
-	 * Main method for spring application
-	 * 
-	 * @param args command line arguments passed to app
-	 * 
-	 */
-	public static void main(String[] args) {
-		SpringApplication.run(ApiApplication.class, args);
-	}
-	
-	/**
-	 * Facilitates messageSoruce
-	 * 
-	 * @return MessageSource
-	 */
-	@Bean
-	public MessageSource messageSource () {
-		ResourceBundleMessageSource messageSource = new ResourceBundleMessageSource();
-		messageSource.setBasename("messages");
-		return messageSource;
-	}
-	
+
+    /**
+     * Main method for spring application
+     * 
+     * @param args command line arguments passed to app
+     * 
+     */
+    public static void main(String[] args) {
+        SpringApplication.run(ApiApplication.class, args);
+    }
+
+    /**
+     * Facilitates messageSoruce
+     * 
+     * @return MessageSource
+     */
+    @Bean
+    public MessageSource messageSource () {
+        ResourceBundleMessageSource messageSource = new ResourceBundleMessageSource();
+        messageSource.setBasename("messages");
+        return messageSource;
+    }
+
 }

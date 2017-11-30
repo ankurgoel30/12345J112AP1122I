@@ -25,22 +25,22 @@ import lombok.Data;
 @JsonSerialize(using=APIResponseSerializer.class)
 public class APIResponse {
 
-	private String status;
-	private String code;
-	private String limit;
-	private String offset;
-	private String sort;
-	private String totalRecords;
-	private String message;
-	private String jobId;
+    private String status;
+    private String code;
+    private String limit;
+    private String offset;
+    private String sort;
+    private String totalRecords;
+    private String message;
+    private String jobId;
 
-	
-	/*
-	 * TODO: Replace with generic attribute like list, objects
-	 */
-	private List list;
-	private SearchableEntity searchEntity; 
-	private FileImportResult fileImportResult;
-	
-	
+
+    /*
+     * TODO: Replace with generic attribute like list, objects
+     */
+    private List list;
+    private SearchableEntity searchEntity; 
+    private FileImportResult fileImportResult;
+
+
 }
