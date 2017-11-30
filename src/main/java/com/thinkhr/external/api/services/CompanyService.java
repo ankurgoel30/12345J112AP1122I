@@ -270,6 +270,7 @@ public class CompanyService  extends CommonService {
             locationColumnsValues = populateColumnValues(record, 
                     locationFileHeaderColumnMap,
                     headerIndexMap);
+            
 
         } catch (ArrayIndexOutOfBoundsException ex) {
             fileImportResult.addFailedRecord(recCount++ , record, 
@@ -324,8 +325,8 @@ public class CompanyService  extends CommonService {
 
         boolean isDuplicate = false;
 
-        boolean isSpecial = (brokerId.intValue() == ApplicationConstants.SPECIAL_CASE_BROKER1.intValue() ||
-                             brokerId.intValue() == ApplicationConstants.SPECIAL_CASE_BROKER2.intValue()); 
+        boolean isSpecial = (brokerId.equals(ApplicationConstants.SPECIAL_CASE_BROKER1) ||
+                             brokerId.equals(ApplicationConstants.SPECIAL_CASE_BROKER2)); 
         
         //find matching company by given company name and broker id
         Company companyFromDB = companyRepository.findFirstByCompanyNameAndBroker(companyName, brokerId);
