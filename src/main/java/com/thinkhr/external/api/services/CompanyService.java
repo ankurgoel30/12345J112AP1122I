@@ -206,16 +206,12 @@ public class CompanyService  extends CommonService {
         int recCount = 0;
 
         for (String record : records ) {
-
-            //Check to validate empty record
-            if (StringUtils.isBlank(record)) {
-                fileImportResult.addFailedRecord(recCount++ , record, 
-                        getMessageFromResourceBundle(resourceHandler, APIErrorCodes.BLANK_RECORD),
-                        getMessageFromResourceBundle(resourceHandler, APIErrorCodes.SKIPPED_RECORD));
-
-                continue;
+            
+            if (StringUtils.isEmpty(StringUtils.deleteWhitespace(record).replaceAll(",", ""))) {
+                fileImportResult.increamentBlankRecords();
+                continue; //skip any fully blank line 
             }
-
+          
             //Check to validate duplicate record
             if (checkDuplicate(recCount, record, fileImportResult, broker.getCompanyId())) {
                 continue;
@@ -231,7 +227,8 @@ public class CompanyService  extends CommonService {
         logger.debug("Total Number of Records: " + fileImportResult.getTotalRecords());
         logger.debug("Total Number of Successful Records: " + fileImportResult.getNumSuccessRecords());
         logger.debug("Total Number of Failure Records: " + fileImportResult.getNumFailedRecords());
-
+        logger.debug("Total Number of Blank Records: " + fileImportResult.getNumBlankRecords());
+        
         if (fileImportResult.getNumFailedRecords() > 0) {
             logger.debug("List of Failure Records");
             for (FileImportResult.FailedRecord failedRecord : fileImportResult.getFailedRecords()) {
