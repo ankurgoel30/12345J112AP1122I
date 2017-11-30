@@ -67,15 +67,7 @@ public class FileImportUtil {
         BufferedReader br = null;
         try {
             br = new BufferedReader(new InputStreamReader(file.getInputStream()));
-            String line;
-            List<String> result = new ArrayList<>();
-            while ((line = br.readLine()) != null) {
-                if (StringUtils.isEmpty(StringUtils.deleteWhitespace(line).replaceAll(",", ""))) {
-                    continue; //skip any fully blank line 
-                }
-                result.add(line);
-            }
-            return result;
+            return br.lines().collect(Collectors.toList());
         } catch (IOException ioe) {
             throw ApplicationException.createBadRequest(APIErrorCodes.FILE_READ_ERROR, file.getName());
         }
@@ -126,7 +118,7 @@ public class FileImportUtil {
 
             String msg = APIMessageUtil.getMessageFromResourceBundle(resourceHandler, FILE_IMPORT_RESULT_MSG,
                     String.valueOf(fileImportResult.getTotalRecords()), String.valueOf(fileImportResult.getNumSuccessRecords()),
-                    String.valueOf(fileImportResult.getNumFailedRecords()));
+                    String.valueOf(fileImportResult.getNumFailedRecords()), String.valueOf(fileImportResult.getNumBlankRecords()));
 
             String printResponse =  fileImportResult.printReport(jobId, msg, 
                     APIMessageUtil.getMessageFromResourceBundle(resourceHandler, APIErrorCodes.FAILED_RECORD),
