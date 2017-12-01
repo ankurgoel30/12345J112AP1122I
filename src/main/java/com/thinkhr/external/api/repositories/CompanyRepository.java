@@ -27,16 +27,18 @@ public interface CompanyRepository extends PagingAndSortingRepository<Company, I
     /**
      * Repository method
      * @param companyName
+     * @param brokerId
      * @return
      */
-    public Company findFirstByCompanyName(String companyName);
+    public Company findFirstByCompanyNameAndBroker(String companyName, Integer brokerId);
 
     /**
      * Repository method
      * @param companyName
      * @param string
+     * @param brokerId
      * @return
      */
-    public Company findFirstByCompanyNameAndCustom1(String companyName,
-            String customField1);
+    public Company findFirstByCompanyNameAndCustom1AndBroker(String companyName,
+            String customField1, Integer brokerId);
 }
