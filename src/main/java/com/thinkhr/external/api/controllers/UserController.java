@@ -2,14 +2,22 @@ package com.thinkhr.external.api.controllers;
 
 import static com.thinkhr.external.api.ApplicationConstants.DEFAULT_SORT_BY_USER_NAME;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 
 import javax.validation.Valid;
 
 import org.hibernate.validator.constraints.Range;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.InputStreamResource;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -18,10 +26,15 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
 
+import com.thinkhr.external.api.ApplicationConstants;
 import com.thinkhr.external.api.db.entities.User;
 import com.thinkhr.external.api.exception.ApplicationException;
+import com.thinkhr.external.api.model.FileImportResult;
+import com.thinkhr.external.api.response.APIResponseBodyHandler;
 import com.thinkhr.external.api.services.UserService;
+import com.thinkhr.external.api.services.utils.FileImportUtil;
 
 /**
  * User Controller for performing operations
@@ -32,6 +45,8 @@ import com.thinkhr.external.api.services.UserService;
 @Validated
 @RequestMapping(path="/v1/users")
 public class UserController {
+
+    private static Logger logger = LoggerFactory.getLogger(APIResponseBodyHandler.class);
 
     @Autowired
     UserService userService;
@@ -101,5 +116,36 @@ public class UserController {
         userService.addUser(user);
         return new ResponseEntity<User>(user, HttpStatus.CREATED);
     }
+    
+    
+
+    /**
+     * Bulk import company records from a given CSV file.
+     * 
+     * @param Multipart file CSV files with records
+     * @param brokerId - brokerId from request. Originally retrieved as part of JWT token
+     * 
+     */
+    @RequestMapping(method=RequestMethod.POST,  value="/bulk")
+    public ResponseEntity <InputStreamResource> bulkUploadFile(@RequestParam(value="file", required=false) MultipartFile file, 
+            @RequestParam(value = "brokerId", required = false, 
+            defaultValue = ApplicationConstants.DEFAULT_BROKERID_FOR_FILE_IMPORT) Integer brokerId )
+                    throws ApplicationException, IOException {
+
+        logger.info("##### ######### USER IMPORT BEGINS ######### #####");
+        FileImportResult fileImportResult = userService.bulkUpload(file, brokerId);
+        logger.debug("************** USER IMPORT ENDS *****************");
+
+        // Set the attachment header & set up response to return a CSV file with result and erroneous records
+        // This response CSV file can be used by users to resubmit records after fixing them.
+        HttpHeaders headers = new HttpHeaders();
+        headers.add("Content-disposition", "attachment;filename=companiesImportResult.csv");
+
+        File responseFile = FileImportUtil.createReponseFile(fileImportResult, resourceHandler);
+
+        return ResponseEntity.ok().headers(headers).contentLength(responseFile.length()).contentType(MediaType.parseMediaType("text/csv"))
+                .body(new InputStreamResource(new FileInputStream(responseFile)));
+    }
+
 }
 
