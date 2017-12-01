@@ -19,4 +19,7 @@ import com.thinkhr.external.api.db.entities.CustomFields;
 public interface CustomFieldsRepository extends CrudRepository<CustomFields, Serializable> {
 
     public List<CustomFields> findByCompanyId(int companyID);
+
+    public List<CustomFields> findByCompanyIdAndCustomFieldType(int id,
+            String customFieldType);
 }
