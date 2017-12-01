@@ -48,6 +48,7 @@ import com.thinkhr.external.api.services.upload.FileUploadEnum;
 public class CompanyService  extends CommonService {
 
     private Logger logger = LoggerFactory.getLogger(CompanyService.class);
+    private static final String resource = "company";
 
     /**
      *
@@ -163,7 +164,7 @@ public class CompanyService  extends CommonService {
 
         Company broker = validateAndGetBroker(brokerId);
 
-        List<String> fileContents = validateAndGetFileContent(fileToImport);
+        List<String> fileContents = validateAndGetFileContent(fileToImport, "company");
 
         return processRecords (fileContents, broker);
 
@@ -191,9 +192,9 @@ public class CompanyService  extends CommonService {
         String[] headersInCSV = headerLine.split(COMMA_SEPARATOR);
 
         //DO not assume that CSV file shall contains fixed column position. Let's read and map then with database column
-        Map<String, String> companyFileHeaderColumnMap = getCompanyColumnHeaderMap(broker.getCompanyId()); 
+        Map<String, String> companyFileHeaderColumnMap = getCompanyColumnHeaderMap(broker.getCompanyId(), resource); 
 
-        Map<String, String> locationFileHeaderColumnMap = FileUploadEnum.LOCATION.prepareColumnHeaderMap();
+        Map<String, String> locationFileHeaderColumnMap = FileUploadEnum.prepareColumnHeaderMap("location");
 
         //Check every custom field from imported file has a corresponding column in database. If not, return error here.
         validateAndFilterCustomHeaders(headersInCSV, companyFileHeaderColumnMap.values(), resourceHandler);
@@ -350,24 +351,6 @@ public class CompanyService  extends CommonService {
         }
 
         return isDuplicate;
-    }
-
-    /**
-     * Get a map of Company columns
-     * 
-     * @param companyId
-     * @return
-     */
-    public Map<String, String> getCompanyColumnHeaderMap(int companyId) {
-
-        Map<String, String> companyColumnHeaderMap = FileUploadEnum.COMPANY.prepareColumnHeaderMap();
-
-        Map<String, String> customColumnHeaderMap = getCustomFieldsMap(companyId);//customColumnsLookUpId - gets custom fields from database
-
-        if (customColumnHeaderMap != null) {
-            companyColumnHeaderMap.putAll(customColumnHeaderMap);
-        }
-        return companyColumnHeaderMap;
     }
 
     /**

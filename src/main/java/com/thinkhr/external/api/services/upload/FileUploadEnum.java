@@ -103,10 +103,10 @@ public enum FileUploadEnum {
      * 
      * @return
      */
-    public Map<String, String> prepareColumnHeaderMap() {
+    public static Map<String, String> prepareColumnHeaderMap(String resource) {
         Map<String, String> columnToHeaderMap = new HashMap<String, String>();
         for (FileUploadEnum value : FileUploadEnum.values()) {
-            if (value.getResource().equalsIgnoreCase(this.getResource())) {
+            if (value.getResource().equalsIgnoreCase(resource)) {
                 if (value.getColumn() == null) {
                     continue; //As it is not a valid entry for map.
                 }

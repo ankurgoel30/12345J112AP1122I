@@ -31,6 +31,7 @@ import org.springframework.web.multipart.MultipartFile;
 import com.thinkhr.external.api.ApplicationConstants;
 import com.thinkhr.external.api.db.entities.User;
 import com.thinkhr.external.api.exception.ApplicationException;
+import com.thinkhr.external.api.exception.MessageResourceHandler;
 import com.thinkhr.external.api.model.FileImportResult;
 import com.thinkhr.external.api.response.APIResponseBodyHandler;
 import com.thinkhr.external.api.services.UserService;
@@ -50,6 +51,9 @@ public class UserController {
 
     @Autowired
     UserService userService;
+    
+    @Autowired
+    MessageResourceHandler resourceHandler;
 
     /**
      * Get all users from repository

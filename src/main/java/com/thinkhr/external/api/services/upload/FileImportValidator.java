@@ -1,7 +1,9 @@
 package com.thinkhr.external.api.services.upload;
 
 import static com.thinkhr.external.api.ApplicationConstants.MAX_RECORDS_COMPANY_CSV_IMPORT;
+import static com.thinkhr.external.api.ApplicationConstants.MAX_RECORDS_USER_CSV_IMPORT;
 import static com.thinkhr.external.api.ApplicationConstants.REQUIRED_HEADERS_COMPANY_CSV_IMPORT;
+import static com.thinkhr.external.api.ApplicationConstants.REQUIRED_HEADERS_USER_CSV_IMPORT;
 import static com.thinkhr.external.api.ApplicationConstants.VALID_FILE_EXTENSION_IMPORT;
 
 import java.util.List;
@@ -25,13 +27,13 @@ public class FileImportValidator {
 
     /**
      * This function validates fileToimport and populates fileContens
+     * 
      * @param fileToImport
-     * @param fileContents
-     * @param headers
+     * @param resource
      * @throws ApplicationException
      * 
      */
-    public static List<String> validateAndGetFileContent (MultipartFile fileToImport) throws ApplicationException {
+    public static List<String> validateAndGetFileContent (MultipartFile fileToImport, String resource) throws ApplicationException {
 
         String fileName = fileToImport.getOriginalFilename();
 
@@ -48,7 +50,7 @@ public class FileImportValidator {
         // Read all records from file
         List<String> fileContents = FileImportUtil.readFileContent(fileToImport);
 
-        validateFileContents(fileContents, fileName);
+        validateFileContents(fileContents, fileName, resource);
 
         return fileContents;
     }
@@ -56,18 +58,22 @@ public class FileImportValidator {
 
     /**
      * Validate file contents
+     * 
      * @param fileContents
      * @param fileName
+     * @param resource
      */
-    public static void validateFileContents(List<String> fileContents, String fileName) {
+    public static void validateFileContents(List<String> fileContents, String fileName, String resource) {
 
         if (fileContents == null || fileContents.isEmpty() || fileContents.size() < 2) {
             throw ApplicationException.createFileImportError(APIErrorCodes.NO_RECORDS_FOUND_FOR_IMPORT, fileName);
         }
+        
+        int maxRecord = getMaxRecords(resource);
 
-        if (fileContents.size() > MAX_RECORDS_COMPANY_CSV_IMPORT) {
+        if (fileContents.size() > maxRecord) {
             throw ApplicationException.createFileImportError(APIErrorCodes.MAX_RECORD_EXCEEDED,
-                    String.valueOf(MAX_RECORDS_COMPANY_CSV_IMPORT));
+                    String.valueOf(maxRecord));
         }
 
         String headerLine = fileContents.get(0);
@@ -75,18 +81,49 @@ public class FileImportValidator {
         // Validate for missing headers. File must container all expected columns, if not, return from here.
         String[] headers = headerLine.split(",");
 
-        String[] missingHeadersIfAny = FileImportUtil.getMissingHeaders(headers, REQUIRED_HEADERS_COMPANY_CSV_IMPORT);
+        String[] requiredHeaders = getRequiredHeaders(resource) ;
+        String[] missingHeadersIfAny = FileImportUtil.getMissingHeaders(headers, requiredHeaders);
 
         if (missingHeadersIfAny != null && missingHeadersIfAny.length > 0) {
 
-            String requiredHeaders = String.join(",", REQUIRED_HEADERS_COMPANY_CSV_IMPORT);
+            String requiredHeadersStr = String.join(",", requiredHeaders);
 
             String missingHeaders = String.join(",", missingHeadersIfAny);
 
             throw ApplicationException.createFileImportError(APIErrorCodes.MISSING_REQUIRED_HEADERS, fileName, missingHeaders,
-                    requiredHeaders);
+                    requiredHeadersStr);
         }
 
+    }
+
+
+    /**
+     * @param resource
+     * @return
+     */
+    private static String[] getRequiredHeaders(String resource) {
+        
+        switch(resource) {
+        case "company" : return REQUIRED_HEADERS_COMPANY_CSV_IMPORT;
+        case "user" : return REQUIRED_HEADERS_USER_CSV_IMPORT;
+        }
+        
+        return REQUIRED_HEADERS_COMPANY_CSV_IMPORT; //Let's make it default
+    }
+
+
+    /**
+     * @param resource
+     * @return
+     */
+    private static int getMaxRecords(String resource) {
+        
+        switch(resource) {
+        case "company" : return MAX_RECORDS_COMPANY_CSV_IMPORT;
+        case "user" : return MAX_RECORDS_USER_CSV_IMPORT;
+        }
+        
+        return MAX_RECORDS_COMPANY_CSV_IMPORT; //Let's make it default
     }
 
 }

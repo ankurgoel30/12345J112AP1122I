@@ -25,7 +25,12 @@ public class ApplicationConstants {
     public static final String VALID_FILE_EXTENSION_IMPORT = "csv";
     public static final String[] REQUIRED_HEADERS_COMPANY_CSV_IMPORT = { "CLIENT_NAME", "DISPLAY_NAME", "PHONE", "ADDRESS", "ADDRESS2",
             "CITY", "STATE", "ZIP", "INDUSTRY", "COMPANY_SIZE", "PRODUCER" };
+    
+    public static final String[] REQUIRED_HEADERS_USER_CSV_IMPORT = { "FIRST_NAME", "LAST_NAME", "USER_NAME", "EMAIL", "CLIENT_NAME",
+            "PHONE", "BUSINESS_ID" };
+    
     public static final int MAX_RECORDS_COMPANY_CSV_IMPORT = 3500;
+    public static final int MAX_RECORDS_USER_CSV_IMPORT = 500;
     public static final String SPACE = " ";
     public static final String DEFAULT_BROKERID_FOR_FILE_IMPORT = "187624";
     public static final String FILE_IMPORT_RESULT_MSG = "FILE_IMPORT_RESULT";

@@ -15,6 +15,7 @@ import com.thinkhr.external.api.exception.MessageResourceHandler;
 import com.thinkhr.external.api.repositories.CompanyRepository;
 import com.thinkhr.external.api.repositories.CustomFieldsRepository;
 import com.thinkhr.external.api.repositories.FileDataRepository;
+import com.thinkhr.external.api.services.upload.FileUploadEnum;
 
 import lombok.Data;
 
@@ -53,11 +54,14 @@ public class CommonService {
      * This function returns a map of custom fields to customFieldDisplayLabel(Header in CSV)
      * map by looking up into app_throne_custom_fields table
      * 
+     * @param id
+     * @param customFieldType
+     * 
      * @return Map<String,String> 
      */
-    protected Map<String, String> getCustomFieldsMap(int id) {
+    protected Map<String, String> getCustomFieldsMap(int id, String customFieldType) {
 
-        List<CustomFields> list = customFieldRepository.findByCompanyId(id);
+        List<CustomFields> list = customFieldRepository.findByCompanyIdAndCustomFieldType(id, customFieldType);
 
         if (list == null || list.isEmpty()) {
             return null;
@@ -87,6 +91,30 @@ public class CommonService {
 
         return broker;
     }
+    
+    /**
+     * Get a map of Company columns
+     * 
+     * @param companyId
+     * @param resource
+     * @return
+     */
+    public Map<String, String> getCompanyColumnHeaderMap(int companyId, String resource) {
+
+        Map<String, String> companyColumnHeaderMap = FileUploadEnum.prepareColumnHeaderMap(resource);
+
+        Map<String, String> customColumnHeaderMap = getCustomFieldsMap(companyId, resource);//customColumnsLookUpId - gets custom fields from database
+
+        if (customColumnHeaderMap != null) {
+            companyColumnHeaderMap.putAll(customColumnHeaderMap);
+        }
+        
+        return companyColumnHeaderMap;
+    }
+
+    
+    
+
 
 
 }

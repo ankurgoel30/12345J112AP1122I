@@ -53,4 +53,16 @@ public class FileDataRepository {
         }
     }
 
+    /**
+     * TODO: Add implementation
+     * 
+     * @param userColumnsToInsert
+     * @param userColumnValues
+     */
+    public void saveUserRecord(List<String> userColumnsToInsert,
+            List<Object> userColumnValues) {
+        // TODO Auto-generated method stub
+        
+    }
+
 }
