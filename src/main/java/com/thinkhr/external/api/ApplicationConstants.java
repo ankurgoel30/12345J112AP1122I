@@ -38,7 +38,7 @@ public class ApplicationConstants {
     public static final Integer SPECIAL_CASE_BROKER1 = 187624;
     public static final Integer SPECIAL_CASE_BROKER2 = 205111;
     public static final String NEW_LINE = "\n";
-
-
+    public static final String DEFAULT_ACTIVE_STATUS = "1";
+    public static final String DEFAULT_COLUMN_VALUE = "";
 
 }

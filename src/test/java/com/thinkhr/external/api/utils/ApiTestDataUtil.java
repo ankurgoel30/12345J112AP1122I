@@ -1,14 +1,25 @@
 package com.thinkhr.external.api.utils;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.PropertyException;
 
+import org.apache.commons.io.IOUtils;
+import org.springframework.core.io.InputStreamResource;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.mock.web.MockMultipartFile;
 
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -262,14 +273,227 @@ public class ApiTestDataUtil {
         FileImportResult fileImportResult = new FileImportResult();
         fileImportResult.setTotalRecords(10);
         fileImportResult.setNumSuccessRecords(7);
-        fileImportResult.setNumSuccessRecords(3);
         fileImportResult.addFailedRecord(3, "", "Blank Record", "Skipped");
         fileImportResult.addFailedRecord(6,
                 "Paychex,Adams Radio of Tallahassee LLC,9522320916,3000 Olson Rd,,Tallahassee,FL,32308,Other,0,,5331058,56,11078286,Non PEO",
                 "Duplicate", "Skipped");
-        fileImportResult.addFailedRecord(6, "Paychex,Adams Radio of Tallahassee LLC,", "Missing Fields in Record",
+        fileImportResult.addFailedRecord(8, "Paychex,Adams Radio of Tallahassee LLC,", "Missing Fields in Record",
                 "Record not added");
         return fileImportResult;
+    }
+
+    public static ResponseEntity<InputStreamResource> createInputStreamResponseEntityForBulkUpload()
+            throws FileNotFoundException {
+        HttpHeaders headers = new HttpHeaders();
+        headers.add("Content-disposition", "attachment;filename=companiesImportResult.csv");
+        
+        File responseFile = new File("src/test/resources/testdata/20_ResponseCSV.csv");
+        
+        ResponseEntity<InputStreamResource> responseEntity = ResponseEntity.ok().headers(headers)
+                .contentLength(responseFile.length()).contentType(MediaType.parseMediaType("text/csv"))
+                .body(new InputStreamResource(new FileInputStream(responseFile)));
+
+        return responseEntity;
+    }
+
+    public static MockMultipartFile createMockMultipartFile() throws IOException {
+        File file = new File("src/test/resources/testdata/8_Example10Rec.csv");
+
+        FileInputStream input = null;
+        MockMultipartFile multipartFile = null;
+
+        input = new FileInputStream(file);
+
+        multipartFile = new MockMultipartFile("file", file.getName(), "text/plain", IOUtils.toByteArray(input));
+
+        return multipartFile;
+    }
+
+    public static MockMultipartFile createMockMultipartFile_EmptyFile() throws IOException {
+        File file = new File("src/test/resources/testdata/1_EmptyCSV.csv");
+
+        FileInputStream input = null;
+        MockMultipartFile multipartFile = null;
+
+        input = new FileInputStream(file);
+
+        multipartFile = new MockMultipartFile("file", file.getName(), "text/plain", IOUtils.toByteArray(input));
+
+        return multipartFile;
+    }
+
+    public static MockMultipartFile createMockMultipartFile_InvalidExtension() throws IOException {
+        File file = new File("src/test/resources/testdata/2_InvalidExtension.xlsx");
+
+        FileInputStream input = null;
+        MockMultipartFile multipartFile = null;
+
+        input = new FileInputStream(file);
+
+        multipartFile = new MockMultipartFile("file", file.getName(), "text/plain", IOUtils.toByteArray(input));
+
+        return multipartFile;
+    }
+
+    public static MockMultipartFile createMockMultipartFile_MissingHeaders() throws IOException {
+        File file = new File("src/test/resources/testdata/3_MissingHeader.csv");
+
+        FileInputStream input = null;
+        MockMultipartFile multipartFile = null;
+
+        input = new FileInputStream(file);
+
+        multipartFile = new MockMultipartFile("file", file.getName(), "text/plain", IOUtils.toByteArray(input));
+
+        return multipartFile;
+    }
+
+    public static MockMultipartFile createMockMultipartFile_MaxRecordExceed() throws IOException {
+        File file = new File("src/test/resources/testdata/5_10000Rec_ExceedMaxRec3500.csv");
+
+        FileInputStream input = null;
+        MockMultipartFile multipartFile = null;
+
+        input = new FileInputStream(file);
+
+        multipartFile = new MockMultipartFile("file", file.getName(), "text/plain", IOUtils.toByteArray(input));
+
+        return multipartFile;
+    }
+
+    /**
+     * 
+     * @return
+     */
+    public static List<String> getCompanyColumnList() {
+        List<String> columnList = new ArrayList<String>();
+        columnList.add("client_name");
+        columnList.add("display_name");
+        columnList.add("client_phone");
+        columnList.add("industry");
+        columnList.add("companysize");
+        columnList.add("producer");
+        columnList.add("custom1");
+        columnList.add("custom2");
+        columnList.add("custom3");
+        columnList.add("custom4");
+        return columnList;
+    }
+
+    public static List<Object> getCompanyColumnValuesList() {
+        List<Object> columnValuesList = new ArrayList<Object>();
+        columnValuesList.add("Pepcus Software Services");
+        columnValuesList.add("Pepcus");
+        columnValuesList.add("3457893455");
+        columnValuesList.add("IT");
+        columnValuesList.add("20");
+        columnValuesList.add("AJain");
+        columnValuesList.add("dummy_business");
+        columnValuesList.add("dummy_branch");
+        columnValuesList.add("dummy_client");
+        columnValuesList.add("dummy_client_type");
+        return columnValuesList;
+    }
+
+    public static List<Object> getLocationsColumnValuesList() {
+        List<Object> locationValuesList = new ArrayList<Object>();
+        locationValuesList.add("Eastern County");
+        locationValuesList.add("dummy_address");
+        locationValuesList.add("Texas City");
+        locationValuesList.add("TX");
+        locationValuesList.add("452001");
+        return locationValuesList;
+    }
+
+    /**
+     * 
+     * @return
+     */
+    public static List<String> getLocationColumnList() {
+        List<String> columnList = new ArrayList<String>();
+        columnList.add("address");
+        columnList.add("address2");
+        columnList.add("city");
+        columnList.add("state");
+        columnList.add("zip");
+        return columnList;
+    }
+
+    /**
+     * 
+     * @return
+     */
+    public static String testQueryForCompany() {
+        return "INSERT INTO clients(client_name,display_name,client_phone,industry,companysize,producer,custom1,custom2,custom3,custom4,"
+                + "search_help,client_type,special_note,client_since,t1_is_active) VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?) ";
+    }
+
+    /**
+     * 
+     * @return
+     */
+    public static String testQueryForLocation() {
+        return "INSERT INTO locations(address,address2,city,state,zip,client_id) VALUES(?,?,?,?,?,?) ";
+    }
+
+    /**
+     * 
+     * @return
+     */
+    public static String[] getAllHeadersForCompany() {
+        String[] requiredHeaders = { "CLIENT_NAME", "DISPLAY_NAME", "PHONE", "ADDRESS", "ADDRESS2", "CITY", "STATE", "ZIP", "INDUSTRY",
+                "COMPANY_SIZE", "PRODUCER", "BUSINESS_ID", "BRANCH_ID", "CLIENT_ID", "CLIENT_TYPE" };
+        return requiredHeaders;
+    }
+
+    /**
+     * 
+     * @return
+     */
+    public static String[] getAvailableHeadersForCompany() {
+        String[] requiredHeaders = { "CLIENT_NAME", "DISPLAY_NAME", "PHONE", "ADDRESS", "ADDRESS2", "CITY", "STATE", "ZIP" };
+        return requiredHeaders;
+    }
+
+    public static Map<String, String> getColumnsToHeadersMap() {
+        Map<String, String> columnToHeaderMap = new HashMap<String, String>();
+        columnToHeaderMap.put("companyName", "CLIENT_NAME");
+        columnToHeaderMap.put("displayName", "DISPLAY_NAME");
+        columnToHeaderMap.put("companyPhone", "PHONE");
+        columnToHeaderMap.put("industry", "INDUSTRY");
+        columnToHeaderMap.put("companySize", "COMPANY_SIZE");
+        columnToHeaderMap.put("producer", "PRODUCER");
+        return columnToHeaderMap;
+    }
+
+    public static Map<String, String> getAllColumnsToHeadersMap() {
+        Map<String, String> columnToHeaderMap = new HashMap<String, String>();
+        columnToHeaderMap.put("companyName", "CLIENT_NAME");
+        columnToHeaderMap.put("displayName", "DISPLAY_NAME");
+        columnToHeaderMap.put("companyPhone", "PHONE");
+        columnToHeaderMap.put("industry", "INDUSTRY");
+        columnToHeaderMap.put("companySize", "COMPANY_SIZE");
+        columnToHeaderMap.put("producer", "PRODUCER");
+        columnToHeaderMap.put("custom1", "BUSINESS_ID");
+        columnToHeaderMap.put("custom2", "BRANCH_ID");
+        columnToHeaderMap.put("custom3", "CLIENT_ID");
+        columnToHeaderMap.put("custom4", "CLIENT_TYPE");
+        return columnToHeaderMap;
+    }
+
+    public static Map<String, Integer> getHeaderIndexMap() {
+        Map<String, Integer> headerIndexMap = new HashMap<String, Integer>();
+        headerIndexMap.put("CLIENT_NAME", 0);
+        headerIndexMap.put("DISPLAY_NAME", 1);
+        headerIndexMap.put("PHONE", 2);
+        headerIndexMap.put("INDUSTRY", 3);
+        headerIndexMap.put("COMPANY_SIZE", 4);
+        headerIndexMap.put("PRODUCER", 5);
+        return headerIndexMap;
+    }
+
+    public static String getFileRecord() {
+        return "Pepcus Software Services, pepcus, 9213234567, IT, 20, Ajay Jain";
     }
 
 }

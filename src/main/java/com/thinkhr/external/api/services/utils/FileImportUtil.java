@@ -47,8 +47,15 @@ public class FileImportUtil {
      * @return String[] Array of missing headers 
      */
     public static String[] getMissingHeaders(String[] presentHeaders, String[] requiredHeaders) {
-        Set<String> headersInFileSet = new HashSet<String>(Arrays.asList(presentHeaders));
-        Set<String> requiredHeadersSet = new HashSet<String>(Arrays.asList(requiredHeaders));
+        Set<String> headersInFileSet = null;
+        Set<String> requiredHeadersSet = null;
+        ;
+        if (presentHeaders != null) {
+            headersInFileSet = new HashSet<String>(Arrays.asList(presentHeaders));
+        }
+        if (requiredHeaders != null) {
+            requiredHeadersSet = new HashSet<String>(Arrays.asList(requiredHeaders));
+        }
         requiredHeadersSet.removeAll(headersInFileSet);
 
         String[] missingHeaders = new String[requiredHeadersSet.size()];
@@ -64,6 +71,9 @@ public class FileImportUtil {
      * @throws IOException
      */
     public static List<String> readFileContent(MultipartFile file) {
+        if (file == null) {
+            return null;
+        }
         BufferedReader br = null;
         try {
             br = new BufferedReader(new InputStreamReader(file.getInputStream()));
@@ -83,23 +93,24 @@ public class FileImportUtil {
      */
     public static List<Object> populateColumnValues(String fileRow, Map<String, String> columnToHeaderMap,
             Map<String, Integer> headerIndexMap) {
-
-        List<String> columns = new ArrayList<String>(columnToHeaderMap.keySet());
-
         List<Object> columnValues = new ArrayList<Object>();
-
         String[] rowColValues = fileRow.split(COMMA_SEPARATOR);
+        List<String> columns = null;
 
-        columns.forEach(col -> {
-            String csvHeader = columnToHeaderMap.get(col);
-            if (csvHeader != null && headerIndexMap.containsKey(csvHeader)) {
-                Integer colIndx = headerIndexMap.get(csvHeader);
-                columnValues.add(rowColValues[colIndx].trim());
-            } else {
-                columnValues.add(null);
+        if (columnToHeaderMap != null && columnToHeaderMap.size() > 0) {
+            columns = new ArrayList<String>(columnToHeaderMap.keySet());
+            if (headerIndexMap != null && headerIndexMap.size() > 0) {
+                columns.forEach(col -> {
+                    String csvHeader = columnToHeaderMap.get(col);
+                    if (csvHeader != null && headerIndexMap.containsKey(csvHeader)) {
+                        Integer colIndx = headerIndexMap.get(csvHeader);
+                        columnValues.add(rowColValues[colIndx].trim());
+                    } else {
+                        columnValues.add(null);
+                    }
+                });
             }
-        });
-
+        }
         return columnValues;
     }
 

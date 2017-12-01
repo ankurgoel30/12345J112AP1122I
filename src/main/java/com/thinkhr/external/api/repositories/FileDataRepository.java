@@ -4,7 +4,7 @@ import static com.thinkhr.external.api.repositories.PrepareStatementBuilder.buil
 import static com.thinkhr.external.api.repositories.QueryBuilder.DELETE_COMPANY_QUERY;
 import static com.thinkhr.external.api.repositories.QueryBuilder.buildCompanyInsertQuery;
 import static com.thinkhr.external.api.repositories.QueryBuilder.buildLocationInsertQuery;
-import static com.thinkhr.external.api.repositories.QueryBuilder.companyDefaultColumnsValuesForNewRecord;
+import static com.thinkhr.external.api.repositories.QueryBuilder.defaultCompReqFieldValues;
 
 import java.util.List;
 
@@ -14,7 +14,12 @@ import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Repository;
 
+import com.thinkhr.external.api.db.entities.Company;
+
+import lombok.Data;
+
 @Repository
+@Data
 public class FileDataRepository {
 
     @Autowired
@@ -38,7 +43,7 @@ public class FileDataRepository {
 
         KeyHolder keyHolder = new GeneratedKeyHolder();
 
-        companyColumnsValues.addAll(companyDefaultColumnsValuesForNewRecord());
+        companyColumnsValues.addAll(defaultCompReqFieldValues);
         jdbcTemplate.update(buildPreparedStatementCreator(insertClientSql.toString(), companyColumnsValues), keyHolder);
 
         int clientId = keyHolder.getKey().intValue();
@@ -51,6 +56,17 @@ public class FileDataRepository {
             jdbcTemplate.update(DELETE_COMPANY_QUERY, clientId);
             throw ex;
         }
+    }
+    
+    /**
+     *  returns the list of companies
+     *  
+     * @return
+     */
+    public List<Company> findAll(){
+        String sql = "SELECT * FROM CLIENTS"; //TODO: MOVE this to query builder 
+        List<Company> companies = jdbcTemplate.queryForList(sql, Company.class); 
+        return companies;
     }
 
 }
