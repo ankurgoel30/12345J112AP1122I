@@ -26,10 +26,12 @@ public class PrepareStatementBuilder {
         return new PreparedStatementCreator() {
             @Override
             public PreparedStatement createPreparedStatement(Connection con) throws SQLException {
-                PreparedStatement statement = con.prepareStatement(query.toString(), Statement.RETURN_GENERATED_KEYS);
-                int i;
-                for (i = 0; i < values.size(); i++) {
-                    statement.setString(i + 1, (String) values.get(i));
+                PreparedStatement statement = con.prepareStatement(query, Statement.RETURN_GENERATED_KEYS);
+                if (values == null) {
+                    return statement;
+                }
+                for (int i = 0; i < values.size(); i++) {
+                    statement.setObject(i + 1, values.get(i));
                 }
                 return statement;
             }
