@@ -365,7 +365,7 @@ public class CompanyService  extends CommonService {
 
         Map<String, String> companyColumnHeaderMap = FileUploadEnum.COMPANY.prepareColumnHeaderMap();
 
-        Map<String, String> customColumnHeaderMap = getCustomFieldsMap(companyId);//customColumnsLookUpId - gets custom fields from database
+        Map<String, String> customColumnHeaderMap = getCustomFieldsMap(companyId, FileUploadEnum.COMPANY.name());//customColumnsLookUpId - gets custom fields from database
 
         if (customColumnHeaderMap != null) {
             companyColumnHeaderMap.putAll(customColumnHeaderMap);

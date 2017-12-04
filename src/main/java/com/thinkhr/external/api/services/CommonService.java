@@ -53,11 +53,13 @@ public class CommonService {
      * This function returns a map of custom fields to customFieldDisplayLabel(Header in CSV)
      * map by looking up into app_throne_custom_fields table
      * 
+     * @param id
+     * @param customFieldType
      * @return Map<String,String> 
      */
-    protected Map<String, String> getCustomFieldsMap(int id) {
+    protected Map<String, String> getCustomFieldsMap(int id, String customFieldType) {
 
-        List<CustomFields> list = customFieldRepository.findByCompanyId(id);
+        List<CustomFields> list = customFieldRepository.findByCompanyIdAndCustomFieldType(id, customFieldType);
 
         if (list == null || list.isEmpty()) {
             return null;
