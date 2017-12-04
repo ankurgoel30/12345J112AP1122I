@@ -60,7 +60,6 @@ public class CommonService {
      * 
      * @param id
      * @param customFieldType
-     * 
      * @return Map<String,String> 
      */
     protected Map<String, String> getCustomFieldsMap(int id, String customFieldType) {

@@ -188,6 +188,7 @@ public class CompanyService  extends CommonService {
 
         fileImportResult.setTotalRecords(records.size());
         fileImportResult.setHeaderLine(headerLine);
+        fileImportResult.setBrokerId(broker.getCompanyId());
 
         String[] headersInCSV = headerLine.split(COMMA_SEPARATOR);
 
@@ -287,6 +288,8 @@ public class CompanyService  extends CommonService {
             //Finally save companies one by one
             List<String> companyColumnsToInsert = new ArrayList<String>(companyFileHeaderColumnMap.keySet());
             List<String> locationColumnsToInsert = new ArrayList<String>(locationFileHeaderColumnMap.keySet());
+            companyColumnsToInsert.add("broker");
+            companyColumnsValues.add(fileImportResult.getBrokerId());
 
             fileDataRepository.saveCompanyRecord(companyColumnsToInsert, companyColumnsValues, locationColumnsToInsert,
                     locationColumnsValues);
