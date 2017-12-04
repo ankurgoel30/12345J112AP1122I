@@ -16,8 +16,10 @@ import org.springframework.jdbc.core.PreparedStatementCreator;
  *
  */
 public class PrepareStatementBuilder {
-    
+
     /**
+     * To get an instance of preparedStatement
+     * 
      * @param query
      * @param values
      * @return

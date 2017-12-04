@@ -81,7 +81,7 @@ public class CompanyService  extends CommonService {
 
         Specification<Company> spec = getEntitySearchSpecification(searchSpec, requestParameters, Company.class, new Company());
 
-        Page<Company> companyList  = (Page<Company>) companyRepository.findAll(spec, pageable);
+        Page<Company> companyList  = companyRepository.findAll(spec, pageable);
 
         if (companyList != null) {
             companyList.getContent().forEach(c -> companies.add(c));
@@ -177,8 +177,16 @@ public class CompanyService  extends CommonService {
      * @param resource
      * @throws ApplicationException
      */
-    private FileImportResult processRecords (List<String> records, 
+    FileImportResult processRecords(List<String> records, 
             Company broker) throws ApplicationException {
+
+        if (records == null) {
+            throw ApplicationException.createFileImportError(APIErrorCodes.NO_RECORDS_FOUND_FOR_IMPORT, null);
+        }
+
+        if (broker == null || broker.getCompanyId() == null) {
+            throw ApplicationException.createFileImportError(APIErrorCodes.INVALID_BROKER_ID, "null");
+        }
 
         FileImportResult fileImportResult = new FileImportResult();
 
@@ -278,8 +286,6 @@ public class CompanyService  extends CommonService {
                     getMessageFromResourceBundle(resourceHandler, APIErrorCodes.MISSING_FIELDS), 
                     getMessageFromResourceBundle(resourceHandler, APIErrorCodes.SKIPPED_RECORD));
             return;
-        } catch (Exception ex) {
-            throw ApplicationException.createFileImportError(APIErrorCodes.FILE_READ_ERROR, ex.toString());
         }
 
         try {

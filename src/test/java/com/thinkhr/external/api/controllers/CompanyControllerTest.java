@@ -1,18 +1,26 @@
 package com.thinkhr.external.api.controllers;
 
+import static com.thinkhr.external.api.ApplicationConstants.MAX_RECORDS_COMPANY_CSV_IMPORT;
+import static com.thinkhr.external.api.ApplicationConstants.REQUIRED_HEADERS_COMPANY_CSV_IMPORT;
+import static com.thinkhr.external.api.ApplicationConstants.VALID_FILE_EXTENSION_IMPORT;
 import static com.thinkhr.external.api.utils.ApiTestDataUtil.COMPANY_API_BASE_PATH;
 import static com.thinkhr.external.api.utils.ApiTestDataUtil.createCompanies;
 import static com.thinkhr.external.api.utils.ApiTestDataUtil.createCompany;
 import static com.thinkhr.external.api.utils.ApiTestDataUtil.createCompanyIdResponseEntity;
 import static com.thinkhr.external.api.utils.ApiTestDataUtil.createCompanyResponseEntity;
+import static com.thinkhr.external.api.utils.ApiTestDataUtil.createInputStreamResponseEntityForBulkUpload;
+import static com.thinkhr.external.api.utils.ApiTestDataUtil.createMockMultipartFile;
 import static com.thinkhr.external.api.utils.ApiTestDataUtil.getJsonString;
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertEquals;
 import static org.mockito.BDDMockito.given;
+import static org.mockito.Matchers.any;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.fileUpload;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -30,13 +38,16 @@ import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.core.io.InputStreamResource;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
+import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
 
@@ -519,5 +530,99 @@ public class CompanyControllerTest {
         .andExpect(status().isNotFound());
     }
 
+    /**
+     * Test to verify post (/v1/companies/bulk) when it gives error message for
+     * invalid file extension
+     * 
+     * @throws Exception
+     * 
+     */
+    @Test
+    public void testBulkUploadFile_InvalidExtension() throws Exception {
+        MockMultipartFile multipartFile = createMockMultipartFile();
+        ApplicationException mockedExp = ApplicationException.createFileImportError(APIErrorCodes.INVALID_FILE_EXTENTION, "Test.abc",
+                VALID_FILE_EXTENSION_IMPORT);
 
+        given(companyController.bulkUploadFile(any(), any())).willThrow(mockedExp);
+
+        mockMvc.perform(fileUpload(COMPANY_API_BASE_PATH + "bulk").file(multipartFile)).andExpect(status().isNotAcceptable())
+                .andExpect(jsonPath("errorCode", is(APIErrorCodes.INVALID_FILE_EXTENTION.getCode().toString())));
+    }
+
+    /**
+     * Test to verify post (/v1/companies/bulk) when it gives error message for
+     * No records
+     * 
+     * @throws Exception
+     * 
+     */
+    @Test
+    public void testBulkUploadFile_NoRecords() throws Exception {
+        MockMultipartFile multipartFile = createMockMultipartFile();
+        ApplicationException mockedExp = ApplicationException.createFileImportError(APIErrorCodes.NO_RECORDS_FOUND_FOR_IMPORT, "Test.csv");
+
+        given(companyController.bulkUploadFile(any(), any())).willThrow(mockedExp);
+
+        mockMvc.perform(fileUpload(COMPANY_API_BASE_PATH + "bulk").file(multipartFile)).andExpect(status().isNotAcceptable())
+                .andExpect(jsonPath("errorCode", is(APIErrorCodes.NO_RECORDS_FOUND_FOR_IMPORT.getCode().toString())));
+    }
+
+    /**
+     * Test to verify post (/v1/companies/bulk) when it gives error message for
+     * Missing Required Headers
+     * 
+     * @throws Exception
+     * 
+     */
+    @Test
+    public void testBulkUploadFile_MissingHeaders() throws Exception {
+        MockMultipartFile multipartFile = createMockMultipartFile();
+
+        String requiredHeaders = String.join(",", REQUIRED_HEADERS_COMPANY_CSV_IMPORT);
+        ApplicationException mockedExp = ApplicationException.createFileImportError(APIErrorCodes.MISSING_REQUIRED_HEADERS, "Test.csv",
+                "CLIENT_NAME,DISPLAY_NAME", requiredHeaders);
+
+        given(companyController.bulkUploadFile(any(), any())).willThrow(mockedExp);
+
+        mockMvc.perform(fileUpload(COMPANY_API_BASE_PATH + "bulk").file(multipartFile)).andExpect(status().isNotAcceptable())
+                .andExpect(jsonPath("errorCode", is(APIErrorCodes.MISSING_REQUIRED_HEADERS.getCode().toString())));
+    }
+
+    /**
+     * Test to verify post (/v1/companies/bulk) when it gives error message for
+     * Max records exceed
+     * 
+     * @throws Exception
+     * 
+     */
+    @Test
+    public void testBulkUploadFile_MaxRecordExceed() throws Exception {
+        MockMultipartFile multipartFile = createMockMultipartFile();
+
+        ApplicationException mockedExp = ApplicationException.createFileImportError(APIErrorCodes.MAX_RECORD_EXCEEDED,
+                String.valueOf(MAX_RECORDS_COMPANY_CSV_IMPORT));
+
+        given(companyController.bulkUploadFile(any(), any())).willThrow(mockedExp);
+
+        mockMvc.perform(fileUpload(COMPANY_API_BASE_PATH + "bulk").file(multipartFile)).andExpect(status().isNotAcceptable())
+                .andExpect(jsonPath("errorCode", is(APIErrorCodes.MAX_RECORD_EXCEEDED.getCode().toString())));
+    }
+
+    /**
+     * Test to verify post (/v1/companies/bulk) when it executes successfully and returns 
+     * a response file with details of file import results
+     * 
+     * @throws Exception
+     * 
+     */
+    @Test
+    public void testBulkUploadFile_Success() throws Exception {
+        MockMultipartFile multipartFile = createMockMultipartFile();
+
+        ResponseEntity<InputStreamResource> inputStreamResource = createInputStreamResponseEntityForBulkUpload();
+        given(companyController.bulkUploadFile(any(), any())).willReturn(inputStreamResource);
+
+        ResultActions resultActions = mockMvc.perform(fileUpload(COMPANY_API_BASE_PATH + "bulk").file(multipartFile))
+                .andExpect(status().isOk()).andExpect(content().contentType("text/csv"));
+    }
 }
