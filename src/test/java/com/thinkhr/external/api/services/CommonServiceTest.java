@@ -43,9 +43,13 @@ public class CommonServiceTest {
      */
     @Test
     public void testGetCustomFieldsMap_EmptyCustomFields() {
-        Mockito.when(customFieldRepository.findByCompanyId(187624)).thenReturn(new ArrayList<CustomFields>());
+        int companyId = 187624;
+        String customFieldType = "COMPANY";
+
+        Mockito.when(customFieldRepository.findByCompanyIdAndCustomFieldType(companyId, customFieldType))
+                .thenReturn(new ArrayList<CustomFields>());
         
-        Map<String, String> customFieldMap = commonService.getCustomFieldsMap(187624, "COMPANY");
+        Map<String, String> customFieldMap = commonService.getCustomFieldsMap(companyId, customFieldType);
         assertNull(customFieldMap);
     }
 
@@ -56,9 +60,11 @@ public class CommonServiceTest {
     @Test
     public void testGetCustomFieldsMap_TwoCustomFields() {
         List<CustomFields> customFieldTestData = ApiTestDataUtil.createCustomFieldsList();
-        Mockito.when(customFieldRepository.findByCompanyId(15472)).thenReturn(customFieldTestData);
+        int companyId = 15472;
+        String customFieldType = "COMPANY";
+        Mockito.when(customFieldRepository.findByCompanyIdAndCustomFieldType(companyId, customFieldType)).thenReturn(customFieldTestData);
         
-        Map<String, String> customFieldMap = commonService.getCustomFieldsMap(15472, "COMPANY");
+        Map<String, String> customFieldMap = commonService.getCustomFieldsMap(companyId, customFieldType);
         assertEquals(2, customFieldMap.size());
         assertTrue(customFieldMap.containsKey("custom1"));
         assertTrue(customFieldMap.containsKey("custom2"));

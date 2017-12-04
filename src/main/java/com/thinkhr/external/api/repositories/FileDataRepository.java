@@ -14,8 +14,6 @@ import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Repository;
 
-import com.thinkhr.external.api.db.entities.Company;
-
 import lombok.Data;
 
 @Repository
@@ -56,17 +54,6 @@ public class FileDataRepository {
             jdbcTemplate.update(DELETE_COMPANY_QUERY, clientId);
             throw ex;
         }
-    }
-    
-    /**
-     *  returns the list of companies
-     *  
-     * @return
-     */
-    public List<Company> findAll(){
-        String sql = "SELECT * FROM CLIENTS"; //TODO: MOVE this to query builder 
-        List<Company> companies = jdbcTemplate.queryForList(sql, Company.class); 
-        return companies;
     }
 
 }

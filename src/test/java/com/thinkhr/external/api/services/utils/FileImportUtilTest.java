@@ -1,20 +1,24 @@
 package com.thinkhr.external.api.services.utils;
 
+import static com.thinkhr.external.api.ApplicationConstants.COMMA_SEPARATOR;
+import static com.thinkhr.external.api.ApplicationConstants.DEFAULT_COLUMN_VALUE;
 import static com.thinkhr.external.api.ApplicationConstants.REQUIRED_HEADERS_COMPANY_CSV_IMPORT;
+import static com.thinkhr.external.api.utils.ApiTestDataUtil.createFileImportResultWithFailedRecords;
 import static com.thinkhr.external.api.utils.ApiTestDataUtil.createFileImportResultWithNoFailedRecords;
 import static com.thinkhr.external.api.utils.ApiTestDataUtil.getAllColumnsToHeadersMap;
 import static com.thinkhr.external.api.utils.ApiTestDataUtil.getAllHeadersForCompany;
+import static com.thinkhr.external.api.utils.ApiTestDataUtil.getAllHeadersForCompanyWithExtraHeaders;
 import static com.thinkhr.external.api.utils.ApiTestDataUtil.getAvailableHeadersForCompany;
 import static com.thinkhr.external.api.utils.ApiTestDataUtil.getColumnsToHeadersMap;
-import static com.thinkhr.external.api.utils.ApiTestDataUtil.getFileRecord;
+import static com.thinkhr.external.api.utils.ApiTestDataUtil.getCustomHeadersForCompany;
+import static com.thinkhr.external.api.utils.ApiTestDataUtil.getExtraCustomHeadersForCompany;
+import static com.thinkhr.external.api.utils.ApiTestDataUtil.getFileRecordWithCustomFields;
 import static com.thinkhr.external.api.utils.ApiTestDataUtil.getHeaderIndexMap;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
-import static org.mockito.Matchers.anyString;
-import static org.mockito.Mockito.when;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -31,8 +35,13 @@ import org.apache.commons.io.IOUtils;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
+import org.powermock.api.mockito.PowerMockito;
+import org.powermock.core.classloader.annotations.PowerMockIgnore;
+import org.powermock.core.classloader.annotations.PrepareForTest;
+import org.powermock.modules.junit4.PowerMockRunner;
+import org.powermock.modules.junit4.PowerMockRunnerDelegate;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.test.context.ContextConfiguration;
@@ -40,16 +49,21 @@ import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.thinkhr.external.api.ApiApplication;
+import com.thinkhr.external.api.exception.APIErrorCodes;
 import com.thinkhr.external.api.exception.ApplicationException;
 import com.thinkhr.external.api.exception.MessageResourceHandler;
 import com.thinkhr.external.api.model.FileImportResult;
+import com.thinkhr.external.api.response.APIMessageUtil;
 
-@RunWith(SpringRunner.class)
+@RunWith(PowerMockRunner.class)
+@PowerMockRunnerDelegate(SpringRunner.class)
+@PrepareForTest(value = { FileImportUtil.class, APIMessageUtil.class })
+@PowerMockIgnore({ "javax.management.*" })
 @ContextConfiguration(classes = ApiApplication.class)
 @SpringBootTest
 public class FileImportUtilTest {
 
-    @Mock
+    @Autowired
     private MessageResourceHandler resourceHandler ;
     
     @Before
@@ -148,7 +162,6 @@ public class FileImportUtilTest {
         List<String> fileContents = FileImportUtil.readFileContent(multipartFile);
         assertNotNull(fileContents); 
         assertNotEquals("Line1", fileContents.get(0));  
-        
     }
 
     /**
@@ -165,15 +178,22 @@ public class FileImportUtilTest {
      */
     @Test
     public void testPopulateColumnValues() {
-        String fileRow = getFileRecord();
+        String fileRow = getFileRecordWithCustomFields();
+
+        String[] fileRecords = fileRow.split(COMMA_SEPARATOR);
 
         Map<String, String> columnToHeaderMap = getColumnsToHeadersMap();
         Map<String, Integer> headerIndexMap = getHeaderIndexMap();
 
         List<Object> columnValues = FileImportUtil.populateColumnValues(fileRow, columnToHeaderMap, 
                 headerIndexMap);
-        // TODO
-        assertEquals(headerIndexMap.size(), columnValues.size());
+        assertEquals(fileRecords.length, columnValues.size());
+        assertTrue(columnValues.contains("Pepcus Software Services"));
+        assertTrue(columnValues.contains("pepcus"));
+        assertTrue(columnValues.contains("9213234567"));
+        assertTrue(columnValues.contains("IT"));
+        assertTrue(columnValues.contains("20"));
+        assertTrue(columnValues.contains("Ajay Jain"));
     }
 
     /**
@@ -181,18 +201,32 @@ public class FileImportUtilTest {
      */
     @Test
     public void testPopulateColumnValuesForEmptyHeaderIndex() {
-        String fileRow = getFileRecord();
+        String fileRow = getFileRecordWithCustomFields();
         Map<String, String> columnToHeaderMap = getColumnsToHeadersMap();
         Map<String, Integer> headerIndexMap = new HashMap<String, Integer>();
 
         List<Object> columnValues = FileImportUtil.populateColumnValues(fileRow, columnToHeaderMap, 
                 headerIndexMap);
-        // TODO
+        assertTrue(columnValues.isEmpty());
         assertEquals(headerIndexMap.size(), columnValues.size());
     }
 
     /**
-     * Test to verify when test succeeds and response file is returned with contents. 
+     * Test to verify when file record is not available.
+     */
+    @Test(expected = ArrayIndexOutOfBoundsException.class)
+    public void testPopulateColumnValuesWithNoFileRecord() {
+        String fileRow = DEFAULT_COLUMN_VALUE;
+        Map<String, String> columnToHeaderMap = getColumnsToHeadersMap();
+        Map<String, Integer> headerIndexMap = getHeaderIndexMap();
+
+        List<Object> columnValues = FileImportUtil.populateColumnValues(fileRow, columnToHeaderMap, headerIndexMap);
+        assertNotNull(columnValues);
+        assertTrue(columnValues.isEmpty());
+    }
+
+    /**
+     * Test to verify when response file has no failed records. 
      * 
      */
     @Test
@@ -200,7 +234,6 @@ public class FileImportUtilTest {
         FileImportResult fileImportResult = createFileImportResultWithNoFailedRecords();
         File responseFile = null;
         List<String> fileContents = null;
-        when(resourceHandler.get(anyString())).thenReturn("Any Value");
         try {
             responseFile = FileImportUtil.createReponseFile(fileImportResult, resourceHandler);
             BufferedReader reader = new BufferedReader(new FileReader(responseFile));
@@ -210,18 +243,19 @@ public class FileImportUtilTest {
         }
         assertNotNull(responseFile);
         assertTrue(responseFile.exists());
-        assertEquals("Any Value", fileContents.get(1));   
+        assertEquals("Total Number of Records: 10", fileContents.get(1));
+        assertEquals("Total Number of Successful Records: 10", fileContents.get(2));
+        assertEquals("Total Number of Failure  Records: 0", fileContents.get(3));
     }
     
     /**
-     * Test to verify when test fails and contents of file is not returned.
-     *//*
+     * Test to verify when response file has some failed records.
+     */
     @Test
-    public void testCreateResponseReadWithFailedRecords() {
+    public void testCreateResponseFileWithFailedRecords() {
         FileImportResult fileImportResult = createFileImportResultWithFailedRecords();
         File responseFile = null;
         List<String> fileContents = null;
-        when(resourceHandler.get(anyString())).thenReturn("Any Value");
         try {
             responseFile = FileImportUtil.createReponseFile(fileImportResult, resourceHandler);
             BufferedReader reader = new BufferedReader(new FileReader(responseFile));
@@ -230,42 +264,78 @@ public class FileImportUtilTest {
             fail("Exception not expected.");
         }
         assertNotNull(responseFile);
-    }*/
+        assertTrue(responseFile.exists());
+        assertEquals("Total Number of Records: 10", fileContents.get(1));
+        assertEquals("Total Number of Successful Records: 7", fileContents.get(2));
+        assertEquals("Total Number of Failure  Records: 3", fileContents.get(3));
+    }
 
     /**
-     * Test to verify when all customHeaders in csv has a database field.
+     * Test to verify when all customHeaders in csv has a corresponding mapped database field.
      */
     @Test
     public void testValidateAndFilterCustomHeaders() {
         String[] allHeaders = getAllHeadersForCompany();
         Map<String, String> columnsToHeaderMap = getAllColumnsToHeadersMap();
+        Set<String> customHeaders = getCustomHeadersForCompany();
         
-        FileImportUtil.validateAndFilterCustomHeaders(allHeaders, columnsToHeaderMap.values(), resourceHandler);
+        PowerMockito.mockStatic(FileImportUtil.class);
+        PowerMockito.doReturn(customHeaders).when(FileImportUtil.class);
+        FileImportUtil.filterCustomFieldHeaders(allHeaders, REQUIRED_HEADERS_COMPANY_CSV_IMPORT);
+
+        try {
+            FileImportUtil.validateAndFilterCustomHeaders(allHeaders, columnsToHeaderMap.values(), resourceHandler);
+        } catch (ApplicationException e) {
+            fail("Exception not expected");
+        }
     }
 
     /**
-     * Test to verify when customHeaders in csv does not have a mapping field.
+     * Test to verify when customHeaders in csv does not have a mapping field in
+     * DB.
      * 
      */
-    @Test(expected = ApplicationException.class)
+    @Test
     public void testValidateAndFilterCustomHeadersForFailure() {
-        String[] allHeaders = getAllHeadersForCompany();
-        Map<String, String> columnsToHeaderMap = new HashMap<String, String>();
+        String[] allHeaders = getAllHeadersForCompanyWithExtraHeaders();
+        Map<String, String> columnsToHeaderMap = getAllColumnsToHeadersMap();
+        Set<String> customHeaders = getExtraCustomHeadersForCompany();
 
-        FileImportUtil.validateAndFilterCustomHeaders(allHeaders, columnsToHeaderMap.values(), resourceHandler); 
+        PowerMockito.mockStatic(FileImportUtil.class);
+        PowerMockito.doReturn(customHeaders).when(FileImportUtil.class);
+        FileImportUtil.filterCustomFieldHeaders(allHeaders, REQUIRED_HEADERS_COMPANY_CSV_IMPORT);
+
+        try {
+            FileImportUtil.validateAndFilterCustomHeaders(allHeaders, columnsToHeaderMap.values(), resourceHandler);
+        } catch (ApplicationException ae) {
+            assertNotNull(ae);
+            assertEquals(APIErrorCodes.FILE_READ_ERROR, ae.getApiErrorCode());
+        }
     }
 
     /**
-     * Test to verify when the list of customHeaders are filtered and returned.
+     * Test to verify when the list of customHeaders is filtered and returned.
      */
     @Test
     public void testFilterCustomFieldHeaders() {
         String[] allHeaders = getAllHeadersForCompany();
-        String[] requiredHeaders = REQUIRED_HEADERS_COMPANY_CSV_IMPORT;
 
-        Set<String> customHeaders = FileImportUtil.filterCustomFieldHeaders(allHeaders, requiredHeaders);
+        Set<String> customHeaders = FileImportUtil.filterCustomFieldHeaders(allHeaders, REQUIRED_HEADERS_COMPANY_CSV_IMPORT);
         // Should be equal.
         assertEquals(4, customHeaders.size());
     }
     
+    /**
+     * Test to verify when the list of customHeaders is empty.
+     */
+    @Test
+    public void testFilterCustomFieldHeadersWithEmpty() {
+        String[] allHeaders = null;
+
+        Set<String> customHeaders = FileImportUtil.filterCustomFieldHeaders(allHeaders, REQUIRED_HEADERS_COMPANY_CSV_IMPORT);
+        // Should be empty.
+        assertTrue(customHeaders.isEmpty());
+        assertEquals(0, customHeaders.size());
+    }
+
 }

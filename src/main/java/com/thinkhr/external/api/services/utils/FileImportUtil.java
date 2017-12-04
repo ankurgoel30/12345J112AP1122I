@@ -92,7 +92,7 @@ public class FileImportUtil {
      * @return
      */
     public static List<Object> populateColumnValues(String fileRow, Map<String, String> columnToHeaderMap,
-            Map<String, Integer> headerIndexMap) {
+            Map<String, Integer> headerIndexMap) throws ArrayIndexOutOfBoundsException {
         List<Object> columnValues = new ArrayList<Object>();
         String[] rowColValues = fileRow.split(COMMA_SEPARATOR);
         List<String> columns = null;

@@ -27,6 +27,7 @@ public class QueryBuilder {
     private static final String START_BRACES = "(";
     private static final String END_BRACES = ") ";
     public static final String DELETE_COMPANY_QUERY = "DELETE FROM clients WHERE clientId=?";
+    public static final String SELECT_COMPANY_QUERY = "SELECT * FROM clients";;
     public static List<String> companyRequiredFields;
     public static List<Object> defaultCompReqFieldValues;
     public static String REQUIRED_FIELD_FOR_LOCATION = "client_id";
@@ -44,7 +45,6 @@ public class QueryBuilder {
         defaultCompReqFieldValues.add(DEFAULT_COLUMN_VALUE);
         defaultCompReqFieldValues.add(CommonUtil.getTodayInUTC());
         defaultCompReqFieldValues.add(DEFAULT_ACTIVE_STATUS); //default all clients are active
-
     }
     /**
      *   //INSERT INTO locations(address,address2,city,state,zip,client_id) values(?,?,?,?,?,?);
@@ -75,7 +75,7 @@ public class QueryBuilder {
     }
 
     /**
-     *    INSERT INTO clients(client_name,display_name, client_phone,industry,companysize,producer,custom1,custom2,custom3,custom4,
+     *    INSERT INTO clients(client_name,display_name, client_phone,industry,companySize,producer,custom1,custom2,custom3,custom4,
      *    search_help,client_type,client_since,special_note) " + "VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?)
      *
      * @param companyColumns

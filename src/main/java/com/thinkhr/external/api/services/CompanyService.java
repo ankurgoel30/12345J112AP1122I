@@ -180,6 +180,14 @@ public class CompanyService  extends CommonService {
     FileImportResult processRecords(List<String> records, 
             Company broker) throws ApplicationException {
 
+        if (records == null) {
+            throw ApplicationException.createFileImportError(APIErrorCodes.NO_RECORDS_FOUND_FOR_IMPORT, null);
+        }
+
+        if (broker == null || broker.getCompanyId() == null) {
+            throw ApplicationException.createFileImportError(APIErrorCodes.INVALID_BROKER_ID, "null");
+        }
+
         FileImportResult fileImportResult = new FileImportResult();
 
         String headerLine = records.get(0);
