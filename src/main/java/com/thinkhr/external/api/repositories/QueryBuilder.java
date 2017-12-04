@@ -19,6 +19,7 @@ public class QueryBuilder {
 
     private static final String INSERT_COMPANY = "INSERT into clients";
     private static final String INSERT_LOCATION = "INSERT INTO locations";
+    private static final String INSERT_USER = "INSERT INTO CONTACTS";
     private static final String VALUES = "Values";
     private static final String START_BRACES = "(";
     private static final String END_BRACES = ") ";
@@ -112,4 +113,14 @@ public class QueryBuilder {
         return params.toString();
     }
    
+    
+    /**
+     * @param userColumns
+     * @return
+     */
+    public static String buildUserInsertQuery(List<String> userColumns) {
+        return buildQuery(INSERT_USER, userColumns);
+    }
+
+
 }

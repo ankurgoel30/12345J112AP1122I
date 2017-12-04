@@ -43,6 +43,9 @@ public class ApplicationConstants {
     public static final Integer SPECIAL_CASE_BROKER1 = 187624;
     public static final Integer SPECIAL_CASE_BROKER2 = 205111;
     public static final String NEW_LINE = "\n";
+    
+    public static final String EMAIL_PATTERN = "^[_A-Za-z0-9-\\+]+(\\.[_A-Za-z0-9-]+)*@"  
+            + "[A-Za-z0-9-]+(\\.[A-Za-z0-9]+)*(\\.[A-Za-z]{2,})$";  
 
 
 

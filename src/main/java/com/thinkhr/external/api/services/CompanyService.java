@@ -274,7 +274,7 @@ public class CompanyService  extends CommonService {
             
 
         } catch (ArrayIndexOutOfBoundsException ex) {
-            fileImportResult.addFailedRecord(recCount++ , record, 
+            fileImportResult.addFailedRecord(record, 
                     getMessageFromResourceBundle(resourceHandler, APIErrorCodes.MISSING_FIELDS), 
                     getMessageFromResourceBundle(resourceHandler, APIErrorCodes.SKIPPED_RECORD));
             return;
@@ -296,7 +296,7 @@ public class CompanyService  extends CommonService {
             String cause = ex.getCause() instanceof DataTruncation ? 
                     getMessageFromResourceBundle(resourceHandler, APIErrorCodes.DATA_TRUNCTATION) :
                         ex.getMessage();
-                    fileImportResult.addFailedRecord(recCount++ , record, cause,
+                    fileImportResult.addFailedRecord(record, cause,
                             getMessageFromResourceBundle(resourceHandler, APIErrorCodes.RECORD_NOT_ADDED));
         }
 
@@ -345,7 +345,7 @@ public class CompanyService  extends CommonService {
                 String causeDuplicateName = getMessageFromResourceBundle(resourceHandler, APIErrorCodes.DUPLICATE_RECORD);
                 causeDuplicateName = (!isSpecial ? causeDuplicateName + " - " + companyName : 
                     causeDuplicateName + " - " + companyName + ", " + custom1Value);
-                fileImportResult.addFailedRecord(recCount++ , record, causeDuplicateName,
+                fileImportResult.addFailedRecord(record, causeDuplicateName,
                         getMessageFromResourceBundle(resourceHandler, APIErrorCodes.SKIPPED_RECORD));
             } 
         }

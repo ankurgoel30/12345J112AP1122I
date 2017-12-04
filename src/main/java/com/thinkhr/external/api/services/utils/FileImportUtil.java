@@ -13,6 +13,7 @@ import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -104,6 +105,37 @@ public class FileImportUtil {
     }
 
     /**
+     * Populate column values
+     * 
+     * @param fileRow
+     * @param columnToHeaderMap
+     * @param headerIndexMap
+     * @return
+     */
+    public static Map<String, Object> prepareColumnDataMap(String fileRow, Map<String, String> columnToHeaderMap,
+            Map<String, Integer> headerIndexMap) {
+
+        List<String> columns = new ArrayList<String>(columnToHeaderMap.keySet());
+
+        Map<String, Object> columnDataMap = new HashMap<String, Object>();
+
+        String[] rowColValues = fileRow.split(COMMA_SEPARATOR);
+
+        columns.forEach(col -> {
+            String csvHeader = columnToHeaderMap.get(col);
+            String value = null;
+            if (csvHeader != null && headerIndexMap.containsKey(csvHeader)) {
+                Integer colIndx = headerIndexMap.get(csvHeader);
+                value = rowColValues[colIndx].trim();
+            }
+            columnDataMap.put(csvHeader, value);
+        });
+
+        return columnDataMap;
+    }
+    
+    
+    /**
      * This Function will create a response csv file from FileImportResult
      * @param FileimportResult fileImportResult
      * @return File
@@ -182,6 +214,28 @@ public class FileImportUtil {
 
         return customHeaders;
 
+    }
+
+
+    
+    /**
+     * Get value from given row for given index
+     * @param row
+     * @param index
+     * @return
+     */
+    public static String getValue(String row, Integer index) {
+        
+        if (row == null) {
+            return null;
+        }
+        
+        String[] colValues = row.split(COMMA_SEPARATOR);
+        
+        if (colValues == null || colValues.length <= 0 || colValues.length < index - 1) {
+            return null;
+        }
+         return colValues[index];        
     }
 
 

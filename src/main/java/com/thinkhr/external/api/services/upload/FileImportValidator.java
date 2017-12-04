@@ -104,8 +104,8 @@ public class FileImportValidator {
     private static String[] getRequiredHeaders(String resource) {
         
         switch(resource) {
-        case "company" : return REQUIRED_HEADERS_COMPANY_CSV_IMPORT;
-        case "user" : return REQUIRED_HEADERS_USER_CSV_IMPORT;
+        case "COMPANY" : return REQUIRED_HEADERS_COMPANY_CSV_IMPORT;
+        case "USER" : return REQUIRED_HEADERS_USER_CSV_IMPORT;
         }
         
         return REQUIRED_HEADERS_COMPANY_CSV_IMPORT; //Let's make it default
@@ -119,8 +119,8 @@ public class FileImportValidator {
     private static int getMaxRecords(String resource) {
         
         switch(resource) {
-        case "company" : return MAX_RECORDS_COMPANY_CSV_IMPORT;
-        case "user" : return MAX_RECORDS_USER_CSV_IMPORT;
+        case "COMPANY" : return MAX_RECORDS_COMPANY_CSV_IMPORT;
+        case "USER" : return MAX_RECORDS_USER_CSV_IMPORT;
         }
         
         return MAX_RECORDS_COMPANY_CSV_IMPORT; //Let's make it default

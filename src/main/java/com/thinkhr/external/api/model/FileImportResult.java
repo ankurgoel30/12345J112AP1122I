@@ -25,6 +25,7 @@ public class FileImportResult {
     private int numSuccessRecords;
     private int numFailedRecords;
     private int numBlankRecords;
+    private int recCount = 0;
 
     private String headerLine; // For storing header to be used for creating responseFile
 
@@ -43,9 +44,9 @@ public class FileImportResult {
         numBlankRecords++;
     }
 
-    public void addFailedRecord(int index, String record, String failureCause, String info) {
+    public void addFailedRecord(String record, String failureCause, String info) {
         increamentFailedRecords();
-        this.getFailedRecords().add(new FailedRecord(index, record, failureCause, info));
+        this.getFailedRecords().add(new FailedRecord(recCount++, record, failureCause, info));
     }
     
     @Data
