@@ -49,7 +49,7 @@ public class FileImportUtil {
     public static String[] getMissingHeaders(String[] presentHeaders, String[] requiredHeaders) {
         Set<String> headersInFileSet = null;
         Set<String> requiredHeadersSet = null;
-        ;
+
         if (presentHeaders != null) {
             headersInFileSet = new HashSet<String>(Arrays.asList(presentHeaders));
         }
