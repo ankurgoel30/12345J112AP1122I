@@ -354,6 +354,26 @@ public class CompanyService  extends CommonService {
     }
 
     /**
+     * Get a map of Company columns
+     * 
+     * @param companyId
+     * @param resource
+     * @return
+     */
+    public Map<String, String> getCompanyColumnHeaderMap(int companyId, String resource) {
+
+        Map<String, String> companyColumnHeaderMap = FileUploadEnum.prepareColumnHeaderMap(resource);
+
+        Map<String, String> customColumnHeaderMap = getCustomFieldsMap(companyId, resource);//customColumnsLookUpId - gets custom fields from database
+
+        if (customColumnHeaderMap != null) {
+            companyColumnHeaderMap.putAll(customColumnHeaderMap);
+        }
+        
+        return companyColumnHeaderMap;
+    }
+
+    /**
      * Return default sort field for company service
      * 
      * @return String 

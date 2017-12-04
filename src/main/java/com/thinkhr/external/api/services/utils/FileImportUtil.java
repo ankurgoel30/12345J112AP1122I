@@ -105,37 +105,6 @@ public class FileImportUtil {
     }
 
     /**
-     * Populate column values
-     * 
-     * @param fileRow
-     * @param columnToHeaderMap
-     * @param headerIndexMap
-     * @return
-     */
-    public static Map<String, Object> prepareColumnDataMap(String fileRow, Map<String, String> columnToHeaderMap,
-            Map<String, Integer> headerIndexMap) {
-
-        List<String> columns = new ArrayList<String>(columnToHeaderMap.keySet());
-
-        Map<String, Object> columnDataMap = new HashMap<String, Object>();
-
-        String[] rowColValues = fileRow.split(COMMA_SEPARATOR);
-
-        columns.forEach(col -> {
-            String csvHeader = columnToHeaderMap.get(col);
-            String value = null;
-            if (csvHeader != null && headerIndexMap.containsKey(csvHeader)) {
-                Integer colIndx = headerIndexMap.get(csvHeader);
-                value = rowColValues[colIndx].trim();
-            }
-            columnDataMap.put(csvHeader, value);
-        });
-
-        return columnDataMap;
-    }
-    
-    
-    /**
      * This Function will create a response csv file from FileImportResult
      * @param FileimportResult fileImportResult
      * @return File

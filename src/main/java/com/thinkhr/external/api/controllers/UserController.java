@@ -47,7 +47,7 @@ import com.thinkhr.external.api.services.utils.FileImportUtil;
 @RequestMapping(path="/v1/users")
 public class UserController {
 
-    private static Logger logger = LoggerFactory.getLogger(APIResponseBodyHandler.class);
+    private static Logger logger = LoggerFactory.getLogger(UserController.class);
 
     @Autowired
     UserService userService;

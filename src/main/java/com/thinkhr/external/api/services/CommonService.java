@@ -9,7 +9,6 @@ import org.springframework.stereotype.Service;
 
 import com.thinkhr.external.api.db.entities.Company;
 import com.thinkhr.external.api.db.entities.CustomFields;
-import com.thinkhr.external.api.db.entities.StandardFields;
 import com.thinkhr.external.api.exception.APIErrorCodes;
 import com.thinkhr.external.api.exception.ApplicationException;
 import com.thinkhr.external.api.exception.MessageResourceHandler;
@@ -97,29 +96,4 @@ public class CommonService {
         return broker;
     }
     
-    /**
-     * Get a map of Company columns
-     * 
-     * @param companyId
-     * @param resource
-     * @return
-     */
-    public Map<String, String> getCompanyColumnHeaderMap(int companyId, String resource) {
-
-        Map<String, String> companyColumnHeaderMap = FileUploadEnum.prepareColumnHeaderMap(resource);
-
-        Map<String, String> customColumnHeaderMap = getCustomFieldsMap(companyId, resource);//customColumnsLookUpId - gets custom fields from database
-
-        if (customColumnHeaderMap != null) {
-            companyColumnHeaderMap.putAll(customColumnHeaderMap);
-        }
-        
-        return companyColumnHeaderMap;
-    }
-
-    
-    
-
-
-
 }
