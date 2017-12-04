@@ -29,10 +29,11 @@ public class PrepareStatementBuilder {
             @Override
             public PreparedStatement createPreparedStatement(Connection con) throws SQLException {
                 PreparedStatement statement = con.prepareStatement(query, Statement.RETURN_GENERATED_KEYS);
-                if (values != null) {
-                    for (int i = 0; i < values.size(); i++) {
-                        statement.setObject(i + 1, values.get(i));
-                    }
+                if (values == null) {
+                    return statement;
+                }
+                for (int i = 0; i < values.size(); i++) {
+                    statement.setObject(i + 1, values.get(i));
                 }
                 return statement;
             }

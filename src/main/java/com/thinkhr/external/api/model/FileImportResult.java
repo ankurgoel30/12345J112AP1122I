@@ -21,6 +21,8 @@ import lombok.Data;
  */
 @Data
 public class FileImportResult {
+    @JsonIgnore
+    private int brokerId;
     private int totalRecords;
     private int numSuccessRecords;
     private int numFailedRecords;

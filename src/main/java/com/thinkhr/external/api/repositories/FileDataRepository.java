@@ -44,13 +44,13 @@ public class FileDataRepository {
         KeyHolder keyHolder = new GeneratedKeyHolder();
 
         companyColumnsValues.addAll(defaultCompReqFieldValues);
-        jdbcTemplate.update(buildPreparedStatementCreator(insertClientSql.toString(), companyColumnsValues), keyHolder);
+        jdbcTemplate.update(buildPreparedStatementCreator(insertClientSql, companyColumnsValues), keyHolder);
 
         int clientId = keyHolder.getKey().intValue();
 
         try {
             locationColumnValues.add(String.valueOf(clientId));
-            jdbcTemplate.update(buildPreparedStatementCreator(insertLocationSql.toString(), locationColumnValues));
+            jdbcTemplate.update(buildPreparedStatementCreator(insertLocationSql, locationColumnValues));
         } catch (Exception ex) {
             //rollback client table  insert if location table insert fails
             jdbcTemplate.update(DELETE_COMPANY_QUERY, clientId);
