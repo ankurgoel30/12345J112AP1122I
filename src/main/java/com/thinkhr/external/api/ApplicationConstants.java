@@ -32,6 +32,7 @@ public class ApplicationConstants {
     public static final String COMPANY = "COMPANY";
     public static final String USER = "USER";
     public static final String CONTACT = "CONTACT";
+    public static final String LOCATION = "LOCATION";
     
     public static final int MAX_RECORDS_COMPANY_CSV_IMPORT = 3500;
     public static final int MAX_RECORDS_USER_CSV_IMPORT = 500;

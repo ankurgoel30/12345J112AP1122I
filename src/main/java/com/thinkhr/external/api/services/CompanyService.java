@@ -3,6 +3,8 @@ package com.thinkhr.external.api.services;
 import static com.thinkhr.external.api.ApplicationConstants.COMMA_SEPARATOR;
 import static com.thinkhr.external.api.ApplicationConstants.DEFAULT_SORT_BY_COMPANY_NAME;
 import static com.thinkhr.external.api.ApplicationConstants.TOTAL_RECORDS;
+import static com.thinkhr.external.api.ApplicationConstants.LOCATION;
+import static com.thinkhr.external.api.ApplicationConstants.COMPANY;
 import static com.thinkhr.external.api.request.APIRequestHelper.setRequestAttribute;
 import static com.thinkhr.external.api.response.APIMessageUtil.getMessageFromResourceBundle;
 import static com.thinkhr.external.api.services.upload.FileImportValidator.validateAndGetFileContent;
@@ -165,7 +167,7 @@ public class CompanyService  extends CommonService {
 
         Company broker = validateAndGetBroker(brokerId);
 
-        List<String> fileContents = validateAndGetFileContent(fileToImport, "company");
+        List<String> fileContents = validateAndGetFileContent(fileToImport, COMPANY);
 
         return processRecords (fileContents, broker);
 
@@ -204,7 +206,7 @@ public class CompanyService  extends CommonService {
         //DO not assume that CSV file shall contains fixed column position. Let's read and map then with database column
         Map<String, String> companyFileHeaderColumnMap = appendRequiredAndCustomHeaderMap(broker.getCompanyId(), resource); 
 
-        Map<String, String> locationFileHeaderColumnMap = FileUploadEnum.prepareColumnHeaderMap("location");
+        Map<String, String> locationFileHeaderColumnMap = FileUploadEnum.prepareColumnHeaderMap(LOCATION);
 
         //Check every custom field from imported file has a corresponding column in database. If not, return error here.
         String[] requiredHeaders = getRequiredHeaders(resource);
