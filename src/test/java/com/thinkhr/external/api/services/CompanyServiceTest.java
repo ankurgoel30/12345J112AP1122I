@@ -270,7 +270,7 @@ public class CompanyServiceTest {
 
         Mockito.when(customFieldRepository.findByCompanyIdAndCustomFieldType(companyId, customFieldType)).thenReturn(customFieldTestData);
 
-        Map<String, String> columnsToHeaderMap = companyService.getCompanyColumnHeaderMap(companyId);
+        Map<String, String> columnsToHeaderMap = companyService.appendRequiredAndCustomHeaderMap(companyId, "COMPANY");
         assertTrue(columnsToHeaderMap.containsKey("custom1"));
         assertTrue(columnsToHeaderMap.containsKey("custom2"));
         assertEquals("CORRELATION_ID", columnsToHeaderMap.get("custom1"));
@@ -286,9 +286,9 @@ public class CompanyServiceTest {
         String customFieldType = "COMPANY";
         Mockito.when(customFieldRepository.findByCompanyIdAndCustomFieldType(companyId, customFieldType)).thenReturn(null);
 
-        Map<String, String> columnsToHeaderMap = companyService.getCompanyColumnHeaderMap(companyId);
+        Map<String, String> columnsToHeaderMap = companyService.appendRequiredAndCustomHeaderMap(companyId, "COMPANY");
         assertFalse(columnsToHeaderMap.containsKey("custom1"));
-        assertEquals(FileUploadEnum.COMPANY.prepareColumnHeaderMap().size(), columnsToHeaderMap.size());
+        assertEquals(FileUploadEnum.prepareColumnHeaderMap("COMPANY").size(), columnsToHeaderMap.size());
     }
 
     /**
@@ -661,7 +661,7 @@ public class CompanyServiceTest {
 
         Map<String, String> columnToHeaderMap = ApiTestDataUtil.getColumnsToHeadersMap();
         CompanyService companyServiceSpy = Mockito.spy(new CompanyService());
-        Mockito.doReturn(columnToHeaderMap).when(companyServiceSpy).getCompanyColumnHeaderMap(12345);
+        Mockito.doReturn(columnToHeaderMap).when(companyServiceSpy).appendRequiredAndCustomHeaderMap(12345, "COMPANY");
 
         try {
             companyServiceSpy.processRecords(records, broker);
@@ -693,7 +693,7 @@ public class CompanyServiceTest {
 
         Map<String, String> columnToHeaderMap = ApiTestDataUtil.getColumnsToHeadersMap();
         CompanyService companyServiceSpy = Mockito.spy(new CompanyService());
-        Mockito.doReturn(columnToHeaderMap).when(companyServiceSpy).getCompanyColumnHeaderMap(companyId);
+        Mockito.doReturn(columnToHeaderMap).when(companyServiceSpy).appendRequiredAndCustomHeaderMap(companyId, "COMPANY");
 
         FileImportResult fileImportResult = companyServiceSpy.processRecords(records, broker);
 

@@ -3,10 +3,11 @@ package com.thinkhr.external.api.services;
 import static com.thinkhr.external.api.ApplicationConstants.COMMA_SEPARATOR;
 import static com.thinkhr.external.api.ApplicationConstants.DEFAULT_SORT_BY_USER_NAME;
 import static com.thinkhr.external.api.ApplicationConstants.TOTAL_RECORDS;
-import static com.thinkhr.external.api.ApplicationConstants.EMAIL_PATTERN;
 import static com.thinkhr.external.api.request.APIRequestHelper.setRequestAttribute;
 import static com.thinkhr.external.api.response.APIMessageUtil.getMessageFromResourceBundle;
-import static com.thinkhr.external.api.services.upload.FileImportValidator.*;
+import static com.thinkhr.external.api.services.upload.FileImportValidator.validateAndGetFileContent;
+import static com.thinkhr.external.api.services.upload.FileImportValidator.validateEmail;
+import static com.thinkhr.external.api.services.upload.FileImportValidator.validateRequired;
 import static com.thinkhr.external.api.services.utils.EntitySearchUtil.getEntitySearchSpecification;
 import static com.thinkhr.external.api.services.utils.EntitySearchUtil.getPageable;
 import static com.thinkhr.external.api.services.utils.FileImportUtil.getValue;
@@ -18,8 +19,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
@@ -32,14 +31,12 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.thinkhr.external.api.db.entities.Company;
-import com.thinkhr.external.api.db.entities.StandardFields;
 import com.thinkhr.external.api.db.entities.User;
 import com.thinkhr.external.api.exception.APIErrorCodes;
 import com.thinkhr.external.api.exception.ApplicationException;
 import com.thinkhr.external.api.model.FileImportResult;
 import com.thinkhr.external.api.repositories.UserRepository;
 import com.thinkhr.external.api.services.upload.FileUploadEnum;
-import com.thinkhr.external.api.services.utils.FileImportUtil;
 
 /**
  * The UserService class provides a collection of all
