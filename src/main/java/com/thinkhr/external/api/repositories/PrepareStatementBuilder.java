@@ -33,7 +33,12 @@ public class PrepareStatementBuilder {
                     return statement;
                 }
                 for (int i = 0; i < values.size(); i++) {
-                    statement.setObject(i + 1, values.get(i));
+                    Object value = values.get(i);
+                    if (value instanceof String) {
+                        statement.setString(i+1, (String)value);
+                    } else {
+                        statement.setObject(i + 1, value);
+                    }
                 }
                 return statement;
             }

@@ -164,6 +164,10 @@ public class UserService extends CommonService {
      * @throws ApplicationException
      */
     public FileImportResult bulkUpload(MultipartFile fileToImport, int brokerId) throws ApplicationException {
+        
+        if (fileToImport == null) {
+            throw ApplicationException.createFileImportError(APIErrorCodes.REQUIRED_PARAMETER, "file");
+        }
 
         Company broker = validateAndGetBroker(brokerId);
 
@@ -206,8 +210,6 @@ public class UserService extends CommonService {
             headerIndexMap.put(headersInCSV[i], i);
         }
 
-        int recCount = 0;
-
         for (String record : records ) {
             
             if (StringUtils.containsOnly(record,  new char[]{',',' '})) {
@@ -225,14 +227,14 @@ public class UserService extends CommonService {
            
            String email = getValue(record, headerIndexMap.get(FileUploadEnum.USER_EMAIL.getHeader()));
            
-           if (!validateEmail(record, email, fileImportResult)) {
+           if (!validateEmail(record, email, fileImportResult, resourceHandler)) {
                continue;
            }
            
             // Check if user is for valid company
            String clientName = getValue(record, headerIndexMap.get(FileUploadEnum.USER_CLIENT_NAME.getHeader()));
            
-           Company company = companyRepository.findFirstByCompanyNameAndBroker(clientName, broker.getBroker());
+           Company company = companyRepository.findFirstByCompanyNameAndBroker(clientName, broker.getCompanyId());
            
            if (company == null) {
                fileImportResult.addFailedRecord(record, 

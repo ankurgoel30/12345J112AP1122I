@@ -108,9 +108,11 @@ public class FileImportValidator {
      * @param record
      * @param email
      * @param fileImportResult
+     * @param resourceHandler
      */
     public static boolean validateEmail(String record, String email,
-            FileImportResult fileImportResult) {
+            FileImportResult fileImportResult,
+            MessageResourceHandler resourceHandler) {
         
         if (StringUtils.isBlank(email)) {
             //Add to error
@@ -119,8 +121,9 @@ public class FileImportValidator {
         Pattern pattern = Pattern.compile(EMAIL_PATTERN); 
         Matcher matcher = pattern.matcher(email);  
         if (!matcher.matches()) {  
-            //Add to result
-            
+            fileImportResult.addFailedRecord(record, 
+                    getMessageFromResourceBundle(resourceHandler, APIErrorCodes.INVALID_EMAIL, email), 
+                    getMessageFromResourceBundle(resourceHandler, APIErrorCodes.SKIPPED_RECORD));
             return false;
         }  
         

@@ -249,8 +249,8 @@ public class FileImportUtil {
      */
     public static String getCustomFieldPrefix(String resource) {
         switch (resource) {
-            case USER: return COMPANY_CUSTOM_COLUMN_PREFIX;
-            case COMPANY: return USER_CUSTOM_COLUMN_PREFIX;
+            case USER: return USER_CUSTOM_COLUMN_PREFIX;
+            case COMPANY: return COMPANY_CUSTOM_COLUMN_PREFIX;
         }
         
         return COMPANY_CUSTOM_COLUMN_PREFIX;
