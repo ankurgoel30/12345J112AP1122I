@@ -10,6 +10,7 @@ import static com.thinkhr.external.api.services.upload.FileImportValidator.valid
 import static com.thinkhr.external.api.services.upload.FileImportValidator.validateRequired;
 import static com.thinkhr.external.api.services.utils.EntitySearchUtil.getEntitySearchSpecification;
 import static com.thinkhr.external.api.services.utils.EntitySearchUtil.getPageable;
+import static com.thinkhr.external.api.services.utils.FileImportUtil.getRequiredHeaders;
 import static com.thinkhr.external.api.services.utils.FileImportUtil.getValue;
 import static com.thinkhr.external.api.services.utils.FileImportUtil.populateColumnValues;
 import static com.thinkhr.external.api.services.utils.FileImportUtil.validateAndFilterCustomHeaders;
@@ -81,7 +82,7 @@ public class UserService extends CommonService {
 
         Specification<User> spec = getEntitySearchSpecification(searchSpec, requestParameters, User.class, new User());
 
-        Page<User> userList  = (Page<User>) userRepository.findAll(spec,pageable);
+        Page<User> userList  = userRepository.findAll(spec,pageable);
 
         if (userList != null) {
             userList.getContent().forEach(c -> users.add(c));
@@ -164,8 +165,8 @@ public class UserService extends CommonService {
 
     }
 
-    /**S
-     * Process imported file to save companies records in database
+    /**
+     * Process imported file to save users records in database
      *  
      * @param records
      * @param brokerId
@@ -189,7 +190,8 @@ public class UserService extends CommonService {
         Map<String, String> headerVsColumnMap = appendRequiredAndCustomHeaderMap(broker.getCompanyId(), resource); 
 
         //Check every custom field from imported file has a corresponding column in database. If not, return error here.
-        validateAndFilterCustomHeaders(headersInCSV, headerVsColumnMap.values(), resourceHandler);
+        String[] requiredHeaders = getRequiredHeaders(resource);
+        validateAndFilterCustomHeaders(headersInCSV, headerVsColumnMap.values(), requiredHeaders, resourceHandler);
 
         Map<String, Integer> headerIndexMap = new HashMap<String, Integer>();
         for (int i = 0; i < headersInCSV.length; i++) {
@@ -219,6 +221,7 @@ public class UserService extends CommonService {
                continue;
            }
            
+            // Check if user is for valid company
            String clientName = getValue(record, headerIndexMap.get(FileUploadEnum.USER_CLIENT_NAME.getHeader()));
            
            Company company = companyRepository.findFirstByCompanyNameAndBroker(clientName, broker.getBroker());
@@ -230,8 +233,8 @@ public class UserService extends CommonService {
                continue;
            }
            
-           headerIndexMap.put("client_id", company.getCompanyId());
-           headerVsColumnMap.put("client_id", "client_id");
+            //headerIndexMap.put("client_id", company.getCompanyId());
+            //headerVsColumnMap.put("client_id", "client_id");
            
             //Check to validate duplicate record
             if (checkDuplicate(record, userName, fileImportResult)) {

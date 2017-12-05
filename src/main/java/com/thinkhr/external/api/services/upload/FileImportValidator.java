@@ -96,9 +96,9 @@ public class FileImportValidator {
 
             String requiredHeadersStr = String.join(",", requiredHeaders);
 
-            String missingHeaders = String.join(",", missingHeadersIfAny);
+            String missingHeadersStr = String.join(",", missingHeadersIfAny);
 
-            throw ApplicationException.createFileImportError(APIErrorCodes.MISSING_REQUIRED_HEADERS, fileName, missingHeaders,
+            throw ApplicationException.createFileImportError(APIErrorCodes.MISSING_REQUIRED_HEADERS, fileName, missingHeadersStr,
                     requiredHeadersStr);
         }
 
@@ -153,7 +153,7 @@ public class FileImportValidator {
 
         for (String field : requiredFields) {
             Integer index = headerIndexMap.get(field); 
-            if (index == null || colValues.length < index || StringUtils.isBlank(colValues[index])) {
+            if (index == null || colValues.length <= index  || StringUtils.isBlank(colValues[index])) {
                 fileImportResult.addFailedRecord(record, 
                         getMessageFromResourceBundle(resourceHandler, APIErrorCodes.MISSING_REQUIRED_FIELD, field), 
                         getMessageFromResourceBundle(resourceHandler, APIErrorCodes.SKIPPED_RECORD));

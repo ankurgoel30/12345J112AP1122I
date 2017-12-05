@@ -31,6 +31,9 @@ public class QueryBuilder {
     public static final String SELECT_COMPANY_QUERY = "SELECT * FROM clients";;
     public static List<String> companyRequiredFields;
     public static List<Object> defaultCompReqFieldValues;
+
+    public static List<String> userRequiredFields;
+    public static List<Object> defaultUserReqFieldValues;
     public static String REQUIRED_FIELD_FOR_LOCATION = "client_id";
     static {
         companyRequiredFields = new ArrayList<String>();
@@ -46,6 +49,20 @@ public class QueryBuilder {
         defaultCompReqFieldValues.add(DEFAULT_COLUMN_VALUE);
         defaultCompReqFieldValues.add(CommonUtil.getTodayInUTC());
         defaultCompReqFieldValues.add(DEFAULT_ACTIVE_STATUS); //default all clients are active
+
+        userRequiredFields = new ArrayList<String>();
+        userRequiredFields.add("search_help");
+        userRequiredFields.add("mkdate");
+        userRequiredFields.add("codevalid");
+        userRequiredFields.add("update_password");
+        userRequiredFields.add("blockedaccount");
+
+        defaultUserReqFieldValues = new ArrayList<Object>();
+        defaultUserReqFieldValues.add(DEFAULT_COLUMN_VALUE);
+        defaultUserReqFieldValues.add(DEFAULT_COLUMN_VALUE);
+        defaultUserReqFieldValues.add(DEFAULT_COLUMN_VALUE);
+        defaultUserReqFieldValues.add(DEFAULT_COLUMN_VALUE);
+        defaultUserReqFieldValues.add(new Integer(0));
     }
     /**
      *   //INSERT INTO locations(address,address2,city,state,zip,client_id) values(?,?,?,?,?,?);
@@ -114,8 +131,7 @@ public class QueryBuilder {
      * @return
      */
     public static String buildUserInsertQuery(List<String> userColumns) {
+        userColumns.addAll(userRequiredFields);
         return buildQuery(INSERT_USER, userColumns);
     }
-
-
 }

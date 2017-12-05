@@ -109,19 +109,21 @@ public class CommonService {
 
         Map<String, String> requiredColHeaderMap = FileUploadEnum.prepareColumnHeaderMap(resource);
 
-        Map<String, String> customColumnHeaderMap = getCustomFieldsMap(companyId, resource);//customColumnsLookUpId - gets custom fields from database
+        Map<String, String> customColHeaderMap = getCustomFieldsMap(companyId, resource);//customColumnsLookUpId - gets custom fields from database
 
-        if (customColumnHeaderMap == null) {
+        if (customColHeaderMap == null) {
             return requiredColHeaderMap;
         }
         
-        requiredColHeaderMap.putAll(customColumnHeaderMap);
+        requiredColHeaderMap.putAll(customColHeaderMap);
         
         return requiredColHeaderMap;
     }
 
     
     /**
+     * This function looks up table mapped to StandardFields entity and returns list of 
+     * headers for which values must be present in a csv record. 
      * @param type
      */
     public List<String> getRequiredHeadersFromStdFields(String type) {
@@ -132,7 +134,7 @@ public class CommonService {
         }
         
         List<String> list = new ArrayList<String>();
-        stdFields.stream().forEach(field -> list.add(field.getType()));
+        stdFields.stream().forEach(field -> list.add(field.getLabel()));
         
         return list;
     }

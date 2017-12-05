@@ -50,12 +50,12 @@ public class FileImportUtil {
      * @param String[] requiredHeaders
      * @return String[] Array of missing headers 
      */
-    public static String[] getMissingHeaders(String[] presentHeaders, String[] requiredHeaders) {
+    public static String[] getMissingHeaders(String[] headersInFile, String[] requiredHeaders) {
         Set<String> headersInFileSet = null;
         Set<String> requiredHeadersSet = null;
 
-        if (presentHeaders != null) {
-            headersInFileSet = new HashSet<String>(Arrays.asList(presentHeaders));
+        if (headersInFile != null) {
+            headersInFileSet = new HashSet<String>(Arrays.asList(headersInFile));
         }
         if (requiredHeaders != null) {
             requiredHeadersSet = new HashSet<String>(Arrays.asList(requiredHeaders));
@@ -158,10 +158,10 @@ public class FileImportUtil {
      * @param resourceHandler
      */
     public static void validateAndFilterCustomHeaders(String[] allHeadersInCsv, 
-            Collection<String> allMappedHeaders
+            Collection<String> allMappedHeaders, String[] requiredHeaders
             , MessageResourceHandler resourceHandler) {
 
-        Set<String> customHeaders = filterCustomFieldHeaders(allHeadersInCsv, REQUIRED_HEADERS_COMPANY_CSV_IMPORT);
+        Set<String> customHeaders = filterCustomFieldHeaders(allHeadersInCsv, requiredHeaders);
 
         String columnForFailureCause = getMessageFromResourceBundle(resourceHandler, APIErrorCodes.FAILURE_CAUSE);
 
@@ -208,17 +208,17 @@ public class FileImportUtil {
      * @return
      */
     public static String getValue(String row, Integer index) {
-        
+
         if (row == null) {
             return null;
         }
-        
+
         String[] colValues = row.split(COMMA_SEPARATOR);
-        
-        if (colValues == null || colValues.length <= 0 || colValues.length < index - 1) {
+
+        if (colValues == null || colValues.length <= 0 || colValues.length <= index) {
             return null;
         }
-         return colValues[index];        
+        return colValues[index];
     }
 
     
@@ -249,8 +249,8 @@ public class FileImportUtil {
     public static int getMaxRecords(String resource) {
         
         switch(resource) {
-        case "COMPANY" : return MAX_RECORDS_COMPANY_CSV_IMPORT;
-        case "USER" : return MAX_RECORDS_USER_CSV_IMPORT;
+            case "COMPANY" : return MAX_RECORDS_COMPANY_CSV_IMPORT;
+            case "USER" : return MAX_RECORDS_USER_CSV_IMPORT;
         }
         
         return MAX_RECORDS_COMPANY_CSV_IMPORT; //Let's make it default

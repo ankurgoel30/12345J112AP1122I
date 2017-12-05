@@ -8,6 +8,7 @@ import static com.thinkhr.external.api.response.APIMessageUtil.getMessageFromRes
 import static com.thinkhr.external.api.services.upload.FileImportValidator.validateAndGetFileContent;
 import static com.thinkhr.external.api.services.utils.EntitySearchUtil.getEntitySearchSpecification;
 import static com.thinkhr.external.api.services.utils.EntitySearchUtil.getPageable;
+import static com.thinkhr.external.api.services.utils.FileImportUtil.getRequiredHeaders;
 import static com.thinkhr.external.api.services.utils.FileImportUtil.populateColumnValues;
 import static com.thinkhr.external.api.services.utils.FileImportUtil.validateAndFilterCustomHeaders;
 
@@ -206,7 +207,8 @@ public class CompanyService  extends CommonService {
         Map<String, String> locationFileHeaderColumnMap = FileUploadEnum.prepareColumnHeaderMap("location");
 
         //Check every custom field from imported file has a corresponding column in database. If not, return error here.
-        validateAndFilterCustomHeaders(headersInCSV, companyFileHeaderColumnMap.values(), resourceHandler);
+        String[] requiredHeaders = getRequiredHeaders(resource);
+        validateAndFilterCustomHeaders(headersInCSV, companyFileHeaderColumnMap.values(), requiredHeaders, resourceHandler);
 
         Map<String, Integer> headerIndexMap = new HashMap<String, Integer>();
         for (int i = 0; i < headersInCSV.length; i++) {
