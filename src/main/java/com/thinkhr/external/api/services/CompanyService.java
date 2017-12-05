@@ -193,7 +193,7 @@ public class CompanyService  extends CommonService {
         String[] headersInCSV = headerLine.split(COMMA_SEPARATOR);
 
         //DO not assume that CSV file shall contains fixed column position. Let's read and map then with database column
-        Map<String, String> companyFileHeaderColumnMap = getCompanyColumnHeaderMap(broker.getCompanyId(), resource); 
+        Map<String, String> companyFileHeaderColumnMap = appendRequiredAndCustomHeaderMap(broker.getCompanyId(), resource); 
 
         Map<String, String> locationFileHeaderColumnMap = FileUploadEnum.prepareColumnHeaderMap("location");
 
@@ -354,26 +354,6 @@ public class CompanyService  extends CommonService {
         }
 
         return isDuplicate;
-    }
-
-    /**
-     * Get a map of Company columns
-     * 
-     * @param companyId
-     * @param resource
-     * @return
-     */
-    public Map<String, String> getCompanyColumnHeaderMap(int companyId, String resource) {
-
-        Map<String, String> companyColumnHeaderMap = FileUploadEnum.prepareColumnHeaderMap(resource);
-
-        Map<String, String> customColumnHeaderMap = getCustomFieldsMap(companyId, resource);//customColumnsLookUpId - gets custom fields from database
-
-        if (customColumnHeaderMap != null) {
-            companyColumnHeaderMap.putAll(customColumnHeaderMap);
-        }
-        
-        return companyColumnHeaderMap;
     }
 
     /**

@@ -19,7 +19,7 @@ import lombok.Data;
  *
  */
 @Entity
-@Table(name = "app_throne_standard_fields")
+@Table(name = "app_throne_standard_field")
 @Data
 @Where(clause="required=1 and status=1")
 public class StandardFields {

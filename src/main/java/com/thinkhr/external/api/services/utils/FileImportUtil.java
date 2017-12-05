@@ -2,7 +2,10 @@ package com.thinkhr.external.api.services.utils;
 
 import static com.thinkhr.external.api.ApplicationConstants.COMMA_SEPARATOR;
 import static com.thinkhr.external.api.ApplicationConstants.FILE_IMPORT_RESULT_MSG;
+import static com.thinkhr.external.api.ApplicationConstants.MAX_RECORDS_COMPANY_CSV_IMPORT;
+import static com.thinkhr.external.api.ApplicationConstants.MAX_RECORDS_USER_CSV_IMPORT;
 import static com.thinkhr.external.api.ApplicationConstants.REQUIRED_HEADERS_COMPANY_CSV_IMPORT;
+import static com.thinkhr.external.api.ApplicationConstants.REQUIRED_HEADERS_USER_CSV_IMPORT;
 import static com.thinkhr.external.api.response.APIMessageUtil.getMessageFromResourceBundle;
 
 import java.io.BufferedReader;
@@ -206,6 +209,43 @@ public class FileImportUtil {
         }
          return colValues[index];        
     }
+
+    
+
+    /**
+     * Get required headers
+     * 
+     * @param resource
+     * @return
+     */
+    public static String[] getRequiredHeaders(String resource) {
+        
+        switch(resource) {
+        case "COMPANY" : return REQUIRED_HEADERS_COMPANY_CSV_IMPORT;
+        case "USER" : return REQUIRED_HEADERS_USER_CSV_IMPORT;
+        }
+        
+        return REQUIRED_HEADERS_COMPANY_CSV_IMPORT; //Let's make it default
+    }
+
+
+    /**
+     * Get Maximum record configurations
+     * 
+     * @param resource
+     * @return
+     */
+    public static int getMaxRecords(String resource) {
+        
+        switch(resource) {
+        case "COMPANY" : return MAX_RECORDS_COMPANY_CSV_IMPORT;
+        case "USER" : return MAX_RECORDS_USER_CSV_IMPORT;
+        }
+        
+        return MAX_RECORDS_COMPANY_CSV_IMPORT; //Let's make it default
+    }
+
+    
 
 
 }

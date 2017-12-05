@@ -6,7 +6,7 @@ import static com.thinkhr.external.api.ApplicationConstants.TOTAL_RECORDS;
 import static com.thinkhr.external.api.ApplicationConstants.EMAIL_PATTERN;
 import static com.thinkhr.external.api.request.APIRequestHelper.setRequestAttribute;
 import static com.thinkhr.external.api.response.APIMessageUtil.getMessageFromResourceBundle;
-import static com.thinkhr.external.api.services.upload.FileImportValidator.validateAndGetFileContent;
+import static com.thinkhr.external.api.services.upload.FileImportValidator.*;
 import static com.thinkhr.external.api.services.utils.EntitySearchUtil.getEntitySearchSpecification;
 import static com.thinkhr.external.api.services.utils.EntitySearchUtil.getPageable;
 import static com.thinkhr.external.api.services.utils.FileImportUtil.getValue;
@@ -39,6 +39,7 @@ import com.thinkhr.external.api.exception.ApplicationException;
 import com.thinkhr.external.api.model.FileImportResult;
 import com.thinkhr.external.api.repositories.UserRepository;
 import com.thinkhr.external.api.services.upload.FileUploadEnum;
+import com.thinkhr.external.api.services.utils.FileImportUtil;
 
 /**
  * The UserService class provides a collection of all
@@ -188,7 +189,7 @@ public class UserService extends CommonService {
         String[] headersInCSV = headerLine.split(COMMA_SEPARATOR);
 
         //DO not assume that CSV file shall contains fixed column position. Let's read and map then with database column
-        Map<String, String> headerVsColumnMap = getCompanyColumnHeaderMap(broker.getCompanyId(), resource); 
+        Map<String, String> headerVsColumnMap = appendRequiredAndCustomHeaderMap(broker.getCompanyId(), resource); 
 
         //Check every custom field from imported file has a corresponding column in database. If not, return error here.
         validateAndFilterCustomHeaders(headersInCSV, headerVsColumnMap.values(), resourceHandler);
@@ -209,7 +210,9 @@ public class UserService extends CommonService {
             
            String userName = getValue(record, headerIndexMap.get(FileUploadEnum.USER_USER_NAME.getHeader()));
            
-           if (!validateRequired(record, headerIndexMap, fileImportResult)) {
+           List<String> requiredFields = getRequiredHeadersFromStdFields("CONTACT");
+           
+           if (!validateRequired(record, requiredFields, headerIndexMap, fileImportResult, resourceHandler)) {
                continue;
            }
            
@@ -224,7 +227,10 @@ public class UserService extends CommonService {
            Company company = companyRepository.findFirstByCompanyNameAndBroker(clientName, broker.getBroker());
            
            if (company == null) {
-               // In valid entry
+               fileImportResult.addFailedRecord(record, 
+                       getMessageFromResourceBundle(resourceHandler, APIErrorCodes.INVALID_CLIENT_NAME, clientName), 
+                       getMessageFromResourceBundle(resourceHandler, APIErrorCodes.SKIPPED_RECORD));
+               continue;
            }
            
            headerIndexMap.put("client_id", company.getCompanyId());
@@ -256,83 +262,6 @@ public class UserService extends CommonService {
         }
 
         return fileImportResult;
-    }
-
-    /**
-     * To validate email field
-     * @param record
-     * @param email
-     * @param fileImportResult
-     */
-    public boolean validateEmail(String record, String email,
-            FileImportResult fileImportResult) {
-        
-        if (StringUtils.isBlank(email)) {
-            //Add to error
-        }
-        
-        Pattern pattern = Pattern.compile(EMAIL_PATTERN); 
-        Matcher matcher = pattern.matcher(email);  
-        if (!matcher.matches()) {  
-            //Add to result
-            
-            return false;
-        }  
-        
-        return true;
-    }
-
-    /**
-     * To Validate required fields
-     * 
-     * @param record
-     * @param headerIndexMap
-     * @param fileImportResult
-     */
-    public boolean validateRequired(String record,
-            Map<String, Integer> headerIndexMap,
-            FileImportResult fileImportResult) {
-
-        if (record == null) {
-            return true; //Do nothing
-        }
-
-        List<StandardFields> standardFields = standardFieldRepository.findByType("CONTACT");
-
-        if (standardFields == null || standardFields.isEmpty()) {
-            //No required fields
-            return true;
-        }
-        String [] colValues = record.split(COMMA_SEPARATOR);
-
-        for (StandardFields field : standardFields) {
-            Integer index = headerIndexMap.get(field.getLabel()); 
-            if (index == null) {
-                addToRequiredMissing(record, field.getLabel(), fileImportResult);
-                return false;
-            }
-
-            if (colValues.length < index || StringUtils.isBlank(colValues[index])) {
-                addToRequiredMissing(record, field.getLabel(), fileImportResult);
-                return false;
-            }
-        }
-
-        return true;
-    }
-
-    /**
-     * Header value is missing 
-     * 
-     * @param field
-     * @param fileImportResult
-     */
-    private void addToRequiredMissing(String record, String header,
-            FileImportResult fileImportResult) {
-        fileImportResult.addFailedRecord(record, 
-                getMessageFromResourceBundle(resourceHandler, APIErrorCodes.MISSING_REQUIRED_FIELD, header), 
-                getMessageFromResourceBundle(resourceHandler, APIErrorCodes.SKIPPED_RECORD));
-        return;        
     }
 
     /**
@@ -407,6 +336,7 @@ public class UserService extends CommonService {
         return false;
     }
 
+    
     /**
      * Return default sort field for user service
      * 

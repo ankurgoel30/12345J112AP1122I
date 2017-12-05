@@ -1,19 +1,28 @@
 package com.thinkhr.external.api.services.upload;
 
-import static com.thinkhr.external.api.ApplicationConstants.MAX_RECORDS_COMPANY_CSV_IMPORT;
-import static com.thinkhr.external.api.ApplicationConstants.MAX_RECORDS_USER_CSV_IMPORT;
-import static com.thinkhr.external.api.ApplicationConstants.REQUIRED_HEADERS_COMPANY_CSV_IMPORT;
-import static com.thinkhr.external.api.ApplicationConstants.REQUIRED_HEADERS_USER_CSV_IMPORT;
+import static com.thinkhr.external.api.ApplicationConstants.COMMA_SEPARATOR;
+import static com.thinkhr.external.api.ApplicationConstants.EMAIL_PATTERN;
 import static com.thinkhr.external.api.ApplicationConstants.VALID_FILE_EXTENSION_IMPORT;
+import static com.thinkhr.external.api.response.APIMessageUtil.getMessageFromResourceBundle;
+import static com.thinkhr.external.api.services.utils.FileImportUtil.getMaxRecords;
+import static com.thinkhr.external.api.services.utils.FileImportUtil.getMissingHeaders;
+import static com.thinkhr.external.api.services.utils.FileImportUtil.getRequiredHeaders;
+import static com.thinkhr.external.api.services.utils.FileImportUtil.readFileContent;
 
 import java.util.List;
+import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.apache.commons.io.FilenameUtils;
+import org.apache.commons.lang.StringUtils;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.thinkhr.external.api.exception.APIErrorCodes;
 import com.thinkhr.external.api.exception.ApplicationException;
-import com.thinkhr.external.api.services.utils.FileImportUtil;
+import com.thinkhr.external.api.exception.MessageResourceHandler;
+import com.thinkhr.external.api.model.FileImportResult;
 
 /**
  * To valid file import
@@ -23,7 +32,6 @@ import com.thinkhr.external.api.services.utils.FileImportUtil;
  *
  */
 public class FileImportValidator {
-
 
     /**
      * This function validates fileToimport and populates fileContens
@@ -48,7 +56,7 @@ public class FileImportValidator {
         }
 
         // Read all records from file
-        List<String> fileContents = FileImportUtil.readFileContent(fileToImport);
+        List<String> fileContents = readFileContent(fileToImport);
 
         validateFileContents(fileContents, fileName, resource);
 
@@ -82,7 +90,7 @@ public class FileImportValidator {
         String[] headers = headerLine.split(",");
 
         String[] requiredHeaders = getRequiredHeaders(resource) ;
-        String[] missingHeadersIfAny = FileImportUtil.getMissingHeaders(headers, requiredHeaders);
+        String[] missingHeadersIfAny = getMissingHeaders(headers, requiredHeaders);
 
         if (missingHeadersIfAny != null && missingHeadersIfAny.length > 0) {
 
@@ -95,35 +103,66 @@ public class FileImportValidator {
         }
 
     }
-
-
     /**
-     * @param resource
-     * @return
+     * To validate email field
+     * @param record
+     * @param email
+     * @param fileImportResult
      */
-    private static String[] getRequiredHeaders(String resource) {
+    public static boolean validateEmail(String record, String email,
+            FileImportResult fileImportResult) {
         
-        switch(resource) {
-        case "COMPANY" : return REQUIRED_HEADERS_COMPANY_CSV_IMPORT;
-        case "USER" : return REQUIRED_HEADERS_USER_CSV_IMPORT;
+        if (StringUtils.isBlank(email)) {
+            //Add to error
         }
         
-        return REQUIRED_HEADERS_COMPANY_CSV_IMPORT; //Let's make it default
+        Pattern pattern = Pattern.compile(EMAIL_PATTERN); 
+        Matcher matcher = pattern.matcher(email);  
+        if (!matcher.matches()) {  
+            //Add to result
+            
+            return false;
+        }  
+        
+        return true;
     }
-
 
     /**
-     * @param resource
-     * @return
+     * To Validate required fields
+     * 
+     * @param record
+     * @param requiredFields
+     * @param headerIndexMap
+     * @param fileImportResult
      */
-    private static int getMaxRecords(String resource) {
-        
-        switch(resource) {
-        case "COMPANY" : return MAX_RECORDS_COMPANY_CSV_IMPORT;
-        case "USER" : return MAX_RECORDS_USER_CSV_IMPORT;
+    public static boolean validateRequired(String record,
+            List<String> requiredFields,
+            Map<String, Integer> headerIndexMap,
+            FileImportResult fileImportResult,
+            MessageResourceHandler resourceHandler) {
+
+        if (record == null) {
+            return true; //Do nothing
         }
-        
-        return MAX_RECORDS_COMPANY_CSV_IMPORT; //Let's make it default
+
+        if (requiredFields == null || requiredFields.isEmpty()) {
+            //No required fields
+            return true;
+        }
+        String [] colValues = record.split(COMMA_SEPARATOR);
+
+        for (String field : requiredFields) {
+            Integer index = headerIndexMap.get(field); 
+            if (index == null || colValues.length < index || StringUtils.isBlank(colValues[index])) {
+                fileImportResult.addFailedRecord(record, 
+                        getMessageFromResourceBundle(resourceHandler, APIErrorCodes.MISSING_REQUIRED_FIELD, field), 
+                        getMessageFromResourceBundle(resourceHandler, APIErrorCodes.SKIPPED_RECORD));
+                return false;
+            }
+        }
+
+        return true;
     }
+
 
 }

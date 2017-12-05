@@ -1,14 +1,17 @@
 package com.thinkhr.external.api.services;
 
+import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.thinkhr.external.api.db.entities.Company;
 import com.thinkhr.external.api.db.entities.CustomFields;
+import com.thinkhr.external.api.db.entities.StandardFields;
 import com.thinkhr.external.api.exception.APIErrorCodes;
 import com.thinkhr.external.api.exception.ApplicationException;
 import com.thinkhr.external.api.exception.MessageResourceHandler;
@@ -93,6 +96,45 @@ public class CommonService {
         }
 
         return broker;
+    }
+    
+    /**
+     * Get a map of Company columns
+     * 
+     * @param companyId
+     * @param resource
+     * @return
+     */
+    public Map<String, String> appendRequiredAndCustomHeaderMap(int companyId, String resource) {
+
+        Map<String, String> requiredColHeaderMap = FileUploadEnum.prepareColumnHeaderMap(resource);
+
+        Map<String, String> customColumnHeaderMap = getCustomFieldsMap(companyId, resource);//customColumnsLookUpId - gets custom fields from database
+
+        if (customColumnHeaderMap == null) {
+            return requiredColHeaderMap;
+        }
+        
+        requiredColHeaderMap.putAll(customColumnHeaderMap);
+        
+        return requiredColHeaderMap;
+    }
+
+    
+    /**
+     * @param type
+     */
+    public List<String> getRequiredHeadersFromStdFields(String type) {
+        
+        List<StandardFields> stdFields = standardFieldRepository.findByType(type);
+        if (stdFields == null) {
+            return null;
+        }
+        
+        List<String> list = new ArrayList<String>();
+        stdFields.stream().forEach(field -> list.add(field.getType()));
+        
+        return list;
     }
     
 }
