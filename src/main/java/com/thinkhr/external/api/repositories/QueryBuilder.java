@@ -1,5 +1,9 @@
 package com.thinkhr.external.api.repositories;
 
+import static com.thinkhr.external.api.ApplicationConstants.COMMA_SEPARATOR;
+import static com.thinkhr.external.api.ApplicationConstants.DEFAULT_ACTIVE_STATUS;
+import static com.thinkhr.external.api.ApplicationConstants.DEFAULT_COLUMN_VALUE;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -17,14 +21,32 @@ import com.thinkhr.external.api.services.utils.CommonUtil;
  */
 public class QueryBuilder {
 
-    private static final String INSERT_COMPANY = "INSERT into clients";
+    private static final String INSERT_COMPANY = "INSERT INTO clients";
     private static final String INSERT_LOCATION = "INSERT INTO locations";
     private static final String INSERT_USER = "INSERT INTO CONTACTS";
-    private static final String VALUES = "Values";
+    private static final String VALUES = "VALUES";
     private static final String START_BRACES = "(";
     private static final String END_BRACES = ") ";
-    public static final String DELETE_COMPANY_QUERY = "Delete from clients where clientId=?";
-    
+    public static final String DELETE_COMPANY_QUERY = "DELETE FROM clients WHERE clientId=?";
+    public static final String SELECT_COMPANY_QUERY = "SELECT * FROM clients";;
+    public static List<String> companyRequiredFields;
+    public static List<Object> defaultCompReqFieldValues;
+    public static String REQUIRED_FIELD_FOR_LOCATION = "client_id";
+    static {
+        companyRequiredFields = new ArrayList<String>();
+        companyRequiredFields.add("search_help");
+        companyRequiredFields.add("client_type");
+        companyRequiredFields.add("special_note");
+        companyRequiredFields.add("client_since");
+        companyRequiredFields.add("t1_is_active");
+
+        defaultCompReqFieldValues = new ArrayList<Object>();
+        defaultCompReqFieldValues.add(DEFAULT_COLUMN_VALUE);
+        defaultCompReqFieldValues.add(DEFAULT_COLUMN_VALUE);
+        defaultCompReqFieldValues.add(DEFAULT_COLUMN_VALUE);
+        defaultCompReqFieldValues.add(CommonUtil.getTodayInUTC());
+        defaultCompReqFieldValues.add(DEFAULT_ACTIVE_STATUS); //default all clients are active
+    }
     /**
      *   //INSERT INTO locations(address,address2,city,state,zip,client_id) values(?,?,?,?,?,?);
      * 
@@ -32,7 +54,7 @@ public class QueryBuilder {
      * @return
      */
     public static String buildLocationInsertQuery(List<String> locationColumns) {
-        locationColumns.add("client_id");
+        locationColumns.add(REQUIRED_FIELD_FOR_LOCATION);
         return buildQuery(INSERT_LOCATION, locationColumns);
     }
 
@@ -45,7 +67,7 @@ public class QueryBuilder {
     private static String buildQuery(String insertQueryType, List<String> columns) {
         StringBuffer insertLocationSql = new StringBuffer();
         insertLocationSql.append(insertQueryType)
-                .append(START_BRACES).append(StringUtils.join(columns, ApplicationConstants.COMMA_SEPARATOR))
+                .append(START_BRACES).append(StringUtils.join(columns, COMMA_SEPARATOR))
         .append(END_BRACES)
         .append(VALUES)
                 .append(START_BRACES).append(getQueryParaSpecifiers(columns.size()))
@@ -54,42 +76,15 @@ public class QueryBuilder {
     }
 
     /**
-     *    INSERT INTO clients(client_name,display_name, client_phone,industry,companysize,producer,custom1,custom2,custom3,custom4,
+     *    INSERT INTO clients(client_name,display_name, client_phone,industry,companySize,producer,custom1,custom2,custom3,custom4,
      *    search_help,client_type,client_since,special_note) " + "VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?)
      *
      * @param companyColumns
      * @return
      */
     public static String buildCompanyInsertQuery(List<String> companyColumns) {
-        companyColumns.addAll(defaultCompanyColumnsForNewRecord());
+        companyColumns.addAll(companyRequiredFields);
         return buildQuery(INSERT_COMPANY, companyColumns);
-    }
-
-    /**
-     * @return
-     */
-    public static List<String> defaultCompanyColumnsForNewRecord() {
-        List<String> companyColumns = new ArrayList<String>();
-        companyColumns.add("search_help");
-        companyColumns.add("client_type");
-        companyColumns.add("special_note");
-        companyColumns.add("client_since");
-        companyColumns.add("t1_is_active");
-        return companyColumns;
-    }
-
-    /**
-     * 
-     * @return
-     */
-    public static List<Object> companyDefaultColumnsValuesForNewRecord() {
-        List<Object> companyColumnsValues = new ArrayList<Object>();
-        companyColumnsValues.add("");
-        companyColumnsValues.add("");
-        companyColumnsValues.add("");
-        companyColumnsValues.add(CommonUtil.getTodayInUTC());
-        companyColumnsValues.add("1"); //default all clients are active
-        return companyColumnsValues;
     }
 
     /**

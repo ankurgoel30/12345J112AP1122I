@@ -79,8 +79,6 @@ public class FileImportResult {
         if (numFailedRecords > 0) {
             stb.append(failureTitle)
             .append(NEW_LINE)
-            .append(failureCause)
-            .append(NEW_LINE)
             .append(getHeaderLine())
             .append(COMMA_SEPARATOR)
             .append(failureCause)

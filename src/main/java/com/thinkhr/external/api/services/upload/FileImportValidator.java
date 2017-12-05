@@ -72,20 +72,20 @@ public class FileImportValidator {
      * @param resource
      */
     public static void validateFileContents(List<String> fileContents, String fileName, String resource) {
-
+        
         if (fileContents == null || fileContents.isEmpty() || fileContents.size() < 2) {
             throw ApplicationException.createFileImportError(APIErrorCodes.NO_RECORDS_FOUND_FOR_IMPORT, fileName);
         }
         
         int maxRecord = getMaxRecords(resource);
 
-        if (fileContents.size() > maxRecord) {
+        if (fileContents.size() - 1 > maxRecord) {
             throw ApplicationException.createFileImportError(APIErrorCodes.MAX_RECORD_EXCEEDED,
                     String.valueOf(maxRecord));
         }
 
         String headerLine = fileContents.get(0);
-
+        
         // Validate for missing headers. File must container all expected columns, if not, return from here.
         String[] headers = headerLine.split(",");
 
