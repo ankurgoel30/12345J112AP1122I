@@ -29,6 +29,10 @@ public class ApplicationConstants {
     public static final String[] REQUIRED_HEADERS_USER_CSV_IMPORT = { "FIRST_NAME", "LAST_NAME", "USER_NAME", "EMAIL", "CLIENT_NAME",
             "PHONE", "BUSINESS_ID" };
     
+    public static final String COMPANY = "COMPANY";
+    public static final String USER = "USER";
+    public static final String CONTACT = "CONTACT";
+    
     public static final int MAX_RECORDS_COMPANY_CSV_IMPORT = 3500;
     public static final int MAX_RECORDS_USER_CSV_IMPORT = 500;
     public static final String SPACE = " ";
@@ -49,15 +53,6 @@ public class ApplicationConstants {
     public static final String DEFAULT_ACTIVE_STATUS = "1";
     public static final String DEFAULT_COLUMN_VALUE = "";
     
-    // Key to encrypt for password encryption
-    public static final String SEARCH_KEY_TO_ENCRYPT = "ZG4viBINvBYcThYW";
-
-    // For AES algorithm as it must be 16 bytes long
-    public static final String AES_INIT_VECTOR = "PepcusTHRProduct";
-
-    // For Blowfish algorithm as it must be 8 bytes long
-    public static final String BLOWFISH_INIT_VECTOR = "ThinkHRP";
-    
     public static final String AES_PKC_PADDING = "AES/CBC/PKCS5PADDING";
     public static final String AES_ALGO = "AES";
     
@@ -65,6 +60,12 @@ public class ApplicationConstants {
     public static final String BLOWFISH_PKC_PADDING = "Blowfish/CBC/PKCS5PADDING";
     
     public static final String UTF8 = "UTF-8";
+    public static final String COMPANY_CUSTOM_COLUMN_PREFIX = "custom";
+    public static final String USER_CUSTOM_COLUMN_PREFIX = "t1_customfield";
+    public static final String USER_COLUMN_CLIENT_ID = "client_id";
+    public static final String USER_COLUMN_PASSWORD = "password_enc";
+    public static final String DEFAULT_PASSWORD = "";
+    
 
 
 

@@ -1,10 +1,11 @@
 package com.thinkhr.external.api.services;
 
+import static com.thinkhr.external.api.services.utils.FileImportUtil.getCustomFieldPrefix;
+
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -75,12 +76,11 @@ public class CommonService {
 
         Map<String, String> customFieldsToHeaderMap = new LinkedHashMap<String, String>();
         for (CustomFields customField : list) {
-            String customFieldName = "custom" + customField.getCustomFieldColumnName();
+            String customFieldName = getCustomFieldPrefix(customFieldType) + customField.getCustomFieldColumnName();
             customFieldsToHeaderMap.put(customFieldName, customField.getCustomFieldDisplayLabel());
         }
         return customFieldsToHeaderMap;
     }
-
 
     /**
      * Validate and get broker for given brokerId

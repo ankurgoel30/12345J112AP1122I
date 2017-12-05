@@ -3,6 +3,10 @@ package com.thinkhr.external.api.services;
 import static com.thinkhr.external.api.ApplicationConstants.COMMA_SEPARATOR;
 import static com.thinkhr.external.api.ApplicationConstants.DEFAULT_SORT_BY_USER_NAME;
 import static com.thinkhr.external.api.ApplicationConstants.TOTAL_RECORDS;
+import static com.thinkhr.external.api.ApplicationConstants.CONTACT;
+import static com.thinkhr.external.api.ApplicationConstants.USER_COLUMN_CLIENT_ID;
+import static com.thinkhr.external.api.ApplicationConstants.USER_COLUMN_PASSWORD;
+import static com.thinkhr.external.api.ApplicationConstants.DEFAULT_PASSWORD;
 import static com.thinkhr.external.api.request.APIRequestHelper.setRequestAttribute;
 import static com.thinkhr.external.api.response.APIMessageUtil.getMessageFromResourceBundle;
 import static com.thinkhr.external.api.services.upload.FileImportValidator.validateAndGetFileContent;
@@ -213,7 +217,7 @@ public class UserService extends CommonService {
             
            String userName = getValue(record, headerIndexMap.get(FileUploadEnum.USER_USER_NAME.getHeader()));
            
-           List<String> requiredFields = getRequiredHeadersFromStdFields("CONTACT");
+           List<String> requiredFields = getRequiredHeadersFromStdFields(CONTACT);
            
            if (!validateRequired(record, requiredFields, headerIndexMap, fileImportResult, resourceHandler)) {
                continue;
@@ -301,10 +305,10 @@ public class UserService extends CommonService {
             //Finally save companies one by one
             List<String> userColumnsToInsert = new ArrayList<String>(userHeaderColumnMap.keySet());
             userColumnValues.add(companyId);
-            userColumnValues.add(encDecyptor.encrypt(""));
+            userColumnValues.add(encDecyptor.encrypt(DEFAULT_PASSWORD));
             
-            userColumnsToInsert.add("client_id");
-            userColumnsToInsert.add("password_enc");
+            userColumnsToInsert.add(USER_COLUMN_CLIENT_ID);
+            userColumnsToInsert.add(USER_COLUMN_PASSWORD);
 
             fileDataRepository.saveUserRecord(userColumnsToInsert, userColumnValues);
 

@@ -1,11 +1,16 @@
 package com.thinkhr.external.api.services.utils;
 
 import static com.thinkhr.external.api.ApplicationConstants.COMMA_SEPARATOR;
+import static com.thinkhr.external.api.ApplicationConstants.COMPANY;
 import static com.thinkhr.external.api.ApplicationConstants.FILE_IMPORT_RESULT_MSG;
 import static com.thinkhr.external.api.ApplicationConstants.MAX_RECORDS_COMPANY_CSV_IMPORT;
 import static com.thinkhr.external.api.ApplicationConstants.MAX_RECORDS_USER_CSV_IMPORT;
 import static com.thinkhr.external.api.ApplicationConstants.REQUIRED_HEADERS_COMPANY_CSV_IMPORT;
 import static com.thinkhr.external.api.ApplicationConstants.REQUIRED_HEADERS_USER_CSV_IMPORT;
+import static com.thinkhr.external.api.ApplicationConstants.COMPANY_CUSTOM_COLUMN_PREFIX;
+import static com.thinkhr.external.api.ApplicationConstants.USER_CUSTOM_COLUMN_PREFIX;
+
+import static com.thinkhr.external.api.ApplicationConstants.USER;
 import static com.thinkhr.external.api.response.APIMessageUtil.getMessageFromResourceBundle;
 
 import java.io.BufferedReader;
@@ -16,7 +21,6 @@ import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -232,13 +236,25 @@ public class FileImportUtil {
     public static String[] getRequiredHeaders(String resource) {
         
         switch(resource) {
-        case "COMPANY" : return REQUIRED_HEADERS_COMPANY_CSV_IMPORT;
-        case "USER" : return REQUIRED_HEADERS_USER_CSV_IMPORT;
+            case COMPANY : return REQUIRED_HEADERS_COMPANY_CSV_IMPORT;
+            case USER : return REQUIRED_HEADERS_USER_CSV_IMPORT;
         }
         
         return REQUIRED_HEADERS_COMPANY_CSV_IMPORT; //Let's make it default
     }
-
+    
+    /**
+     * @param resource
+     * @return
+     */
+    public static String getCustomFieldPrefix(String resource) {
+        switch (resource) {
+            case USER: return COMPANY_CUSTOM_COLUMN_PREFIX;
+            case COMPANY: return USER_CUSTOM_COLUMN_PREFIX;
+        }
+        
+        return COMPANY_CUSTOM_COLUMN_PREFIX;
+    }
 
     /**
      * Get Maximum record configurations
@@ -249,8 +265,8 @@ public class FileImportUtil {
     public static int getMaxRecords(String resource) {
         
         switch(resource) {
-            case "COMPANY" : return MAX_RECORDS_COMPANY_CSV_IMPORT;
-            case "USER" : return MAX_RECORDS_USER_CSV_IMPORT;
+            case COMPANY : return MAX_RECORDS_COMPANY_CSV_IMPORT;
+            case USER : return MAX_RECORDS_USER_CSV_IMPORT;
         }
         
         return MAX_RECORDS_COMPANY_CSV_IMPORT; //Let's make it default
