@@ -48,5 +48,24 @@ public class ApplicationConstants {
             + "[A-Za-z0-9-]+(\\.[A-Za-z0-9]+)*(\\.[A-Za-z]{2,})$";  
     public static final String DEFAULT_ACTIVE_STATUS = "1";
     public static final String DEFAULT_COLUMN_VALUE = "";
+    
+    // Key to encrypt for password encryption
+    public static final String SEARCH_KEY_TO_ENCRYPT = "ZG4viBINvBYcThYW";
+
+    // For AES algorithm as it must be 16 bytes long
+    public static final String AES_INIT_VECTOR = "PepcusTHRProduct";
+
+    // For Blowfish algorithm as it must be 8 bytes long
+    public static final String BLOWFISH_INIT_VECTOR = "ThinkHRP";
+    
+    public static final String AES_PKC_PADDING = "AES/CBC/PKCS5PADDING";
+    public static final String AES_ALGO = "AES";
+    
+    public static final String BLOWFISH_ALGO = "Blowfish";
+    public static final String BLOWFISH_PKC_PADDING = "Blowfish/CBC/PKCS5PADDING";
+    
+    public static final String UTF8 = "UTF-8";
+
+
 
 }

@@ -37,6 +37,7 @@ import com.thinkhr.external.api.exception.APIErrorCodes;
 import com.thinkhr.external.api.exception.ApplicationException;
 import com.thinkhr.external.api.model.FileImportResult;
 import com.thinkhr.external.api.repositories.UserRepository;
+import com.thinkhr.external.api.services.crypto.AppEncryptorDecryptor;
 import com.thinkhr.external.api.services.upload.FileUploadEnum;
 
 /**
@@ -54,6 +55,9 @@ public class UserService extends CommonService {
 
     @Autowired	
     private UserRepository userRepository;
+    
+    @Autowired
+    private AppEncryptorDecryptor encDecyptor;
     
     private static final String resource = "USER";
     
@@ -233,9 +237,6 @@ public class UserService extends CommonService {
                continue;
            }
            
-            //headerIndexMap.put("client_id", company.getCompanyId());
-            //headerVsColumnMap.put("client_id", "client_id");
-           
             //Check to validate duplicate record
             if (checkDuplicate(record, userName, fileImportResult)) {
                 continue;
@@ -245,7 +246,7 @@ public class UserService extends CommonService {
             populateAndSaveToDB(record, headerVsColumnMap,
                     headerIndexMap,
                     fileImportResult,
-                    recCount);
+                    company.getCompanyId());
 
         }
 
@@ -272,13 +273,13 @@ public class UserService extends CommonService {
      * @param locationFileHeaderColumnMap
      * @param headerIndexMap
      * @param fileImportResult
-     * @param recCount
+     * @param companyId
      */
     public void populateAndSaveToDB(String record, 
             Map<String, String> userHeaderColumnMap, 
             Map<String, Integer> headerIndexMap,
             FileImportResult fileImportResult, 
-            int recCount) {
+            int companyId) {
 
         List<Object> userColumnValues = null;
 
@@ -299,6 +300,11 @@ public class UserService extends CommonService {
 
             //Finally save companies one by one
             List<String> userColumnsToInsert = new ArrayList<String>(userHeaderColumnMap.keySet());
+            userColumnValues.add(companyId);
+            userColumnValues.add(encDecyptor.encrypt(""));
+            
+            userColumnsToInsert.add("client_id");
+            userColumnsToInsert.add("password_enc");
 
             fileDataRepository.saveUserRecord(userColumnsToInsert, userColumnValues);
 
