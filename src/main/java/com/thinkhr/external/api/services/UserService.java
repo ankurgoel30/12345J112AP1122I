@@ -238,7 +238,8 @@ public class UserService extends CommonService {
            
            if (company == null) {
                fileImportResult.addFailedRecord(record, 
-                       getMessageFromResourceBundle(resourceHandler, APIErrorCodes.INVALID_CLIENT_NAME, clientName), 
+                        getMessageFromResourceBundle(resourceHandler, APIErrorCodes.INVALID_CLIENT_NAME, clientName,
+                                String.valueOf(broker.getCompanyId())),
                        getMessageFromResourceBundle(resourceHandler, APIErrorCodes.SKIPPED_RECORD));
                continue;
            }
@@ -339,7 +340,7 @@ public class UserService extends CommonService {
             return false;
         }
         if (userRepository.findByUserName(username) != null) {
-            String causeDuplicateName = getMessageFromResourceBundle(resourceHandler, APIErrorCodes.DUPLICATE_RECORD);
+            String causeDuplicateName = getMessageFromResourceBundle(resourceHandler, APIErrorCodes.DUPLICATE_USER_RECORD, username);
             fileImportResult.addFailedRecord(record, causeDuplicateName,
                     getMessageFromResourceBundle(resourceHandler, APIErrorCodes.SKIPPED_RECORD));
             return true;

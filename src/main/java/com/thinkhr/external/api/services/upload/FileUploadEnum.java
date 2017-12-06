@@ -26,7 +26,7 @@ public enum FileUploadEnum {
     //USER TABLE COLUMNS/HEADERS
     USER_FIRST_NAME("first_name", "FIRST_NAME", "user"),
     USER_LAST_NAME("last_name", "LAST_NAME", "user"),
-    USER_USER_NAME("user_name", "USER_NAME", "user"),
+    USER_USER_NAME("username", "USER_NAME", "user"),
     USER_EMAIL("email", "EMAIL", "user"),
     USER_CLIENT_NAME("client_name", "CLIENT_NAME", "user"),
     USER_PHONE("phone", "PHONE", "user"),
