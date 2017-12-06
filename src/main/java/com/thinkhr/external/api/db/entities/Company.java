@@ -20,6 +20,8 @@ import org.hibernate.annotations.Where;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonInclude.Include;
 
 import lombok.Data;
 
@@ -38,6 +40,7 @@ import lombok.Data;
 @Table(name = "clients")
 @Data
 @Where(clause="t1_is_active=1")
+@JsonInclude(Include.NON_EMPTY) 
 public class Company implements SearchableEntity {
     @Id
     @GeneratedValue(strategy=GenerationType.AUTO)
