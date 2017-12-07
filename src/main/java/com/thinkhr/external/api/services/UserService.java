@@ -61,6 +61,7 @@ public class UserService extends CommonService {
     @Autowired	
     private UserRepository userRepository;
     
+    @Autowired
     private AppEncryptorDecryptor encDecyptor;
     
     private static final String resource = "USER";

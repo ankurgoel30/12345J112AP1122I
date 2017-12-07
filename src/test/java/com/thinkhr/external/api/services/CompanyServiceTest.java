@@ -72,7 +72,7 @@ import com.thinkhr.external.api.utils.ApiTestDataUtil;
 @RunWith(PowerMockRunner.class)
 @PowerMockRunnerDelegate(SpringRunner.class)
 @PrepareForTest(value = { FileImportUtil.class, APIMessageUtil.class })
-@PowerMockIgnore({ "javax.management.*" })
+@PowerMockIgnore({ "javax.management.*", "javax.crypto.*" })
 public class CompanyServiceTest {
 
     @Mock
@@ -654,7 +654,7 @@ public class CompanyServiceTest {
             mockStatic(FileImportUtil.class);
 
             PowerMockito.doThrow(expectedException).when(FileImportUtil.class, "validateAndFilterCustomHeaders", Matchers.any(),
-                    Matchers.any(), Matchers.any());
+                    Matchers.any(), Matchers.any(), Matchers.any());
 
         } catch (Exception e) {
             fail("Exeption not expected");
@@ -662,7 +662,7 @@ public class CompanyServiceTest {
 
         Map<String, String> columnToHeaderMap = ApiTestDataUtil.getColumnsToHeadersMap();
         CompanyService companyServiceSpy = Mockito.spy(new CompanyService());
-        Mockito.doReturn(columnToHeaderMap).when(companyServiceSpy).appendRequiredAndCustomHeaderMap(12345, COMPANY);
+        Mockito.doReturn(columnToHeaderMap).when(companyServiceSpy).appendRequiredAndCustomHeaderMap(12345, "company");
 
         try {
             companyServiceSpy.processRecords(records, broker);
@@ -686,7 +686,7 @@ public class CompanyServiceTest {
             mockStatic(FileImportUtil.class);
 
             PowerMockito.doNothing().when(FileImportUtil.class, "validateAndFilterCustomHeaders", Matchers.any(),
-                    Matchers.any(), Matchers.any());
+                    Matchers.any(), Matchers.any(), Matchers.any());
 
         } catch (Exception e) {
             fail("Exeption not expected");
@@ -694,7 +694,7 @@ public class CompanyServiceTest {
 
         Map<String, String> columnToHeaderMap = ApiTestDataUtil.getColumnsToHeadersMap();
         CompanyService companyServiceSpy = Mockito.spy(new CompanyService());
-        Mockito.doReturn(columnToHeaderMap).when(companyServiceSpy).appendRequiredAndCustomHeaderMap(companyId, COMPANY);
+        Mockito.doReturn(columnToHeaderMap).when(companyServiceSpy).appendRequiredAndCustomHeaderMap(companyId, "company");
 
         FileImportResult fileImportResult = companyServiceSpy.processRecords(records, broker);
 
