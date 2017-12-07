@@ -238,16 +238,8 @@ public class CompanyService  extends CommonService {
                     recCount);
         }
 
-        logger.debug("Total Number of Records: " + fileImportResult.getTotalRecords());
-        logger.debug("Total Number of Successful Records: " + fileImportResult.getNumSuccessRecords());
-        logger.debug("Total Number of Failure Records: " + fileImportResult.getNumFailedRecords());
-        logger.debug("Total Number of Blank Records: " + fileImportResult.getNumBlankRecords());
-        
-        if (fileImportResult.getNumFailedRecords() > 0) {
-            logger.debug("List of Failure Records");
-            for (FileImportResult.FailedRecord failedRecord : fileImportResult.getFailedRecords()) {
-                logger.debug(failedRecord.getRecord() + COMMA_SEPARATOR + failedRecord.getFailureCause());
-            }
+        if (logger.isDebugEnabled()) {
+            logger.debug(fileImportResult.toString());
         }
 
         return fileImportResult;

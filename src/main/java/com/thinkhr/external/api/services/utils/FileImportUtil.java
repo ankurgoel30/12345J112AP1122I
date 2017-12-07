@@ -211,7 +211,7 @@ public class FileImportUtil {
      * @param index
      * @return
      */
-    public static String getValue(String row, Integer index) {
+    public static String getValueFromRow(String row, Integer index) {
 
         if (row == null) {
             return null;
@@ -219,7 +219,7 @@ public class FileImportUtil {
 
         String[] colValues = row.split(COMMA_SEPARATOR);
 
-        if (colValues == null || colValues.length <= 0 || colValues.length <= index) {
+        if (colValues == null || colValues.length <= 0 || index >= colValues.length) {
             return null;
         }
         return colValues[index];

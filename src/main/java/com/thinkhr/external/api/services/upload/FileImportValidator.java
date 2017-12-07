@@ -114,10 +114,6 @@ public class FileImportValidator {
             FileImportResult fileImportResult,
             MessageResourceHandler resourceHandler) {
         
-        if (StringUtils.isBlank(email)) {
-            //Add to error
-        }
-        
         Pattern pattern = Pattern.compile(EMAIL_PATTERN); 
         Matcher matcher = pattern.matcher(email);  
         if (!matcher.matches()) {  
@@ -156,7 +152,7 @@ public class FileImportValidator {
 
         for (String field : requiredFields) {
             Integer index = headerIndexMap.get(field); 
-            if (index == null || colValues.length <= index  || StringUtils.isBlank(colValues[index])) {
+            if (index == null || index >= colValues.length || StringUtils.isBlank(colValues[index])) {
                 fileImportResult.addFailedRecord(record, 
                         getMessageFromResourceBundle(resourceHandler, APIErrorCodes.MISSING_REQUIRED_FIELD, field), 
                         getMessageFromResourceBundle(resourceHandler, APIErrorCodes.SKIPPED_RECORD));

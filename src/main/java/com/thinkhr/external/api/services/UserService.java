@@ -15,7 +15,7 @@ import static com.thinkhr.external.api.services.upload.FileImportValidator.valid
 import static com.thinkhr.external.api.services.utils.EntitySearchUtil.getEntitySearchSpecification;
 import static com.thinkhr.external.api.services.utils.EntitySearchUtil.getPageable;
 import static com.thinkhr.external.api.services.utils.FileImportUtil.getRequiredHeaders;
-import static com.thinkhr.external.api.services.utils.FileImportUtil.getValue;
+import static com.thinkhr.external.api.services.utils.FileImportUtil.getValueFromRow;
 import static com.thinkhr.external.api.services.utils.FileImportUtil.populateColumnValues;
 import static com.thinkhr.external.api.services.utils.FileImportUtil.validateAndFilterCustomHeaders;
 
@@ -29,6 +29,7 @@ import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
@@ -60,7 +61,6 @@ public class UserService extends CommonService {
     @Autowired	
     private UserRepository userRepository;
     
-    @Autowired
     private AppEncryptorDecryptor encDecyptor;
     
     private static final String resource = "USER";
@@ -217,7 +217,7 @@ public class UserService extends CommonService {
                 continue; //skip any fully blank line 
             }
             
-           String userName = getValue(record, headerIndexMap.get(FileUploadEnum.USER_USER_NAME.getHeader()));
+            String userName = getValueFromRow(record, headerIndexMap.get(FileUploadEnum.USER_USER_NAME.getHeader()));
            
            List<String> requiredFields = getRequiredHeadersFromStdFields(CONTACT);
            
@@ -225,14 +225,14 @@ public class UserService extends CommonService {
                continue;
            }
            
-           String email = getValue(record, headerIndexMap.get(FileUploadEnum.USER_EMAIL.getHeader()));
+            String email = getValueFromRow(record, headerIndexMap.get(FileUploadEnum.USER_EMAIL.getHeader()));
            
            if (!validateEmail(record, email, fileImportResult, resourceHandler)) {
                continue;
            }
            
             // Check if user is for valid company
-           String clientName = getValue(record, headerIndexMap.get(FileUploadEnum.USER_CLIENT_NAME.getHeader()));
+            String clientName = getValueFromRow(record, headerIndexMap.get(FileUploadEnum.USER_CLIENT_NAME.getHeader()));
            
            Company company = companyRepository.findFirstByCompanyNameAndBroker(clientName, broker.getCompanyId());
            
@@ -257,16 +257,8 @@ public class UserService extends CommonService {
 
         }
 
-        logger.debug("Total Number of Records: " + fileImportResult.getTotalRecords());
-        logger.debug("Total Number of Successful Records: " + fileImportResult.getNumSuccessRecords());
-        logger.debug("Total Number of Failure Records: " + fileImportResult.getNumFailedRecords());
-        logger.debug("Total Number of Blank Records: " + fileImportResult.getNumBlankRecords());
-        
-        if (fileImportResult.getNumFailedRecords() > 0) {
-            logger.debug("List of Failure Records");
-            for (FileImportResult.FailedRecord failedRecord : fileImportResult.getFailedRecords()) {
-                logger.debug(failedRecord.getRecord() + COMMA_SEPARATOR + failedRecord.getFailureCause());
-            }
+        if (logger.isDebugEnabled()) {
+            logger.debug(fileImportResult.toString());
         }
 
         return fileImportResult;

@@ -91,5 +91,22 @@ public class FileImportResult {
 
         return stb.toString();
     }
+    
+    @Override
+    public String toString() {
+        StringBuffer stb = new StringBuffer();
+        stb.append("Total Number of Records: " + this.getTotalRecords()).append(NEW_LINE);
+        stb.append("Total Number of Successful Records: " + this.getNumSuccessRecords()).append(NEW_LINE);
+        stb.append("Total Number of Failure Records: " + this.getNumFailedRecords()).append(NEW_LINE);
+        stb.append("Total Number of Blank Records: " + this.getNumBlankRecords()).append(NEW_LINE);
+        
+        if (this.getNumFailedRecords() > 0) {
+            stb.append("List of Failure Records").append(NEW_LINE);
+            for (FileImportResult.FailedRecord failedRecord : this.getFailedRecords()) {
+                stb.append(failedRecord.getRecord() + COMMA_SEPARATOR + failedRecord.getFailureCause()).append(NEW_LINE);
+            }
+        }
+        return stb.toString();
+    }
 
 }
