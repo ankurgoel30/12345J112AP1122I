@@ -1,12 +1,12 @@
 package com.thinkhr.external.api.services;
 
 import static com.thinkhr.external.api.ApplicationConstants.COMMA_SEPARATOR;
+import static com.thinkhr.external.api.ApplicationConstants.CONTACT;
+import static com.thinkhr.external.api.ApplicationConstants.DEFAULT_PASSWORD;
 import static com.thinkhr.external.api.ApplicationConstants.DEFAULT_SORT_BY_USER_NAME;
 import static com.thinkhr.external.api.ApplicationConstants.TOTAL_RECORDS;
-import static com.thinkhr.external.api.ApplicationConstants.CONTACT;
 import static com.thinkhr.external.api.ApplicationConstants.USER_COLUMN_CLIENT_ID;
 import static com.thinkhr.external.api.ApplicationConstants.USER_COLUMN_PASSWORD;
-import static com.thinkhr.external.api.ApplicationConstants.DEFAULT_PASSWORD;
 import static com.thinkhr.external.api.ApplicationConstants.USER;
 import static com.thinkhr.external.api.request.APIRequestHelper.setRequestAttribute;
 import static com.thinkhr.external.api.response.APIMessageUtil.getMessageFromResourceBundle;
@@ -186,7 +186,7 @@ public class UserService extends CommonService {
      * @param resource
      * @throws ApplicationException
      */
-    private FileImportResult processRecords (List<String> records, 
+    FileImportResult processRecords(List<String> records, 
             Company broker, String resource) throws ApplicationException {
 
         FileImportResult fileImportResult = new FileImportResult();

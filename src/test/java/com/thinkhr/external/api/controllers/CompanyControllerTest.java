@@ -503,13 +503,13 @@ public class CompanyControllerTest {
 
         Company company = createCompany(); 
 
-        ResponseEntity<Integer> responseEntity = createCompanyIdResponseEntity(company.getCompanyId(), HttpStatus.NO_CONTENT);
+        ResponseEntity<Integer> responseEntity = createCompanyIdResponseEntity(company.getCompanyId(), HttpStatus.ACCEPTED);
 
         given(companyController.deleteCompany(company.getCompanyId())).willReturn(responseEntity);
 
         mockMvc.perform(delete(COMPANY_API_BASE_PATH+company.getCompanyId())
                 .accept(MediaType.APPLICATION_JSON))
-        .andExpect(status().is(204));
+                .andExpect(status().isAccepted());
     }
 
     /**

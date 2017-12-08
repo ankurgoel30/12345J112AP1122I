@@ -1,19 +1,28 @@
 package com.thinkhr.external.api.services.utils;
 
 import static com.thinkhr.external.api.ApplicationConstants.COMMA_SEPARATOR;
-import static com.thinkhr.external.api.ApplicationConstants.DEFAULT_COLUMN_VALUE;
+import static com.thinkhr.external.api.ApplicationConstants.COMPANY;
+import static com.thinkhr.external.api.ApplicationConstants.COMPANY_CUSTOM_COLUMN_PREFIX;
+import static com.thinkhr.external.api.ApplicationConstants.MAX_RECORDS_COMPANY_CSV_IMPORT;
+import static com.thinkhr.external.api.ApplicationConstants.MAX_RECORDS_USER_CSV_IMPORT;
 import static com.thinkhr.external.api.ApplicationConstants.REQUIRED_HEADERS_COMPANY_CSV_IMPORT;
+import static com.thinkhr.external.api.ApplicationConstants.REQUIRED_HEADERS_USER_CSV_IMPORT;
+import static com.thinkhr.external.api.ApplicationConstants.USER;
+import static com.thinkhr.external.api.ApplicationConstants.USER_CUSTOM_COLUMN_PREFIX;
 import static com.thinkhr.external.api.utils.ApiTestDataUtil.createFileImportResultWithFailedRecords;
 import static com.thinkhr.external.api.utils.ApiTestDataUtil.createFileImportResultWithNoFailedRecords;
-import static com.thinkhr.external.api.utils.ApiTestDataUtil.getAllColumnsToHeadersMap;
+import static com.thinkhr.external.api.utils.ApiTestDataUtil.getAllColumnsToHeadersMapForCompany;
 import static com.thinkhr.external.api.utils.ApiTestDataUtil.getAllHeadersForCompany;
 import static com.thinkhr.external.api.utils.ApiTestDataUtil.getAllHeadersForCompanyWithExtraHeaders;
 import static com.thinkhr.external.api.utils.ApiTestDataUtil.getAvailableHeadersForCompany;
-import static com.thinkhr.external.api.utils.ApiTestDataUtil.getColumnsToHeadersMap;
+import static com.thinkhr.external.api.utils.ApiTestDataUtil.getColumnsToHeadersMapForComapny;
 import static com.thinkhr.external.api.utils.ApiTestDataUtil.getCustomHeadersForCompany;
+import static com.thinkhr.external.api.utils.ApiTestDataUtil.getEmptyCsvRow;
 import static com.thinkhr.external.api.utils.ApiTestDataUtil.getExtraCustomHeadersForCompany;
-import static com.thinkhr.external.api.utils.ApiTestDataUtil.getFileRecordWithCustomFields;
-import static com.thinkhr.external.api.utils.ApiTestDataUtil.getHeaderIndexMap;
+import static com.thinkhr.external.api.utils.ApiTestDataUtil.getFileRecordForCompany;
+import static com.thinkhr.external.api.utils.ApiTestDataUtil.getFileRecordForUser;
+import static com.thinkhr.external.api.utils.ApiTestDataUtil.getHeaderIndexMapForCompany;
+import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertNotNull;
@@ -58,7 +67,7 @@ import com.thinkhr.external.api.response.APIMessageUtil;
 @RunWith(PowerMockRunner.class)
 @PowerMockRunnerDelegate(SpringRunner.class)
 @PrepareForTest(value = { FileImportUtil.class, APIMessageUtil.class })
-@PowerMockIgnore({ "javax.management.*" })
+@PowerMockIgnore({ "javax.management.*", "javax.crypto.*" })
 @ContextConfiguration(classes = ApiApplication.class)
 @SpringBootTest
 public class FileImportUtilTest {
@@ -178,12 +187,12 @@ public class FileImportUtilTest {
      */
     @Test
     public void testPopulateColumnValues() {
-        String fileRow = getFileRecordWithCustomFields();
+        String fileRow = getFileRecordForCompany();
 
         String[] fileRecords = fileRow.split(COMMA_SEPARATOR);
 
-        Map<String, String> columnToHeaderMap = getColumnsToHeadersMap();
-        Map<String, Integer> headerIndexMap = getHeaderIndexMap();
+        Map<String, String> columnToHeaderMap = getColumnsToHeadersMapForComapny();
+        Map<String, Integer> headerIndexMap = getHeaderIndexMapForCompany();
 
         List<Object> columnValues = FileImportUtil.populateColumnValues(fileRow, columnToHeaderMap, 
                 headerIndexMap);
@@ -201,8 +210,8 @@ public class FileImportUtilTest {
      */
     @Test
     public void testPopulateColumnValuesForEmptyHeaderIndex() {
-        String fileRow = getFileRecordWithCustomFields();
-        Map<String, String> columnToHeaderMap = getColumnsToHeadersMap();
+        String fileRow = getFileRecordForCompany();
+        Map<String, String> columnToHeaderMap = getColumnsToHeadersMapForComapny();
         Map<String, Integer> headerIndexMap = new HashMap<String, Integer>();
 
         List<Object> columnValues = FileImportUtil.populateColumnValues(fileRow, columnToHeaderMap, 
@@ -216,9 +225,9 @@ public class FileImportUtilTest {
      */
     @Test(expected = ArrayIndexOutOfBoundsException.class)
     public void testPopulateColumnValuesWithNoFileRecord() {
-        String fileRow = DEFAULT_COLUMN_VALUE;
-        Map<String, String> columnToHeaderMap = getColumnsToHeadersMap();
-        Map<String, Integer> headerIndexMap = getHeaderIndexMap();
+        String fileRow = getEmptyCsvRow();
+        Map<String, String> columnToHeaderMap = getColumnsToHeadersMapForComapny();
+        Map<String, Integer> headerIndexMap = getHeaderIndexMapForCompany();
 
         List<Object> columnValues = FileImportUtil.populateColumnValues(fileRow, columnToHeaderMap, headerIndexMap);
         assertNotNull(columnValues);
@@ -276,7 +285,7 @@ public class FileImportUtilTest {
     @Test
     public void testValidateAndFilterCustomHeaders() {
         String[] allHeaders = getAllHeadersForCompany();
-        Map<String, String> columnsToHeaderMap = getAllColumnsToHeadersMap();
+        Map<String, String> columnsToHeaderMap = getAllColumnsToHeadersMapForCompany();
         Set<String> customHeaders = getCustomHeadersForCompany();
         
         PowerMockito.mockStatic(FileImportUtil.class);
@@ -284,7 +293,9 @@ public class FileImportUtilTest {
         FileImportUtil.filterCustomFieldHeaders(allHeaders, REQUIRED_HEADERS_COMPANY_CSV_IMPORT);
 
         try {
-            FileImportUtil.validateAndFilterCustomHeaders(allHeaders, columnsToHeaderMap.values(), allHeaders, resourceHandler);
+            FileImportUtil.validateAndFilterCustomHeaders(allHeaders,
+                    columnsToHeaderMap.values(),
+                    REQUIRED_HEADERS_COMPANY_CSV_IMPORT, resourceHandler);
         } catch (ApplicationException e) {
             fail("Exception not expected");
         }
@@ -298,7 +309,7 @@ public class FileImportUtilTest {
     @Test
     public void testValidateAndFilterCustomHeadersForFailure() {
         String[] allHeaders = getAllHeadersForCompanyWithExtraHeaders();
-        Map<String, String> columnsToHeaderMap = getAllColumnsToHeadersMap();
+        Map<String, String> columnsToHeaderMap = getAllColumnsToHeadersMapForCompany();
         Set<String> customHeaders = getExtraCustomHeadersForCompany();
 
         PowerMockito.mockStatic(FileImportUtil.class);
@@ -306,10 +317,13 @@ public class FileImportUtilTest {
         FileImportUtil.filterCustomFieldHeaders(allHeaders, REQUIRED_HEADERS_COMPANY_CSV_IMPORT);
 
         try {
-            FileImportUtil.validateAndFilterCustomHeaders(allHeaders, columnsToHeaderMap.values(), allHeaders, resourceHandler);
+            FileImportUtil.validateAndFilterCustomHeaders(allHeaders,
+                    columnsToHeaderMap.values(),
+                    REQUIRED_HEADERS_COMPANY_CSV_IMPORT, resourceHandler);
         } catch (ApplicationException ae) {
             assertNotNull(ae);
-            assertEquals(APIErrorCodes.FILE_READ_ERROR, ae.getApiErrorCode());
+            assertEquals(APIErrorCodes.UNMAPPED_CUSTOM_HEADERS,
+                    ae.getApiErrorCode());
         }
     }
 
@@ -336,6 +350,204 @@ public class FileImportUtilTest {
         // Should be empty.
         assertTrue(customHeaders.isEmpty());
         assertEquals(0, customHeaders.size());
+    }
+    
+    /**
+     * Test to verify if row or index or both are null.
+     * 
+     */
+    @Test
+    public void testGetValueFromRowForNull() {
+        String value = FileImportUtil.getValueFromRow(null, null);
+        assertEquals(null, value);
+    }
+    
+    /**
+     * Test to verify if index is negative.
+     *
+     */
+    @Test
+    public void testGetValueFromRowForIndexNegative() {
+        String row = getFileRecordForUser();
+        String value = FileImportUtil.getValueFromRow(row, -3);
+        assertEquals(null, value);
+    }
+
+    /**
+     * Test to verify if index is 0.
+     * 
+     */
+    @Test
+    public void testGetValueFromRowForIndex_0() {
+        String row = getFileRecordForUser();
+        String value = FileImportUtil.getValueFromRow(row, 0);
+        assertEquals("Ajay", value);
+    }
+
+    /**
+     * Test to verify if index is 3.
+     * 
+     */
+    @Test
+    public void testGetValueFromRowForIndex_3() {
+        String row = getFileRecordForUser();
+        String value = FileImportUtil.getValueFromRow(row, 3);
+        assertEquals("ajay.jain@pepcus.com", value);
+    }
+
+    /**
+     * Test to verify if index is 4.
+     * 
+     */
+    @Test
+    public void testGetValueFromRowForIndex_4() {
+        String row = getFileRecordForUser();
+        String value = FileImportUtil.getValueFromRow(row, 4);
+        assertEquals("ajain", value);
+    }
+
+    /**
+     * Test to verify if index is 6.
+     * 
+     */
+    @Test
+    public void testGetValueFromRowForIndex_6() {
+        String row = getFileRecordForUser();
+        String value = FileImportUtil.getValueFromRow(row, 6);
+        assertEquals("4649973", value);
+    }
+
+    /**
+     * Test to verify if index is 7.
+     * 
+     */
+    @Test
+    public void testGetValueFromRowForInvalidIndex() {
+        String row = getFileRecordForUser();
+        String value = FileImportUtil.getValueFromRow(row, 7);
+        assertEquals(null, value);
+    }
+
+    /**
+     * Test to verify if resource is null.
+     * 
+     */
+    @Test
+    public void testGetRequiredHeadersForResourceNull() {
+        String[] requiredHeaders = FileImportUtil.getRequiredHeaders(null);
+        assertArrayEquals(null, requiredHeaders);
+    }
+    
+    /**
+     * Test to verify if resource is company.
+     * 
+     */
+    @Test
+    public void testGetRequiredHeadersForResourceCompany() {
+        String[] requiredHeaders = FileImportUtil.getRequiredHeaders(COMPANY);
+        assertArrayEquals(REQUIRED_HEADERS_COMPANY_CSV_IMPORT, requiredHeaders);
+        assertEquals(REQUIRED_HEADERS_COMPANY_CSV_IMPORT.length, requiredHeaders.length);
+    }
+
+    /**
+     * Test to verify if resource is user.
+     * 
+     */
+    @Test
+    public void testGetRequiredHeadersForResourceUser() {
+        String[] requiredHeaders = FileImportUtil.getRequiredHeaders(USER);
+        assertArrayEquals(REQUIRED_HEADERS_USER_CSV_IMPORT, requiredHeaders);
+        assertEquals(REQUIRED_HEADERS_USER_CSV_IMPORT.length, requiredHeaders.length);
+    }
+
+    /**
+     * Test to verify if resource is invalid.
+     * 
+     */
+    @Test
+    public void testGetRequiredHeadersForInvalidResource() {
+        String[] requiredHeaders = FileImportUtil.getRequiredHeaders("ABC");
+        assertArrayEquals(null, requiredHeaders);
+    }
+    
+    /**
+     * Test to verify if resource is null.
+     * 
+     */
+    @Test
+    public void testGetCustomFieldPrefixForResourceNull() {
+        String customFieldPrefix = FileImportUtil.getCustomFieldPrefix(null);
+        assertEquals(null, customFieldPrefix);
+    }
+
+    /**
+     * Test to verify if resource is company.
+     * 
+     */
+    @Test
+    public void testGetCustomFieldPrefixForResourceCompany() {
+        String customFieldPrefix = FileImportUtil.getCustomFieldPrefix(COMPANY);
+        assertEquals(COMPANY_CUSTOM_COLUMN_PREFIX, customFieldPrefix);
+    }
+
+    /**
+     * Test to verify if resource is user.
+     * 
+     */
+    @Test
+    public void testGetCustomFieldPrefixForResourceUser() {
+        String customFieldPrefix = FileImportUtil.getCustomFieldPrefix(USER);
+        assertEquals(USER_CUSTOM_COLUMN_PREFIX, customFieldPrefix);
+    }
+
+    /**
+     * Test to verify if resource is invalid.
+     * 
+     */
+    @Test
+    public void testGetCustomFieldPrefixForInvalidResource() {
+        String customFieldPrefix = FileImportUtil.getCustomFieldPrefix("ABC");
+        assertEquals(null, customFieldPrefix);
+    }
+
+    /**
+     * Test to verify if resource is null.
+     * 
+     */
+    @Test
+    public void testGetMaxRecordsForResourceNull() {
+        Integer maxRecords = FileImportUtil.getMaxRecords(null);
+        assertEquals(null, maxRecords);
+    }
+    
+    /**
+     * Test to verify if resource is company.
+     * 
+     */
+    @Test
+    public void testGetMaxRecordsForResourceCompany() {
+        Integer maxRecords = FileImportUtil.getMaxRecords(COMPANY);
+        assertEquals(MAX_RECORDS_COMPANY_CSV_IMPORT, maxRecords.intValue());
+    }
+
+    /**
+     * Test to verify if resource is user.
+     * 
+     */
+    @Test
+    public void testGetMaxRecordsForResourceUser() {
+        Integer maxRecords = FileImportUtil.getMaxRecords(USER);
+        assertEquals(MAX_RECORDS_USER_CSV_IMPORT, maxRecords.intValue());
+    }
+
+    /**
+     * Test to verify if resource is ABC.
+     * 
+     */
+    @Test
+    public void testGetMaxRecordsForOtherResource() {
+        Integer maxRecords = FileImportUtil.getMaxRecords("ABC");
+        assertEquals(null, maxRecords);
     }
 
 }
