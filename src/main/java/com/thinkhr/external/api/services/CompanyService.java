@@ -51,7 +51,7 @@ import com.thinkhr.external.api.services.upload.FileUploadEnum;
 public class CompanyService  extends CommonService {
 
     private Logger logger = LoggerFactory.getLogger(CompanyService.class);
-    private static final String resource = "company";
+    private static final String resource = COMPANY;
 
     /**
      *

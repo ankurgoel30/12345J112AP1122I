@@ -5,6 +5,7 @@ import static com.thinkhr.external.api.ApplicationConstants.DEFAULT_ACTIVE_STATU
 import static com.thinkhr.external.api.ApplicationConstants.DEFAULT_COLUMN_VALUE;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import org.apache.commons.lang.StringUtils;
@@ -36,33 +37,30 @@ public class QueryBuilder {
     public static List<Object> defaultUserReqFieldValues;
     public static String REQUIRED_FIELD_FOR_LOCATION = "client_id";
     static {
-        companyRequiredFields = new ArrayList<String>();
-        companyRequiredFields.add("search_help");
-        companyRequiredFields.add("client_type");
-        companyRequiredFields.add("special_note");
-        companyRequiredFields.add("client_since");
-        companyRequiredFields.add("t1_is_active");
+        companyRequiredFields = new ArrayList<String>(Arrays.asList("search_help", 
+                                                                    "client_type", 
+                                                                    "special_note", 
+                                                                    "client_since", 
+                                                                    "t1_is_active"));
 
-        defaultCompReqFieldValues = new ArrayList<Object>();
-        defaultCompReqFieldValues.add(DEFAULT_COLUMN_VALUE);
-        defaultCompReqFieldValues.add(DEFAULT_COLUMN_VALUE);
-        defaultCompReqFieldValues.add(DEFAULT_COLUMN_VALUE);
-        defaultCompReqFieldValues.add(CommonUtil.getTodayInUTC());
-        defaultCompReqFieldValues.add(DEFAULT_ACTIVE_STATUS); //default all clients are active
+        defaultCompReqFieldValues = new ArrayList<Object>(Arrays.asList
+                                                           (DEFAULT_COLUMN_VALUE, 
+                                                            DEFAULT_COLUMN_VALUE, 
+                                                            DEFAULT_COLUMN_VALUE, 
+                                                            CommonUtil.getTodayInUTC(), 
+                                                            DEFAULT_ACTIVE_STATUS)); //default all clients are active
 
-        userRequiredFields = new ArrayList<String>();
-        userRequiredFields.add("search_help");
-        userRequiredFields.add("mkdate");
-        userRequiredFields.add("codevalid");
-        userRequiredFields.add("update_password");
-        userRequiredFields.add("blockedaccount");
+        userRequiredFields = new ArrayList<String>(Arrays.asList("search_help", 
+                                                                 "mkdate", 
+                                                                  "codevalid", 
+                                                                  "update_password", 
+                                                                  "blockedaccount"));
 
-        defaultUserReqFieldValues = new ArrayList<Object>();
-        defaultUserReqFieldValues.add(DEFAULT_COLUMN_VALUE);
-        defaultUserReqFieldValues.add(DEFAULT_COLUMN_VALUE);
-        defaultUserReqFieldValues.add(DEFAULT_COLUMN_VALUE);
-        defaultUserReqFieldValues.add(DEFAULT_COLUMN_VALUE);
-        defaultUserReqFieldValues.add(new Integer(0));
+        defaultUserReqFieldValues =  new ArrayList<Object>(Arrays.asList (DEFAULT_COLUMN_VALUE, 
+                                                                          DEFAULT_COLUMN_VALUE, 
+                                                                          DEFAULT_COLUMN_VALUE, 
+                                                                          DEFAULT_COLUMN_VALUE, 
+                                                                          new Integer(0)));
     }
     /**
      *   //INSERT INTO locations(address,address2,city,state,zip,client_id) values(?,?,?,?,?,?);
@@ -134,4 +132,5 @@ public class QueryBuilder {
         userColumns.addAll(userRequiredFields);
         return buildQuery(INSERT_USER, userColumns);
     }
+    
 }
