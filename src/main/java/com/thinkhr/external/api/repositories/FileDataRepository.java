@@ -5,6 +5,7 @@ import static com.thinkhr.external.api.repositories.QueryBuilder.DELETE_COMPANY_
 import static com.thinkhr.external.api.repositories.QueryBuilder.buildCompanyInsertQuery;
 import static com.thinkhr.external.api.repositories.QueryBuilder.buildLocationInsertQuery;
 import static com.thinkhr.external.api.repositories.QueryBuilder.defaultCompReqFieldValues;
+import static com.thinkhr.external.api.repositories.QueryBuilder.*;
 
 import java.util.List;
 
@@ -54,6 +55,23 @@ public class FileDataRepository {
             jdbcTemplate.update(DELETE_COMPANY_QUERY, clientId);
             throw ex;
         }
+    }
+
+    /**
+     * Save user's record
+     *  
+     * @param userColumnsToInsert
+     * @param userColumnValues
+     */
+    public void saveUserRecord(List<String> userColumns,
+            List<Object> userColumnValues) {
+
+        String insertUserSql = buildUserInsertQuery(userColumns);
+
+        KeyHolder keyHolder = new GeneratedKeyHolder();
+
+        userColumnValues.addAll(defaultUserReqFieldValues);
+        jdbcTemplate.update(buildPreparedStatementCreator(insertUserSql, userColumnValues), keyHolder);
     }
 
 }

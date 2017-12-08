@@ -2,6 +2,7 @@ package com.thinkhr.external.api.services;
 
 import static com.thinkhr.external.api.ApplicationConstants.COMMA_SEPARATOR;
 import static com.thinkhr.external.api.ApplicationConstants.DEFAULT_SORT_BY_COMPANY_NAME;
+import static com.thinkhr.external.api.ApplicationConstants.COMPANY;
 import static com.thinkhr.external.api.services.utils.EntitySearchUtil.getPageable;
 import static com.thinkhr.external.api.utils.ApiTestDataUtil.createCompany;
 import static com.thinkhr.external.api.utils.ApiTestDataUtil.getFileRecord;
@@ -71,7 +72,7 @@ import com.thinkhr.external.api.utils.ApiTestDataUtil;
 @RunWith(PowerMockRunner.class)
 @PowerMockRunnerDelegate(SpringRunner.class)
 @PrepareForTest(value = { FileImportUtil.class, APIMessageUtil.class })
-@PowerMockIgnore({ "javax.management.*" })
+@PowerMockIgnore({ "javax.management.*", "javax.crypto.*" })
 public class CompanyServiceTest {
 
     @Mock
@@ -265,12 +266,12 @@ public class CompanyServiceTest {
     @Test
     public void testGetCompanyColumnsHeaderMap_TwoCustomFields() {
         int companyId = 15472;
-        String customFieldType = "COMPANY";
+        String customFieldType = COMPANY;
         List<CustomFields> customFieldTestData = ApiTestDataUtil.createCustomFieldsList();
 
         Mockito.when(customFieldRepository.findByCompanyIdAndCustomFieldType(companyId, customFieldType)).thenReturn(customFieldTestData);
 
-        Map<String, String> columnsToHeaderMap = companyService.getCompanyColumnHeaderMap(companyId);
+        Map<String, String> columnsToHeaderMap = companyService.appendRequiredAndCustomHeaderMap(companyId, customFieldType);
         assertTrue(columnsToHeaderMap.containsKey("custom1"));
         assertTrue(columnsToHeaderMap.containsKey("custom2"));
         assertEquals("CORRELATION_ID", columnsToHeaderMap.get("custom1"));
@@ -283,12 +284,12 @@ public class CompanyServiceTest {
     @Test
     public void testGetCompanyColumnsHeaderMap_NoCustomFields() {
         int companyId = 12345;
-        String customFieldType = "COMPANY";
+        String customFieldType = COMPANY;
         Mockito.when(customFieldRepository.findByCompanyIdAndCustomFieldType(companyId, customFieldType)).thenReturn(null);
 
-        Map<String, String> columnsToHeaderMap = companyService.getCompanyColumnHeaderMap(companyId);
+        Map<String, String> columnsToHeaderMap = companyService.appendRequiredAndCustomHeaderMap(companyId, customFieldType);
         assertFalse(columnsToHeaderMap.containsKey("custom1"));
-        assertEquals(FileUploadEnum.COMPANY.prepareColumnHeaderMap().size(), columnsToHeaderMap.size());
+        assertEquals(FileUploadEnum.prepareColumnHeaderMap(customFieldType).size(), columnsToHeaderMap.size());
     }
 
     /**
@@ -653,7 +654,7 @@ public class CompanyServiceTest {
             mockStatic(FileImportUtil.class);
 
             PowerMockito.doThrow(expectedException).when(FileImportUtil.class, "validateAndFilterCustomHeaders", Matchers.any(),
-                    Matchers.any(), Matchers.any());
+                    Matchers.any(), Matchers.any(), Matchers.any());
 
         } catch (Exception e) {
             fail("Exeption not expected");
@@ -661,7 +662,7 @@ public class CompanyServiceTest {
 
         Map<String, String> columnToHeaderMap = ApiTestDataUtil.getColumnsToHeadersMap();
         CompanyService companyServiceSpy = Mockito.spy(new CompanyService());
-        Mockito.doReturn(columnToHeaderMap).when(companyServiceSpy).getCompanyColumnHeaderMap(12345);
+        Mockito.doReturn(columnToHeaderMap).when(companyServiceSpy).appendRequiredAndCustomHeaderMap(12345, "company");
 
         try {
             companyServiceSpy.processRecords(records, broker);
@@ -685,7 +686,7 @@ public class CompanyServiceTest {
             mockStatic(FileImportUtil.class);
 
             PowerMockito.doNothing().when(FileImportUtil.class, "validateAndFilterCustomHeaders", Matchers.any(),
-                    Matchers.any(), Matchers.any());
+                    Matchers.any(), Matchers.any(), Matchers.any());
 
         } catch (Exception e) {
             fail("Exeption not expected");
@@ -693,7 +694,7 @@ public class CompanyServiceTest {
 
         Map<String, String> columnToHeaderMap = ApiTestDataUtil.getColumnsToHeadersMap();
         CompanyService companyServiceSpy = Mockito.spy(new CompanyService());
-        Mockito.doReturn(columnToHeaderMap).when(companyServiceSpy).getCompanyColumnHeaderMap(companyId);
+        Mockito.doReturn(columnToHeaderMap).when(companyServiceSpy).appendRequiredAndCustomHeaderMap(companyId, "company");
 
         FileImportResult fileImportResult = companyServiceSpy.processRecords(records, broker);
 

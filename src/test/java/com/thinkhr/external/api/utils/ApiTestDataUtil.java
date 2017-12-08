@@ -351,11 +351,11 @@ public class ApiTestDataUtil {
         FileImportResult fileImportResult = new FileImportResult();
         fileImportResult.setTotalRecords(10);
         fileImportResult.setNumSuccessRecords(7);
-        fileImportResult.addFailedRecord(3, "", "Blank Record", "Skipped");
-        fileImportResult.addFailedRecord(6,
+        fileImportResult.addFailedRecord("", "Blank Record", "Skipped");
+        fileImportResult.addFailedRecord(
                 "Paychex,Adams Radio of Tallahassee LLC,9522320916,3000 Olson Rd,,Tallahassee,FL,32308,Other,0,,5331058,56,11078286,Non PEO",
                 "Duplicate", "Skipped");
-        fileImportResult.addFailedRecord(8, "Paychex,Adams Radio of Tallahassee LLC,", "Missing Fields in Record", "Record not added");
+        fileImportResult.addFailedRecord("Paychex,Adams Radio of Tallahassee LLC,", "Missing Fields in Record", "Record not added");
         return fileImportResult;
     }
 

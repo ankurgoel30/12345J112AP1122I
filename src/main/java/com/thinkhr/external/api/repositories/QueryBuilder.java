@@ -5,6 +5,7 @@ import static com.thinkhr.external.api.ApplicationConstants.DEFAULT_ACTIVE_STATU
 import static com.thinkhr.external.api.ApplicationConstants.DEFAULT_COLUMN_VALUE;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import org.apache.commons.lang.StringUtils;
@@ -23,6 +24,7 @@ public class QueryBuilder {
 
     private static final String INSERT_COMPANY = "INSERT INTO clients";
     private static final String INSERT_LOCATION = "INSERT INTO locations";
+    private static final String INSERT_USER = "INSERT INTO CONTACTS";
     private static final String VALUES = "VALUES";
     private static final String START_BRACES = "(";
     private static final String END_BRACES = ") ";
@@ -30,21 +32,35 @@ public class QueryBuilder {
     public static final String SELECT_COMPANY_QUERY = "SELECT * FROM clients";;
     public static List<String> companyRequiredFields;
     public static List<Object> defaultCompReqFieldValues;
+
+    public static List<String> userRequiredFields;
+    public static List<Object> defaultUserReqFieldValues;
     public static String REQUIRED_FIELD_FOR_LOCATION = "client_id";
     static {
-        companyRequiredFields = new ArrayList<String>();
-        companyRequiredFields.add("search_help");
-        companyRequiredFields.add("client_type");
-        companyRequiredFields.add("special_note");
-        companyRequiredFields.add("client_since");
-        companyRequiredFields.add("t1_is_active");
+        companyRequiredFields = new ArrayList<String>(Arrays.asList("search_help", 
+                                                                    "client_type", 
+                                                                    "special_note", 
+                                                                    "client_since", 
+                                                                    "t1_is_active"));
 
-        defaultCompReqFieldValues = new ArrayList<Object>();
-        defaultCompReqFieldValues.add(DEFAULT_COLUMN_VALUE);
-        defaultCompReqFieldValues.add(DEFAULT_COLUMN_VALUE);
-        defaultCompReqFieldValues.add(DEFAULT_COLUMN_VALUE);
-        defaultCompReqFieldValues.add(CommonUtil.getTodayInUTC());
-        defaultCompReqFieldValues.add(DEFAULT_ACTIVE_STATUS); //default all clients are active
+        defaultCompReqFieldValues = new ArrayList<Object>(Arrays.asList
+                                                           (DEFAULT_COLUMN_VALUE, 
+                                                            DEFAULT_COLUMN_VALUE, 
+                                                            DEFAULT_COLUMN_VALUE, 
+                                                            CommonUtil.getTodayInUTC(), 
+                                                            DEFAULT_ACTIVE_STATUS)); //default all clients are active
+
+        userRequiredFields = new ArrayList<String>(Arrays.asList("search_help", 
+                                                                 "mkdate", 
+                                                                  "codevalid", 
+                                                                  "update_password", 
+                                                                  "blockedaccount"));
+
+        defaultUserReqFieldValues =  new ArrayList<Object>(Arrays.asList (DEFAULT_COLUMN_VALUE, 
+                                                                          DEFAULT_COLUMN_VALUE, 
+                                                                          DEFAULT_COLUMN_VALUE, 
+                                                                          DEFAULT_COLUMN_VALUE, 
+                                                                          new Integer(0)));
     }
     /**
      *   //INSERT INTO locations(address,address2,city,state,zip,client_id) values(?,?,?,?,?,?);
@@ -107,4 +123,14 @@ public class QueryBuilder {
         return params.toString();
     }
    
+    
+    /**
+     * @param userColumns
+     * @return
+     */
+    public static String buildUserInsertQuery(List<String> userColumns) {
+        userColumns.addAll(userRequiredFields);
+        return buildQuery(INSERT_USER, userColumns);
+    }
+    
 }

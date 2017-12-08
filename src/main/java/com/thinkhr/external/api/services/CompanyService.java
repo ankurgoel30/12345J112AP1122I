@@ -3,11 +3,14 @@ package com.thinkhr.external.api.services;
 import static com.thinkhr.external.api.ApplicationConstants.COMMA_SEPARATOR;
 import static com.thinkhr.external.api.ApplicationConstants.DEFAULT_SORT_BY_COMPANY_NAME;
 import static com.thinkhr.external.api.ApplicationConstants.TOTAL_RECORDS;
+import static com.thinkhr.external.api.ApplicationConstants.LOCATION;
+import static com.thinkhr.external.api.ApplicationConstants.COMPANY;
 import static com.thinkhr.external.api.request.APIRequestHelper.setRequestAttribute;
 import static com.thinkhr.external.api.response.APIMessageUtil.getMessageFromResourceBundle;
 import static com.thinkhr.external.api.services.upload.FileImportValidator.validateAndGetFileContent;
 import static com.thinkhr.external.api.services.utils.EntitySearchUtil.getEntitySearchSpecification;
 import static com.thinkhr.external.api.services.utils.EntitySearchUtil.getPageable;
+import static com.thinkhr.external.api.services.utils.FileImportUtil.getRequiredHeaders;
 import static com.thinkhr.external.api.services.utils.FileImportUtil.populateColumnValues;
 import static com.thinkhr.external.api.services.utils.FileImportUtil.validateAndFilterCustomHeaders;
 
@@ -48,6 +51,7 @@ import com.thinkhr.external.api.services.upload.FileUploadEnum;
 public class CompanyService  extends CommonService {
 
     private Logger logger = LoggerFactory.getLogger(CompanyService.class);
+    private static final String resource = COMPANY;
 
     /**
      *
@@ -163,7 +167,7 @@ public class CompanyService  extends CommonService {
 
         Company broker = validateAndGetBroker(brokerId);
 
-        List<String> fileContents = validateAndGetFileContent(fileToImport);
+        List<String> fileContents = validateAndGetFileContent(fileToImport, COMPANY);
 
         return processRecords (fileContents, broker);
 
@@ -200,12 +204,13 @@ public class CompanyService  extends CommonService {
         String[] headersInCSV = headerLine.split(COMMA_SEPARATOR);
 
         //DO not assume that CSV file shall contains fixed column position. Let's read and map then with database column
-        Map<String, String> companyFileHeaderColumnMap = getCompanyColumnHeaderMap(broker.getCompanyId()); 
+        Map<String, String> companyFileHeaderColumnMap = appendRequiredAndCustomHeaderMap(broker.getCompanyId(), resource); 
 
-        Map<String, String> locationFileHeaderColumnMap = FileUploadEnum.LOCATION.prepareColumnHeaderMap();
+        Map<String, String> locationFileHeaderColumnMap = FileUploadEnum.prepareColumnHeaderMap(LOCATION);
 
         //Check every custom field from imported file has a corresponding column in database. If not, return error here.
-        validateAndFilterCustomHeaders(headersInCSV, companyFileHeaderColumnMap.values(), resourceHandler);
+        String[] requiredHeaders = getRequiredHeaders(resource);
+        validateAndFilterCustomHeaders(headersInCSV, companyFileHeaderColumnMap.values(), requiredHeaders, resourceHandler);
 
         Map<String, Integer> headerIndexMap = new HashMap<String, Integer>();
         for (int i = 0; i < headersInCSV.length; i++) {
@@ -233,16 +238,8 @@ public class CompanyService  extends CommonService {
                     recCount);
         }
 
-        logger.debug("Total Number of Records: " + fileImportResult.getTotalRecords());
-        logger.debug("Total Number of Successful Records: " + fileImportResult.getNumSuccessRecords());
-        logger.debug("Total Number of Failure Records: " + fileImportResult.getNumFailedRecords());
-        logger.debug("Total Number of Blank Records: " + fileImportResult.getNumBlankRecords());
-        
-        if (fileImportResult.getNumFailedRecords() > 0) {
-            logger.debug("List of Failure Records");
-            for (FileImportResult.FailedRecord failedRecord : fileImportResult.getFailedRecords()) {
-                logger.debug(failedRecord.getRecord() + COMMA_SEPARATOR + failedRecord.getFailureCause());
-            }
+        if (logger.isDebugEnabled()) {
+            logger.debug(fileImportResult.toString());
         }
 
         return fileImportResult;
@@ -282,7 +279,7 @@ public class CompanyService  extends CommonService {
             
 
         } catch (ArrayIndexOutOfBoundsException ex) {
-            fileImportResult.addFailedRecord(recCount++ , record, 
+            fileImportResult.addFailedRecord(record, 
                     getMessageFromResourceBundle(resourceHandler, APIErrorCodes.MISSING_FIELDS), 
                     getMessageFromResourceBundle(resourceHandler, APIErrorCodes.SKIPPED_RECORD));
             return;
@@ -304,7 +301,7 @@ public class CompanyService  extends CommonService {
             String cause = ex.getCause() instanceof DataTruncation ? 
                     getMessageFromResourceBundle(resourceHandler, APIErrorCodes.DATA_TRUNCTATION) :
                         ex.getMessage();
-                    fileImportResult.addFailedRecord(recCount++ , record, cause,
+                    fileImportResult.addFailedRecord(record, cause,
                             getMessageFromResourceBundle(resourceHandler, APIErrorCodes.RECORD_NOT_ADDED));
         }
 
@@ -353,30 +350,12 @@ public class CompanyService  extends CommonService {
                 String causeDuplicateName = getMessageFromResourceBundle(resourceHandler, APIErrorCodes.DUPLICATE_RECORD);
                 causeDuplicateName = (!isSpecial ? causeDuplicateName + " - " + companyName : 
                     causeDuplicateName + " - " + companyName + ", " + custom1Value);
-                fileImportResult.addFailedRecord(recCount++ , record, causeDuplicateName,
+                fileImportResult.addFailedRecord(record, causeDuplicateName,
                         getMessageFromResourceBundle(resourceHandler, APIErrorCodes.SKIPPED_RECORD));
             } 
         }
 
         return isDuplicate;
-    }
-
-    /**
-     * Get a map of Company columns
-     * 
-     * @param companyId
-     * @return
-     */
-    public Map<String, String> getCompanyColumnHeaderMap(int companyId) {
-
-        Map<String, String> companyColumnHeaderMap = FileUploadEnum.COMPANY.prepareColumnHeaderMap();
-
-        Map<String, String> customColumnHeaderMap = getCustomFieldsMap(companyId, FileUploadEnum.COMPANY.name());//customColumnsLookUpId - gets custom fields from database
-
-        if (customColumnHeaderMap != null) {
-            companyColumnHeaderMap.putAll(customColumnHeaderMap);
-        }
-        return companyColumnHeaderMap;
     }
 
     /**

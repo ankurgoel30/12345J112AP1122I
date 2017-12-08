@@ -284,7 +284,7 @@ public class FileImportUtilTest {
         FileImportUtil.filterCustomFieldHeaders(allHeaders, REQUIRED_HEADERS_COMPANY_CSV_IMPORT);
 
         try {
-            FileImportUtil.validateAndFilterCustomHeaders(allHeaders, columnsToHeaderMap.values(), resourceHandler);
+            FileImportUtil.validateAndFilterCustomHeaders(allHeaders, columnsToHeaderMap.values(), allHeaders, resourceHandler);
         } catch (ApplicationException e) {
             fail("Exception not expected");
         }
@@ -306,7 +306,7 @@ public class FileImportUtilTest {
         FileImportUtil.filterCustomFieldHeaders(allHeaders, REQUIRED_HEADERS_COMPANY_CSV_IMPORT);
 
         try {
-            FileImportUtil.validateAndFilterCustomHeaders(allHeaders, columnsToHeaderMap.values(), resourceHandler);
+            FileImportUtil.validateAndFilterCustomHeaders(allHeaders, columnsToHeaderMap.values(), allHeaders, resourceHandler);
         } catch (ApplicationException ae) {
             assertNotNull(ae);
             assertEquals(APIErrorCodes.FILE_READ_ERROR, ae.getApiErrorCode());

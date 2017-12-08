@@ -27,6 +27,7 @@ public class FileImportResult {
     private int numSuccessRecords;
     private int numFailedRecords;
     private int numBlankRecords;
+    private int recCount = 0;
 
     private String headerLine; // For storing header to be used for creating responseFile
 
@@ -45,9 +46,9 @@ public class FileImportResult {
         numBlankRecords++;
     }
 
-    public void addFailedRecord(int index, String record, String failureCause, String info) {
+    public void addFailedRecord(String record, String failureCause, String info) {
         increamentFailedRecords();
-        this.getFailedRecords().add(new FailedRecord(index, record, failureCause, info));
+        this.getFailedRecords().add(new FailedRecord(recCount++, record, failureCause, info));
     }
     
     @Data
@@ -88,6 +89,23 @@ public class FileImportResult {
             stb.append(failedRecord.getRecord()).append(COMMA_SEPARATOR).append(failedRecord.getFailureCause()).append(NEW_LINE);
         }
 
+        return stb.toString();
+    }
+    
+    @Override
+    public String toString() {
+        StringBuffer stb = new StringBuffer();
+        stb.append("Total Number of Records: " + this.getTotalRecords()).append(NEW_LINE);
+        stb.append("Total Number of Successful Records: " + this.getNumSuccessRecords()).append(NEW_LINE);
+        stb.append("Total Number of Failure Records: " + this.getNumFailedRecords()).append(NEW_LINE);
+        stb.append("Total Number of Blank Records: " + this.getNumBlankRecords()).append(NEW_LINE);
+        
+        if (this.getNumFailedRecords() > 0) {
+            stb.append("List of Failure Records").append(NEW_LINE);
+            for (FileImportResult.FailedRecord failedRecord : this.getFailedRecords()) {
+                stb.append(failedRecord.getRecord() + COMMA_SEPARATOR + failedRecord.getFailureCause()).append(NEW_LINE);
+            }
+        }
         return stb.toString();
     }
 
