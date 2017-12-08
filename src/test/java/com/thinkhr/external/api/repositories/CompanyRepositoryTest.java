@@ -3,7 +3,6 @@ package com.thinkhr.external.api.repositories;
 import static com.thinkhr.external.api.ApplicationConstants.DEFAULT_SORT_BY_COMPANY_NAME;
 import static com.thinkhr.external.api.services.utils.EntitySearchUtil.getPageable;
 import static com.thinkhr.external.api.utils.ApiTestDataUtil.createCompanies;
-import static com.thinkhr.external.api.utils.ApiTestDataUtil.createCompaniesWitNameAndBroker;
 import static com.thinkhr.external.api.utils.ApiTestDataUtil.createCompany;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
@@ -213,117 +212,5 @@ public class CompanyRepositoryTest {
         assertNotNull(companies.getContent());
         assertEquals(1, companies.getContent().size()); //As we have only one record have searchKey = "pep"
     }
-
-    /**
-     * Test to verify CompanyRepository.findFirstByCompanyNameAndBroker method.
-     * 
-     * It creates multiple records for company and expects first company record
-     * with given parameters companyName and brokerId.
-     * 
-     * Finds the company record successfully.
-     * 
-     */
-    @Test
-    public void testFindFirstByCompanyNameAndBrokerIfCompanyExists() {
-        
-        for (Company company : createCompaniesWitNameAndBroker()) {
-            companyRepository.save(company);
-        }
-        String companyName = "Pepcus";
-        Integer broker = 1;
-
-        Company company = companyRepository.findFirstByCompanyNameAndBroker(companyName, broker);
-        
-        assertNotNull(company.getCompanyId());
-        assertEquals("Pepcus", company.getCompanyName()); 
-        assertEquals(1, company.getBroker().intValue());
-        assertEquals("Electric", company.getCompanyType());
-        assertEquals("This is search help6", company.getSearchHelp());
-    }
-    
-    /**
-     * Test to verify CompanyRepository.findFirstByCompanyNameAndBroker method.
-     * 
-     * It creates multiple records for company and expects first company record
-     * with given parameters companyName and brokerId.
-     * 
-     * Not able to find the company record.
-     * 
-     */
-    @Test
-    public void testFindFirstByCompanyNameAndBrokerIfCompanyNotExists() {
-        
-        for (Company company : createCompaniesWitNameAndBroker()) {
-            companyRepository.save(company);
-        }
-        String companyName = "Pepcus";
-        Integer broker = 2;
-
-        Company company = companyRepository.findFirstByCompanyNameAndBroker(companyName, broker);
-        
-        assertEquals(null, company);
-    }
-
-    /**
-     * Test to verify
-     * CompanyRepository.findFirstByCompanyNameAndCustom1AndBroker method.
-     * 
-     * It creates multiple records for company and expects first company record
-     * with given parameters companyName,custom1 and brokerId.
-     * 
-     * Finds the company record successfully.
-     * 
-     */
-    @Test
-    public void testFindFirstByCompanyNameAndCustom1AndBrokerIfCompanyExists() {
-
-        for (Company company : createCompaniesWitNameAndBroker()) {
-            companyRepository.save(company);
-        }
-
-        String companyName = "Pepcus";
-        String custom1 = "123213";
-        Integer broker = 1;
-
-        Company company = companyRepository
-                .findFirstByCompanyNameAndCustom1AndBroker(companyName, custom1,
-                        broker);
-
-        assertNotNull(company.getCompanyId());
-        assertEquals("Pepcus", company.getCompanyName());
-        assertEquals(1, company.getBroker().intValue());
-        assertEquals("123213", company.getCustom1());
-        assertEquals("IT", company.getCompanyType());
-        assertEquals("This is search help10", company.getSearchHelp());
-    }
-
-    /**
-     * Test to verify
-     * CompanyRepository.findFirstByCompanyNameAndCustom1AndBroker method.
-     * 
-     * It creates multiple records for company and expects first company record
-     * with given parameters companyName,custom1 and brokerId.
-     * 
-     * Not able to find the company record.
-     * 
-     */
-    @Test
-    public void testFindFirstByCompanyNameAndCustom1AndBrokerIfCompanyNotExists() {
-
-        for (Company company : createCompaniesWitNameAndBroker()) {
-            companyRepository.save(company);
-        }
-
-        String companyName = "Pepcus";
-        String custom1 = "123213";
-        Integer broker = 2;
-
-        Company company = companyRepository
-                .findFirstByCompanyNameAndCustom1AndBroker(companyName, custom1,
-                        broker);
-
-        assertEquals(null, company);
-    }
-
 
 }

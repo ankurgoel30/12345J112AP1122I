@@ -13,8 +13,6 @@ import org.apache.commons.codec.binary.Base64;
 import com.thinkhr.external.api.exception.APIErrorCodes;
 import com.thinkhr.external.api.exception.ApplicationException;
 
-import lombok.Data;
-
 /**
  * Encryptor\Decryptor with use of AES crypto alogrithm
  * 
@@ -22,7 +20,6 @@ import lombok.Data;
  * @since 2017-12-05
  *
  */
-@Data
 public class AESEncryptorDecryptor implements AppEncryptorDecryptor {
     
     private Cipher encipher;

@@ -35,7 +35,7 @@ public interface CompanyRepository extends PagingAndSortingRepository<Company, I
     /**
      * Repository method
      * @param companyName
-     * @param customField1
+     * @param string
      * @param brokerId
      * @return
      */

@@ -128,10 +128,6 @@ public class CommonService {
      */
     public List<String> getRequiredHeadersFromStdFields(String type) {
         
-        if (type == null) {
-            return null;
-        }
-        
         List<StandardFields> stdFields = standardFieldRepository.findByType(type);
         if (stdFields == null) {
             return null;

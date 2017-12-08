@@ -13,8 +13,6 @@ import org.apache.commons.codec.binary.Base64;
 import com.thinkhr.external.api.exception.APIErrorCodes;
 import com.thinkhr.external.api.exception.ApplicationException;
 
-import lombok.Data;
-
 /**
  * Encryptor\Decryptor with use of Blowfish crypto alogrithm
  * 
@@ -22,7 +20,6 @@ import lombok.Data;
  * @since 2017-12-05
  *
  */
-@Data
 public class BlowfishEncryptorDecryptor implements AppEncryptorDecryptor{
     
     private Cipher encipher;
@@ -58,8 +55,9 @@ public class BlowfishEncryptorDecryptor implements AppEncryptorDecryptor{
             byte[] encrypted = encipher.doFinal(value.getBytes());
             return Base64.encodeBase64String(encrypted);
         } catch (Exception ex) {
-            throw ApplicationException.createEncryptionError(APIErrorCodes.ENCRYPTION_ERROR, ex.getMessage());
+            ex.printStackTrace();
         }
+        return null;
     }
 
     /**
@@ -74,8 +72,9 @@ public class BlowfishEncryptorDecryptor implements AppEncryptorDecryptor{
             byte[] original = decipher.doFinal(Base64.decodeBase64(encryptedValue));
             return new String(original);
         } catch (Exception ex) {
-            throw ApplicationException.createEncryptionError(APIErrorCodes.DECRYPTION_ERROR, ex.getMessage());
+            ex.printStackTrace();
         }
+        return null;
     }
 
 }
