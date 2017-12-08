@@ -2,15 +2,14 @@ package com.thinkhr.external.api.services.utils;
 
 import static com.thinkhr.external.api.ApplicationConstants.COMMA_SEPARATOR;
 import static com.thinkhr.external.api.ApplicationConstants.COMPANY;
+import static com.thinkhr.external.api.ApplicationConstants.COMPANY_CUSTOM_COLUMN_PREFIX;
 import static com.thinkhr.external.api.ApplicationConstants.FILE_IMPORT_RESULT_MSG;
 import static com.thinkhr.external.api.ApplicationConstants.MAX_RECORDS_COMPANY_CSV_IMPORT;
 import static com.thinkhr.external.api.ApplicationConstants.MAX_RECORDS_USER_CSV_IMPORT;
 import static com.thinkhr.external.api.ApplicationConstants.REQUIRED_HEADERS_COMPANY_CSV_IMPORT;
 import static com.thinkhr.external.api.ApplicationConstants.REQUIRED_HEADERS_USER_CSV_IMPORT;
-import static com.thinkhr.external.api.ApplicationConstants.COMPANY_CUSTOM_COLUMN_PREFIX;
-import static com.thinkhr.external.api.ApplicationConstants.USER_CUSTOM_COLUMN_PREFIX;
-
 import static com.thinkhr.external.api.ApplicationConstants.USER;
+import static com.thinkhr.external.api.ApplicationConstants.USER_CUSTOM_COLUMN_PREFIX;
 import static com.thinkhr.external.api.response.APIMessageUtil.getMessageFromResourceBundle;
 
 import java.io.BufferedReader;
@@ -213,7 +212,7 @@ public class FileImportUtil {
      */
     public static String getValueFromRow(String row, Integer index) {
 
-        if (row == null) {
+        if (row == null || index == null || index < 0) {
             return null;
         }
 
@@ -235,12 +234,16 @@ public class FileImportUtil {
      */
     public static String[] getRequiredHeaders(String resource) {
         
+        if (resource == null) {
+            return null;
+        }
+
         switch(resource) {
             case COMPANY : return REQUIRED_HEADERS_COMPANY_CSV_IMPORT;
             case USER : return REQUIRED_HEADERS_USER_CSV_IMPORT;
         }
         
-        return REQUIRED_HEADERS_COMPANY_CSV_IMPORT; //Let's make it default
+        return null;
     }
     
     /**
@@ -248,12 +251,17 @@ public class FileImportUtil {
      * @return
      */
     public static String getCustomFieldPrefix(String resource) {
+
+        if (resource == null) {
+            return null;
+        }
+
         switch (resource) {
             case USER: return USER_CUSTOM_COLUMN_PREFIX;
             case COMPANY: return COMPANY_CUSTOM_COLUMN_PREFIX;
         }
         
-        return COMPANY_CUSTOM_COLUMN_PREFIX;
+        return null;
     }
 
     /**
@@ -262,14 +270,18 @@ public class FileImportUtil {
      * @param resource
      * @return
      */
-    public static int getMaxRecords(String resource) {
+    public static Integer getMaxRecords(String resource) {
         
+        if (resource == null) {
+            return null;
+        }
+
         switch(resource) {
             case COMPANY : return MAX_RECORDS_COMPANY_CSV_IMPORT;
             case USER : return MAX_RECORDS_USER_CSV_IMPORT;
         }
         
-        return MAX_RECORDS_COMPANY_CSV_IMPORT; //Let's make it default
+        return null;
     }
 
     
