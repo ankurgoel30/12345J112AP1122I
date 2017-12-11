@@ -29,12 +29,9 @@ public class ApiApplication {
     @Value("${com.thinkhr.external.api.crypto.encrypt.key}")
     private String key;
     
-    @Value("${com.thinkhr.external.api.crypto.initVector_AES}")
-    private String initVectorForAES;
+    @Value("${com.thinkhr.external.api.crypto.initVector}")
+    private String initVector;
 
-    @Value("${com.thinkhr.external.api.crypto.initVector_Blowfish}")
-    private String initVectorForBlowfish;
-    
     
     /**
      * Main method for spring application
@@ -67,10 +64,10 @@ public class ApiApplication {
     @Lazy(value = true)
     public AppEncryptorDecryptor getEncryptor() {
         if (ApplicationConstants.BLOWFISH_ALGO.equalsIgnoreCase(cryptoAlgo)) {
-            return new BlowfishEncryptorDecryptor(key, initVectorForBlowfish);
+            return new BlowfishEncryptorDecryptor(key, initVector);
         } 
         
-        return new AESEncryptorDecryptor(key, initVectorForAES);
+        return new AESEncryptorDecryptor(key, initVector);
         
     }
 
