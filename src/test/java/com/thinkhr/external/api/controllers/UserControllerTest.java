@@ -570,7 +570,7 @@ public class UserControllerTest {
     }
 
     /**
-     * Test to verify post (/v1/companies/bulk) when it gives error message for
+     * Test to verify post (/v1/users/bulk) when it gives error message for
      * Missing Required Headers
      * 
      * @throws Exception
@@ -598,7 +598,7 @@ public class UserControllerTest {
     }
 
     /**
-     * Test to verify post (/v1/companies/bulk) when it gives error message for
+     * Test to verify post (/v1/users/bulk) when it gives error message for
      * Max records exceed
      * 
      * @throws Exception
@@ -623,7 +623,7 @@ public class UserControllerTest {
     }
 
     /**
-     * Test to verify post (/v1/companies/bulk) when it executes successfully
+     * Test to verify post (/v1/users/bulk) when it executes successfully
      * and returns a response file with details of file import results
      * 
      * @throws Exception

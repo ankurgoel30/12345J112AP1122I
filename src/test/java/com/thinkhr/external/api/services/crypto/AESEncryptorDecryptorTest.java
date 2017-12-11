@@ -27,8 +27,8 @@ public class AESEncryptorDecryptorTest {
     @Value("${com.thinkhr.external.api.crypto.encrypt.key}")
     private String key;
 
-    @Value("${com.thinkhr.external.api.crypto.initVector_AES}")
-    private String initVectorForAES;
+    @Value("${com.thinkhr.external.api.crypto.initVector}")
+    private String initVector;
 
     private AESEncryptorDecryptor aesEncDec;
 
@@ -39,7 +39,7 @@ public class AESEncryptorDecryptorTest {
      */
     @Test
     public void testConstructorAESEncryptorDecryptorWhenSuccess() {
-        aesEncDec = new AESEncryptorDecryptor(key, initVectorForAES);
+        aesEncDec = new AESEncryptorDecryptor(key, initVector);
         assertNotNull(aesEncDec.getEncipher());
         assertNotNull(aesEncDec.getDecipher());
     }
@@ -81,7 +81,7 @@ public class AESEncryptorDecryptorTest {
      */
     @Test
     public void testEncryptWhenSuccess() {
-        aesEncDec = new AESEncryptorDecryptor(key, initVectorForAES);
+        aesEncDec = new AESEncryptorDecryptor(key, initVector);
         String encryptedValue = aesEncDec.encrypt(ORIGINAL_VALUE);
         assertEquals(AES_ENCRYPTED_VALUE, encryptedValue);
     }
@@ -92,7 +92,7 @@ public class AESEncryptorDecryptorTest {
      */
     @Test
     public void testEncryptWhenExpectedNotSame() {
-        aesEncDec = new AESEncryptorDecryptor(key, initVectorForAES);
+        aesEncDec = new AESEncryptorDecryptor(key, initVector);
         String encryptedValue = aesEncDec.encrypt(SOME_OTHER_VALUE);
         assertNotEquals(AES_ENCRYPTED_VALUE, encryptedValue);
     }
@@ -103,7 +103,7 @@ public class AESEncryptorDecryptorTest {
      */
     @Test
     public void testEncryptForNullValue() {
-        aesEncDec = new AESEncryptorDecryptor(key, initVectorForAES);
+        aesEncDec = new AESEncryptorDecryptor(key, initVector);
         try {
             String encryptedValue = aesEncDec.encrypt(null);
         } catch (ApplicationException ae) {
@@ -118,7 +118,7 @@ public class AESEncryptorDecryptorTest {
      */
     @Test
     public void testDecryptWhenSuccess() {
-        aesEncDec = new AESEncryptorDecryptor(key, initVectorForAES);
+        aesEncDec = new AESEncryptorDecryptor(key, initVector);
         String value = aesEncDec.decrypt(AES_ENCRYPTED_VALUE);
         assertEquals(ORIGINAL_VALUE, value);
     }
@@ -129,7 +129,7 @@ public class AESEncryptorDecryptorTest {
      */
     @Test
     public void testDecryptWhenExpectedNotSame() {
-        aesEncDec = new AESEncryptorDecryptor(key, initVectorForAES);
+        aesEncDec = new AESEncryptorDecryptor(key, initVector);
         String value = aesEncDec.decrypt(AES_ENCRYPTED_VALUE);
         assertNotEquals(SOME_OTHER_VALUE, value);
     }
@@ -140,7 +140,7 @@ public class AESEncryptorDecryptorTest {
      */
     @Test
     public void testDecryptForNullValue() {
-        aesEncDec = new AESEncryptorDecryptor(key, initVectorForAES);
+        aesEncDec = new AESEncryptorDecryptor(key, initVector);
         try {
             String value = aesEncDec.encrypt(null);
         } catch (ApplicationException ae) {

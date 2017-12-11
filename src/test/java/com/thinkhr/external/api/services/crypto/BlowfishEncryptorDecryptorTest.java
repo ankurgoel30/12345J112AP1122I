@@ -27,8 +27,7 @@ public class BlowfishEncryptorDecryptorTest {
     @Value("${com.thinkhr.external.api.crypto.encrypt.key}")
     private String key;
 
-    @Value("${com.thinkhr.external.api.crypto.initVector_Blowfish}")
-    private String initVectorForBlowfish;
+    private String initVector = "THR-JAPI";
     
     private BlowfishEncryptorDecryptor blowfishEncDec;
 
@@ -39,7 +38,7 @@ public class BlowfishEncryptorDecryptorTest {
      */
     @Test
     public void testConstructorBlowfishEncryptorDecryptorWhenSuccess() {
-        blowfishEncDec = new BlowfishEncryptorDecryptor(key, initVectorForBlowfish);
+        blowfishEncDec = new BlowfishEncryptorDecryptor(key, initVector);
         assertNotNull(blowfishEncDec.getEncipher());
         assertNotNull(blowfishEncDec.getDecipher());
     }
@@ -81,7 +80,7 @@ public class BlowfishEncryptorDecryptorTest {
      */
     @Test
     public void testEncryptWhenSuccess() {
-        blowfishEncDec = new BlowfishEncryptorDecryptor(key, initVectorForBlowfish);
+        blowfishEncDec = new BlowfishEncryptorDecryptor(key, initVector);
         String encryptedValue = blowfishEncDec.encrypt(ORIGINAL_VALUE);
         assertEquals(BLOWFISH_ENCRYPTED_VALUE, encryptedValue);
     }
@@ -92,7 +91,7 @@ public class BlowfishEncryptorDecryptorTest {
      */
     @Test
     public void testEncryptWhenExpectedNotSame() {
-        blowfishEncDec = new BlowfishEncryptorDecryptor(key, initVectorForBlowfish);
+        blowfishEncDec = new BlowfishEncryptorDecryptor(key, initVector);
         String encryptedValue = blowfishEncDec.encrypt(SOME_OTHER_VALUE);
         assertNotEquals(BLOWFISH_ENCRYPTED_VALUE, encryptedValue);
     }
@@ -103,7 +102,7 @@ public class BlowfishEncryptorDecryptorTest {
      */
     @Test
     public void testEncryptForNullValue() {
-        blowfishEncDec = new BlowfishEncryptorDecryptor(key, initVectorForBlowfish);
+        blowfishEncDec = new BlowfishEncryptorDecryptor(key, initVector);
         try {
             String encryptedValue = blowfishEncDec.encrypt(null);
         } catch (ApplicationException ae) {
@@ -118,7 +117,7 @@ public class BlowfishEncryptorDecryptorTest {
      */
     @Test
     public void testDecryptWhenSuccess() {
-        blowfishEncDec = new BlowfishEncryptorDecryptor(key, initVectorForBlowfish);
+        blowfishEncDec = new BlowfishEncryptorDecryptor(key, initVector);
         String value = blowfishEncDec.decrypt(BLOWFISH_ENCRYPTED_VALUE);
         assertEquals(ORIGINAL_VALUE, value);
     }
@@ -129,7 +128,7 @@ public class BlowfishEncryptorDecryptorTest {
      */
     @Test
     public void testDecryptWhenExpectedNotSame() {
-        blowfishEncDec = new BlowfishEncryptorDecryptor(key, initVectorForBlowfish);
+        blowfishEncDec = new BlowfishEncryptorDecryptor(key, initVector);
         String value = blowfishEncDec.decrypt(BLOWFISH_ENCRYPTED_VALUE);
         assertNotEquals(SOME_OTHER_VALUE, value);
     }
@@ -140,7 +139,7 @@ public class BlowfishEncryptorDecryptorTest {
      */
     @Test
     public void testDecryptForNullValue() {
-        blowfishEncDec = new BlowfishEncryptorDecryptor(key, initVectorForBlowfish);
+        blowfishEncDec = new BlowfishEncryptorDecryptor(key, initVector);
         try {
             String value = blowfishEncDec.encrypt(null);
         } catch (ApplicationException ae) {
