@@ -66,6 +66,7 @@ public class ApplicationConstants {
     public static final String USER_COLUMN_CLIENT_ID = "client_id";
     public static final String USER_COLUMN_PASSWORD = "password_enc";
     public static final String DEFAULT_PASSWORD = "";
+    public static final String UNDERSCORE = "_";
     
 
 
