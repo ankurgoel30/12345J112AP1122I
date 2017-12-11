@@ -272,13 +272,13 @@ public class FileImportValidatorTest {
     
     
     /**
-     * Test to verify validateEmail if email is null.
+     * Test to verify validateEmail if email is empty.
      * 
      */
     @Test
-    public void testValidateEmailForNull() {
+    public void testValidateEmailForEmpty() {
         String row = getFileRecordForUser();
-        String email = null;
+        String email = "";
         FileImportResult fileImportResult = new FileImportResult();
         boolean isValidated = FileImportValidator.validateEmail(row, email, fileImportResult, resourceHandler);
         assertFalse(isValidated);

@@ -186,7 +186,7 @@ public class UserService extends CommonService {
      * @param resource
      * @throws ApplicationException
      */
-    private FileImportResult processRecords (List<String> records, 
+     FileImportResult processRecords (List<String> records, 
             Company broker, String resource) throws ApplicationException {
 
         FileImportResult fileImportResult = new FileImportResult();

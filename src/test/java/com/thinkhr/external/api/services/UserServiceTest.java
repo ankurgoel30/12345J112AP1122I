@@ -377,10 +377,6 @@ public class UserServiceTest {
             fail("Exception not expected");
         }
 
-        int expectedSuccessCount = fileImportResult.getNumSuccessRecords();
-        int expectedFailureCount = fileImportResult.getNumFailedRecords() + 1;
-        int expectedFailedRecordsListSize = fileImportResult.getFailedRecords().size() + 1;
-
         RuntimeException ex = new RuntimeException();
         ex.initCause(new DataTruncation(0, true, true, 12, 13));
         Mockito.doThrow(ex).when(fileDataRepository).saveUserRecord(Mockito.any(), Mockito.any());
@@ -388,9 +384,9 @@ public class UserServiceTest {
         userService.populateAndSaveToDB(record, userColumnsToHeaderMap,
                 headerIndexMap, fileImportResult, companyId);
 
-        assertEquals(expectedSuccessCount, fileImportResult.getNumSuccessRecords());
-        assertEquals(expectedFailureCount, fileImportResult.getNumFailedRecords());
-        assertEquals(expectedFailedRecordsListSize, fileImportResult.getFailedRecords().size());
+        assertEquals(0, fileImportResult.getNumSuccessRecords());
+        assertEquals(1, fileImportResult.getNumFailedRecords());
+        assertEquals(1, fileImportResult.getFailedRecords().size());
     }
     
     /**
@@ -419,16 +415,12 @@ public class UserServiceTest {
             fail("Exeption not expected");
         }
 
-        int expectedSuccessCount = fileImportResult.getNumSuccessRecords();
-        int expectedFailureCount = fileImportResult.getNumFailedRecords() + 1;
-        int expectedFailedRecordsListSize = fileImportResult.getFailedRecords().size() + 1;
-
         userService.populateAndSaveToDB(record, userColumnsToHeaderMap,
                 headerIndexMap, fileImportResult, companyId);
 
-        assertEquals(expectedSuccessCount, fileImportResult.getNumSuccessRecords());
-        assertEquals(expectedFailureCount, fileImportResult.getNumFailedRecords());
-        assertEquals(expectedFailedRecordsListSize, fileImportResult.getFailedRecords().size());
+        assertEquals(0, fileImportResult.getNumSuccessRecords());
+        assertEquals(1, fileImportResult.getNumFailedRecords());
+        assertEquals(1, fileImportResult.getFailedRecords().size());
     }
     
     /**
@@ -510,18 +502,15 @@ public class UserServiceTest {
     }
 
     /**
-     * Test to verify if existing email in csv file is not valid
+     * Test to verify if existing email in csv file is in-valid
      * 
      */
     @Test
-    public void testProcessRecordsForValidateEmailFalse() {
-        List<String> records = ApiTestDataUtil.getCsvRecordsForUser();
+    public void testProcessRecordsForInValidEmail() {
         String record = "Ajay,Jain,ThinkHR,ajay.jain,ajain,82374893423,20";
         String email = "ajay.jain";
         Company broker = ApiTestDataUtil.createCompany();
         FileImportResult fileImportResult = new FileImportResult();
-        Map<String, Integer> headerIndexMap = ApiTestDataUtil
-                .getHeaderIndexMapForUser();
         String resource = "USER";
         int companyId = 12345;
         broker.setCompanyId(companyId);
