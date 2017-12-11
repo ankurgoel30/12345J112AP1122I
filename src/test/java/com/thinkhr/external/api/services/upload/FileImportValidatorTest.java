@@ -4,8 +4,14 @@ import static com.thinkhr.external.api.ApplicationConstants.COMMA_SEPARATOR;
 import static com.thinkhr.external.api.ApplicationConstants.COMPANY;
 import static com.thinkhr.external.api.ApplicationConstants.MAX_RECORDS_COMPANY_CSV_IMPORT;
 import static com.thinkhr.external.api.ApplicationConstants.REQUIRED_HEADERS_COMPANY_CSV_IMPORT;
+import static com.thinkhr.external.api.utils.ApiTestDataUtil.getFileRecordForUser;
+import static com.thinkhr.external.api.utils.ApiTestDataUtil.getFileRecordForUserMissingFields;
+import static com.thinkhr.external.api.utils.ApiTestDataUtil.getHeaderIndexMapForUser;
+import static com.thinkhr.external.api.utils.ApiTestDataUtil.getRequiredHeadersForUser;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 import java.io.File;
@@ -13,6 +19,7 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.ArrayUtils;
@@ -20,16 +27,27 @@ import org.apache.commons.lang.StringUtils;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.mock.web.MockMultipartFile;
+import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.web.multipart.MultipartFile;
 
+import com.thinkhr.external.api.ApiApplication;
 import com.thinkhr.external.api.exception.APIErrorCodes;
 import com.thinkhr.external.api.exception.ApplicationException;
+import com.thinkhr.external.api.exception.MessageResourceHandler;
+import com.thinkhr.external.api.model.FileImportResult;
 
 @RunWith(SpringRunner.class)
+@ContextConfiguration(classes = ApiApplication.class)
+@SpringBootTest
 public class FileImportValidatorTest {
 
+    @Autowired
+    private MessageResourceHandler resourceHandler;
+    
     /**
      * Test validateAndGetFileContent when MultipartFile object of a file
      * without csv extension is given as input
@@ -250,5 +268,73 @@ public class FileImportValidatorTest {
             assertNotNull(appEx);
             assertEquals(APIErrorCodes.MISSING_REQUIRED_HEADERS, appEx.getApiErrorCode());
         }
+    }
+    
+    
+    /**
+     * Test to verify validateEmail if email is empty.
+     * 
+     */
+    @Test
+    public void testValidateEmailForEmpty() {
+        String row = getFileRecordForUser();
+        String email = "";
+        FileImportResult fileImportResult = new FileImportResult();
+        boolean isValidated = FileImportValidator.validateEmail(row, email, fileImportResult, resourceHandler);
+        assertFalse(isValidated);
+    }
+    
+    /**
+     * Test to verify validateEmail if email is valid.
+     * 
+     */
+    @Test
+    public void testValidateEmailForValid() {
+        String row = getFileRecordForUser();
+        String email = "ajain.jain@pepcus.com";
+        FileImportResult fileImportResult = new FileImportResult();
+        boolean isValidated = FileImportValidator.validateEmail(row, email, fileImportResult, resourceHandler);
+        assertTrue(isValidated);
+    }
+    
+    /**
+     * Test to verify validateEmail if email is invalid.
+     * 
+     */
+    @Test
+    public void testValidateEmailForInvalid() {
+        String row = getFileRecordForUser();
+        String email = "ajain.jain";
+        FileImportResult fileImportResult = new FileImportResult();
+        boolean isValidated = FileImportValidator.validateEmail(row, email, fileImportResult, resourceHandler);
+        assertFalse(isValidated);
+    }
+
+    /**
+     * Test to verify validateRequired if all required fields are present.
+     * 
+     */
+    @Test
+    public void testValidateRequiredForAllPresent() {
+        String row = getFileRecordForUser();
+        FileImportResult fileImportResult = new FileImportResult();
+        List<String> requiredFields = getRequiredHeadersForUser();
+        Map<String, Integer> headerIndexMap = getHeaderIndexMapForUser();
+        boolean isValidated = FileImportValidator.validateRequired(row, requiredFields, headerIndexMap, fileImportResult, resourceHandler);
+        assertTrue(isValidated); 
+    }
+    
+    /**
+     * Test to verify validateRequired if one or more required fields are missing.
+     * 
+     */
+    @Test
+    public void testValidateRequiredForMissingFields() {
+        String row = getFileRecordForUserMissingFields();
+        FileImportResult fileImportResult = new FileImportResult();
+        List<String> requiredFields = getRequiredHeadersForUser();
+        Map<String, Integer> headerIndexMap = getHeaderIndexMapForUser();
+        boolean isValidated = FileImportValidator.validateRequired(row, requiredFields, headerIndexMap, fileImportResult, resourceHandler);
+        assertFalse(isValidated);
     }
 }

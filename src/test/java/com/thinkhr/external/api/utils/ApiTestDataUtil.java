@@ -27,6 +27,7 @@ import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.thinkhr.external.api.db.entities.Company;
 import com.thinkhr.external.api.db.entities.CustomFields;
+import com.thinkhr.external.api.db.entities.StandardFields;
 import com.thinkhr.external.api.db.entities.User;
 import com.thinkhr.external.api.model.FileImportResult;
 
@@ -46,6 +47,14 @@ public class ApiTestDataUtil {
     public static final String COMPANY_API_REQUEST_PARAM_LIMIT = "limit";
     public static final String COMPANY_API_REQUEST_PARAM_SORT = "sort";
     public static final String COMPANY_API_REQUEST_PARAM_SEARCH_SPEC = "searchSpec";
+    public static final String ORIGINAL_VALUE = "";
+    public static final String SOME_OTHER_VALUE = "abcde";
+    public static final String AES_ENCRYPTED_VALUE = "wWUAeEOei1tQfU4lo3FtCg==";
+    public static final String BLOWFISH_ENCRYPTED_VALUE = "o+DctRBhIWU=";
+    public static final String INVALID_INIT_VECTOR = "ThinkHRJAPI";
+    public static final String DEFAULT_COLUMN_VALUE = "";
+    public static final String RESOURCE_COMPANY = "COMPANY";
+    public static final String RESOURCE_USER = "USER";
 
     /**
      * Convert object into Json String
@@ -111,6 +120,24 @@ public class ApiTestDataUtil {
         company.setCompanySince(companySince);
         company.setSpecialNote(specialNotes);
         company.setSearchHelp(searchHelp);
+        company.setIsActive(1);
+        return company;
+    }
+    
+    public static Company createCompanyWithCompanyNameAndBroker(Integer companyId, String companyName, String companyType, Date companySince,
+            String specialNote, String searchHelp, Integer broker,
+            String custom1) {
+        Company company = new Company();
+        if (companyId != null) {
+            company.setCompanyId(companyId);
+        }
+        company.setCompanyName(companyName);
+        company.setCompanyType(companyType);
+        company.setCompanySince(companySince);
+        company.setSpecialNote(specialNote);
+        company.setSearchHelp(searchHelp);
+        company.setBroker(broker); 
+        company.setCustom1(custom1);
         company.setIsActive(1);
         return company;
     }
@@ -286,6 +313,52 @@ public class ApiTestDataUtil {
         customFields.add(createCustomFields(3, 15472, "COMPANY", "2", "c2", "GROUP_ID", "0"));
         return customFields;
     }
+    
+    /**
+     * Create list of CustomFields for user.
+     * 
+     * @return
+     */
+    public static List<CustomFields> createCustomFieldsForUser() {
+        List<CustomFields> customFields = new ArrayList<CustomFields>();
+
+        customFields.add(createCustomFields(1, 10, "USER", "1", "c1", "GROUP", "0"));
+        customFields.add(createCustomFields(2, 10, "USER", "2", "c2", "CORRELATION_ID", "0"));
+        customFields.add(createCustomFields(3, 10, "USER", "3", "c3", "BRANCH_ID", "0"));
+        return customFields;
+
+    }
+    
+    /**
+     * Create list of StandardFields for user.
+     * 
+     * @return
+     */
+    public static List<StandardFields> createStandardFieldsForUser() {
+        List<StandardFields> standardFields = new ArrayList<StandardFields>();
+
+        standardFields.add(createStandardFields(1, "FIRST_NAME", "CONTACT"));
+        standardFields.add(createStandardFields(2, "LAST_NAME", "CONTACT"));
+        standardFields.add(createStandardFields(3, "CLIENT_NAME", "CONTACT"));
+        standardFields.add(createStandardFields(4, "EMAIL", "CONTACT"));
+        standardFields.add(createStandardFields(5, "USER_NAME", "CONTACT"));
+        standardFields.add(createStandardFields(6, "PHONE", "CONTACT"));
+        return standardFields;
+    }
+
+    /**
+     * Create list of StandardFields for company.
+     * 
+     * @return
+     */
+    public static List<StandardFields> createStandardFieldsForCompany() {
+        List<StandardFields> standardFields = new ArrayList<StandardFields>();
+
+        standardFields.add(createStandardFields(1, "CLIENT_NAME", "CLIENT"));
+        standardFields.add(createStandardFields(2, "DISPLAY_NAME", "CLIENT"));
+        standardFields.add(createStandardFields(3, "PHONE", "CLIENT"));
+        return standardFields;
+    }
 
     /**
      * 
@@ -312,6 +385,23 @@ public class ApiTestDataUtil {
         customFields.setIsImportRequired(isImportRequired);
 
         return customFields;
+    }
+    
+    /**
+     * 
+     * @param id
+     * @param label
+     * @param type
+     * @return
+     */
+    public static StandardFields createStandardFields(Integer id, String label, String type) {
+        StandardFields standardFields = new StandardFields();
+        if (id != null) {
+            standardFields.setId(id);
+        }
+        standardFields.setLabel(label);
+        standardFields.setType(type);
+        return standardFields;
     }
 
     public static String getCsvRecord() {
@@ -452,6 +542,26 @@ public class ApiTestDataUtil {
 
         return multipartFile;
     }
+    
+    /**
+     * Create multipartFile for missing headers.
+     * 
+     * @return
+     * @throws IOException
+     */
+    public static MockMultipartFile createMockMultipartFileForUser_MissingRequiredHeaderValues()
+            throws IOException {
+        File file = new File("src/test/resources/testdata/5_MissingRequiredheaders.csv");
+
+        FileInputStream input = null;
+        MockMultipartFile multipartFile = null;
+
+        input = new FileInputStream(file);
+
+        multipartFile = new MockMultipartFile("file", file.getName(), "text/plain", IOUtils.toByteArray(input));
+
+        return multipartFile;
+    }
 
     /**
      * Create multipartFile for exceeding max records.
@@ -510,6 +620,23 @@ public class ApiTestDataUtil {
         columnValuesList.add("dummy_branch");
         columnValuesList.add("dummy_client");
         columnValuesList.add("dummy_client_type");
+        return columnValuesList;
+    }
+
+    /**
+     * Get list for column values in user table
+     * 
+     * @return
+     */
+    public static List<Object> getUserColumnValuesList() {
+        List<Object> columnValuesList = new ArrayList<Object>();
+        columnValuesList.add("Ajay");
+        columnValuesList.add("Jain");
+        columnValuesList.add("ThinkHR");
+        columnValuesList.add("ajay.jain@pepcus.com");
+        columnValuesList.add("ajain");
+        columnValuesList.add("3457893455");
+        columnValuesList.add("20");
         return columnValuesList;
     }
 
@@ -595,11 +722,11 @@ public class ApiTestDataUtil {
     }
 
     /**
-     * Get columns which are mapped to headers in csv.
+     * Get columns of company which are mapped to headers in csv.
      * 
      * @return
      */
-    public static Map<String, String> getColumnsToHeadersMap() {
+    public static Map<String, String> getColumnsToHeadersMapForComapny() {
         Map<String, String> columnToHeaderMap = new HashMap<String, String>();
         columnToHeaderMap.put("companyName", "CLIENT_NAME");
         columnToHeaderMap.put("displayName", "DISPLAY_NAME");
@@ -611,11 +738,28 @@ public class ApiTestDataUtil {
     }
 
     /**
-     * Get all the columns which are mapped to headers in csv.
+     * Get columns of user which are mapped to headers in csv.
      * 
      * @return
      */
-    public static Map<String, String> getAllColumnsToHeadersMap() {
+    public static Map<String, String> getColumnsToHeadersMapForUser() {
+        Map<String, String> columnToHeaderMap = new HashMap<String, String>();
+        columnToHeaderMap.put("firstName", "FIRST_NAME");
+        columnToHeaderMap.put("lastName", "LAST_NAME");
+        columnToHeaderMap.put("companyName", "CLIENT_NAME");
+        columnToHeaderMap.put("email", "EMAIL");
+        columnToHeaderMap.put("userName", "USER_NAME");
+        columnToHeaderMap.put("phone", "PHONE");
+        columnToHeaderMap.put("customField1", "BUSINESS_ID");
+        return columnToHeaderMap;
+    }
+
+    /**
+     * Get all the columns of company which are mapped to headers in csv.
+     * 
+     * @return
+     */
+    public static Map<String, String> getAllColumnsToHeadersMapForCompany() {
         Map<String, String> columnToHeaderMap = new HashMap<String, String>();
         columnToHeaderMap.put("companyName", "CLIENT_NAME");
         columnToHeaderMap.put("displayName", "DISPLAY_NAME");
@@ -675,10 +819,11 @@ public class ApiTestDataUtil {
     }
 
     /**
-     * Get csv headers to Index map
+     * Get csv headers to Index map for company
+     * 
      * @return
      */
-    public static Map<String, Integer> getHeaderIndexMap() {
+    public static Map<String, Integer> getHeaderIndexMapForCompany() {
         Map<String, Integer> headerIndexMap = new HashMap<String, Integer>();
         headerIndexMap.put("CLIENT_NAME", 0);
         headerIndexMap.put("DISPLAY_NAME", 1);
@@ -690,20 +835,39 @@ public class ApiTestDataUtil {
     }
 
     /**
-     * Get a line of csv record
-     * @return
-     */
-    public static String getFileRecord() {
-        return "Pepcus Software Services, pepcus, 9213234567, IT, 20, Ajay Jain, , , , , , 12, , ";
-    }
-
-    /**
-     * Get file contents with custom fields.
+     * Get record of company with custom1.
      * 
      * @return
      */
-    public static String getFileRecordWithCustomFields() {
-        return "Pepcus Software Services, pepcus, 9213234567, IT, 20, Ajay Jain";
+    public static String getFileRecordForCompanyWithCustom1() {
+        return "Pepcus Software Services,pepcus,9213234567,IT,20,Ajay Jain,,,,,,12,,";
+    }
+
+    /**
+     * Get record of company.
+     * 
+     * @return
+     */
+    public static String getFileRecordForCompany() {
+        return "Pepcus Software Services,pepcus,9213234567,IT,20,Ajay Jain";
+    }
+
+    /**
+     * Get record of user.
+     * 
+     * @return
+     */
+    public static String getFileRecordForUser() {
+        return "Ajay,Jain,ThinkHR,ajay.jain@pepcus.com,ajain,9876543210,4649973";
+    }
+
+    /**
+     * Get record of user.
+     * 
+     * @return
+     */
+    public static String getFileRecordForUserMissingFields() {
+        return "Ajay,Jain,ThinkHR,ajay.jain@pepcus.com,";
     }
 
     /**
@@ -732,7 +896,7 @@ public class ApiTestDataUtil {
      * Create List of blank csv records
      * @return
      */
-    public static List<String> getBlankCsvRecords() {
+    public static List<String> getBlankCsvRecordsForCompany() {
         List<String> records = new ArrayList<String>();
 
         records.add(
@@ -745,6 +909,153 @@ public class ApiTestDataUtil {
         records.add("");
 
         return records;
+    }
+    
+    /**
+     * Create List of blank csv records
+     * @return
+     */
+    public static List<String> getBlankCsvRecordsForUser() {
+        List<String> records = new ArrayList<String>();
+
+        records.add(
+                "FIRST_NAME,LAST_NAME,CLIENT_NAME,EMAIL,USER_NAME,PHONE,BUSINESS_ID");
+
+        records.add(",,,,,");
+
+        records.add("");
+
+        records.add("");
+
+        return records;
+    }
+
+    /**
+     * Create List of blank csv records
+     * 
+     * @return
+     */
+    public static List<String> getCsvRecordsForUserForMissingFields() {
+        List<String> records = new ArrayList<String>();
+
+        records.add("FIRST_NAME,LAST_NAME,CLIENT_NAME,PHONE,BUSINESS_ID");
+
+        records.add("Ajay,Jain,ThinkHR,9878978977,45");
+
+        return records;
+    }
+
+    /**
+     * Create List of csv records
+     * 
+     * @return
+     */
+    public static List<String> getCsvRecordsForUserForInvalidMail() {
+        List<String> records = new ArrayList<String>();
+
+        records.add("FIRST_NAME,LAST_NAME,CLIENT_NAME,EMAIL,USER_NAME,PHONE,BUSINESS_ID");
+
+        records.add("Ajay,Jain,ThinkHR,ajay.jain,ajain,82374893423,20");
+
+        return records;
+    }
+    
+    /**
+     * Create List of csv records
+     * 
+     * @return
+     */
+    public static List<String> getCsvRecordsForUser() {
+        List<String> records = new ArrayList<String>();
+
+        records.add("FIRST_NAME,LAST_NAME,CLIENT_NAME,EMAIL,USER_NAME,PHONE,BUSINESS_ID");
+
+        records.add("Ajay,Jain,ThinkHR,ajay.jain@pepcus.com,ajain,82374893423,20");
+
+        return records;
+    }
+
+    /**
+     * Get reuired headers for user
+     * 
+     * @return
+     */
+    public static List<String> getRequiredHeadersForUser() {
+        List<String> requiredHeaders = new ArrayList<String>();
+        requiredHeaders.add("FIRST_NAME");
+        requiredHeaders.add("LAST_NAME");
+        requiredHeaders.add("CLIENT_NAME");
+        requiredHeaders.add("EMAIL");
+        requiredHeaders.add("USER_NAME");
+        requiredHeaders.add("PHONE");
+        return requiredHeaders;
+    }
+
+    /**
+     * Get csv headers to Index map for user
+     * 
+     * @return
+     */
+    public static Map<String, Integer> getHeaderIndexMapForUser() {
+        Map<String, Integer> headerIndexMap = new HashMap<String, Integer>();
+        headerIndexMap.put("FIRST_NAME", 0);
+        headerIndexMap.put("LAST_NAME", 1);
+        headerIndexMap.put("CLIENT_NAME", 2);
+        headerIndexMap.put("EMAIL", 3);
+        headerIndexMap.put("USER_NAME", 4);
+        headerIndexMap.put("PHONE", 5);
+        headerIndexMap.put("BUSINESS_ID", 6);
+        return headerIndexMap;
+    }
+
+    /**
+     * Get empty csv record.
+     * 
+     * @return
+     */
+    public static String getEmptyCsvRow() {
+        return "";
+    }
+    
+    public static List<Company> createCompaniesWitNameAndBroker() {
+        List<Company> companies = new ArrayList<Company>();
+        companies.add(createCompanyWithCompanyNameAndBroker(2, "Twitter", "IT", new Date(), "IT comp at Pune", "This is search help1", 1, null));
+        companies.add(createCompanyWithCompanyNameAndBroker(3, "Google", "IT", new Date(), "IT comp at banglore", "This is search help2", 1, null));
+        companies.add(createCompanyWithCompanyNameAndBroker(4, "Facebook", "IT", new Date(), "IT comp at banglore", "This is search help3", 1, null));
+        companies.add(createCompanyWithCompanyNameAndBroker(5, "General Motors", "Autmobile", new Date(), "Comp at Pune", "This is search help4", 13, null));
+        companies.add(createCompanyWithCompanyNameAndBroker(6, "L & T", "Autmobile", new Date(), "Comp at Pune", "This is search help5", 1, null));
+        companies.add(createCompanyWithCompanyNameAndBroker(7, "Pepcus", "Electric", new Date(), "Comp at Pune", "This is search help6", 1, null));
+        companies.add(createCompanyWithCompanyNameAndBroker(8, "Oracle", "IT", new Date(), "IT Comp at Pune", "This is search help7", 1, null));
+        companies.add(createCompanyWithCompanyNameAndBroker(9, "Pepcus", "IT", new Date(), "IT Comp at Pune", "This is search help8", 15, null));
+        companies.add(createCompanyWithCompanyNameAndBroker(10, "ThinkHR", "IT", new Date(), "IT Comp at Pune", "This is search help9", 1, null));
+        companies.add(createCompanyWithCompanyNameAndBroker(11, "Pepcus", "IT", new Date(), "IT Comp at Pune", "This is search help10", 1, "123213"));
+        return companies;
+    }
+
+    /**
+     * 
+     * @return
+     */
+    public static List<String> getStdFieldsForUser() {
+        List<String> list = new ArrayList<String>();
+        list.add("FIRST_NAME");
+        list.add("LAST_NAME");
+        list.add("CLIENT_NAME");
+        list.add("USER_NAME");
+        list.add("EMAIl");
+        return list;
+    }
+
+    /**
+     * 
+     * @return
+     */
+    public static List<String> getFileContents() {
+        List<String> list = new ArrayList<String>();
+        list.add("LINE1");
+        list.add("LINE2");
+        list.add("LINE3");
+        return list;
     }
 
 }

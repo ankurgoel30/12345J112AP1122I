@@ -1,11 +1,12 @@
 package com.thinkhr.external.api.services;
 
 import static com.thinkhr.external.api.ApplicationConstants.COMMA_SEPARATOR;
-import static com.thinkhr.external.api.ApplicationConstants.DEFAULT_SORT_BY_COMPANY_NAME;
 import static com.thinkhr.external.api.ApplicationConstants.COMPANY;
+import static com.thinkhr.external.api.ApplicationConstants.DEFAULT_SORT_BY_COMPANY_NAME;
 import static com.thinkhr.external.api.services.utils.EntitySearchUtil.getPageable;
 import static com.thinkhr.external.api.utils.ApiTestDataUtil.createCompany;
-import static com.thinkhr.external.api.utils.ApiTestDataUtil.getFileRecord;
+import static com.thinkhr.external.api.utils.ApiTestDataUtil.createCustomFieldsList;
+import static com.thinkhr.external.api.utils.ApiTestDataUtil.getFileRecordForCompanyWithCustom1;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
@@ -267,7 +268,7 @@ public class CompanyServiceTest {
     public void testGetCompanyColumnsHeaderMap_TwoCustomFields() {
         int companyId = 15472;
         String customFieldType = COMPANY;
-        List<CustomFields> customFieldTestData = ApiTestDataUtil.createCustomFieldsList();
+        List<CustomFields> customFieldTestData = createCustomFieldsList();
 
         Mockito.when(customFieldRepository.findByCompanyIdAndCustomFieldType(companyId, customFieldType)).thenReturn(customFieldTestData);
 
@@ -430,7 +431,7 @@ public class CompanyServiceTest {
     @Test
     public void testCheckDuplicateForNoDuplicates() {
         int recCount = 1;
-        String record = getFileRecord();
+        String record = getFileRecordForCompanyWithCustom1();
         FileImportResult result = new FileImportResult();
         Integer brokerId = 1;
         String companyName = "Pepcus Software Services";
@@ -450,7 +451,7 @@ public class CompanyServiceTest {
     @Test
     public void testCheckDuplicateForExistsAndNoSpecialCase() {
         int recCount = 1;
-        String record = getFileRecord();
+        String record = getFileRecordForCompanyWithCustom1();
         FileImportResult result = new FileImportResult();
         int failedRecords = result.getNumFailedRecords();
         Integer brokerId = 2;
@@ -473,7 +474,7 @@ public class CompanyServiceTest {
     @Test
     public void testCheckDuplicateForExistsAndSpecialCaseWithCustom1() {
         int recCount = 1;
-        String record = getFileRecord();
+        String record = getFileRecordForCompanyWithCustom1();
         FileImportResult result = new FileImportResult();
         int failedRecords = result.getNumFailedRecords();
         Integer brokerId = ApplicationConstants.SPECIAL_CASE_BROKER2;
@@ -499,7 +500,7 @@ public class CompanyServiceTest {
     @Test
     public void testCheckDuplicateForExistsAndSpecialCaseWithNoCustom1() {
         int recCount = 1;
-        String record = getFileRecord();
+        String record = getFileRecordForCompanyWithCustom1();
         FileImportResult result = new FileImportResult();
         Integer brokerId = ApplicationConstants.SPECIAL_CASE_BROKER2;
         String companyName = "Pepcus Software Services";
@@ -528,8 +529,10 @@ public class CompanyServiceTest {
         mockStatic(FileImportUtil.class);
 
         List<Object> companyColumnValues = ApiTestDataUtil.getCompanyColumnValuesList();
-        Map<String, String> companyColumnsToHeaderMap = ApiTestDataUtil.getColumnsToHeadersMap();
-        Map<String, Integer> headerIndexMap = ApiTestDataUtil.getHeaderIndexMap();
+        Map<String, String> companyColumnsToHeaderMap = ApiTestDataUtil
+                .getColumnsToHeadersMapForComapny();
+        Map<String, Integer> headerIndexMap = ApiTestDataUtil
+                .getHeaderIndexMapForCompany();
 
         List<Object> locationColumnValues = ApiTestDataUtil.getLocationsColumnValuesList();
         Map<String, String> locationColumnsToHeaderMap = ApiTestDataUtil.getLocationColumnsToHeadersMap();
@@ -569,8 +572,10 @@ public class CompanyServiceTest {
         mockStatic(FileImportUtil.class);
 
         List<Object> companyColumnValues = ApiTestDataUtil.getCompanyColumnValuesList();
-        Map<String, String> companyColumnsToHeaderMap = ApiTestDataUtil.getColumnsToHeadersMap();
-        Map<String, Integer> headerIndexMap = ApiTestDataUtil.getHeaderIndexMap();
+        Map<String, String> companyColumnsToHeaderMap = ApiTestDataUtil
+                .getColumnsToHeadersMapForComapny();
+        Map<String, Integer> headerIndexMap = ApiTestDataUtil
+                .getHeaderIndexMapForCompany();
 
         List<Object> locationColumnValues = ApiTestDataUtil.getLocationsColumnValuesList();
         Map<String, String> locationColumnsToHeaderMap = ApiTestDataUtil.getLocationColumnsToHeadersMap();
@@ -613,8 +618,10 @@ public class CompanyServiceTest {
 
         mockStatic(FileImportUtil.class);
 
-        Map<String, String> companyColumnsToHeaderMap = ApiTestDataUtil.getColumnsToHeadersMap();
-        Map<String, Integer> headerIndexMap = ApiTestDataUtil.getHeaderIndexMap();
+        Map<String, String> companyColumnsToHeaderMap = ApiTestDataUtil
+                .getColumnsToHeadersMapForComapny();
+        Map<String, Integer> headerIndexMap = ApiTestDataUtil
+                .getHeaderIndexMapForCompany();
         Map<String, String> locationColumnsToHeaderMap = ApiTestDataUtil.getLocationColumnsToHeadersMap();
 
         ArrayIndexOutOfBoundsException ex = new ArrayIndexOutOfBoundsException("One or more fields Missing");
@@ -642,14 +649,16 @@ public class CompanyServiceTest {
      */
     @Test
     public void testProcessRecords_UnmappedHeaderException() {
+        int companyId = 12345;
         List<String> records = ApiTestDataUtil.getCsvRecords();
         Company broker = ApiTestDataUtil.createCompany();
-        broker.setCompanyId(12345);
+        broker.setCompanyId(companyId);
 
         String[] customHeaders = new String[] { "CLIENT_TYPE", "BUSINESS_ID" };
         ApplicationException expectedException = ApplicationException.createFileImportError(APIErrorCodes.UNMAPPED_CUSTOM_HEADERS,
                 StringUtils.join(customHeaders, COMMA_SEPARATOR));
 
+        // Mock validateAndFilterCustomHeaders to throw exception for UNMAPPED_CUSTOM_HEADERS
         try {
             mockStatic(FileImportUtil.class);
 
@@ -657,13 +666,17 @@ public class CompanyServiceTest {
                     Matchers.any(), Matchers.any(), Matchers.any());
 
         } catch (Exception e) {
-            fail("Exeption not expected");
+            fail("Exception not expected");
         }
 
-        Map<String, String> columnToHeaderMap = ApiTestDataUtil.getColumnsToHeadersMap();
+        // Mock appendRequiredAndCustomHeaderMap to return desired test data
+        Map<String, String> columnToHeaderMap = ApiTestDataUtil.getColumnsToHeadersMapForComapny();
         CompanyService companyServiceSpy = Mockito.spy(new CompanyService());
-        Mockito.doReturn(columnToHeaderMap).when(companyServiceSpy).appendRequiredAndCustomHeaderMap(12345, "company");
+        Mockito.doReturn(columnToHeaderMap).when(companyServiceSpy)
+                .appendRequiredAndCustomHeaderMap(Matchers.anyInt(),
+                        Matchers.anyString());
 
+        // Call processRecords and expect the mocked exception thrown by validateAndFilterCustomHeaders
         try {
             companyServiceSpy.processRecords(records, broker);
         } catch (ApplicationException ex) {
@@ -677,11 +690,12 @@ public class CompanyServiceTest {
      */
     @Test
     public void testProcessRecords_BlankRecords() {
-        List<String> records = ApiTestDataUtil.getBlankCsvRecords();
+        List<String> records = ApiTestDataUtil.getBlankCsvRecordsForCompany();
         Company broker = ApiTestDataUtil.createCompany();
         int companyId = 12345;
         broker.setCompanyId(companyId);
 
+        // Mock validateAndFilterCustomHeaders to doNothing
         try {
             mockStatic(FileImportUtil.class);
 
@@ -689,13 +703,17 @@ public class CompanyServiceTest {
                     Matchers.any(), Matchers.any(), Matchers.any());
 
         } catch (Exception e) {
-            fail("Exeption not expected");
+            fail("Exception not expected");
         }
 
-        Map<String, String> columnToHeaderMap = ApiTestDataUtil.getColumnsToHeadersMap();
+        Map<String, String> columnToHeaderMap = ApiTestDataUtil
+                .getColumnsToHeadersMapForComapny();
         CompanyService companyServiceSpy = Mockito.spy(new CompanyService());
-        Mockito.doReturn(columnToHeaderMap).when(companyServiceSpy).appendRequiredAndCustomHeaderMap(companyId, "company");
+        Mockito.doReturn(columnToHeaderMap).when(companyServiceSpy)
+                .appendRequiredAndCustomHeaderMap(Matchers.anyInt(),
+                        Matchers.anyString());
 
+        // call processRecords
         FileImportResult fileImportResult = companyServiceSpy.processRecords(records, broker);
 
         assertEquals(3, fileImportResult.getNumBlankRecords());
@@ -706,7 +724,7 @@ public class CompanyServiceTest {
      */
     @Test
     public void testProcessRecords_NullBroker() {
-        List<String> records = ApiTestDataUtil.getBlankCsvRecords();
+        List<String> records = ApiTestDataUtil.getBlankCsvRecordsForCompany();
         Company broker = null;
 
         try {

@@ -31,7 +31,7 @@ public class ApiApplication {
     
     @Value("${com.thinkhr.external.api.crypto.initVector}")
     private String initVector;
-    
+
     
     /**
      * Main method for spring application
@@ -54,7 +54,12 @@ public class ApiApplication {
         messageSource.setBasename("messages");
         return messageSource;
     }
-    
+
+    /**
+     * Facilitates Encryption/Decryption technique for password field.
+     * 
+     * @return
+     */
     @Bean
     @Lazy(value = true)
     public AppEncryptorDecryptor getEncryptor() {
