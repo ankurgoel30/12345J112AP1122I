@@ -7,6 +7,7 @@ import static com.thinkhr.external.api.utils.ApiTestDataUtil.createUserList;
 import static com.thinkhr.external.api.utils.ApiTestDataUtil.getFileRecordForUser;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 import static org.mockito.Mockito.times;
@@ -14,6 +15,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.powermock.api.mockito.PowerMockito.mockStatic;
 
+import java.io.IOException;
 import java.sql.DataTruncation;
 import java.util.List;
 import java.util.Map;
@@ -37,15 +39,20 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringRunner;
+import org.springframework.web.multipart.MultipartFile;
 
 import com.thinkhr.external.api.ApiApplication;
+import com.thinkhr.external.api.ApplicationConstants;
 import com.thinkhr.external.api.db.entities.Company;
+import com.thinkhr.external.api.db.entities.CustomFields;
+import com.thinkhr.external.api.db.entities.StandardFields;
 import com.thinkhr.external.api.db.entities.User;
 import com.thinkhr.external.api.exception.APIErrorCodes;
 import com.thinkhr.external.api.exception.ApplicationException;
 import com.thinkhr.external.api.exception.MessageResourceHandler;
 import com.thinkhr.external.api.model.FileImportResult;
 import com.thinkhr.external.api.repositories.CompanyRepository;
+import com.thinkhr.external.api.repositories.CustomFieldsRepository;
 import com.thinkhr.external.api.repositories.FileDataRepository;
 import com.thinkhr.external.api.repositories.StandardFieldsRepository;
 import com.thinkhr.external.api.repositories.UserRepository;
@@ -74,6 +81,9 @@ public class UserServiceTest {
     @Mock
     private UserRepository userRepository;
     
+    @Mock
+    private CustomFieldsRepository customFieldsRepository;
+
     @Mock
     private CompanyRepository companyRepository;
 
@@ -431,7 +441,7 @@ public class UserServiceTest {
     public void testProcessRecordsForBlankRecords() {
         List<String> records = ApiTestDataUtil.getBlankCsvRecordsForUser();
         Company broker = ApiTestDataUtil.createCompany();
-        String resource = "USER";
+        String resource = ApiTestDataUtil.RESOURCE_USER;
         int companyId = 12345;
         broker.setCompanyId(companyId);
 
@@ -463,12 +473,9 @@ public class UserServiceTest {
     @Test
     public void testProcessRecordsForValidateRequiredFalse() {
         List<String> records = ApiTestDataUtil.getCsvRecordsForUserForMissingFields();
-        String record = "Ajay,Jain";
         Company broker = ApiTestDataUtil.createCompany();
         FileImportResult fileImportResult = new FileImportResult();
-        Map<String, Integer> headerIndexMap = ApiTestDataUtil
-                .getHeaderIndexMapForUser();
-        String resource = "USER";
+        String resource = ApiTestDataUtil.RESOURCE_USER;
         int companyId = 12345;
         broker.setCompanyId(companyId);
 
@@ -482,23 +489,34 @@ public class UserServiceTest {
             fail("Exception not expected");
         }
 
-        Map<String, String> columnToHeaderMap = ApiTestDataUtil
-                .getColumnsToHeadersMapForUser();
-        UserService userServiceSpy = Mockito.spy(new UserService());
-        Mockito.doReturn(columnToHeaderMap).when(userServiceSpy)
-                .appendRequiredAndCustomHeaderMap(companyId, resource);
+        List<CustomFields> customFields = ApiTestDataUtil
+                .createCustomFieldsForUser();
 
-        List<String> list = ApiTestDataUtil.getStdFieldsForUser();
+        when(customFieldsRepository.findByCompanyIdAndCustomFieldType(companyId,
+                resource)).thenReturn(customFields);
 
-        when(userService.getRequiredHeadersFromStdFields("CONTACT"))
-                .thenReturn(list);
+        List<StandardFields> standardFields = ApiTestDataUtil
+                .createStandardFieldsForUser();
 
-        boolean isValidate = FileImportValidator.validateRequired(record, list,
-                headerIndexMap,
-                fileImportResult, resourceHandler2);
+        when(standardFieldsRepository.findByType(ApplicationConstants.CONTACT))
+                .thenReturn(standardFields);
+
+        try {
+            mockStatic(APIMessageUtil.class);
+
+            PowerMockito.doReturn("MISSING_REQUIRED_FIELD").when(
+                    APIMessageUtil.class, "getMessageFromResourceBundle",
+                    resourceHandler, APIErrorCodes.MISSING_REQUIRED_FIELD,
+                    "MISSING_FIELD");
+
+        } catch (Exception e) {
+            fail("Exception not expected");
+        }
+
+        fileImportResult = userService.processRecords(records, broker,
+                resource);
 
         assertEquals(1, fileImportResult.getNumFailedRecords());
-        assertFalse(isValidate);
     }
 
     /**
@@ -507,11 +525,11 @@ public class UserServiceTest {
      */
     @Test
     public void testProcessRecordsForInValidEmail() {
-        String record = "Ajay,Jain,ThinkHR,ajay.jain,ajain,82374893423,20";
-        String email = "ajay.jain";
+        List<String> records = ApiTestDataUtil
+                .getCsvRecordsForUserForInvalidMail();
         Company broker = ApiTestDataUtil.createCompany();
         FileImportResult fileImportResult = new FileImportResult();
-        String resource = "USER";
+        String resource = ApiTestDataUtil.RESOURCE_USER;
         int companyId = 12345;
         broker.setCompanyId(companyId);
 
@@ -522,36 +540,173 @@ public class UserServiceTest {
                     "validateAndFilterCustomHeaders", Matchers.any(),
                     Matchers.any(), Matchers.any(), Matchers.any());
 
+            Mockito.when(FileImportUtil.getValueFromRow(Matchers.anyString(),
+                    Matchers.anyInt())).thenCallRealMethod();
+
         } catch (Exception e) {
             fail("Exception not expected");
         }
 
-        Map<String, String> columnToHeaderMap = ApiTestDataUtil
-                .getColumnsToHeadersMapForUser();
-        UserService userServiceSpy = Mockito.spy(new UserService());
-        Mockito.doReturn(columnToHeaderMap).when(userServiceSpy)
-                .appendRequiredAndCustomHeaderMap(companyId, resource);
+        List<CustomFields> customFields = ApiTestDataUtil
+                .createCustomFieldsForUser();
 
-        List<String> list = ApiTestDataUtil.getStdFieldsForUser();
+        when(customFieldsRepository.findByCompanyIdAndCustomFieldType(companyId,
+                resource)).thenReturn(customFields);
 
-        when(userService.getRequiredHeadersFromStdFields("CONTACT"))
-                .thenReturn(list);
+        List<StandardFields> standardFields = ApiTestDataUtil
+                .createStandardFieldsForUser();
+
+        when(standardFieldsRepository.findByType(ApplicationConstants.CONTACT))
+                .thenReturn(standardFields);
 
         try {
-            mockStatic(FileImportValidator.class);
+            mockStatic(APIMessageUtil.class);
 
-            PowerMockito.doReturn(true).when(FileImportValidator.class,
-                    "validateRequired", Mockito.any(), Mockito.any(),
-                    Mockito.any(), Mockito.any(), Mockito.any());
+            PowerMockito.doReturn("INVALID_EMAIL").when(APIMessageUtil.class,
+                    "getMessageFromResourceBundle", resourceHandler,
+                    APIErrorCodes.INVALID_EMAIL, "INVALID_EMAIL");
 
         } catch (Exception e) {
             fail("Exception not expected");
         }
 
-        boolean isValidate = FileImportValidator.validateEmail(record, email,
-                fileImportResult, resourceHandler2);
+        fileImportResult = userService.processRecords(records, broker,
+                resource);
 
-        assertFalse(isValidate);
+        assertEquals(1, fileImportResult.getNumFailedRecords());
+
+    }
+
+    /**
+     * Test to verify if company having clientName and brokerId in csv file does
+     * not exist in DB.
+     * 
+     * 
+     */
+    @Test
+    public void testProcessRecords_ClientNotExists() {
+        List<String> records = ApiTestDataUtil.getCsvRecordsForUser();
+        Company broker = ApiTestDataUtil.createCompany();
+        FileImportResult fileImportResult = new FileImportResult();
+        String resource = ApiTestDataUtil.RESOURCE_USER;
+        int companyId = 12345;
+        broker.setCompanyId(companyId);
+
+        try {
+            mockStatic(FileImportUtil.class);
+
+            PowerMockito.doNothing().when(FileImportUtil.class,
+                    "validateAndFilterCustomHeaders", Matchers.any(),
+                    Matchers.any(), Matchers.any(), Matchers.any());
+
+            Mockito.when(FileImportUtil.getValueFromRow(Matchers.anyString(),
+                    Matchers.anyInt())).thenCallRealMethod();
+
+        } catch (Exception e) {
+            fail("Exception not expected");
+        }
+
+        List<CustomFields> customFields = ApiTestDataUtil
+                .createCustomFieldsForUser();
+
+        when(customFieldsRepository.findByCompanyIdAndCustomFieldType(companyId,
+                resource)).thenReturn(customFields);
+
+        List<StandardFields> standardFields = ApiTestDataUtil
+                .createStandardFieldsForUser();
+
+        when(standardFieldsRepository.findByType(ApplicationConstants.CONTACT))
+                .thenReturn(standardFields);
+
+        when(companyRepository.findFirstByCompanyNameAndBroker(
+                Matchers.anyString(), Matchers.anyInt())).thenReturn(null);
+
+        try {
+            mockStatic(APIMessageUtil.class);
+
+            PowerMockito.doReturn("INVALID_CLIENT_NAME").when(
+                    APIMessageUtil.class,
+                    "getMessageFromResourceBundle", resourceHandler,
+                    APIErrorCodes.INVALID_CLIENT_NAME, "INVALID_CLIENT_NAME");
+
+        } catch (Exception e) {
+            fail("Exception not expected");
+        }
+
+        fileImportResult = userService.processRecords(records, broker,
+                resource);
+
+        assertEquals(1, fileImportResult.getNumFailedRecords());
+
+    }
+
+    /**
+     * Test to verify if fileToImport is null.
+     * 
+     */
+    @Test
+    public void testBulkUpload_fileToImportNull() {
+        MultipartFile fileToImport = null;
+        Integer brokerId = 1;
+        try {
+            FileImportResult  result = userService.bulkUpload(fileToImport, brokerId);
+        } catch (ApplicationException ae) {
+            assertNotNull(ae);
+            assertEquals(APIErrorCodes.REQUIRED_PARAMETER, ae.getApiErrorCode()); 
+        }
+    }
+
+    /**
+     * Test to verify if validateAndGetBroker method throws exception.
+     * 
+     */
+    @Test
+    public void testBulkUpload_validateAndGetBrokerFailed() {
+        MultipartFile fileToImport = null;
+        try {
+            fileToImport = ApiTestDataUtil.createMockMultipartFile();
+        } catch (IOException e) {
+            fail("Exception not expected");
+        }
+        Integer brokerId = 1;
+
+        when(companyRepository.findOne(brokerId)).thenReturn(null);
+
+        try {
+            FileImportResult result = userService.bulkUpload(fileToImport,
+                    brokerId);
+        } catch (ApplicationException ae) {
+            assertNotNull(ae);
+            assertEquals(APIErrorCodes.INVALID_BROKER_ID,
+                    ae.getApiErrorCode());
+        }
+    }
+
+    /**
+     * Test to verify if validateAndGetFileContent method throws exception.
+     * 
+     */
+    @Test
+    public void testBulkUpload_validateAndGetFileContentFailed() {
+        MultipartFile fileToImport = null;
+        try {
+            fileToImport = ApiTestDataUtil.createMockMultipartFile_EmptyFile();
+        } catch (IOException e) {
+            fail("Exception not expected");
+        }
+        Integer brokerId = 1;
+        Company company = ApiTestDataUtil.createCompany();
+
+        when(companyRepository.findOne(brokerId)).thenReturn(company);
+
+        try {
+            FileImportResult result = userService.bulkUpload(fileToImport,
+                    brokerId);
+        } catch (ApplicationException ae) {
+            assertNotNull(ae);
+            assertEquals(APIErrorCodes.NO_RECORDS_FOUND_FOR_IMPORT,
+                    ae.getApiErrorCode());
+        }
     }
 
 }

@@ -549,7 +549,8 @@ public class ApiTestDataUtil {
      * @return
      * @throws IOException
      */
-    public static MockMultipartFile createMockMultipartFileForUser_MissingHeaders() throws IOException {
+    public static MockMultipartFile createMockMultipartFileForUser_MissingRequiredHeaderValues()
+            throws IOException {
         File file = new File("src/test/resources/testdata/5_MissingRequiredheaders.csv");
 
         FileInputStream input = null;
