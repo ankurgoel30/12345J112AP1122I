@@ -658,6 +658,7 @@ public class CompanyServiceTest {
         ApplicationException expectedException = ApplicationException.createFileImportError(APIErrorCodes.UNMAPPED_CUSTOM_HEADERS,
                 StringUtils.join(customHeaders, COMMA_SEPARATOR));
 
+        // Mock validateAndFilterCustomHeaders to throw exception for UNMAPPED_CUSTOM_HEADERS
         try {
             mockStatic(FileImportUtil.class);
 
@@ -668,13 +669,14 @@ public class CompanyServiceTest {
             fail("Exception not expected");
         }
 
-        Map<String, String> columnToHeaderMap = ApiTestDataUtil
-                .getColumnsToHeadersMapForComapny();
+        // Mock appendRequiredAndCustomHeaderMap to return desired test data
+        Map<String, String> columnToHeaderMap = ApiTestDataUtil.getColumnsToHeadersMapForComapny();
         CompanyService companyServiceSpy = Mockito.spy(new CompanyService());
         Mockito.doReturn(columnToHeaderMap).when(companyServiceSpy)
                 .appendRequiredAndCustomHeaderMap(Matchers.anyInt(),
                         Matchers.anyString());
 
+        // Call processRecords and expect the mocked exception thrown by validateAndFilterCustomHeaders
         try {
             companyServiceSpy.processRecords(records, broker);
         } catch (ApplicationException ex) {
@@ -693,6 +695,7 @@ public class CompanyServiceTest {
         int companyId = 12345;
         broker.setCompanyId(companyId);
 
+        // Mock validateAndFilterCustomHeaders to doNothing
         try {
             mockStatic(FileImportUtil.class);
 
@@ -710,6 +713,7 @@ public class CompanyServiceTest {
                 .appendRequiredAndCustomHeaderMap(Matchers.anyInt(),
                         Matchers.anyString());
 
+        // call processRecords
         FileImportResult fileImportResult = companyServiceSpy.processRecords(records, broker);
 
         assertEquals(3, fileImportResult.getNumBlankRecords());
