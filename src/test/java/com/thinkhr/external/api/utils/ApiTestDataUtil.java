@@ -53,7 +53,7 @@ public class ApiTestDataUtil {
     public static final String BLOWFISH_ENCRYPTED_VALUE = "o+DctRBhIWU=";
     public static final String INVALID_INIT_VECTOR = "ThinkHRJAPI";
     public static final String DEFAULT_COLUMN_VALUE = "";
-    public static final String RESOURCE_COMPANY = "company";
+    public static final String RESOURCE_COMPANY = "COMPANY";
     public static final String RESOURCE_USER = "USER";
 
     /**
@@ -340,6 +340,9 @@ public class ApiTestDataUtil {
         standardFields.add(createStandardFields(1, "FIRST_NAME", "CONTACT"));
         standardFields.add(createStandardFields(2, "LAST_NAME", "CONTACT"));
         standardFields.add(createStandardFields(3, "CLIENT_NAME", "CONTACT"));
+        standardFields.add(createStandardFields(4, "EMAIL", "CONTACT"));
+        standardFields.add(createStandardFields(5, "USER_NAME", "CONTACT"));
+        standardFields.add(createStandardFields(6, "PHONE", "CONTACT"));
         return standardFields;
     }
 
@@ -529,6 +532,25 @@ public class ApiTestDataUtil {
      */
     public static MockMultipartFile createMockMultipartFile_MissingHeaders() throws IOException {
         File file = new File("src/test/resources/testdata/3_MissingHeader.csv");
+
+        FileInputStream input = null;
+        MockMultipartFile multipartFile = null;
+
+        input = new FileInputStream(file);
+
+        multipartFile = new MockMultipartFile("file", file.getName(), "text/plain", IOUtils.toByteArray(input));
+
+        return multipartFile;
+    }
+    
+    /**
+     * Create multipartFile for missing headers.
+     * 
+     * @return
+     * @throws IOException
+     */
+    public static MockMultipartFile createMockMultipartFileForUser_MissingHeaders() throws IOException {
+        File file = new File("src/test/resources/testdata/5_MissingRequiredheaders.csv");
 
         FileInputStream input = null;
         MockMultipartFile multipartFile = null;
@@ -919,13 +941,24 @@ public class ApiTestDataUtil {
 
         records.add("Ajay,Jain,ThinkHR,9878978977,45");
 
-        records.add("");
-
-        records.add("");
-
         return records;
     }
 
+    /**
+     * Create List of csv records
+     * 
+     * @return
+     */
+    public static List<String> getCsvRecordsForUserForInvalidMail() {
+        List<String> records = new ArrayList<String>();
+
+        records.add("FIRST_NAME,LAST_NAME,CLIENT_NAME,EMAIL,USER_NAME,PHONE,BUSINESS_ID");
+
+        records.add("Ajay,Jain,ThinkHR,ajay.jain,ajain,82374893423,20");
+
+        return records;
+    }
+    
     /**
      * Create List of csv records
      * 
@@ -936,7 +969,7 @@ public class ApiTestDataUtil {
 
         records.add("FIRST_NAME,LAST_NAME,CLIENT_NAME,EMAIL,USER_NAME,PHONE,BUSINESS_ID");
 
-        records.add("Ajay,Jain,ThinkHR,ajay.jain,ajain,82374893423,20");
+        records.add("Ajay,Jain,ThinkHR,ajay.jain@pepcus.com,ajain,82374893423,20");
 
         return records;
     }

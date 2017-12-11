@@ -4,10 +4,9 @@ import static com.thinkhr.external.api.ApplicationConstants.COMMA_SEPARATOR;
 import static com.thinkhr.external.api.ApplicationConstants.COMPANY;
 import static com.thinkhr.external.api.ApplicationConstants.DEFAULT_SORT_BY_COMPANY_NAME;
 import static com.thinkhr.external.api.services.utils.EntitySearchUtil.getPageable;
-import static com.thinkhr.external.api.utils.ApiTestDataUtil.RESOURCE_COMPANY;
 import static com.thinkhr.external.api.utils.ApiTestDataUtil.createCompany;
-import static com.thinkhr.external.api.utils.ApiTestDataUtil.getFileRecordForCompanyWithCustom1;
 import static com.thinkhr.external.api.utils.ApiTestDataUtil.createCustomFieldsList;
+import static com.thinkhr.external.api.utils.ApiTestDataUtil.getFileRecordForCompanyWithCustom1;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
@@ -673,9 +672,8 @@ public class CompanyServiceTest {
                 .getColumnsToHeadersMapForComapny();
         CompanyService companyServiceSpy = Mockito.spy(new CompanyService());
         Mockito.doReturn(columnToHeaderMap).when(companyServiceSpy)
-                .appendRequiredAndCustomHeaderMap(companyId, RESOURCE_COMPANY);
-        
-        Mockito.when(customFieldRepository.findByCompanyIdAndCustomFieldType(companyId, COMPANY)).thenReturn(createCustomFieldsList());
+                .appendRequiredAndCustomHeaderMap(Matchers.anyInt(),
+                        Matchers.anyString());
 
         try {
             companyServiceSpy.processRecords(records, broker);
@@ -709,8 +707,9 @@ public class CompanyServiceTest {
                 .getColumnsToHeadersMapForComapny();
         CompanyService companyServiceSpy = Mockito.spy(new CompanyService());
         Mockito.doReturn(columnToHeaderMap).when(companyServiceSpy)
-                .appendRequiredAndCustomHeaderMap(companyId, RESOURCE_COMPANY);
-        Mockito.when(customFieldRepository.findByCompanyIdAndCustomFieldType(companyId, COMPANY)).thenReturn(createCustomFieldsList());
+                .appendRequiredAndCustomHeaderMap(Matchers.anyInt(),
+                        Matchers.anyString());
+
         FileImportResult fileImportResult = companyServiceSpy.processRecords(records, broker);
 
         assertEquals(3, fileImportResult.getNumBlankRecords());
