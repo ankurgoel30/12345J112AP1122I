@@ -80,6 +80,9 @@ public class ApplicationConstants {
     public static final String BROKER_ID_PARAM = "brokerId";
     public static final String CLIENT_ID_PARAM = "clientId";
     public static final String ROLE_PARAM = "role";
+    public static final String APP_AUTH_DATA = "appAuthData";
+    
+    public static final String DEVELOPMENT_ENV = "dev";
 
 
 
