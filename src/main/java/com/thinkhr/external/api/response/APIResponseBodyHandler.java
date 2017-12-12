@@ -89,10 +89,10 @@ public class APIResponseBodyHandler implements ResponseBodyAdvice<Object> {
          */
         if (body instanceof List) {
             if ((List)body == null || ((List)body).isEmpty()) {
-                apiResponse.setMessage(getMessageFromResourceBundle(resourceHandler, APIErrorCodes.NO_RECORDS_FOUND, "company"));
+                apiResponse.setMessage(getMessageFromResourceBundle(resourceHandler, APIErrorCodes.NO_RECORDS_FOUND));
             } else {
                 apiResponse.setList((List)body);
-                setCompanyListData((List)body, httpRequest, apiResponse);
+                setListData((List) body, httpRequest, apiResponse);
             }
         } else if (body instanceof FileImportResult) {
             apiResponse.setFileImportResult((FileImportResult) body);
@@ -121,7 +121,7 @@ public class APIResponseBodyHandler implements ResponseBodyAdvice<Object> {
      * @param httpRequest
      * @param apiResponse
      */
-    private void setCompanyListData(List list, ServletServerHttpRequest httpRequest, APIResponse apiResponse) {
+    private void setListData(List list, ServletServerHttpRequest httpRequest, APIResponse apiResponse) {
 
         String limit = httpRequest.getServletRequest().getParameter(LIMIT_PARAM);
         limit = StringUtils.isNotBlank(limit) ? limit : String.valueOf(DEFAULT_LIMIT);
