@@ -13,6 +13,7 @@ import static com.thinkhr.external.api.services.utils.EntitySearchUtil.getPageab
 import static com.thinkhr.external.api.services.utils.FileImportUtil.getRequiredHeaders;
 import static com.thinkhr.external.api.services.utils.FileImportUtil.populateColumnValues;
 import static com.thinkhr.external.api.services.utils.FileImportUtil.validateAndFilterCustomHeaders;
+import static com.thinkhr.external.api.services.utils.CommonUtil.*;
 
 import java.sql.DataTruncation;
 import java.util.ArrayList;
@@ -27,10 +28,12 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.thinkhr.external.api.ApplicationConstants;
 import com.thinkhr.external.api.db.entities.Company;
+import com.thinkhr.external.api.db.entities.learn.LearnCompany;
 import com.thinkhr.external.api.exception.APIErrorCodes;
 import com.thinkhr.external.api.exception.ApplicationException;
 import com.thinkhr.external.api.model.FileImportResult;
@@ -119,8 +122,15 @@ public class CompanyService  extends CommonService {
      * 
      * @param company object
      */
+    @Transactional
     public Company addCompany(Company company)  {
-        return companyRepository.save(company);
+        LearnCompany learnCompany = getLearnCompanyFromCompany(company);// THR-3929
+
+        Company savedCompany = companyRepository.save(company);
+        
+        //TODO :Decide what to do if company save is successful and learnCompany save fails ?
+        learnCompanyRepository.save(learnCompany); // THR-3929
+        return savedCompany;
     }
 
     /**
