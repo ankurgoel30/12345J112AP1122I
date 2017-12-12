@@ -77,6 +77,19 @@ public class ApplicationException extends RuntimeException {
         appException.setHttpStatus(HttpStatus.INTERNAL_SERVER_ERROR);
         return appException;
     }
+
+    /**
+     * ApplicationException constructor 
+     * 
+     * @param errorCode
+     * @param params
+     * @return
+     */
+    public static ApplicationException createAuthorizationError(APIErrorCodes errorCode, String...params) {
+        ApplicationException appException = new ApplicationException(errorCode, params);
+        appException.setHttpStatus(HttpStatus.UNAUTHORIZED);
+        return appException;
+    }
     
     /**
      * ApplicationException constructor 
