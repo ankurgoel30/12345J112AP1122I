@@ -23,7 +23,7 @@ import org.springframework.transaction.annotation.EnableTransactionManagement;
         transactionManagerRef = "transactionManager",
         basePackages = { "com.thinkhr.external.api.repositories" }
 )
-public class ThinkHrPortalDBConfig {
+public class PortalDBConfig {
 
     @Primary
     @Bean(name = "dataSource")

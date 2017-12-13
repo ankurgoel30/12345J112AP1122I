@@ -124,12 +124,11 @@ public class CompanyService  extends CommonService {
      */
     @Transactional
     public Company addCompany(Company company)  {
-        LearnCompany learnCompany = getLearnCompanyFromCompany(company);// THR-3929
-
         Company throneCompany = companyRepository.save(company);
         
         //TODO :Decide what to do if company save is successful and learnCompany save fails ?
-        learnCompanyRepository.save(learnCompany); // THR-3929
+        
+        learnCompanyRepository.save(convert(throneCompany)); // THR-3929
         return throneCompany;
     }
 

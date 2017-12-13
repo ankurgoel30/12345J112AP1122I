@@ -22,7 +22,7 @@ import org.springframework.transaction.annotation.EnableTransactionManagement;
         transactionManagerRef = "transactionManagerLearn", 
         basePackages = { "com.thinkhr.external.api.learn.repositories" }
 )
-public class ThinkHrLearnDBConfig {
+public class LearnDBConfig {
     
     @Bean(name = "dataSourceLearn")
     @ConfigurationProperties(prefix = "learn.datasource")

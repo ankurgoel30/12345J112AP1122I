@@ -7,12 +7,15 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.modelmapper.ModelMapper;
+import org.modelmapper.PropertyMap;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.thinkhr.external.api.db.entities.Company;
 import com.thinkhr.external.api.db.entities.CustomFields;
 import com.thinkhr.external.api.db.entities.StandardFields;
+import com.thinkhr.external.api.db.learn.entities.LearnCompany;
 import com.thinkhr.external.api.exception.APIErrorCodes;
 import com.thinkhr.external.api.exception.ApplicationException;
 import com.thinkhr.external.api.exception.MessageResourceHandler;
@@ -22,6 +25,7 @@ import com.thinkhr.external.api.repositories.CustomFieldsRepository;
 import com.thinkhr.external.api.repositories.FileDataRepository;
 import com.thinkhr.external.api.repositories.StandardFieldsRepository;
 import com.thinkhr.external.api.services.upload.FileUploadEnum;
+import com.thinkhr.external.api.utils.ApiTestDataUtil;
 
 import lombok.Data;
 
@@ -54,6 +58,8 @@ public class CommonService {
     @Autowired
     protected LearnCompanyRepository  learnCompanyRepository;
 
+    @Autowired
+    protected ModelMapper modelMapper;
 
     /**
      * @return
@@ -145,6 +151,23 @@ public class CommonService {
         stdFields.stream().forEach(field -> list.add(field.getLabel()));
         
         return list;
+    }
+    
+    public LearnCompany convert(Company company) {
+        PropertyMap<Company, LearnCompany> companyPropertyMap = new PropertyMap<Company, LearnCompany>() {
+            protected void configure() {
+                map().setAddress(source.getLocation().getAddress());
+                map().setAddress2(source.getLocation().getAddress2());
+                map().setCity(source.getLocation().getCity());
+                map().setState(source.getLocation().getState());
+                map().setPhone(source.getCompanyPhone());
+                //map().setStreet(source.getLocation().get);
+                map().setZip(source.getLocation().getZip());
+            }
+        };
+        modelMapper.addMappings(companyPropertyMap);
+        return modelMapper.map(company, LearnCompany.class);
+
     }
     
 }

@@ -137,6 +137,11 @@
 		    <version>1.7.3</version>
 		    <scope>test</scope>
 		</dependency>
+		<dependency>
+			<groupId>org.modelmapper</groupId>
+			<artifactId>modelmapper</artifactId>
+			<version>0.7.4</version>
+		</dependency>
 	</dependencies>
 
 	<build>
@@ -149,4 +154,7 @@
 	</build>
 
 
+	<modules>
+		<module>?</module>
+	</modules>
 </project>

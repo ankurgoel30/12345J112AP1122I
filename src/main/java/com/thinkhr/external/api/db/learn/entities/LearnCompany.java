@@ -36,7 +36,7 @@ public class LearnCompany {
     private String companyName;
 
     @Column(name = "thrclientid")
-    private Integer thrClientId;
+    private Integer companyId;
 
     @Column(name = "company_key")
     private String companyKey;
@@ -90,7 +90,7 @@ public class LearnCompany {
     private Integer suspended;
     
     @Column(name = "partnerid")
-    private String partnerId;
+    private String broker;
     
     @Column(name = "logo")
     private String logo;
