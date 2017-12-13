@@ -6,8 +6,7 @@ import java.time.format.DateTimeFormatter;
 
 import com.thinkhr.external.api.ApplicationConstants;
 import com.thinkhr.external.api.db.entities.Company;
-import com.thinkhr.external.api.db.entities.learn.LearnCompany;
-import com.thinkhr.external.api.utils.ApiTestDataUtil;
+import com.thinkhr.external.api.db.learn.entities.LearnCompany;
 
 /**
  * To keep some common util methods 
@@ -52,7 +51,7 @@ public class CommonUtil {
         learnCompany.setCompanyKey(companyKey);
         learnCompany.setTimeCreated(timeCreated);
         learnCompany.setTimeModified(timeModified);
-        //learnCompany.setCreatedBy(createdBy);
+        learnCompany.setCreatedBy(createdBy);
         return learnCompany;
     }
     

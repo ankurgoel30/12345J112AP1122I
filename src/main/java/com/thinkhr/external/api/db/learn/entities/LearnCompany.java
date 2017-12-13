@@ -1,6 +1,4 @@
-package com.thinkhr.external.api.db.entities.learn;
-
-import java.math.BigInteger;
+package com.thinkhr.external.api.db.learn.entities;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;

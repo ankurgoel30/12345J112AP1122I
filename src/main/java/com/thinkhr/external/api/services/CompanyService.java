@@ -1,19 +1,19 @@
 package com.thinkhr.external.api.services;
 
 import static com.thinkhr.external.api.ApplicationConstants.COMMA_SEPARATOR;
-import static com.thinkhr.external.api.ApplicationConstants.DEFAULT_SORT_BY_COMPANY_NAME;
-import static com.thinkhr.external.api.ApplicationConstants.TOTAL_RECORDS;
-import static com.thinkhr.external.api.ApplicationConstants.LOCATION;
 import static com.thinkhr.external.api.ApplicationConstants.COMPANY;
+import static com.thinkhr.external.api.ApplicationConstants.DEFAULT_SORT_BY_COMPANY_NAME;
+import static com.thinkhr.external.api.ApplicationConstants.LOCATION;
+import static com.thinkhr.external.api.ApplicationConstants.TOTAL_RECORDS;
 import static com.thinkhr.external.api.request.APIRequestHelper.setRequestAttribute;
 import static com.thinkhr.external.api.response.APIMessageUtil.getMessageFromResourceBundle;
 import static com.thinkhr.external.api.services.upload.FileImportValidator.validateAndGetFileContent;
+import static com.thinkhr.external.api.services.utils.CommonUtil.getLearnCompanyFromCompany;
 import static com.thinkhr.external.api.services.utils.EntitySearchUtil.getEntitySearchSpecification;
 import static com.thinkhr.external.api.services.utils.EntitySearchUtil.getPageable;
 import static com.thinkhr.external.api.services.utils.FileImportUtil.getRequiredHeaders;
 import static com.thinkhr.external.api.services.utils.FileImportUtil.populateColumnValues;
 import static com.thinkhr.external.api.services.utils.FileImportUtil.validateAndFilterCustomHeaders;
-import static com.thinkhr.external.api.services.utils.CommonUtil.*;
 
 import java.sql.DataTruncation;
 import java.util.ArrayList;
@@ -33,7 +33,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import com.thinkhr.external.api.ApplicationConstants;
 import com.thinkhr.external.api.db.entities.Company;
-import com.thinkhr.external.api.db.entities.learn.LearnCompany;
+import com.thinkhr.external.api.db.learn.entities.LearnCompany;
 import com.thinkhr.external.api.exception.APIErrorCodes;
 import com.thinkhr.external.api.exception.ApplicationException;
 import com.thinkhr.external.api.model.FileImportResult;
@@ -126,11 +126,11 @@ public class CompanyService  extends CommonService {
     public Company addCompany(Company company)  {
         LearnCompany learnCompany = getLearnCompanyFromCompany(company);// THR-3929
 
-        Company savedCompany = companyRepository.save(company);
+        Company throneCompany = companyRepository.save(company);
         
         //TODO :Decide what to do if company save is successful and learnCompany save fails ?
         learnCompanyRepository.save(learnCompany); // THR-3929
-        return savedCompany;
+        return throneCompany;
     }
 
     /**

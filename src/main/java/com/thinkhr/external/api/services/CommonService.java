@@ -16,11 +16,11 @@ import com.thinkhr.external.api.db.entities.StandardFields;
 import com.thinkhr.external.api.exception.APIErrorCodes;
 import com.thinkhr.external.api.exception.ApplicationException;
 import com.thinkhr.external.api.exception.MessageResourceHandler;
+import com.thinkhr.external.api.learn.repositories.LearnCompanyRepository;
 import com.thinkhr.external.api.repositories.CompanyRepository;
 import com.thinkhr.external.api.repositories.CustomFieldsRepository;
 import com.thinkhr.external.api.repositories.FileDataRepository;
 import com.thinkhr.external.api.repositories.StandardFieldsRepository;
-import com.thinkhr.external.api.repositories.learn.LearnCompanyRepository;
 import com.thinkhr.external.api.services.upload.FileUploadEnum;
 
 import lombok.Data;
@@ -52,7 +52,7 @@ public class CommonService {
     protected CompanyRepository companyRepository;
     
     @Autowired
-    protected LearnCompanyRepository learnCompanyRepository;
+    protected LearnCompanyRepository  learnCompanyRepository;
 
 
     /**
