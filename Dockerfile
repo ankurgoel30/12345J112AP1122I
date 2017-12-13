@@ -19,9 +19,9 @@ COPY target/japi-0.1.jar ${RUNNERDIR}/japi.jar
 #    rm awscli-bundle.zip && rm -rf awscli-bundle
 
 
-EXPOSE 8081
+EXPOSE 8080
 WORKDIR ${RUNNERDIR}
 
-ENTRYPOINT java -XX:+UseConcMarkSweepGC -jar -Dserver.port=8081 japi.jar  >> /var/opt/logs/japi.log 2>&1
+ENTRYPOINT java -XX:+UseConcMarkSweepGC -jar -Dserver.port=8080 japi.jar  >> /var/opt/logs/japi.log 2>&1
 
 
