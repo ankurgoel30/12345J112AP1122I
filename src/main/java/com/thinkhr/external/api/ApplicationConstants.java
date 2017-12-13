@@ -67,6 +67,22 @@ public class ApplicationConstants {
     public static final String USER_COLUMN_PASSWORD = "password_enc";
     public static final String DEFAULT_PASSWORD = "";
     
+    public static final String JWT_TOKEN_THR_CLIENT_ID =  "thr:clientId";
+    public static final String JWT_TOKEN_THR_BROKER_ID =  "thr:brokerId";
+    public static final String JWT_TOKEN_THR_USER =  "thr:user";
+    public static final String JWT_TOKEN_THR_ROLE =  "thr:role";
+    public static final String JWT_TOKEN_THR_SUB =  "sub";
+    public static final String JWT_TOKEN_THR_ISS =  "iss";
+    
+    public static final String AUTHORIZATION_HEADER = "Authorization";
+    public static final String BEARER_TOKEN = "Bearer ";
+    
+    public static final String BROKER_ID_PARAM = "brokerId";
+    public static final String CLIENT_ID_PARAM = "clientId";
+    public static final String ROLE_PARAM = "role";
+    public static final String APP_AUTH_DATA = "appAuthData";
+    
+    public static final String DEVELOPMENT_ENV = "dev";
 
 
 
