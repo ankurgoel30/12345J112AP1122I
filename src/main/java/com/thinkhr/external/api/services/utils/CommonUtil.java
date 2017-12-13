@@ -38,6 +38,8 @@ public class CommonUtil {
      */
     public static LearnCompany getLearnCompanyFromCompany(Company company) {
         LearnCompany learnCompany = createLearnCompany();
+
+        learnCompany.setCompanyId(company.getCompanyId());
         return learnCompany;
     }
     

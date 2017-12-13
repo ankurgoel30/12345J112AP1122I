@@ -56,7 +56,7 @@ public class CommonService {
     protected CompanyRepository companyRepository;
     
     @Autowired
-    protected LearnCompanyRepository  learnCompanyRepository;
+    protected LearnCompanyService learnCompanyService;
 
     @Autowired
     protected ModelMapper modelMapper;

@@ -16,4 +16,11 @@ import com.thinkhr.external.api.db.learn.entities.LearnCompany;
 
 public interface LearnCompanyRepository extends PagingAndSortingRepository<LearnCompany, Long>, JpaSpecificationExecutor<LearnCompany> {
 
+    /**
+     * 
+     * @param thrCompanyId
+     * @param companyKey
+     * @return
+     */
+    public LearnCompany findFirstByThrCompanyIdAndCompanyKey(Integer thrCompanyId, String companyKey);
 }

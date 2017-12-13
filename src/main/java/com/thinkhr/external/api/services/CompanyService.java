@@ -126,9 +126,17 @@ public class CompanyService  extends CommonService {
     public Company addCompany(Company company)  {
         Company throneCompany = companyRepository.save(company);
         
+        // THR-3929 [Start]
         //TODO :Decide what to do if company save is successful and learnCompany save fails ?
-        
-        learnCompanyRepository.save(convert(throneCompany)); // THR-3929
+        LearnCompany learnCompany = convert(throneCompany);
+
+        String nameForInactiveLearComp = learnCompanyService
+                .generateCompanyNameForInactive(throneCompany.getCompanyName());
+
+        learnCompany.setCompanyName(nameForInactiveLearComp);
+        learnCompanyService.addLearnCompany(learnCompany);
+        // THR-3929 [End]
+
         return throneCompany;
     }
 
@@ -155,12 +163,16 @@ public class CompanyService  extends CommonService {
      * @param companyId
      */
     public int deleteCompany(int companyId) throws ApplicationException {
+        Company company = companyRepository.findOne(companyId);
 
-        if (null == companyRepository.findOne(companyId)) {
+        if (null == company) {
             throw ApplicationException.createEntityNotFoundError(APIErrorCodes.ENTITY_NOT_FOUND, "company", "companyId="+companyId);
         }
 
         companyRepository.softDelete(companyId);
+
+        String companyKey = "ABC"; // TODO: Decide how to get company key?
+        learnCompanyService.deactivateLearnCompany(company, companyKey);
 
         return companyId;
     }    
