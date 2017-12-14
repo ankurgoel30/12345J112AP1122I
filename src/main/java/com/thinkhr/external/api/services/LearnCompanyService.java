@@ -1,14 +1,20 @@
 package com.thinkhr.external.api.services;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Service;
 
 import com.thinkhr.external.api.db.entities.Company;
 import com.thinkhr.external.api.db.learn.entities.LearnCompany;
+import com.thinkhr.external.api.db.learn.entities.Package;
 import com.thinkhr.external.api.helpers.ModelConvertor;
 import com.thinkhr.external.api.learn.repositories.LearnCompanyRepository;
+import com.thinkhr.external.api.learn.repositories.PackageRepository;
 
 @Service
 public class LearnCompanyService {
@@ -16,7 +22,13 @@ public class LearnCompanyService {
     LearnCompanyRepository learnCompanyRepository;
 
     @Autowired
+    PackageRepository packageRepository;
+
+    @Autowired
     protected ModelConvertor modelConvertor;
+
+    @Autowired
+    protected Environment env;
 
     private Logger logger = LoggerFactory.getLogger(LearnCompanyService.class);
 
@@ -43,7 +55,36 @@ public class LearnCompanyService {
                 throneCompany.getCompanyId());
 
         learnCompany.setCompanyName(inactiveCompanyName);
+
+        String defaultPackage = env.getProperty("com.thinkhr.external.api.learn.default.package");
+
+        this.addPackage(learnCompany, defaultPackage);
+
         return this.addLearnCompany(learnCompany);
+    }
+
+    /**
+     * Add Package for given packageName to learnCompany
+     * @param learnCompany
+     * @param packageName
+     */
+    public void addPackage(LearnCompany learnCompany, String packageName) {
+        if (learnCompany == null || packageName == null) {
+            return;
+        }
+
+        Package learnPackage = packageRepository.findFirstByName(packageName);
+        if (learnPackage == null) {
+            return;
+        }
+
+        List<Package> packages = learnCompany.getPackages();
+        if (packages == null) {
+            packages = new ArrayList<Package>();
+            learnCompany.setPackages(packages);
+        }
+
+        packages.add(learnPackage);
     }
 
     public LearnCompany updateLearnCompany(LearnCompany learnCompany) {
@@ -91,7 +132,7 @@ public class LearnCompanyService {
     }
 
     /**
-     * 
+     * Generate company name to make company inactive
      * @param companyName
      * @return
      */

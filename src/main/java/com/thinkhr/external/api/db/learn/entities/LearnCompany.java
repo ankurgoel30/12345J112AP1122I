@@ -1,10 +1,16 @@
 package com.thinkhr.external.api.db.learn.entities;
 
+import java.util.List;
+
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.JoinTable;
+import javax.persistence.ManyToMany;
 import javax.persistence.Table;
 
 import org.hibernate.annotations.DynamicInsert;
@@ -100,5 +106,13 @@ public class LearnCompany {
     
     @Column(name = "externalapicompany")
     private Integer externalApiCompany;
+    
+    @ManyToMany(fetch=FetchType.LAZY )
+    @JoinTable(
+            name = "mdl_package_company", 
+            joinColumns = { @JoinColumn(name = "companyid") }, 
+            inverseJoinColumns = { @JoinColumn(name = "packageid") }
+    )
+    private List<Package> packages;
 
 }
