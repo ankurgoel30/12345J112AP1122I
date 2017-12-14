@@ -1,5 +1,7 @@
 package com.thinkhr.external.api.helpers;
 
+import java.util.Date;
+
 import org.modelmapper.ModelMapper;
 import org.modelmapper.PropertyMap;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,19 +25,38 @@ public class ModelConvertor {
     
     public LearnCompany convert(Company company) {
         PropertyMap<Company, LearnCompany> companyPropertyMap = new PropertyMap<Company, LearnCompany>() {
+            @Override
             protected void configure() {
-                map().setAddress(source.getLocation().getAddress());
-                map().setAddress2(source.getLocation().getAddress2());
-                map().setCity(source.getLocation().getCity());
-                map().setState(source.getLocation().getState());
-                map().setPhone(source.getCompanyPhone());
-                //map().setStreet(source.getLocation().get);
-                map().setZip(source.getLocation().getZip());
-                map().setId(null);
+                //                map().setAddress(source.getLocation().getAddress());
+                //                map().setAddress2(source.getLocation().getAddress2());
+                //                map().setCity(source.getLocation().getCity());
+                //                map().setState(source.getLocation().getState());
+                //                map().setPhone(source.getCompanyPhone());
+                //                //map().setStreet(source.getLocation().get);
+                //                map().setZip(source.getLocation().getZip());
+                //                map().setId(null);
             }
         };
-        modelMapper.addMappings(companyPropertyMap);
-        return modelMapper.map(company, LearnCompany.class);
+        //modelMapper.addMappings(companyPropertyMap);
+        
+        LearnCompany learnCompany =  new LearnCompany() ;
+        learnCompany.setAddress(company.getLocation().getAddress());
+        learnCompany.setAddress2(company.getLocation().getAddress2());
+        learnCompany.setBroker(String.valueOf(company.getBroker()));
+        learnCompany.setCity(company.getLocation().getCity());
+        learnCompany.setCompanyId(company.getCompanyId());
+        learnCompany.setCompanyName(company.getCompanyName());
+        learnCompany.setCompanyType(company.getCompanyType());
+        learnCompany.setPhone(company.getCompanyPhone());
+        learnCompany.setState(company.getLocation().getState());
+        
+        Date now = new Date();
+        learnCompany.setTimeCreated(now.getTime());
+        learnCompany.setTimeModified(now.getTime());
+        learnCompany.setZip(company.getLocation().getZip());
+        
+        return learnCompany;
+        //return modelMapper.map(company, LearnCompany.class);
 
     }
     

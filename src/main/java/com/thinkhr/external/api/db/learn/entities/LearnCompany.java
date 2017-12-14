@@ -42,7 +42,7 @@ public class LearnCompany {
     private String companyKey;
 
     @Column(name = "createdby" , nullable = false)
-    private Long createdBy;
+    private Long createdBy = 1L;
 
     @Column(name = "address")
     private String address;

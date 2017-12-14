@@ -126,17 +126,7 @@ public class CompanyService  extends CommonService {
     public Company addCompany(Company company)  {
         Company throneCompany = companyRepository.save(company);
         
-        // THR-3929 [Start]
-        //TODO :Decide what to do if company save is successful and learnCompany save fails ?
-        LearnCompany learnCompany = modelConvertor.convert(throneCompany);
-
-        String inactiveCompanyName = learnCompanyService.generateCompanyNameForInactive(throneCompany.getCompanyName(),
-                throneCompany.getBroker(),
-                throneCompany.getCompanyId());
-
-        learnCompany.setCompanyName(inactiveCompanyName);
-        learnCompanyService.addLearnCompany(learnCompany);
-        // THR-3929 [End]
+        learnCompanyService.addLearnCompany(throneCompany);// THR-3929 
 
         return throneCompany;
     }
@@ -321,16 +311,7 @@ public class CompanyService  extends CommonService {
                     locationColumnsValues);
 
             Company throneCompany = this.getCompany(companyId);
-
-            LearnCompany learnCompany = modelConvertor.convert(throneCompany);
-
-            String inactiveCompanyName = learnCompanyService.generateCompanyNameForInactive(
-                    throneCompany.getCompanyName(),
-                    throneCompany.getBroker(),
-                    throneCompany.getCompanyId());
-
-            learnCompany.setCompanyName(inactiveCompanyName);
-            learnCompanyService.addLearnCompany(learnCompany);
+            learnCompanyService.addLearnCompany(throneCompany);
 
             fileImportResult.increamentSuccessRecords();
         } catch (Exception ex) {
@@ -340,7 +321,7 @@ public class CompanyService  extends CommonService {
                     fileImportResult.addFailedRecord(record, cause,
                             getMessageFromResourceBundle(resourceHandler, APIErrorCodes.RECORD_NOT_ADDED));
 
-            throw ex;
+            //throw ex;
         }
 
     }

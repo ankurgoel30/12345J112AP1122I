@@ -1,6 +1,5 @@
 package com.thinkhr.external.api.services;
 
-import static com.thinkhr.external.api.ApplicationConstants.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -8,21 +7,43 @@ import org.springframework.stereotype.Service;
 
 import com.thinkhr.external.api.db.entities.Company;
 import com.thinkhr.external.api.db.learn.entities.LearnCompany;
+import com.thinkhr.external.api.helpers.ModelConvertor;
 import com.thinkhr.external.api.learn.repositories.LearnCompanyRepository;
 
 @Service
 public class LearnCompanyService {
     @Autowired
     LearnCompanyRepository learnCompanyRepository;
+
+    @Autowired
+    protected ModelConvertor modelConvertor;
+
     private Logger logger = LoggerFactory.getLogger(LearnCompanyService.class);
 
     /**
-     * 
+     * Save learnCompany to database
      * @param learnCompany
      * @return
      */
     public LearnCompany addLearnCompany(LearnCompany learnCompany) {
         return learnCompanyRepository.save(learnCompany);
+    }
+
+    /**
+     * Create a learnCompany from throneCompany and add it to database
+     * @param throneCompany
+     * @return
+     */
+    public LearnCompany addLearnCompany(Company throneCompany) {
+        LearnCompany learnCompany = modelConvertor.convert(throneCompany);
+
+        String inactiveCompanyName = this.generateCompanyNameForInactive(
+                throneCompany.getCompanyName(),
+                throneCompany.getBroker(),
+                throneCompany.getCompanyId());
+
+        learnCompany.setCompanyName(inactiveCompanyName);
+        return this.addLearnCompany(learnCompany);
     }
 
     public LearnCompany updateLearnCompany(LearnCompany learnCompany) {
