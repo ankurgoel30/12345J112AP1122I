@@ -22,5 +22,5 @@ public interface LearnCompanyRepository extends PagingAndSortingRepository<Learn
      * @param companyKey
      * @return
      */
-    public LearnCompany findFirstByThrCompanyIdAndCompanyKey(Integer thrCompanyId, String companyKey);
+    public LearnCompany findFirstByCompanyIdAndCompanyKey(Integer thrCompanyId, String companyKey);
 }

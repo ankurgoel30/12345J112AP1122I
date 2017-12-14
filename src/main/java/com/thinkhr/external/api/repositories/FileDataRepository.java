@@ -14,6 +14,8 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 
 import lombok.Data;
 
@@ -33,7 +35,8 @@ public class FileDataRepository {
      * @param locationColumnValues
      */
 
-    public void saveCompanyRecord(List<String> companyColumns, List<Object> companyColumnsValues, List<String> locationColumns,
+    @Transactional(propagation=Propagation.REQUIRED)
+    public Integer saveCompanyRecord(List<String> companyColumns, List<Object> companyColumnsValues, List<String> locationColumns,
             List<Object> locationColumnValues) {
 
         String insertClientSql = buildCompanyInsertQuery(companyColumns);
@@ -55,6 +58,9 @@ public class FileDataRepository {
             jdbcTemplate.update(DELETE_COMPANY_QUERY, clientId);
             throw ex;
         }
+        
+        
+        return clientId;
     }
 
     /**

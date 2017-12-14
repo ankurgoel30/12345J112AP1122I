@@ -130,10 +130,11 @@ public class CompanyService  extends CommonService {
         //TODO :Decide what to do if company save is successful and learnCompany save fails ?
         LearnCompany learnCompany = modelConvertor.convert(throneCompany);
 
-        String nameForInactiveLearComp = learnCompanyService
-                .generateCompanyNameForInactive(throneCompany.getCompanyName());
+        String inactiveCompanyName = learnCompanyService.generateCompanyNameForInactive(throneCompany.getCompanyName(),
+                throneCompany.getBroker(),
+                throneCompany.getCompanyId());
 
-        learnCompany.setCompanyName(nameForInactiveLearComp);
+        learnCompany.setCompanyName(inactiveCompanyName);
         learnCompanyService.addLearnCompany(learnCompany);
         // THR-3929 [End]
 
@@ -154,7 +155,6 @@ public class CompanyService  extends CommonService {
         }
 
         return companyRepository.save(company);
-
     }
 
     /**
@@ -277,6 +277,8 @@ public class CompanyService  extends CommonService {
      * @param fileImportResult
      * @param recCount
      */
+    @Transactional(
+            rollbackFor = Exception.class)
     public void populateAndSaveToDB(String record, 
             Map<String, String> companyFileHeaderColumnMap, 
             Map<String, String> locationFileHeaderColumnMap, 
@@ -314,8 +316,21 @@ public class CompanyService  extends CommonService {
             companyColumnsToInsert.add("broker");
             companyColumnsValues.add(fileImportResult.getBrokerId());
 
-            fileDataRepository.saveCompanyRecord(companyColumnsToInsert, companyColumnsValues, locationColumnsToInsert,
+            Integer companyId = fileDataRepository.saveCompanyRecord(companyColumnsToInsert, companyColumnsValues,
+                    locationColumnsToInsert,
                     locationColumnsValues);
+
+            Company throneCompany = this.getCompany(companyId);
+
+            LearnCompany learnCompany = modelConvertor.convert(throneCompany);
+
+            String inactiveCompanyName = learnCompanyService.generateCompanyNameForInactive(
+                    throneCompany.getCompanyName(),
+                    throneCompany.getBroker(),
+                    throneCompany.getCompanyId());
+
+            learnCompany.setCompanyName(inactiveCompanyName);
+            learnCompanyService.addLearnCompany(learnCompany);
 
             fileImportResult.increamentSuccessRecords();
         } catch (Exception ex) {
@@ -324,6 +339,8 @@ public class CompanyService  extends CommonService {
                         ex.getMessage();
                     fileImportResult.addFailedRecord(record, cause,
                             getMessageFromResourceBundle(resourceHandler, APIErrorCodes.RECORD_NOT_ADDED));
+
+            throw ex;
         }
 
     }

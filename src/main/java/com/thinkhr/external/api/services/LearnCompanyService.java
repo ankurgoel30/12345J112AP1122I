@@ -1,5 +1,6 @@
 package com.thinkhr.external.api.services;
 
+import static com.thinkhr.external.api.ApplicationConstants.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -49,7 +50,7 @@ public class LearnCompanyService {
             return isDeactivated;
         }
 
-        LearnCompany learnCompany = learnCompanyRepository.findFirstByThrCompanyIdAndCompanyKey(
+        LearnCompany learnCompany = learnCompanyRepository.findFirstByCompanyIdAndCompanyKey(
                 throneCompany.getCompanyId(),
                 companyKey);
 
@@ -57,8 +58,11 @@ public class LearnCompanyService {
             //TODO :  What to do ?
         }
 
-        String companyName = generateCompanyNameForInactive(throneCompany.getCompanyName());
-        learnCompany.setCompanyName(companyName);
+        String companyName = throneCompany.getCompanyName();
+        Integer brokerId = throneCompany.getBroker();
+        Integer companyId = throneCompany.getCompanyId();
+        String inactiveCompanyName = generateCompanyNameForInactive(companyName, brokerId, companyId);
+        learnCompany.setCompanyName(inactiveCompanyName);
 
         learnCompanyRepository.save(learnCompany);
         isDeactivated = true;
@@ -70,13 +74,8 @@ public class LearnCompanyService {
      * @param companyName
      * @return
      */
-    public String generateCompanyNameForInactive(String companyName) {
-        if (companyName == null) {
-            return null;
-        }
-
-        // TODO : Code to generate inactiveCompanyName from companyName 
-        return "ABC_INACT";
+    public String generateCompanyNameForInactive(String companyName,Integer brokerId, Integer companyId) {
+        return companyName + "_" + brokerId + companyId + "_inact";
     }
 
     /**
@@ -105,7 +104,7 @@ public class LearnCompanyService {
         }
 
 
-        LearnCompany learnCompany = learnCompanyRepository.findFirstByThrCompanyIdAndCompanyKey(
+        LearnCompany learnCompany = learnCompanyRepository.findFirstByCompanyIdAndCompanyKey(
                 throneCompany.getCompanyId(),
                 companyKey);
 
