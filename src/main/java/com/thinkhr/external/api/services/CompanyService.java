@@ -128,7 +128,7 @@ public class CompanyService  extends CommonService {
         
         // THR-3929 [Start]
         //TODO :Decide what to do if company save is successful and learnCompany save fails ?
-        LearnCompany learnCompany = convert(throneCompany);
+        LearnCompany learnCompany = modelConvertor.convert(throneCompany);
 
         String nameForInactiveLearComp = learnCompanyService
                 .generateCompanyNameForInactive(throneCompany.getCompanyName());
