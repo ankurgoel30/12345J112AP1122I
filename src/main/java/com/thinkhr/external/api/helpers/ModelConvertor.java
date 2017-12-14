@@ -40,20 +40,23 @@ public class ModelConvertor {
         //modelMapper.addMappings(companyPropertyMap);
         
         LearnCompany learnCompany =  new LearnCompany() ;
-        learnCompany.setAddress(company.getLocation().getAddress());
-        learnCompany.setAddress2(company.getLocation().getAddress2());
-        learnCompany.setBroker(String.valueOf(company.getBroker()));
-        learnCompany.setCity(company.getLocation().getCity());
-        learnCompany.setCompanyId(company.getCompanyId());
-        learnCompany.setCompanyName(company.getCompanyName());
-        learnCompany.setCompanyType(company.getCompanyType());
-        learnCompany.setPhone(company.getCompanyPhone());
-        learnCompany.setState(company.getLocation().getState());
+        if (company.getLocation() != null) {
+            learnCompany.setAddress(company.getLocation().getAddress());
+            learnCompany.setAddress2(company.getLocation().getAddress2());
+            learnCompany.setBroker(String.valueOf(company.getBroker()));
+            learnCompany.setCity(company.getLocation().getCity());
+            learnCompany.setCompanyId(company.getCompanyId());
+            learnCompany.setCompanyName(company.getCompanyName());
+            learnCompany.setCompanyType(company.getCompanyType());
+            learnCompany.setPhone(company.getCompanyPhone());
+            learnCompany.setState(company.getLocation().getState());
+            learnCompany.setZip(company.getLocation().getZip());
+        }
         
         Date now = new Date();
         learnCompany.setTimeCreated(now.getTime());
         learnCompany.setTimeModified(now.getTime());
-        learnCompany.setZip(company.getLocation().getZip());
+
         
         return learnCompany;
         //return modelMapper.map(company, LearnCompany.class);

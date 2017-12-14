@@ -39,7 +39,7 @@ public class AppConfig extends WebMvcConfigurerAdapter {
     @Override
     public void addInterceptors(InterceptorRegistry registry) {
         registry.addInterceptor(new APIProcessingTimeInterceptor()).addPathPatterns("/v1/**");
-        if (!DEVELOPMENT_ENV.equalsIgnoreCase(environment)) {
+        if (!DEVELOPMENT_ENV.equalsIgnoreCase(environment.trim())) {
             registry.addInterceptor(new JwtTokenInterceptor(key, iss, authorizationManager)).addPathPatterns("/v1/**");
         }
     }

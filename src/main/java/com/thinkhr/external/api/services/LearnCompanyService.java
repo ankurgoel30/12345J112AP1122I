@@ -16,6 +16,14 @@ import com.thinkhr.external.api.helpers.ModelConvertor;
 import com.thinkhr.external.api.learn.repositories.LearnCompanyRepository;
 import com.thinkhr.external.api.learn.repositories.PackageRepository;
 
+/**
+ * Provides a collection of all services related with LearnCompany
+ * database object
+ * 
+ * @author Surabhi Bhawsar
+ * @since 2017-12-14
+ *
+ */
 @Service
 public class LearnCompanyService {
     @Autowired
@@ -47,6 +55,7 @@ public class LearnCompanyService {
      * @return
      */
     public LearnCompany addLearnCompany(Company throneCompany) {
+
         LearnCompany learnCompany = modelConvertor.convert(throneCompany);
 
         String inactiveCompanyName = this.generateCompanyNameForInactive(
@@ -88,6 +97,7 @@ public class LearnCompanyService {
     }
 
     public LearnCompany updateLearnCompany(LearnCompany learnCompany) {
+
         Long learnCompanyId = learnCompany.getId();
 
         if (null == learnCompanyRepository.findOne(learnCompanyId)) {
@@ -106,6 +116,7 @@ public class LearnCompanyService {
      * @return
      */
     public boolean deactivateLearnCompany(Company throneCompany, String companyKey) {
+
         boolean isDeactivated = false;
 
         if (throneCompany == null || throneCompany.getCompanyId() == null || companyKey == null) {
