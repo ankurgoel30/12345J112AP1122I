@@ -1,11 +1,17 @@
 package com.thinkhr.external.api.config;
 
+import static com.thinkhr.external.api.ApplicationConstants.DEVELOPMENT_ENV;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurerAdapter;
 
 import com.thinkhr.external.api.interceptors.APIProcessingTimeInterceptor;
+import com.thinkhr.external.api.interceptors.JwtTokenInterceptor;
+import com.thinkhr.external.api.services.AuthorizationManager;
 
 /**
  * Application configuration class
@@ -17,9 +23,24 @@ import com.thinkhr.external.api.interceptors.APIProcessingTimeInterceptor;
 @Configuration
 @EnableWebMvc
 public class AppConfig extends WebMvcConfigurerAdapter {
+    
+    @Value("${app.environment}")
+    private String environment;
+
+    @Autowired 
+    AuthorizationManager authorizationManager; 
+    
+    @Value("${JWT.jwt_key}")
+    private String key;
+
+    @Value("${JWT.jwt_iss}")
+    private String iss;
 
     @Override
     public void addInterceptors(InterceptorRegistry registry) {
         registry.addInterceptor(new APIProcessingTimeInterceptor()).addPathPatterns("/v1/**");
+        if (!DEVELOPMENT_ENV.equalsIgnoreCase(environment)) {
+            registry.addInterceptor(new JwtTokenInterceptor(key, iss, authorizationManager)).addPathPatterns("/v1/**");
+        }
     }
 }
