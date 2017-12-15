@@ -282,8 +282,7 @@ public class CompanyService  extends CommonService {
      * @param fileImportResult
      * @param recCount
      */
-    @Transactional(
-            rollbackFor = Exception.class)
+    @Transactional
     public void populateAndSaveToDB(String record, 
             Map<String, String> companyFileHeaderColumnMap, 
             Map<String, String> locationFileHeaderColumnMap, 
@@ -351,7 +350,16 @@ public class CompanyService  extends CommonService {
                 locationColumnsValues);
 
         Company throneCompany = this.getCompany(companyId);
-        learnCompanyService.addLearnCompany(throneCompany);
+
+        try {
+            learnCompanyService.addLearnCompany(throneCompany);
+        } catch (Exception ex) {
+            // TODO: Fix Me - Ideally this should happen by transaction rollback but currently it is not working
+            // Rollback company record save if learn company record save fails
+            companyRepository.delete(companyId);
+            throw ex;
+        }
+
     }
     
     /**
