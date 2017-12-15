@@ -5,8 +5,6 @@ import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 
 import com.thinkhr.external.api.ApplicationConstants;
-import com.thinkhr.external.api.db.entities.Company;
-import com.thinkhr.external.api.db.learn.entities.LearnCompany;
 
 /**
  * To keep some common util methods 
@@ -27,4 +25,6 @@ public class CommonUtil {
         ZonedDateTime utcDateTime = ZonedDateTime.now(ZoneOffset.UTC);
         return format.format(utcDateTime);
     }
+    	
+	
 }

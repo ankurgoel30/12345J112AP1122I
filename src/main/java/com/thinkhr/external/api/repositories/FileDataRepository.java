@@ -14,10 +14,7 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Repository;
-import org.springframework.transaction.TransactionStatus;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.transaction.support.TransactionCallback;
-import org.springframework.transaction.support.TransactionTemplate;
 
 import lombok.Data;
 
@@ -28,9 +25,6 @@ public class FileDataRepository {
     @Autowired
     JdbcTemplate jdbcTemplate;
     
-    @Autowired
-    TransactionTemplate transTemplate;
-
     /**
      * Saves company & location records in database
      * 
@@ -52,19 +46,13 @@ public class FileDataRepository {
 
         companyColumnsValues.addAll(defaultCompReqFieldValues);
 
-       Object execStatus =  transTemplate.execute(new TransactionCallback<Object>() {
-            @Override
-            public Object doInTransaction(TransactionStatus status) {
-                jdbcTemplate.update(buildPreparedStatementCreator(insertClientSql, companyColumnsValues), keyHolder);
+        jdbcTemplate.update(buildPreparedStatementCreator(insertClientSql, companyColumnsValues), keyHolder);
 
-                int clientId = keyHolder.getKey().intValue();
-                  locationColumnValues.add(String.valueOf(clientId));
-                jdbcTemplate.update(buildPreparedStatementCreator(insertLocationSql, locationColumnValues));
-                return clientId;
-            }
-        });
+        int clientId = keyHolder.getKey().intValue();
         
-       return (Integer)execStatus;
+        locationColumnValues.add(String.valueOf(clientId));
+        jdbcTemplate.update(buildPreparedStatementCreator(insertLocationSql, locationColumnValues));
+        return clientId;
     }
 
     /**

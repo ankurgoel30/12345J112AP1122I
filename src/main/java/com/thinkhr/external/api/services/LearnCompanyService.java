@@ -1,10 +1,10 @@
 package com.thinkhr.external.api.services;
 
+import static com.thinkhr.external.api.ApplicationConstants.INACT;
+import static com.thinkhr.external.api.ApplicationConstants.UNDERSCORE;
+
 import java.util.ArrayList;
 import java.util.List;
-
-import static com.thinkhr.external.api.ApplicationConstants.UNDERSCORE;
-import static com.thinkhr.external.api.ApplicationConstants.INACT;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
