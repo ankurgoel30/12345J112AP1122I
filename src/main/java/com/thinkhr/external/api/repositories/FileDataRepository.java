@@ -58,7 +58,7 @@ public class FileDataRepository {
                 jdbcTemplate.update(buildPreparedStatementCreator(insertClientSql, companyColumnsValues), keyHolder);
 
                 int clientId = keyHolder.getKey().intValue();
-                //  locationColumnValues.add(String.valueOf(clientId));
+                  locationColumnValues.add(String.valueOf(clientId));
                 jdbcTemplate.update(buildPreparedStatementCreator(insertLocationSql, locationColumnValues));
                 return clientId;
             }
