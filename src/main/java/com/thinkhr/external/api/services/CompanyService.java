@@ -173,11 +173,13 @@ public class CompanyService  extends CommonService {
 
         companyRepository.softDelete(companyId);
 
-        String companyKey = "ABC"; // TODO: Decide how to get company key?
+        // TODO: Decide how to get company key?
+        String companyKey = company.getCompanyName();
+        
         learnCompanyService.deactivateLearnCompany(company, companyKey);
 
         return companyId;
-    }    
+    }     
 
     /**
      * Imports a CSV file for companies record

@@ -3,10 +3,11 @@ package com.thinkhr.external.api.services;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import static com.thinkhr.external.api.ApplicationConstants.UNDERSCORE;
+import static com.thinkhr.external.api.ApplicationConstants.INACT;
+
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.core.env.Environment;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import com.thinkhr.external.api.db.entities.Company;
@@ -35,10 +36,8 @@ public class LearnCompanyService {
     @Autowired
     protected ModelConvertor modelConvertor;
 
-    @Autowired
-    protected Environment env;
-
-    private Logger logger = LoggerFactory.getLogger(LearnCompanyService.class);
+    @Value("${com.thinkhr.external.api.learn.default.package}")
+    protected String defaultCompanyPackage;
 
     /**
      * Save learnCompany to database
@@ -65,9 +64,7 @@ public class LearnCompanyService {
 
         learnCompany.setCompanyName(inactiveCompanyName);
 
-        String defaultPackage = env.getProperty("com.thinkhr.external.api.learn.default.package");
-
-        this.addPackage(learnCompany, defaultPackage);
+        this.addPackage(learnCompany, defaultCompanyPackage);
 
         return this.addLearnCompany(learnCompany);
     }
@@ -96,6 +93,12 @@ public class LearnCompanyService {
         packages.add(learnPackage);
     }
 
+    /**
+     * To update learn company
+     * 
+     * @param learnCompany
+     * @return
+     */
     public LearnCompany updateLearnCompany(LearnCompany learnCompany) {
 
         Long learnCompanyId = learnCompany.getId();
@@ -117,10 +120,8 @@ public class LearnCompanyService {
      */
     public boolean deactivateLearnCompany(Company throneCompany, String companyKey) {
 
-        boolean isDeactivated = false;
-
         if (throneCompany == null || throneCompany.getCompanyId() == null || companyKey == null) {
-            return isDeactivated;
+            return false;
         }
 
         LearnCompany learnCompany = learnCompanyRepository.findFirstByCompanyIdAndCompanyKey(
@@ -128,18 +129,18 @@ public class LearnCompanyService {
                 companyKey);
 
         if (learnCompany == null) {
-            //TODO :  What to do ?
+            //Skip this, as no company is exist in DB.
+            return true;
         }
 
-        String companyName = throneCompany.getCompanyName();
-        Integer brokerId = throneCompany.getBroker();
-        Integer companyId = throneCompany.getCompanyId();
-        String inactiveCompanyName = generateCompanyNameForInactive(companyName, brokerId, companyId);
+        String inactiveCompanyName = generateCompanyNameForInactive(throneCompany.getCompanyName(), 
+                                                                    throneCompany.getBroker(), 
+                                                                    throneCompany.getCompanyId());
         learnCompany.setCompanyName(inactiveCompanyName);
 
         learnCompanyRepository.save(learnCompany);
-        isDeactivated = true;
-        return isDeactivated;
+        
+        return true;
     }
 
     /**
@@ -147,18 +148,13 @@ public class LearnCompanyService {
      * @param companyName
      * @return
      */
-    public String generateCompanyNameForInactive(String companyName,Integer brokerId, Integer companyId) {
-        return companyName + "_" + brokerId + "_" + companyId + "_inact";
-    }
-
-    /**
-     * Based of companyName find if the given learnCompany is active or inactive
-     * TODO: 
-     * @param learnCompany
-     * @return
-     */
-    private boolean isLearnCompanyActive(LearnCompany learnCompany) {
-        return false;
+    public static String generateCompanyNameForInactive(String companyName,Integer brokerId, Integer companyId) {
+        return new StringBuffer(companyName)
+                .append(UNDERSCORE)
+                .append(brokerId)
+                .append(UNDERSCORE)
+                .append(companyId)
+                .append(INACT).toString();
     }
 
     /**
