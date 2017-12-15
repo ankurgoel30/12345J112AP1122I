@@ -27,6 +27,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -320,12 +321,8 @@ public class CompanyService  extends CommonService {
             companyColumnsToInsert.add("broker");
             companyColumnsValues.add(fileImportResult.getBrokerId());
 
-            Integer companyId = fileDataRepository.saveCompanyRecord(companyColumnsToInsert, companyColumnsValues,
-                    locationColumnsToInsert,
-                    locationColumnsValues);
-
-            Company throneCompany = this.getCompany(companyId);
-            learnCompanyService.addLearnCompany(throneCompany);
+            saveCompanyRecord(companyColumnsValues, locationColumnsValues,
+                    companyColumnsToInsert, locationColumnsToInsert);
 
             fileImportResult.increamentSuccessRecords();
         } catch (Exception ex) {
@@ -337,6 +334,26 @@ public class CompanyService  extends CommonService {
         }
 
     }
+
+    /**
+     * @param companyColumnsValues
+     * @param locationColumnsValues
+     * @param companyColumnsToInsert
+     * @param locationColumnsToInsert
+     */
+    @Transactional(propagation=Propagation.REQUIRED)
+    private void saveCompanyRecord(List<Object> companyColumnsValues,
+            List<Object> locationColumnsValues,
+            List<String> companyColumnsToInsert,
+            List<String> locationColumnsToInsert) {
+        Integer companyId = fileDataRepository.saveCompanyRecord(companyColumnsToInsert, companyColumnsValues,
+                locationColumnsToInsert,
+                locationColumnsValues);
+
+        Company throneCompany = this.getCompany(companyId);
+        learnCompanyService.addLearnCompany(throneCompany);
+    }
+    
     /**
      * TODO: Logic to decide record is duplicate
      * 
