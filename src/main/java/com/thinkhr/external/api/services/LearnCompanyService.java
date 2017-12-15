@@ -148,7 +148,7 @@ public class LearnCompanyService {
      * @return
      */
     public String generateCompanyNameForInactive(String companyName,Integer brokerId, Integer companyId) {
-        return companyName + "_" + brokerId + companyId + "_inact";
+        return companyName + "_" + brokerId + "_" + companyId + "_inact";
     }
 
     /**

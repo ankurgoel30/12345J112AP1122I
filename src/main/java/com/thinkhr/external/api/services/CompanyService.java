@@ -32,6 +32,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import com.thinkhr.external.api.ApplicationConstants;
 import com.thinkhr.external.api.db.entities.Company;
+import com.thinkhr.external.api.db.entities.Location;
 import com.thinkhr.external.api.exception.APIErrorCodes;
 import com.thinkhr.external.api.exception.ApplicationException;
 import com.thinkhr.external.api.model.FileImportResult;
@@ -122,11 +123,24 @@ public class CompanyService  extends CommonService {
      */
     @Transactional
     public Company addCompany(Company company)  {
+        associateChildEntities(company);
+
         Company throneCompany = companyRepository.save(company);
         
         learnCompanyService.addLearnCompany(throneCompany);// THR-3929 
 
         return throneCompany;
+    }
+
+    /**
+     * Make a link in child entity with parent entity 
+     * @param company
+     */
+    private void associateChildEntities(Company company) {
+        Location location = company.getLocation();
+        if (location != null && location.getCompany() == null) {
+            location.setCompany(company);
+        }
     }
 
     /**

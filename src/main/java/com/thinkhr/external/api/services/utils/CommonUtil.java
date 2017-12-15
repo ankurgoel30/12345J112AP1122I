@@ -27,39 +27,4 @@ public class CommonUtil {
         ZonedDateTime utcDateTime = ZonedDateTime.now(ZoneOffset.UTC);
         return format.format(utcDateTime);
     }
-    	
-    /**
-     * Create LearnCompany(mapped to thinkhr_learn.mdl_company) instance  
-     * by mapping fields from Company(mapped to thinkhr_portal.clients) instance
-     * TODO: code to map company object to learncompany object
-     * 
-     * @param company
-     * @return
-     */
-    public static LearnCompany getLearnCompanyFromCompany(Company company) {
-        LearnCompany learnCompany = createLearnCompany();
-
-        learnCompany.setCompanyId(company.getCompanyId());
-        return learnCompany;
-    }
-    
-    
-    // TODO : move this to APITestDataUtil
-    public static LearnCompany createLearnCompany(String companyName, String companyKey, Long timeCreated,
-            Long timeModified, Long createdBy) {
-
-        LearnCompany learnCompany = new LearnCompany();
-        learnCompany.setCompanyName(companyName);
-        learnCompany.setCompanyKey(companyKey);
-        learnCompany.setTimeCreated(timeCreated);
-        learnCompany.setTimeModified(timeModified);
-        learnCompany.setCreatedBy(createdBy);
-        return learnCompany;
-    }
-    
-    // TODO : move this to APITestDataUtil
-    public static LearnCompany createLearnCompany() {
-        return createLearnCompany("Pepcus" , "Key" , 0012121L , 232312312L   , 12345L );
-    }
-	
 }

@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.thinkhr.external.api.db.entities.Company;
+import com.thinkhr.external.api.db.entities.Location;
 import com.thinkhr.external.api.db.learn.entities.LearnCompany;
 
 /**
@@ -40,19 +41,21 @@ public class ModelConvertor {
         //modelMapper.addMappings(companyPropertyMap);
         
         LearnCompany learnCompany =  new LearnCompany() ;
-        if (company.getLocation() != null) {
-            learnCompany.setAddress(company.getLocation().getAddress());
-            learnCompany.setAddress2(company.getLocation().getAddress2());
-            learnCompany.setBroker(String.valueOf(company.getBroker()));
-            learnCompany.setCity(company.getLocation().getCity());
-            learnCompany.setCompanyId(company.getCompanyId());
-            learnCompany.setCompanyName(company.getCompanyName());
-            learnCompany.setCompanyType(company.getCompanyType());
-            learnCompany.setPhone(company.getCompanyPhone());
-            learnCompany.setState(company.getLocation().getState());
-            learnCompany.setZip(company.getLocation().getZip());
+        Location location = company.getLocation();
+        if (location != null) {
+            learnCompany.setAddress(location.getAddress());
+            learnCompany.setAddress2(location.getAddress2());
+            learnCompany.setCity(location.getCity());
+            learnCompany.setState(location.getState());
+            learnCompany.setZip(location.getZip());
         }
         
+        learnCompany.setBroker(String.valueOf(company.getBroker()));
+        learnCompany.setCompanyId(company.getCompanyId());
+        learnCompany.setCompanyName(company.getCompanyName());
+        learnCompany.setCompanyType(company.getCompanyType());
+        learnCompany.setPhone(company.getCompanyPhone());
+
         Date now = new Date();
         learnCompany.setTimeCreated(now.getTime());
         learnCompany.setTimeModified(now.getTime());
