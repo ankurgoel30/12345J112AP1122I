@@ -16,6 +16,14 @@ import org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean;
 import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
 
+
+/**
+ * Database configuration file to manage thinkhr_portal datasource
+ * 
+ * @author Ajay Jain
+ * @since 2017-12-15
+ *
+ */
 @Configuration
 @EnableTransactionManagement
 @EnableJpaRepositories(
