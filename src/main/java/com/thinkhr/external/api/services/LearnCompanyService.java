@@ -57,7 +57,7 @@ public class LearnCompanyService {
 
         LearnCompany learnCompany = modelConvertor.convert(throneCompany);
 
-        String inactiveCompanyName = this.generateCompanyNameForInactive(
+        String inactiveCompanyName = generateCompanyNameForInactive(
                 throneCompany.getCompanyName(),
                 throneCompany.getBroker(),
                 throneCompany.getCompanyId());
@@ -74,14 +74,14 @@ public class LearnCompanyService {
      * @param learnCompany
      * @param packageName
      */
-    public void addPackage(LearnCompany learnCompany, String packageName) {
+    public Package addPackage(LearnCompany learnCompany, String packageName) {
         if (learnCompany == null || packageName == null) {
-            return;
+            return null;
         }
 
         Package learnPackage = packageRepository.findFirstByName(packageName);
         if (learnPackage == null) {
-            return;
+            return null;
         }
 
         List<Package> packages = learnCompany.getPackages();
@@ -91,6 +91,7 @@ public class LearnCompanyService {
         }
 
         packages.add(learnPackage);
+        return learnPackage;
     }
 
     /**
@@ -158,8 +159,8 @@ public class LearnCompanyService {
     }
 
     /**
-     * Returns true if learnCompany for given thrCompanyId and compannyKey
-     * is deactivated successfully else false
+     * Returns true if learnCompany for given thrCompanyId and compannyKey is
+     * activated successfully else false
      * 
      * @param thrCompanyId
      * @param companyKey

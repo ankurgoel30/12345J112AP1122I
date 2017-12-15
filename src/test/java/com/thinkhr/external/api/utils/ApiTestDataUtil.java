@@ -29,6 +29,7 @@ import com.thinkhr.external.api.db.entities.Company;
 import com.thinkhr.external.api.db.entities.CustomFields;
 import com.thinkhr.external.api.db.entities.StandardFields;
 import com.thinkhr.external.api.db.entities.User;
+import com.thinkhr.external.api.db.learn.entities.LearnCompany;
 import com.thinkhr.external.api.model.FileImportResult;
 
 /**
@@ -55,7 +56,9 @@ public class ApiTestDataUtil {
     public static final String DEFAULT_COLUMN_VALUE = "";
     public static final String RESOURCE_COMPANY = "COMPANY";
     public static final String RESOURCE_USER = "USER";
-
+    public static final String HIBERNATE_HBM2DDL_AUTO = "hibernate.hbm2ddl.auto";
+    public static final String HIBERNATE_DIALECT = "hibernate.dialect";
+    public static final String HIBERNATE_SHOW_SQL = "hibernate.show_sql";
     /**
      * Convert object into Json String
      * 
@@ -124,6 +127,72 @@ public class ApiTestDataUtil {
         return company;
     }
     
+    /**
+     * 
+     * @param companyId
+     * @param companyName
+     * @param companyType
+     * @return
+     */
+    public static LearnCompany createLearnCompany(Long id, Integer companyId, String companyName, String companyType) {
+        LearnCompany company = new LearnCompany();
+        if (id != null) {
+            company.setId(id);
+        }
+        company.setCompanyId(companyId);
+        company.setCompanyName(companyName);
+        company.setCompanyType(companyType);
+        return company;
+    }
+
+    /**
+     * 
+     * @param companyId
+     * @param companyName
+     * @param companyType
+     * @return
+     */
+    public static LearnCompany createLearnCompanyWithCompanyKey(Long id, Integer companyId, String companyName,
+            String companyType, String companyKey) {
+        LearnCompany company = new LearnCompany();
+        if (id != null) {
+            company.setId(id);
+        }
+        company.setCompanyId(companyId);
+        company.setCompanyName(companyName);
+        company.setCompanyType(companyType);
+        company.setCompanyKey(companyKey);
+        return company;
+    }
+
+    /**
+     * 
+     * @param id
+     * @param categoryId
+     * @param name
+     * @return
+     */
+    public static com.thinkhr.external.api.db.learn.entities.Package createPacakge(Long id, Integer categoryId,
+            String name) {
+        com.thinkhr.external.api.db.learn.entities.Package package1 = new com.thinkhr.external.api.db.learn.entities.Package();
+        package1.setId(id);
+        package1.setCategoryId(categoryId);
+        package1.setName(name);
+        return package1;
+    }
+
+    /**
+     * 
+     * @param companyId
+     * @param companyName
+     * @param companyType
+     * @param companySince
+     * @param specialNote
+     * @param searchHelp
+     * @param broker
+     * @param custom1
+     * @return
+     */
     public static Company createCompanyWithCompanyNameAndBroker(Integer companyId, String companyName, String companyType, Date companySince,
             String specialNote, String searchHelp, Integer broker,
             String custom1) {

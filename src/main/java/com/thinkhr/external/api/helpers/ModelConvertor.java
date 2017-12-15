@@ -2,9 +2,6 @@ package com.thinkhr.external.api.helpers;
 
 import java.util.Date;
 
-import org.modelmapper.ModelMapper;
-import org.modelmapper.PropertyMap;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.thinkhr.external.api.db.entities.Company;
@@ -21,24 +18,15 @@ import com.thinkhr.external.api.db.learn.entities.LearnCompany;
 @Service
 public class ModelConvertor {
 
-    @Autowired
-    ModelMapper modelMapper;
-    
+    /**
+     * To convert ThroneCompany to LearnCompany. 
+     * 
+     * TODO: Use modelMapper, getting some issue so reverted code related with modelMapper.
+     * 
+     * @param company
+     * @return
+     */
     public LearnCompany convert(Company company) {
-        PropertyMap<Company, LearnCompany> companyPropertyMap = new PropertyMap<Company, LearnCompany>() {
-            @Override
-            protected void configure() {
-                //                map().setAddress(source.getLocation().getAddress());
-                //                map().setAddress2(source.getLocation().getAddress2());
-                //                map().setCity(source.getLocation().getCity());
-                //                map().setState(source.getLocation().getState());
-                //                map().setPhone(source.getCompanyPhone());
-                //                //map().setStreet(source.getLocation().get);
-                //                map().setZip(source.getLocation().getZip());
-                //                map().setId(null);
-            }
-        };
-        //modelMapper.addMappings(companyPropertyMap);
         
         LearnCompany learnCompany =  new LearnCompany() ;
         Location location = company.getLocation();
@@ -55,14 +43,13 @@ public class ModelConvertor {
         learnCompany.setCompanyName(company.getCompanyName());
         learnCompany.setCompanyType(company.getCompanyType());
         learnCompany.setPhone(company.getCompanyPhone());
-
+        learnCompany.setCompanyKey(company.getCompanyName()); //TODO: Once we have info, we will fix it
         Date now = new Date();
         learnCompany.setTimeCreated(now.getTime());
         learnCompany.setTimeModified(now.getTime());
 
         
         return learnCompany;
-        //return modelMapper.map(company, LearnCompany.class);
 
     }
     
