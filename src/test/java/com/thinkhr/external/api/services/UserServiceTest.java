@@ -33,7 +33,6 @@ import org.powermock.core.classloader.annotations.PowerMockIgnore;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 import org.powermock.modules.junit4.PowerMockRunnerDelegate;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
@@ -74,9 +73,6 @@ import com.thinkhr.external.api.utils.ApiTestDataUtil;
 @ContextConfiguration(classes = ApiApplication.class)
 @SpringBootTest
 public class UserServiceTest {
-
-    @Autowired
-    private MessageResourceHandler resourceHandler2;
 
     @Mock
     private UserRepository userRepository;

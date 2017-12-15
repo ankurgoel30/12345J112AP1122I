@@ -335,6 +335,7 @@ public class CompanyService  extends CommonService {
     }
 
     /**
+     * To persist throne and learn record to-gether.
      * @param companyColumnsValues
      * @param locationColumnsValues
      * @param companyColumnsToInsert
@@ -354,8 +355,8 @@ public class CompanyService  extends CommonService {
         try {
             learnCompanyService.addLearnCompany(throneCompany);
         } catch (Exception ex) {
-            // TODO: Fix Me - Ideally this should happen by transaction rollback but currently it is not working
-            // Rollback company record save if learn company record save fails
+            // TODO: FIXME - Ideally this should handled by transaction roll-back; some-reason transaction is not working with combination of jdbcTemplate and spring
+            // data. Need some research on it. To manage records properly, explicitly roll-back record. 
             companyRepository.delete(companyId);
             throw ex;
         }
