@@ -10,6 +10,7 @@ import java.util.Arrays;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
@@ -24,6 +25,7 @@ import lombok.Data;
 public class LearnFileDataRepository {
 
     @Autowired
+    @Qualifier("learnJdbcTemplate")
     JdbcTemplate jdbcTemplate;
     
     @Value("${com.thinkhr.external.api.learn.default.package}")
@@ -48,7 +50,7 @@ public class LearnFileDataRepository {
 
         Integer learnCompanyId =  keyHolder.getKey().intValue();
         
-        jdbcTemplate.update(buildPreparedStatementCreator(INSERT_LEARN_PKG_COMPANY, Arrays.asList(learnCompanyId, pkgId)));
+        jdbcTemplate.update(buildPreparedStatementCreator(INSERT_LEARN_PKG_COMPANY, Arrays.asList(pkgId, learnCompanyId)));
 
         return learnCompanyId;
 

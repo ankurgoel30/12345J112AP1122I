@@ -77,7 +77,10 @@ public class ModelConvertor {
                 company.getLocation().getState(),
                 company.getLocation().getZip(),
                 company.getBroker(),
-                company.getCompanyPhone()));
+                company.getCompanyPhone(),
+                "1",
+                String.valueOf(new Date().getTime()),
+                String.valueOf(new Date().getTime())));
         
         return learnCompanyFields;
     }

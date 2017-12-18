@@ -31,7 +31,7 @@ public class QueryBuilder {
     public static final String DELETE_COMPANY_QUERY = "DELETE FROM clients WHERE clientId=?";
     public static final String SELECT_COMPANY_QUERY = "SELECT * FROM clients";
     public static final String INSERT_LEARN_COMPANY = "INSERT INTO MDL_COMPANY ";
-    public static final String INSERT_LEARN_PKG_COMPANY = "INSERT INTO MDL_PACKAGE_COMPANY(\"packageid\", \"companyid\") VALUES (?, ?)";
+    public static final String INSERT_LEARN_PKG_COMPANY = "INSERT INTO MDL_PACKAGE_COMPANY(packageid, companyid) VALUES (?, ?)";
     public static List<String> companyRequiredFields;
     public static List<Object> defaultCompReqFieldValues;
 
@@ -67,7 +67,7 @@ public class QueryBuilder {
         learnCompanyFields = new ArrayList<String>(Arrays.asList(
                 "thrclientid", "company_name", "company_type","company_key", 
                 "address", "address2", "city", "state", "zip",
-                "partnerid", "phone"));
+                "partnerid", "phone", "createdby", "timecreated", "timemodified"));
     }
     /**
      *   //INSERT INTO locations(address,address2,city,state,zip,client_id) values(?,?,?,?,?,?);

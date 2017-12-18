@@ -10,6 +10,7 @@ import static com.thinkhr.external.api.repositories.QueryBuilder.defaultUserReqF
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
@@ -23,6 +24,7 @@ import lombok.Data;
 public class FileDataRepository {
 
     @Autowired
+    @Qualifier("portalJdbcTemplate")
     JdbcTemplate jdbcTemplate;
     
     /**
