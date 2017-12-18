@@ -34,6 +34,7 @@ import org.springframework.web.multipart.MultipartFile;
 import com.thinkhr.external.api.ApplicationConstants;
 import com.thinkhr.external.api.db.entities.Company;
 import com.thinkhr.external.api.db.entities.Location;
+import com.thinkhr.external.api.db.learn.entities.LearnPackageMaster;
 import com.thinkhr.external.api.exception.APIErrorCodes;
 import com.thinkhr.external.api.exception.ApplicationException;
 import com.thinkhr.external.api.model.FileImportResult;
@@ -174,10 +175,7 @@ public class CompanyService  extends CommonService {
 
         companyRepository.softDelete(companyId);
 
-        // TODO: Decide how to get company key?
-        String companyKey = company.getCompanyName();
-        
-        learnCompanyService.deactivateLearnCompany(company, companyKey);
+        learnCompanyService.deactivateLearnCompany(company);
 
         return companyId;
     }     
@@ -336,6 +334,7 @@ public class CompanyService  extends CommonService {
 
     /**
      * To persist throne and learn record to-gether.
+     * 
      * @param companyColumnsValues
      * @param locationColumnsValues
      * @param companyColumnsToInsert
@@ -346,6 +345,7 @@ public class CompanyService  extends CommonService {
             List<Object> locationColumnsValues,
             List<String> companyColumnsToInsert,
             List<String> locationColumnsToInsert) {
+        
         Integer companyId = fileDataRepository.saveCompanyRecord(companyColumnsToInsert, companyColumnsValues,
                 locationColumnsToInsert,
                 locationColumnsValues);
@@ -353,7 +353,9 @@ public class CompanyService  extends CommonService {
         Company throneCompany = this.getCompany(companyId);
 
         try {
-            learnCompanyService.addLearnCompany(throneCompany);
+            LearnPackageMaster pkg = learnCompanyService.getDefaultPackageMaster();
+            Integer pkgId = pkg == null ? null : pkg.getId().intValue();
+            learnFileRepository.saveLearnCompanyRecord(modelConvertor.getColumnsForInsert(throneCompany), pkgId);
         } catch (Exception ex) {
             // TODO: FIXME - Ideally this should handled by transaction roll-back; some-reason transaction is not working with combination of jdbcTemplate and spring
             // data. Need some research on it. To manage records properly, explicitly roll-back record. 

@@ -6,13 +6,14 @@ import static com.thinkhr.external.api.ApplicationConstants.UNDERSCORE;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.hashids.Hashids;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import com.thinkhr.external.api.db.entities.Company;
 import com.thinkhr.external.api.db.learn.entities.LearnCompany;
-import com.thinkhr.external.api.db.learn.entities.Package;
+import com.thinkhr.external.api.db.learn.entities.LearnPackageMaster;
 import com.thinkhr.external.api.helpers.ModelConvertor;
 import com.thinkhr.external.api.learn.repositories.LearnCompanyRepository;
 import com.thinkhr.external.api.learn.repositories.PackageRepository;
@@ -57,6 +58,12 @@ public class LearnCompanyService {
 
         LearnCompany learnCompany = modelConvertor.convert(throneCompany);
 
+        Integer companyId = learnCompany.getCompanyId();
+
+        String companyKey = generateCompanyKey(companyId);
+
+        learnCompany.setCompanyKey(companyKey);
+
         String inactiveCompanyName = generateCompanyNameForInactive(
                 throneCompany.getCompanyName(),
                 throneCompany.getBroker(),
@@ -74,24 +81,34 @@ public class LearnCompanyService {
      * @param learnCompany
      * @param packageName
      */
-    public Package addPackage(LearnCompany learnCompany, String packageName) {
+    public LearnPackageMaster addPackage(LearnCompany learnCompany, String packageName) {
         if (learnCompany == null || packageName == null) {
             return null;
         }
 
-        Package learnPackage = packageRepository.findFirstByName(packageName);
+        LearnPackageMaster learnPackage = getDefaultPackageMaster();
         if (learnPackage == null) {
             return null;
         }
 
-        List<Package> packages = learnCompany.getPackages();
+        List<LearnPackageMaster> packages = learnCompany.getPackages();
         if (packages == null) {
-            packages = new ArrayList<Package>();
+            packages = new ArrayList<LearnPackageMaster>();
             learnCompany.setPackages(packages);
         }
 
         packages.add(learnPackage);
         return learnPackage;
+    }
+
+    /**
+     * To fetch default company package
+     * 
+     * @param packageName
+     * @return
+     */
+    public LearnPackageMaster getDefaultPackageMaster() {
+        return packageRepository.findFirstByName(defaultCompanyPackage);
     }
 
     /**
@@ -116,18 +133,18 @@ public class LearnCompanyService {
      * is deactivated successfully else false
      * 
      * @param throneCompany
-     * @param companyKey
      * @return
      */
-    public boolean deactivateLearnCompany(Company throneCompany, String companyKey) {
+    public boolean deactivateLearnCompany(Company throneCompany) {
 
-        if (throneCompany == null || throneCompany.getCompanyId() == null || companyKey == null) {
+        Integer companyId = throneCompany.getCompanyId();
+        if (throneCompany == null || companyId == null) {
             return false;
         }
 
         LearnCompany learnCompany = learnCompanyRepository.findFirstByCompanyIdAndCompanyKey(
-                throneCompany.getCompanyId(),
-                companyKey);
+                companyId,
+                generateCompanyKey(companyId));
 
         if (learnCompany == null) {
             //Skip this, as no company is exist in DB.
@@ -136,7 +153,7 @@ public class LearnCompanyService {
 
         String inactiveCompanyName = generateCompanyNameForInactive(throneCompany.getCompanyName(), 
                                                                     throneCompany.getBroker(), 
-                                                                    throneCompany.getCompanyId());
+                                                                    companyId);
         learnCompany.setCompanyName(inactiveCompanyName);
 
         learnCompanyRepository.save(learnCompany);
@@ -156,6 +173,18 @@ public class LearnCompanyService {
                 .append(UNDERSCORE)
                 .append(companyId)
                 .append(INACT).toString();
+    }
+
+    /**
+     * Generate company key from thrClientId on the basis of Hashids.
+     * 
+     * @param thrClientId
+     * @return
+     */
+    public static String generateCompanyKey(Integer thrClientId) {
+        Hashids hashids = new Hashids();
+        String companyKey = hashids.encode(thrClientId);
+        return companyKey;
     }
 
     /**

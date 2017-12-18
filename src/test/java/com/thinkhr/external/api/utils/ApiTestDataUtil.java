@@ -172,9 +172,9 @@ public class ApiTestDataUtil {
      * @param name
      * @return
      */
-    public static com.thinkhr.external.api.db.learn.entities.Package createPacakge(Long id, Integer categoryId,
+    public static com.thinkhr.external.api.db.learn.entities.LearnPackageMaster createPacakge(Long id, Integer categoryId,
             String name) {
-        com.thinkhr.external.api.db.learn.entities.Package package1 = new com.thinkhr.external.api.db.learn.entities.Package();
+        com.thinkhr.external.api.db.learn.entities.LearnPackageMaster package1 = new com.thinkhr.external.api.db.learn.entities.LearnPackageMaster();
         package1.setId(id);
         package1.setCategoryId(categoryId);
         package1.setName(name);

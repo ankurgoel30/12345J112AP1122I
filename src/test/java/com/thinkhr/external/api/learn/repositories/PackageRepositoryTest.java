@@ -13,7 +13,7 @@ import org.springframework.test.context.junit4.SpringRunner;
 
 import com.thinkhr.external.api.ApiApplication;
 import com.thinkhr.external.api.config.LearnDBTestConfig;
-import com.thinkhr.external.api.db.learn.entities.Package;
+import com.thinkhr.external.api.db.learn.entities.LearnPackageMaster;
 import com.thinkhr.external.api.utils.ApiTestDataUtil;
 
 @RunWith(SpringRunner.class)
@@ -32,9 +32,9 @@ public class PackageRepositoryTest {
      */
     @Test
     public void testAdd() {
-        Package package1 = ApiTestDataUtil.createPacakge(1L, 1, defaultCompanyPackage);
+        LearnPackageMaster package1 = ApiTestDataUtil.createPacakge(1L, 1, defaultCompanyPackage);
 
-        Package savedPackage = packageRepository.save(package1);
+        LearnPackageMaster savedPackage = packageRepository.save(package1);
 
         assertNotNull(savedPackage);
         assertNotNull(savedPackage.getId());// As company is saved successfully.
@@ -48,10 +48,10 @@ public class PackageRepositoryTest {
      */
     @Test
     public void testFindFirstByName() {
-        Package package1 = ApiTestDataUtil.createPacakge(1L, 1, defaultCompanyPackage);
+        LearnPackageMaster package1 = ApiTestDataUtil.createPacakge(1L, 1, defaultCompanyPackage);
 
-        Package savedPackage = packageRepository.save(package1);
-        Package found = packageRepository.findFirstByName(defaultCompanyPackage);
+        LearnPackageMaster savedPackage = packageRepository.save(package1);
+        LearnPackageMaster found = packageRepository.findFirstByName(defaultCompanyPackage);
 
         assertNotNull(found);
         assertNotNull(found.getId());// As company is saved successfully.

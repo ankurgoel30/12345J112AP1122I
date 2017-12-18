@@ -563,13 +563,13 @@ public class CompanyServiceTest {
         
         int expectedSuccessCount = fileImportResult.getNumSuccessRecords() + 1;
 
-        Mockito.doNothing().when(fileDataRepository).saveCompanyRecord(Mockito.anyListOf(String.class), Mockito.anyListOf(Object.class),
+        Mockito.doReturn(1).when(fileDataRepository).saveCompanyRecord(Mockito.anyListOf(String.class), Mockito.anyListOf(Object.class),
                 Mockito.anyListOf(String.class), Mockito.anyListOf(Object.class));
 
         companyService.populateAndSaveToDB(record, companyColumnsToHeaderMap, locationColumnsToHeaderMap, headerIndexMap,
                 fileImportResult, recCount);
 
-        assertEquals(expectedSuccessCount, fileImportResult.getNumSuccessRecords());
+        assertEquals(1, fileImportResult.getNumSuccessRecords());
     }
 
     /**

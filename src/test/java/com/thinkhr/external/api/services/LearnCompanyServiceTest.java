@@ -22,7 +22,7 @@ import org.springframework.test.context.junit4.SpringRunner;
 import com.thinkhr.external.api.ApiApplication;
 import com.thinkhr.external.api.db.entities.Company;
 import com.thinkhr.external.api.db.learn.entities.LearnCompany;
-import com.thinkhr.external.api.db.learn.entities.Package;
+import com.thinkhr.external.api.db.learn.entities.LearnPackageMaster;
 import com.thinkhr.external.api.exception.ApplicationException;
 import com.thinkhr.external.api.helpers.ModelConvertor;
 import com.thinkhr.external.api.learn.repositories.LearnCompanyRepository;
@@ -78,7 +78,7 @@ public class LearnCompanyServiceTest {
     public void testAddLearnCompany_ForCompany() {
         Company company = ApiTestDataUtil.createCompany();
         LearnCompany learnCompany = ApiTestDataUtil.createLearnCompany(1L, 1, "Pepcus", "Software");
-        Package package1 = ApiTestDataUtil.createPacakge(1L, 10, defaultCompanyPackage);
+        LearnPackageMaster package1 = ApiTestDataUtil.createPacakge(1L, 10, defaultCompanyPackage);
 
         when(modelConvertor.convert(company)).thenReturn(learnCompany);
         when(packageRepository.findFirstByName(defaultCompanyPackage)).thenReturn(package1);
@@ -99,12 +99,12 @@ public class LearnCompanyServiceTest {
      */
     @Test
     public void testAddPackage() {
-        Package package1 = ApiTestDataUtil.createPacakge(1L, 10, defaultCompanyPackage);
+        LearnPackageMaster package1 = ApiTestDataUtil.createPacakge(1L, 10, defaultCompanyPackage);
         LearnCompany learnCompany = ApiTestDataUtil.createLearnCompany(1L, 1, "Pepcus", "Software");
 
         when(packageRepository.findFirstByName(defaultCompanyPackage)).thenReturn(package1);
 
-        Package actual = learnService.addPackage(learnCompany, defaultCompanyPackage);
+        LearnPackageMaster actual = learnService.addPackage(learnCompany, defaultCompanyPackage);
 
         assertNotNull(actual);
         assertNotNull(actual.getId());
@@ -153,7 +153,7 @@ public class LearnCompanyServiceTest {
         when(learnCompanyRepository.findFirstByCompanyIdAndCompanyKey(companyId, companyKey)).thenReturn(learnCompany);
         when(learnCompanyRepository.save(learnCompany)).thenReturn(learnCompany);
 
-        boolean isDeactivate = learnService.deactivateLearnCompany(company, companyKey);
+        boolean isDeactivate = learnService.deactivateLearnCompany(company);
 
         assertTrue(isDeactivate);
 

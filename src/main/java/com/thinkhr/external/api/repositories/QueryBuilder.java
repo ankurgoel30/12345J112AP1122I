@@ -29,12 +29,15 @@ public class QueryBuilder {
     private static final String START_BRACES = "(";
     private static final String END_BRACES = ") ";
     public static final String DELETE_COMPANY_QUERY = "DELETE FROM clients WHERE clientId=?";
-    public static final String SELECT_COMPANY_QUERY = "SELECT * FROM clients";;
+    public static final String SELECT_COMPANY_QUERY = "SELECT * FROM clients";
+    public static final String INSERT_LEARN_COMPANY = "INSERT INTO MDL_COMPANY ";
+    public static final String INSERT_LEARN_PKG_COMPANY = "INSERT INTO MDL_PACKAGE_COMPANY(\"packageid\", \"companyid\") VALUES (?, ?)";
     public static List<String> companyRequiredFields;
     public static List<Object> defaultCompReqFieldValues;
 
     public static List<String> userRequiredFields;
     public static List<Object> defaultUserReqFieldValues;
+    public static List<String> learnCompanyFields;
     public static String REQUIRED_FIELD_FOR_LOCATION = "client_id";
     static {
         companyRequiredFields = new ArrayList<String>(Arrays.asList("search_help", 
@@ -61,6 +64,10 @@ public class QueryBuilder {
                                                                           DEFAULT_COLUMN_VALUE, 
                                                                           DEFAULT_COLUMN_VALUE, 
                                                                           new Integer(0)));
+        learnCompanyFields = new ArrayList<String>(Arrays.asList(
+                "thrclientid", "company_name", "company_type","company_key", 
+                "address", "address2", "city", "state", "zip",
+                "partnerid", "phone"));
     }
     /**
      *   //INSERT INTO locations(address,address2,city,state,zip,client_id) values(?,?,?,?,?,?);
@@ -79,7 +86,7 @@ public class QueryBuilder {
      * @param locationColumns
      * @return
      */
-    private static String buildQuery(String insertQueryType, List<String> columns) {
+    public static String buildQuery(String insertQueryType, List<String> columns) {
         StringBuffer insertLocationSql = new StringBuffer();
         insertLocationSql.append(insertQueryType)
                 .append(START_BRACES).append(StringUtils.join(columns, COMMA_SEPARATOR))
@@ -101,7 +108,7 @@ public class QueryBuilder {
         companyColumns.addAll(companyRequiredFields);
         return buildQuery(INSERT_COMPANY, companyColumns);
     }
-
+    
     /**
      * Generate string having query parameters for given count
      * 

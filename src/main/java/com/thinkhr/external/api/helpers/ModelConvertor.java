@@ -1,12 +1,17 @@
 package com.thinkhr.external.api.helpers;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
+import java.util.List;
 
+import org.hashids.Hashids;
 import org.springframework.stereotype.Service;
 
 import com.thinkhr.external.api.db.entities.Company;
 import com.thinkhr.external.api.db.entities.Location;
 import com.thinkhr.external.api.db.learn.entities.LearnCompany;
+import com.thinkhr.external.api.services.LearnCompanyService;
 
 /**
  * Model convertor
@@ -18,6 +23,7 @@ import com.thinkhr.external.api.db.learn.entities.LearnCompany;
 @Service
 public class ModelConvertor {
 
+    
     /**
      * To convert ThroneCompany to LearnCompany. 
      * 
@@ -43,7 +49,6 @@ public class ModelConvertor {
         learnCompany.setCompanyName(company.getCompanyName());
         learnCompany.setCompanyType(company.getCompanyType());
         learnCompany.setPhone(company.getCompanyPhone());
-        learnCompany.setCompanyKey(company.getCompanyName()); //TODO: Once we have info, we will fix it
         Date now = new Date();
         learnCompany.setTimeCreated(now.getTime());
         learnCompany.setTimeModified(now.getTime());
@@ -53,5 +58,28 @@ public class ModelConvertor {
 
     }
     
-    
+    /**
+     * @param company
+     * @return
+     */
+    public static List<Object> getColumnsForInsert(Company company) {
+        if (company.getLocation() == null) {
+            company.setLocation(new Location());
+        }
+        List<Object> learnCompanyFields = new ArrayList<Object>(Arrays.asList(
+                company.getCompanyId(), 
+                company.getCompanyName(),
+                company.getCompanyType(),
+                LearnCompanyService.generateCompanyKey(company.getCompanyId()),
+                company.getLocation().getAddress(),
+                company.getLocation().getAddress2(),
+                company.getLocation().getCity(),
+                company.getLocation().getState(),
+                company.getLocation().getZip(),
+                company.getBroker(),
+                company.getCompanyPhone()));
+        
+        return learnCompanyFields;
+    }
+
 }

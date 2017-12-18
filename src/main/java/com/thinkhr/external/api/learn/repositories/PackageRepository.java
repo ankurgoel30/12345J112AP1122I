@@ -4,7 +4,7 @@ import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.repository.PagingAndSortingRepository;
 
 import com.thinkhr.external.api.db.learn.entities.LearnCompany;
-import com.thinkhr.external.api.db.learn.entities.Package;
+import com.thinkhr.external.api.db.learn.entities.LearnPackageMaster;
 
 
 /**
@@ -15,6 +15,6 @@ import com.thinkhr.external.api.db.learn.entities.Package;
  *
  */
 
-public interface PackageRepository extends PagingAndSortingRepository<Package, Long>, JpaSpecificationExecutor<LearnCompany> {
-    Package findFirstByName(String name);
+public interface PackageRepository extends PagingAndSortingRepository<LearnPackageMaster, Long>, JpaSpecificationExecutor<LearnCompany> {
+    LearnPackageMaster findFirstByName(String name);
 }

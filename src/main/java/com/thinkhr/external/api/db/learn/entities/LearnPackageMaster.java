@@ -1,15 +1,11 @@
 package com.thinkhr.external.api.db.learn.entities;
 
-import java.util.List;
-
 import javax.persistence.Column;
 import javax.persistence.Entity;
-import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Lob;
-import javax.persistence.ManyToMany;
 import javax.persistence.Table;
 
 import lombok.Data;
@@ -24,7 +20,7 @@ import lombok.Data;
 @Entity
 @Table(name = "mdl_package_master")
 @Data
-public class Package {
+public class LearnPackageMaster {
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)

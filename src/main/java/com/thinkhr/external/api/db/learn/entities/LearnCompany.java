@@ -1,5 +1,6 @@
 package com.thinkhr.external.api.db.learn.entities;
 
+import java.util.Date;
 import java.util.List;
 
 import javax.persistence.Column;
@@ -41,10 +42,10 @@ public class LearnCompany {
     @Column(name = "company_name")
     private String companyName;
 
-    @Column(name = "thrclientid")
+    @Column(name = "thrclientid", unique = true)
     private Integer companyId;
 
-    @Column(name = "company_key")
+    @Column(name = "company_key", unique = true)
     private String companyKey;
 
     @Column(name = "createdby" , nullable = false)
@@ -78,13 +79,13 @@ public class LearnCompany {
     private Integer employeeCount;
     
     @Column(name = "timecreated")
-    private Long timeCreated;
+    private Long timeCreated = new Date().getTime();
 
     @Column(name = "timemodified")
-    private Long timeModified;
+    private Long timeModified = new Date().getTime();
     
     @Column(name = "license")
-    private Long license;
+    private Long license = 1000L;
 
     @Column(name = "enrollmentstart")
     private Long enrollmentStart;
@@ -113,6 +114,6 @@ public class LearnCompany {
             joinColumns = { @JoinColumn(name = "companyid") }, 
             inverseJoinColumns = { @JoinColumn(name = "packageid") }
     )
-    private List<Package> packages;
+    private List<LearnPackageMaster> packages;
 
 }
