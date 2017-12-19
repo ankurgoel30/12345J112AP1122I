@@ -65,6 +65,9 @@ public class CommonService {
     @Autowired
     protected ModelConvertor modelConvertor;
     
+    @Autowired
+    protected LearnUserService learnUserService ;
+    
 
     /**
      * @return

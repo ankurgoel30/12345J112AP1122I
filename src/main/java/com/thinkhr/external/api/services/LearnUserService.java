@@ -3,17 +3,12 @@ package com.thinkhr.external.api.services;
 import static com.thinkhr.external.api.ApplicationConstants.INACT;
 import static com.thinkhr.external.api.ApplicationConstants.UNDERSCORE;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import org.hashids.Hashids;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
-import com.thinkhr.external.api.db.entities.Company;
+import com.thinkhr.external.api.db.entities.User;
 import com.thinkhr.external.api.db.learn.entities.LearnCompany;
-import com.thinkhr.external.api.db.learn.entities.LearnPackageMaster;
+import com.thinkhr.external.api.db.learn.entities.LearnUser;
 import com.thinkhr.external.api.helpers.ModelConvertor;
 import com.thinkhr.external.api.learn.repositories.LearnUserRepository;
 
@@ -32,6 +27,42 @@ public class LearnUserService {
 
     @Autowired
     protected ModelConvertor modelConvertor;
+
+    /**
+     * Save learnUser to database
+     * @param learnUser
+     * @return
+     */
+    public LearnUser addLearnUser(LearnUser learnUser) {
+        return learnUserRepository.save(learnUser);
+    }
+
+    /**
+     * Create a learnUser from throneUser and add it to database
+     * @param throneUser
+     * @return
+     */
+    public LearnUser addLearnUser(User throneUser) {
+
+        LearnUser learnUser = modelConvertor.convert(throneUser);
+
+        String inactiveUserName = generateUserNameForInactive(throneUser.getUserName(), throneUser.getCompanyId(),
+                throneUser.getBrokerId());
+
+        learnUser.setUserName(inactiveUserName);
+
+        return this.addLearnUser(learnUser);
+    }
+
+    private String generateUserNameForInactive(String userName, Integer companyId, Integer brokerId) {
+        return new StringBuffer(userName)
+                .append(INACT)
+                .append(UNDERSCORE)
+                .append(companyId)
+                .append(UNDERSCORE)
+                .append(brokerId)
+                .toString();
+    }
 }
 
 

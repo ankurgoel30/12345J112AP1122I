@@ -10,7 +10,9 @@ import org.springframework.stereotype.Service;
 
 import com.thinkhr.external.api.db.entities.Company;
 import com.thinkhr.external.api.db.entities.Location;
+import com.thinkhr.external.api.db.entities.User;
 import com.thinkhr.external.api.db.learn.entities.LearnCompany;
+import com.thinkhr.external.api.db.learn.entities.LearnUser;
 import com.thinkhr.external.api.services.LearnCompanyService;
 
 /**
@@ -83,6 +85,25 @@ public class ModelConvertor {
                 String.valueOf(new Date().getTime())));
         
         return learnCompanyFields;
+    }
+
+    public LearnUser convert(User throneUser) {
+
+        LearnUser learnUser = new LearnUser();
+        learnUser.setBlockedAccount(throneUser.getBlockedAccount());
+        learnUser.setBounced(throneUser.getBounced());
+        learnUser.setCompanyId(throneUser.getCompanyId());
+        learnUser.setDeleted(throneUser.getDeleted());
+        learnUser.setEmail(throneUser.getEmail());
+        learnUser.setFirstName(throneUser.getFirstName());
+        learnUser.setJobTitle(throneUser.getTitle());
+        learnUser.setLastName(throneUser.getLastName());
+        learnUser.setPassword(throneUser.getPassword());
+        learnUser.setPhone1(throneUser.getPhone());
+        learnUser.setThrUserId(throneUser.getUserId());
+        learnUser.setUserName(throneUser.getUserName());
+
+        return learnUser;
     }
 
 }
