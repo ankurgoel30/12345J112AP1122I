@@ -4,6 +4,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.jdbc.core.PreparedStatementCreator;
@@ -16,6 +17,21 @@ import org.springframework.jdbc.core.PreparedStatementCreator;
  *
  */
 public class PrepareStatementBuilder {
+    
+    /**
+     * To get an instance of preparedStatement
+     * 
+     * @param query
+     * @param values
+     * @return
+     */
+    public static PreparedStatementCreator buildPreparedStatementCreator(String query, Object value) {
+        List<Object> objectList = new ArrayList<Object>();
+        objectList.add(value);
+        
+        return buildPreparedStatementCreator(query, objectList);
+    }
+ 
 
     /**
      * To get an instance of preparedStatement

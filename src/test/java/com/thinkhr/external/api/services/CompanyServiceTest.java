@@ -50,6 +50,7 @@ import org.springframework.web.multipart.MultipartFile;
 import com.thinkhr.external.api.ApplicationConstants;
 import com.thinkhr.external.api.db.entities.Company;
 import com.thinkhr.external.api.db.entities.CustomFields;
+import com.thinkhr.external.api.db.learn.entities.LearnCompany;
 import com.thinkhr.external.api.exception.APIErrorCodes;
 import com.thinkhr.external.api.exception.ApplicationException;
 import com.thinkhr.external.api.exception.MessageResourceHandler;
@@ -78,6 +79,9 @@ public class CompanyServiceTest {
 
     @Mock
     private CompanyRepository companyRepository;
+
+    @Mock
+    private LearnCompanyService learnCompanyService;
 
     @InjectMocks
     private CompanyService companyService;
@@ -171,18 +175,26 @@ public class CompanyServiceTest {
      * 
      */
     @Test
-    public void testAddCompany() {
+    public void testAddCompany_whenLearnCompanySaved() {
         //When all data is correct, it should assert true 
         Integer companyId = 1;
-        Company company = createCompany(companyId, "Pepcus", "Software", "PEP", new Date(), "PepcusNotes", "PepcusHelp");
+        Company company = createCompany(companyId, "Pepcus", "Software", "PEP", new Date(), "PepcusNotes",
+                "PepcusHelp");
+
+        LearnCompany learnCompany = ApiTestDataUtil.createLearnCompany(1L, companyId, company.getCompanyName(),
+                company.getCompanyType());
 
         when(companyRepository.save(company)).thenReturn(company);
+        when(learnCompanyService.addLearnCompany(company)).thenReturn(learnCompany);
 
         Company result = companyService.addCompany(company);
         assertEquals(companyId, result.getCompanyId());
         assertEquals("Pepcus", result.getCompanyName());
         assertEquals("Software", result.getCompanyType());
         assertEquals("PEP", result.getDisplayName());
+        assertEquals(result.getCompanyName(), learnCompany.getCompanyName());
+        assertEquals(result.getCompanyId(), learnCompany.getCompanyId());
+        assertEquals(result.getCompanyType(), learnCompany.getCompanyType());
     }
 
     /**
@@ -551,13 +563,13 @@ public class CompanyServiceTest {
         
         int expectedSuccessCount = fileImportResult.getNumSuccessRecords() + 1;
 
-        Mockito.doNothing().when(fileDataRepository).saveCompanyRecord(Mockito.anyListOf(String.class), Mockito.anyListOf(Object.class),
+        Mockito.doReturn(1).when(fileDataRepository).saveCompanyRecord(Mockito.anyListOf(String.class), Mockito.anyListOf(Object.class),
                 Mockito.anyListOf(String.class), Mockito.anyListOf(Object.class));
 
         companyService.populateAndSaveToDB(record, companyColumnsToHeaderMap, locationColumnsToHeaderMap, headerIndexMap,
                 fileImportResult, recCount);
 
-        assertEquals(expectedSuccessCount, fileImportResult.getNumSuccessRecords());
+        assertEquals(1, fileImportResult.getNumSuccessRecords());
     }
 
     /**
