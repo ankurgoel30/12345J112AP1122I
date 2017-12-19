@@ -32,6 +32,7 @@ public class QueryBuilder {
     public static final String SELECT_COMPANY_QUERY = "SELECT * FROM clients";
     public static final String INSERT_LEARN_COMPANY = "INSERT INTO MDL_COMPANY ";
     public static final String INSERT_LEARN_PKG_COMPANY = "INSERT INTO MDL_PACKAGE_COMPANY(packageid, companyid) VALUES (?, ?)";
+    private static final String INSERT_LEARN_USER = "INSERT INTO MDL_USER";
     public static List<String> companyRequiredFields;
     public static List<Object> defaultCompReqFieldValues;
 
@@ -68,6 +69,7 @@ public class QueryBuilder {
                 "thrclientid", "company_name", "company_type","company_key", 
                 "address", "address2", "city", "state", "zip",
                 "partnerid", "phone", "createdby", "timecreated", "timemodified"));
+
     }
     /**
      *   //INSERT INTO locations(address,address2,city,state,zip,client_id) values(?,?,?,?,?,?);
@@ -140,4 +142,14 @@ public class QueryBuilder {
         return buildQuery(INSERT_USER, userColumns);
     }
     
+    /**
+     * Builds insert query for inserting records into mdl_user table for given list of columns
+     * 
+     * @param userColumns
+     * @return
+     */
+    public static String buildLearnUserInsertQuery(List<String> userColumns) {
+        return buildQuery(INSERT_LEARN_USER, userColumns);
+    }
+
 }

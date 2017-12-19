@@ -39,6 +39,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import com.thinkhr.external.api.db.entities.Company;
 import com.thinkhr.external.api.db.entities.User;
+import com.thinkhr.external.api.db.learn.entities.LearnPackageMaster;
 import com.thinkhr.external.api.exception.APIErrorCodes;
 import com.thinkhr.external.api.exception.ApplicationException;
 import com.thinkhr.external.api.model.FileImportResult;
@@ -309,7 +310,7 @@ public class UserService extends CommonService {
             userColumnsToInsert.add(USER_COLUMN_CLIENT_ID);
             userColumnsToInsert.add(USER_COLUMN_PASSWORD);
 
-            fileDataRepository.saveUserRecord(userColumnsToInsert, userColumnValues);
+            saveUserRecord(userColumnValues, userColumnsToInsert);
 
             fileImportResult.increamentSuccessRecords();
         } catch (Exception ex) {
@@ -321,6 +322,28 @@ public class UserService extends CommonService {
         }
 
     }
+
+    /**
+     * Saves User and LearnUser record
+     * @param userColumnValues
+     * @param userColumnsToInsert
+     */
+    @Transactional
+    private void saveUserRecord(List<Object> userColumnValues, List<String> userColumnsToInsert) {
+        Integer userId = fileDataRepository.saveUserRecord(userColumnsToInsert, userColumnValues);
+        User throneUser = this.getUser(userId);
+
+        try {
+            learnUserService.addLearnUserForBulk(throneUser);
+        } catch (Exception ex) {
+            // TODO: FIXME - Ideally this should handled by transaction roll-back; some-reason transaction is not working 
+            // Need some research on it. To manage records properly, explicitly roll-back record. 
+            userRepository.delete(userId);
+            throw ex;
+        }
+
+    }
+
     /**
      * Check validate username is duplicate or not
      *  

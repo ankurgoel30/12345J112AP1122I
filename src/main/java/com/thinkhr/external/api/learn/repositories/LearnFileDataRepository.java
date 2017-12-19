@@ -3,7 +3,9 @@ package com.thinkhr.external.api.learn.repositories;
 import static com.thinkhr.external.api.repositories.PrepareStatementBuilder.buildPreparedStatementCreator;
 import static com.thinkhr.external.api.repositories.QueryBuilder.INSERT_LEARN_COMPANY;
 import static com.thinkhr.external.api.repositories.QueryBuilder.INSERT_LEARN_PKG_COMPANY;
+import static com.thinkhr.external.api.repositories.QueryBuilder.buildLearnUserInsertQuery;
 import static com.thinkhr.external.api.repositories.QueryBuilder.buildQuery;
+import static com.thinkhr.external.api.repositories.QueryBuilder.defaultUserReqFieldValues;
 import static com.thinkhr.external.api.repositories.QueryBuilder.learnCompanyFields;
 
 import java.util.Arrays;
@@ -54,5 +56,23 @@ public class LearnFileDataRepository {
 
         return learnCompanyId;
 
+    }
+    
+    /**
+     * Save learnuser's record 
+     *  
+     * @param userColumnsToInsert
+     * @param userColumnValues
+     */
+    @Transactional
+    public Integer saveLearnUserRecord(List<String> userColumns, List<Object> userColumnValues) {
+
+        String insertLearnUserSql = buildLearnUserInsertQuery(userColumns);
+
+        KeyHolder keyHolder = new GeneratedKeyHolder();
+
+        jdbcTemplate.update(buildPreparedStatementCreator(insertLearnUserSql, userColumnValues), keyHolder);
+        
+        return keyHolder.getKey().intValue();
     }
 }

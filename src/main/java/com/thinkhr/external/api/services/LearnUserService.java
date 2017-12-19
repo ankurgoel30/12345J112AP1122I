@@ -3,13 +3,17 @@ package com.thinkhr.external.api.services;
 import static com.thinkhr.external.api.ApplicationConstants.INACT;
 import static com.thinkhr.external.api.ApplicationConstants.UNDERSCORE;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.thinkhr.external.api.db.entities.User;
-import com.thinkhr.external.api.db.learn.entities.LearnCompany;
 import com.thinkhr.external.api.db.learn.entities.LearnUser;
 import com.thinkhr.external.api.helpers.ModelConvertor;
+import com.thinkhr.external.api.learn.repositories.LearnFileDataRepository;
 import com.thinkhr.external.api.learn.repositories.LearnUserRepository;
 
 /**
@@ -23,6 +27,9 @@ import com.thinkhr.external.api.learn.repositories.LearnUserRepository;
 public class LearnUserService {
     @Autowired
     LearnUserRepository learnUserRepository;
+
+    @Autowired
+    LearnFileDataRepository learnFileDataRepository;
 
 
     @Autowired
@@ -54,6 +61,13 @@ public class LearnUserService {
         return this.addLearnUser(learnUser);
     }
 
+    /**
+     * Generate user name to make user inactive
+     * @param userName
+     * @param companyId
+     * @param brokerId
+     * @return
+     */
     private String generateUserNameForInactive(String userName, Integer companyId, Integer brokerId) {
         return new StringBuffer(userName)
                 .append(INACT)
@@ -62,6 +76,36 @@ public class LearnUserService {
                 .append(UNDERSCORE)
                 .append(brokerId)
                 .toString();
+    }
+
+    /**
+     * Saves learnuser for bulk operation
+     * @param throneUser
+     * @return
+     */
+    public Integer addLearnUserForBulk(User throneUser) {
+
+        List<String> learnUserColumns = new ArrayList<String>(Arrays.asList(
+                "thrcontactid", "username", "password",
+                "firstname", "lastname", "email", "phone1", "companyid"));
+
+        String inactiveUserName = generateUserNameForInactive(throneUser.getUserName(), throneUser.getCompanyId(),
+                throneUser.getBrokerId());
+
+        List<Object> learnUserColumnValues = new ArrayList<Object>(Arrays.asList(
+                throneUser.getUserId(),
+                inactiveUserName,
+                throneUser.getPassword(),
+                throneUser.getFirstName(),
+                throneUser.getLastName(),
+                throneUser.getEmail(),
+                throneUser.getPhone(),
+                throneUser.getCompanyId()
+
+        ));
+
+        return learnFileDataRepository.saveLearnUserRecord(learnUserColumns, learnUserColumnValues);
+
     }
 }
 
