@@ -5,7 +5,6 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 
-import org.hashids.Hashids;
 import org.springframework.stereotype.Service;
 
 import com.thinkhr.external.api.db.entities.Company;
@@ -66,9 +65,11 @@ public class ModelConvertor {
         if (company.getLocation() == null) {
             company.setLocation(new Location());
         }
+        String inactiveCompanyName = LearnCompanyService.generateCompanyNameForInactive(company.getCompanyName(),
+                company.getBroker(), company.getCompanyId());
         List<Object> learnCompanyFields = new ArrayList<Object>(Arrays.asList(
                 company.getCompanyId(), 
-                company.getCompanyName(),
+                inactiveCompanyName,
                 company.getCompanyType(),
                 LearnCompanyService.generateCompanyKey(company.getCompanyId()),
                 company.getLocation().getAddress(),
