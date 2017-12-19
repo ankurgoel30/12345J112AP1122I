@@ -83,6 +83,9 @@ public class ApplicationConstants {
     public static final String APP_AUTH_DATA = "appAuthData";
     
     public static final String DEVELOPMENT_ENV = "dev";
+    
+    public static final String INACT = "_inact";
+    public static final String UNDERSCORE = "_";
 
 
 

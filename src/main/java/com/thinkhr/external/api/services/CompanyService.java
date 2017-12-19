@@ -1,10 +1,10 @@
 package com.thinkhr.external.api.services;
 
 import static com.thinkhr.external.api.ApplicationConstants.COMMA_SEPARATOR;
-import static com.thinkhr.external.api.ApplicationConstants.DEFAULT_SORT_BY_COMPANY_NAME;
-import static com.thinkhr.external.api.ApplicationConstants.TOTAL_RECORDS;
-import static com.thinkhr.external.api.ApplicationConstants.LOCATION;
 import static com.thinkhr.external.api.ApplicationConstants.COMPANY;
+import static com.thinkhr.external.api.ApplicationConstants.DEFAULT_SORT_BY_COMPANY_NAME;
+import static com.thinkhr.external.api.ApplicationConstants.LOCATION;
+import static com.thinkhr.external.api.ApplicationConstants.TOTAL_RECORDS;
 import static com.thinkhr.external.api.request.APIRequestHelper.setRequestAttribute;
 import static com.thinkhr.external.api.response.APIMessageUtil.getMessageFromResourceBundle;
 import static com.thinkhr.external.api.services.upload.FileImportValidator.validateAndGetFileContent;
@@ -27,10 +27,14 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.thinkhr.external.api.ApplicationConstants;
 import com.thinkhr.external.api.db.entities.Company;
+import com.thinkhr.external.api.db.entities.Location;
+import com.thinkhr.external.api.db.learn.entities.LearnPackageMaster;
 import com.thinkhr.external.api.exception.APIErrorCodes;
 import com.thinkhr.external.api.exception.ApplicationException;
 import com.thinkhr.external.api.model.FileImportResult;
@@ -119,8 +123,26 @@ public class CompanyService  extends CommonService {
      * 
      * @param company object
      */
+    @Transactional
     public Company addCompany(Company company)  {
-        return companyRepository.save(company);
+        associateChildEntities(company);
+
+        Company throneCompany = companyRepository.save(company);
+        
+        learnCompanyService.addLearnCompany(throneCompany);// THR-3929 
+
+        return throneCompany;
+    }
+
+    /**
+     * Make a link in child entity with parent entity 
+     * @param company
+     */
+    private void associateChildEntities(Company company) {
+        Location location = company.getLocation();
+        if (location != null && location.getCompany() == null) {
+            location.setCompany(company);
+        }
     }
 
     /**
@@ -137,7 +159,6 @@ public class CompanyService  extends CommonService {
         }
 
         return companyRepository.save(company);
-
     }
 
     /**
@@ -146,15 +167,18 @@ public class CompanyService  extends CommonService {
      * @param companyId
      */
     public int deleteCompany(int companyId) throws ApplicationException {
+        Company company = companyRepository.findOne(companyId);
 
-        if (null == companyRepository.findOne(companyId)) {
+        if (null == company) {
             throw ApplicationException.createEntityNotFoundError(APIErrorCodes.ENTITY_NOT_FOUND, "company", "companyId="+companyId);
         }
 
         companyRepository.softDelete(companyId);
 
+        learnCompanyService.deactivateLearnCompany(company);
+
         return companyId;
-    }    
+    }     
 
     /**
      * Imports a CSV file for companies record
@@ -256,6 +280,7 @@ public class CompanyService  extends CommonService {
      * @param fileImportResult
      * @param recCount
      */
+    @Transactional
     public void populateAndSaveToDB(String record, 
             Map<String, String> companyFileHeaderColumnMap, 
             Map<String, String> locationFileHeaderColumnMap, 
@@ -293,8 +318,8 @@ public class CompanyService  extends CommonService {
             companyColumnsToInsert.add("broker");
             companyColumnsValues.add(fileImportResult.getBrokerId());
 
-            fileDataRepository.saveCompanyRecord(companyColumnsToInsert, companyColumnsValues, locationColumnsToInsert,
-                    locationColumnsValues);
+            saveCompanyRecord(companyColumnsValues, locationColumnsValues,
+                    companyColumnsToInsert, locationColumnsToInsert);
 
             fileImportResult.increamentSuccessRecords();
         } catch (Exception ex) {
@@ -306,6 +331,40 @@ public class CompanyService  extends CommonService {
         }
 
     }
+
+    /**
+     * To persist throne and learn record to-gether.
+     * 
+     * @param companyColumnsValues
+     * @param locationColumnsValues
+     * @param companyColumnsToInsert
+     * @param locationColumnsToInsert
+     */
+    @Transactional(propagation=Propagation.REQUIRED)
+    private void saveCompanyRecord(List<Object> companyColumnsValues,
+            List<Object> locationColumnsValues,
+            List<String> companyColumnsToInsert,
+            List<String> locationColumnsToInsert) {
+        
+        Integer companyId = fileDataRepository.saveCompanyRecord(companyColumnsToInsert, companyColumnsValues,
+                locationColumnsToInsert,
+                locationColumnsValues);
+
+        Company throneCompany = this.getCompany(companyId);
+
+        try {
+            LearnPackageMaster pkg = learnCompanyService.getDefaultPackageMaster();
+            Integer pkgId = pkg == null ? null : pkg.getId().intValue();
+            learnFileRepository.saveLearnCompanyRecord(modelConvertor.getColumnsForInsert(throneCompany), pkgId);
+        } catch (Exception ex) {
+            // TODO: FIXME - Ideally this should handled by transaction roll-back; some-reason transaction is not working with combination of jdbcTemplate and spring
+            // data. Need some research on it. To manage records properly, explicitly roll-back record. 
+            companyRepository.delete(companyId);
+            throw ex;
+        }
+
+    }
+    
     /**
      * TODO: Logic to decide record is duplicate
      * 
