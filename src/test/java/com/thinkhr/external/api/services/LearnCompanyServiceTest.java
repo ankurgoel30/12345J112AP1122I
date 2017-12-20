@@ -13,6 +13,7 @@ import java.util.Date;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
+import org.mockito.Matchers;
 import org.mockito.Mock;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -102,7 +103,7 @@ public class LearnCompanyServiceTest {
         LearnPackageMaster package1 = ApiTestDataUtil.createPacakge(1L, 10, defaultCompanyPackage);
         LearnCompany learnCompany = ApiTestDataUtil.createLearnCompany(1L, 1, "Pepcus", "Software");
 
-        when(packageRepository.findFirstByName(defaultCompanyPackage)).thenReturn(package1);
+        when(packageRepository.findFirstByName(Matchers.any())).thenReturn(package1);
 
         LearnPackageMaster actual = learnService.addPackage(learnCompany, defaultCompanyPackage);
 
