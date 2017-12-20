@@ -29,7 +29,7 @@ public class LearnCompanyRepositoryTest {
      */
     @Test
     public void testSaveForAdd() {
-        LearnCompany company = createLearnCompany(null, 10, "Pepcus", "Software");
+        LearnCompany company = createLearnCompany(null, 11, "Pepcus", "Software");
 
         LearnCompany companySaved = learnCompanyRepository.save(company);
 

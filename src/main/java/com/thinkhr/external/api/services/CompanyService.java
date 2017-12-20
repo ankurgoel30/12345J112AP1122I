@@ -353,9 +353,7 @@ public class CompanyService  extends CommonService {
         Company throneCompany = this.getCompany(companyId);
 
         try {
-            LearnPackageMaster pkg = learnCompanyService.getDefaultPackageMaster();
-            Integer pkgId = pkg == null ? null : pkg.getId().intValue();
-            learnFileRepository.saveLearnCompanyRecord(modelConvertor.getColumnsForInsert(throneCompany), pkgId);
+            learnCompanyService.addLearnCompanyForBulk(throneCompany);
         } catch (Exception ex) {
             // TODO: FIXME - Ideally this should handled by transaction roll-back; some-reason transaction is not working with combination of jdbcTemplate and spring
             // data. Need some research on it. To manage records properly, explicitly roll-back record. 
