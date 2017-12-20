@@ -566,6 +566,12 @@ public class CompanyServiceTest {
         Mockito.doReturn(1).when(fileDataRepository).saveCompanyRecord(Mockito.anyListOf(String.class), Mockito.anyListOf(Object.class),
                 Mockito.anyListOf(String.class), Mockito.anyListOf(Object.class));
 
+        Company company = createCompany(1, "Pepcus", "Software", "PEP", new Date(), "PepcusNotes", "PepcusHelp");
+        when(companyRepository.findOne(1)).thenReturn(company);
+
+        //Mock call to  add LearnCompany for bulk
+        when(learnCompanyService.addLearnCompanyForBulk(Matchers.any())).thenReturn(1);
+
         companyService.populateAndSaveToDB(record, companyColumnsToHeaderMap, locationColumnsToHeaderMap, headerIndexMap,
                 fileImportResult, recCount);
 
