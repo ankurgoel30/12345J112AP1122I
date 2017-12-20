@@ -15,6 +15,6 @@ import com.thinkhr.external.api.db.learn.entities.LearnPackageMaster;
  *
  */
 
-public interface PackageRepository extends PagingAndSortingRepository<LearnPackageMaster, Long>, JpaSpecificationExecutor<LearnCompany> {
+public interface PackageRepository extends PagingAndSortingRepository<LearnPackageMaster, Long>, JpaSpecificationExecutor<LearnPackageMaster> {
     LearnPackageMaster findFirstByName(String name);
 }

@@ -23,6 +23,7 @@ import java.util.Map;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
@@ -53,6 +54,9 @@ import com.thinkhr.external.api.services.upload.FileUploadEnum;
 
 @Service
 public class CompanyService  extends CommonService {
+
+    @Autowired
+    protected LearnCompanyService learnCompanyService;
 
     private Logger logger = LoggerFactory.getLogger(CompanyService.class);
     private static final String resource = COMPANY;
@@ -355,7 +359,7 @@ public class CompanyService  extends CommonService {
         try {
             LearnPackageMaster pkg = learnCompanyService.getDefaultPackageMaster();
             Integer pkgId = pkg == null ? null : pkg.getId().intValue();
-            learnFileRepository.saveLearnCompanyRecord(modelConvertor.getColumnsForInsert(throneCompany), pkgId);
+            learnFileDataRepository.saveLearnCompanyRecord(modelConvertor.getColumnsForInsert(throneCompany), pkgId);
         } catch (Exception ex) {
             // TODO: FIXME - Ideally this should handled by transaction roll-back; some-reason transaction is not working with combination of jdbcTemplate and spring
             // data. Need some research on it. To manage records properly, explicitly roll-back record. 
@@ -416,6 +420,7 @@ public class CompanyService  extends CommonService {
 
         return isDuplicate;
     }
+
 
     /**
      * Return default sort field for company service
