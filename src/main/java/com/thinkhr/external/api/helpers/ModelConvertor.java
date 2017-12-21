@@ -5,7 +5,6 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 
-import org.hashids.Hashids;
 import org.springframework.stereotype.Service;
 
 import com.thinkhr.external.api.db.entities.Company;

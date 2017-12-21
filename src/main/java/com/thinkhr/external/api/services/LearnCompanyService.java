@@ -16,6 +16,7 @@ import com.thinkhr.external.api.db.learn.entities.LearnCompany;
 import com.thinkhr.external.api.db.learn.entities.LearnPackageMaster;
 import com.thinkhr.external.api.helpers.ModelConvertor;
 import com.thinkhr.external.api.learn.repositories.LearnCompanyRepository;
+import com.thinkhr.external.api.learn.repositories.LearnFileDataRepository;
 import com.thinkhr.external.api.learn.repositories.PackageRepository;
 
 /**
@@ -36,6 +37,9 @@ public class LearnCompanyService {
 
     @Autowired
     protected ModelConvertor modelConvertor;
+
+    @Autowired
+    protected LearnFileDataRepository learnFileRepository;
 
     @Value("${com.thinkhr.external.api.learn.default.package}")
     protected String defaultCompanyPackage;
