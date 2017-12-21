@@ -420,6 +420,27 @@ public class CompanyService  extends CommonService {
     }
 
     /**
+     * Enable specific company in database
+     * //TODO: Understand  how this function will be used and what will be the inputs
+     * 
+     * @param companyId
+     */
+    public int activateCompany(int companyId) throws ApplicationException {
+        Company company = companyRepository.findOne(companyId);
+
+        if (null == company) {
+            throw ApplicationException.createEntityNotFoundError(APIErrorCodes.ENTITY_NOT_FOUND, "company",
+                    "companyId=" + companyId);
+        }
+
+        companyRepository.activateCompany(companyId);
+
+        learnCompanyService.activateLearnCompany(company, null);
+
+        return companyId;
+    }
+
+    /**
      * Return default sort field for company service
      * 
      * @return String 

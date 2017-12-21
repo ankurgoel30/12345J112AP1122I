@@ -16,6 +16,7 @@ import java.util.Date;
 import java.util.List;
 
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.thinkhr.external.api.db.entities.Company;
 import com.thinkhr.external.api.db.entities.User;
@@ -183,6 +184,100 @@ public class LearnUserService extends CommonService {
         roleAssignments.add(userRoleAssignment);
 
         return userRoleAssignment;
+    }
+
+    /**
+     * Returns true if LearnUser corresponding to throneUser is deactivated successfully
+     * THR-3932
+     * @param throneUser
+     * @return
+     */
+    public boolean deactivateLearnUser(User throneUser) {
+        if (throneUser == null) {
+            return false;
+        }
+
+        Integer thrUserId = throneUser.getUserId();
+
+        LearnUser learnUser = learnUserRepository.findFirstByThrUserId(thrUserId);
+        if (learnUser == null) {
+            // Skip this as no learnUser exists corresponding to throneUser
+            return true;
+        }
+
+        String inactiveUserName = generateUserNameForInactive(throneUser.getUserName(), throneUser.getCompanyId(),
+                throneUser.getBrokerId());
+
+        learnUser.setUserName(inactiveUserName);
+
+        learnUserRepository.save(learnUser);
+
+        return true;
+    }
+
+    /**
+     * Returns true if learnUser corresponding to throneUser is activated successfully
+     * THR-3932
+     * @param throneUser
+     * @return
+     */
+    public boolean activateLearnUser(User throneUser) {
+        if (throneUser == null) {
+            return false;
+        }
+
+        Integer thrUserId = throneUser.getUserId();
+        LearnUser learnUser = learnUserRepository.findFirstByThrUserId(thrUserId);
+        if (learnUser == null) {
+            // Skip this as no learnUser exists corresponding to throneUser
+            return true;
+        }
+
+        learnUser.setUserName(throneUser.getUserName());
+        learnUserRepository.save(learnUser);
+        return true;
+    }
+
+    /**
+     * Deactivate all LearnUsers corresponding to given throneCompany
+     * THR-3932
+     * @param throneCompany
+     */
+    @Transactional
+    public void deactivateAllLearnUsers(Company throneCompany) {
+        if (throneCompany == null) {
+            return;
+        }
+
+        Integer companyId = throneCompany.getCompanyId();
+        List<User> throneUsers = userRepository.findByCompanyId(companyId);
+
+        if (throneUsers == null) {
+            return;
+        }
+
+        throneUsers.stream().forEach(user -> deactivateLearnUser(user));
+    }
+
+    /**
+     * Activate all LearnUsers corresponding to given throneCompany
+     * THR-3932
+     * @param throneCompany
+     */
+    @Transactional
+    public void activateAllLearnUsers(Company throneCompany) {
+        if (throneCompany == null) {
+            return;
+        }
+
+        Integer companyId = throneCompany.getCompanyId();
+        List<User> throneUsers = userRepository.findByCompanyId(companyId);
+
+        if (throneUsers == null) {
+            return;
+        }
+
+        throneUsers.stream().forEach(user -> activateLearnUser(user));
     }
 }
 
