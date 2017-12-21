@@ -217,6 +217,19 @@ public class LearnCompanyService {
         isActivated = true;
         return isActivated;
     }
+
+    /**
+     * Add learn company
+     * 
+     * @param throneCompany
+     * @return
+     */
+    public Integer addLearnCompanyForBulk(Company throneCompany) {
+        LearnPackageMaster pkg = this.getDefaultPackageMaster();
+        Integer pkgId = pkg == null ? null : pkg.getId().intValue();
+        return learnFileRepository.saveLearnCompanyRecord(modelConvertor.getColumnsForInsert(throneCompany), pkgId);
+
+    }
 }
 
 
