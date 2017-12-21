@@ -1,8 +1,6 @@
 package com.thinkhr.external.api.learn.repositories;
 
-import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.repository.CrudRepository;
-import org.springframework.data.repository.PagingAndSortingRepository;
 
 import com.thinkhr.external.api.db.learn.entities.LearnRole;
 

@@ -33,6 +33,8 @@ public class QueryBuilder {
     public static final String INSERT_LEARN_COMPANY = "INSERT INTO MDL_COMPANY ";
     public static final String INSERT_LEARN_PKG_COMPANY = "INSERT INTO MDL_PACKAGE_COMPANY(packageid, companyid) VALUES (?, ?)";
     private static final String INSERT_LEARN_USER = "INSERT INTO MDL_USER";
+    public static final String INSERT_LEARN_USER_ROLE = "INSERT INTO MDL_ROLE_ASSIGNMENTS(roleid,timemodified,contextid,component,modifierid,itemid,sortorder,userid) Values (?,?,?,?,?,?,?,?)";
+
     public static List<String> companyRequiredFields;
     public static List<Object> defaultCompReqFieldValues;
 

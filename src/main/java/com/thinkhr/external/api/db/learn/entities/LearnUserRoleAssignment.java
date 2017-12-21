@@ -12,7 +12,7 @@ import javax.persistence.Table;
 import lombok.Data;
 
 /**
- * Database entity object for the thinkhr_learn.mdl_role database table.
+ * Database entity object for the thinkhr_learn.mdl_role_assignments database table.
  * 
  * @author Ajay Jain
  * @since 2017-12-19
@@ -22,6 +22,12 @@ import lombok.Data;
 @Table(name = "mdl_role_assignments")
 @Data
 public class LearnUserRoleAssignment {
+    
+    public static final Integer DEFAULT_CONTEXT_ID = 1;
+    public static final Integer DEFAULT_MODIFIER_ID = 0;
+    public static final String DEFAULT_COMPONENT = "";
+    public static final Integer DEFAULT_ITEM_ID = 0;
+    public static final Integer DEFAULT_SORT_ORDER = 0;
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)

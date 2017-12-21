@@ -4,6 +4,11 @@ import static com.thinkhr.external.api.ApplicationConstants.BROKER_ROLE;
 import static com.thinkhr.external.api.ApplicationConstants.INACT;
 import static com.thinkhr.external.api.ApplicationConstants.STUDENT_ROLE;
 import static com.thinkhr.external.api.ApplicationConstants.UNDERSCORE;
+import static com.thinkhr.external.api.db.learn.entities.LearnUserRoleAssignment.DEFAULT_COMPONENT;
+import static com.thinkhr.external.api.db.learn.entities.LearnUserRoleAssignment.DEFAULT_CONTEXT_ID;
+import static com.thinkhr.external.api.db.learn.entities.LearnUserRoleAssignment.DEFAULT_ITEM_ID;
+import static com.thinkhr.external.api.db.learn.entities.LearnUserRoleAssignment.DEFAULT_MODIFIER_ID;
+import static com.thinkhr.external.api.db.learn.entities.LearnUserRoleAssignment.DEFAULT_SORT_ORDER;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -30,6 +35,8 @@ public class LearnUserService extends CommonService {
 
     /**
      * Save learnUser to database
+     * 
+     * THR-3932
      * @param learnUser
      * @return
      */
@@ -39,6 +46,8 @@ public class LearnUserService extends CommonService {
 
     /**
      * Create a learnUser from throneUser and add it to database
+     * 
+     * THR-3932
      * @param throneUser
      * @return
      */
@@ -60,6 +69,8 @@ public class LearnUserService extends CommonService {
 
     /**
      * Return the role name based on the Company to which throneUser belongs
+     * 
+     * THR-3932
      * @param throneUser
      * @return
      */
@@ -79,6 +90,7 @@ public class LearnUserService extends CommonService {
 
     /**
      * Generate user name to make user inactive
+     * THR-3932
      * @param userName
      * @param companyId
      * @param brokerId
@@ -96,6 +108,8 @@ public class LearnUserService extends CommonService {
 
     /**
      * Saves learnUser for bulk operation
+     * 
+     * THR-3932
      * @param throneUser
      * @return
      */
@@ -117,27 +131,35 @@ public class LearnUserService extends CommonService {
                 throneUser.getEmail(),
                 throneUser.getPhone(),
                 throneUser.getCompanyId()
-
         ));
 
-        return learnFileDataRepository.saveLearnUserRecord(learnUserColumns, learnUserColumnValues);
+        String roleName = getRoleName(throneUser);
+        LearnRole learnRole = learnRoleRepository.findFirstByShortName(roleName);
+        Integer roleId = null;
+        if (learnRole != null) {
+            roleId = learnRole.getId();
+        }
+
+        return learnFileDataRepository.saveLearnUserRecord(learnUserColumns, learnUserColumnValues, roleId);
 
     }
 
     /**
      * Add a role to learn user
+     * 
+     * THR-3932
      * @param learnUser
      * @return
      */
     public LearnUserRoleAssignment addUserRoleAssignment(LearnUser learnUser, String roleName) {
         LearnUserRoleAssignment userRoleAssignment = new LearnUserRoleAssignment();
 
-        // Set default values // TODO: remove hardcoding from here 
-        userRoleAssignment.setContextId(1);
-        userRoleAssignment.setModifierId(0);
-        userRoleAssignment.setSortOrder(0);
-        userRoleAssignment.setItemId(0);
-        userRoleAssignment.setComponent("");
+        // Set default values 
+        userRoleAssignment.setContextId(DEFAULT_CONTEXT_ID);
+        userRoleAssignment.setModifierId(DEFAULT_MODIFIER_ID);
+        userRoleAssignment.setSortOrder(DEFAULT_SORT_ORDER);
+        userRoleAssignment.setItemId(DEFAULT_ITEM_ID);
+        userRoleAssignment.setComponent(DEFAULT_COMPONENT);
 
         Date now = new Date();
         userRoleAssignment.setTimeModified(now.getTime());
@@ -145,7 +167,7 @@ public class LearnUserService extends CommonService {
         LearnRole learnRole = learnRoleRepository.findFirstByShortName(roleName);
 
         if (learnRole == null) {
-            //TODO : What to do ?
+            return null;
         }
 
         userRoleAssignment.setLearnRole(learnRole);
