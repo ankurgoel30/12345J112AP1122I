@@ -1,13 +1,13 @@
 package com.thinkhr.external.api.services;
 
 import static com.thinkhr.external.api.ApplicationConstants.COMMA_SEPARATOR;
+import static com.thinkhr.external.api.ApplicationConstants.CONTACT;
+import static com.thinkhr.external.api.ApplicationConstants.DEFAULT_PASSWORD;
 import static com.thinkhr.external.api.ApplicationConstants.DEFAULT_SORT_BY_USER_NAME;
 import static com.thinkhr.external.api.ApplicationConstants.TOTAL_RECORDS;
-import static com.thinkhr.external.api.ApplicationConstants.CONTACT;
+import static com.thinkhr.external.api.ApplicationConstants.USER;
 import static com.thinkhr.external.api.ApplicationConstants.USER_COLUMN_CLIENT_ID;
 import static com.thinkhr.external.api.ApplicationConstants.USER_COLUMN_PASSWORD;
-import static com.thinkhr.external.api.ApplicationConstants.DEFAULT_PASSWORD;
-import static com.thinkhr.external.api.ApplicationConstants.USER;
 import static com.thinkhr.external.api.request.APIRequestHelper.setRequestAttribute;
 import static com.thinkhr.external.api.response.APIMessageUtil.getMessageFromResourceBundle;
 import static com.thinkhr.external.api.services.upload.FileImportValidator.validateAndGetFileContent;
@@ -34,14 +34,15 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.thinkhr.external.api.db.entities.Company;
 import com.thinkhr.external.api.db.entities.User;
+import com.thinkhr.external.api.db.learn.entities.LearnPackageMaster;
 import com.thinkhr.external.api.exception.APIErrorCodes;
 import com.thinkhr.external.api.exception.ApplicationException;
 import com.thinkhr.external.api.model.FileImportResult;
-import com.thinkhr.external.api.repositories.UserRepository;
 import com.thinkhr.external.api.services.crypto.AppEncryptorDecryptor;
 import com.thinkhr.external.api.services.upload.FileUploadEnum;
 
@@ -61,6 +62,9 @@ public class UserService extends CommonService {
     @Autowired
     private AppEncryptorDecryptor encDecyptor;
     
+    @Autowired
+    protected LearnUserService learnUserService;
+
     private static final String resource = USER;
     
     /**
@@ -116,10 +120,16 @@ public class UserService extends CommonService {
 
     /**
      * Add a user in system
+     * Also adds learnUser
+     * 
      * @param User object
      */
+
+    @Transactional
     public User addUser(User user)  {
-        return userRepository.save(user);
+        User throneUser =  userRepository.save(user);
+        learnUserService.addLearnUser(throneUser); //THR-3932
+        return throneUser;
     }
 
     /**
@@ -303,7 +313,7 @@ public class UserService extends CommonService {
             userColumnsToInsert.add(USER_COLUMN_CLIENT_ID);
             userColumnsToInsert.add(USER_COLUMN_PASSWORD);
 
-            fileDataRepository.saveUserRecord(userColumnsToInsert, userColumnValues);
+            saveUserRecord(userColumnValues, userColumnsToInsert);
 
             fileImportResult.increamentSuccessRecords();
         } catch (Exception ex) {
@@ -315,6 +325,28 @@ public class UserService extends CommonService {
         }
 
     }
+
+    /**
+     * Saves User and LearnUser record
+     * @param userColumnValues
+     * @param userColumnsToInsert
+     */
+    @Transactional
+    private void saveUserRecord(List<Object> userColumnValues, List<String> userColumnsToInsert) {
+        Integer userId = fileDataRepository.saveUserRecord(userColumnsToInsert, userColumnValues);
+        User throneUser = this.getUser(userId);
+
+        try {
+            learnUserService.addLearnUserForBulk(throneUser);
+        } catch (Exception ex) {
+            // TODO: FIXME - Ideally this should handled by transaction roll-back; some-reason transaction is not working 
+            // Need some research on it. To manage records properly, explicitly roll-back record. 
+            userRepository.delete(userId);
+            throw ex;
+        }
+
+    }
+
     /**
      * Check validate username is duplicate or not
      *  

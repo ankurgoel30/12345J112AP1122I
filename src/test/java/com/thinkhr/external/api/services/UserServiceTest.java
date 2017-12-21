@@ -95,6 +95,9 @@ public class UserServiceTest {
     @Mock
     private MessageResourceHandler resourceHandler;
 
+    @Mock
+    private LearnUserService learnUserService;
+
     @InjectMocks
     private UserService userService;
 
@@ -176,6 +179,10 @@ public class UserServiceTest {
     public void testAddUser(){
         User user = createUser();
         when(userRepository.save(user)).thenReturn(user);
+
+        //Mock call  to add LearUser frm throneUser
+        when(learnUserService.addLearnUser(user)).thenReturn(null);
+
         User result = userService.addUser(user);
         assertEquals(user.getUserId(), result.getUserId());
         assertEquals(user.getFirstName(), result.getFirstName());
@@ -345,9 +352,14 @@ public class UserServiceTest {
 
         int expectedSuccessCount = fileImportResult.getNumSuccessRecords() + 1;
 
-        Mockito.doNothing().when(fileDataRepository).saveUserRecord(
+        Mockito.doReturn(1).when(fileDataRepository).saveUserRecord(
                 Mockito.anyListOf(String.class),
                 Mockito.anyListOf(Object.class));
+
+        when(userRepository.findOne(Matchers.anyInt())).thenReturn(new User());
+
+        //Mock call  to add LearUser from throneUser
+        when(learnUserService.addLearnUserForBulk(Matchers.any())).thenReturn(null);
 
         userService.populateAndSaveToDB(record, userColumnsToHeaderMap,
                 headerIndexMap, fileImportResult, companyId);

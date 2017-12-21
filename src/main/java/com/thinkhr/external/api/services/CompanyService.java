@@ -23,6 +23,7 @@ import java.util.Map;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
@@ -53,6 +54,9 @@ import com.thinkhr.external.api.services.upload.FileUploadEnum;
 
 @Service
 public class CompanyService  extends CommonService {
+
+    @Autowired
+    protected LearnCompanyService learnCompanyService;
 
     private Logger logger = LoggerFactory.getLogger(CompanyService.class);
     private static final String resource = COMPANY;
@@ -413,6 +417,27 @@ public class CompanyService  extends CommonService {
         }
 
         return isDuplicate;
+    }
+
+    /**
+     * Enable specific company in database
+     * //TODO: Understand  how this function will be used and what will be the inputs
+     * 
+     * @param companyId
+     */
+    public int activateCompany(int companyId) throws ApplicationException {
+        Company company = companyRepository.findOne(companyId);
+
+        if (null == company) {
+            throw ApplicationException.createEntityNotFoundError(APIErrorCodes.ENTITY_NOT_FOUND, "company",
+                    "companyId=" + companyId);
+        }
+
+        companyRepository.activateCompany(companyId);
+
+        learnCompanyService.activateLearnCompany(company, null);
+
+        return companyId;
     }
 
     /**

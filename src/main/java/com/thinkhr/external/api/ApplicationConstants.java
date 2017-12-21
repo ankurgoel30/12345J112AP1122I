@@ -87,6 +87,7 @@ public class ApplicationConstants {
     public static final String INACT = "_inact";
     public static final String UNDERSCORE = "_";
 
-
+    public static final String BROKER_ROLE = "broker";
+    public static final String STUDENT_ROLE = "student";
 
 }

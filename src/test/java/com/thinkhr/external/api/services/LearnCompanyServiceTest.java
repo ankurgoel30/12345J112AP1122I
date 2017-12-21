@@ -15,6 +15,7 @@ import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Matchers;
 import org.mockito.Mock;
+import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ContextConfiguration;
@@ -46,6 +47,9 @@ public class LearnCompanyServiceTest {
 
     @Mock
     private ModelConvertor modelConvertor;
+
+    @Mock
+    private LearnUserService learnUserService;
 
     @Value("${com.thinkhr.external.api.learn.default.package}")
     private String defaultCompanyPackage;
@@ -175,6 +179,9 @@ public class LearnCompanyServiceTest {
 
         when(learnCompanyRepository.findFirstByCompanyIdAndCompanyKey(companyId, companyKey)).thenReturn(learnCompany);
         when(learnCompanyRepository.save(learnCompany)).thenReturn(learnCompany);
+
+        //Mock call to activatte all learnUsers 
+        Mockito.doNothing().when(learnUserService).activateAllLearnUsers(Matchers.any());
 
         boolean isAactivate = learnService.activateLearnCompany(company, companyKey);
 

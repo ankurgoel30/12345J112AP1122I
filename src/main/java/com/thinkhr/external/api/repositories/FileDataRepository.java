@@ -63,7 +63,7 @@ public class FileDataRepository {
      * @param userColumnsToInsert
      * @param userColumnValues
      */
-    public void saveUserRecord(List<String> userColumns,
+    public Integer saveUserRecord(List<String> userColumns,
             List<Object> userColumnValues) {
 
         String insertUserSql = buildUserInsertQuery(userColumns);
@@ -72,6 +72,8 @@ public class FileDataRepository {
 
         userColumnValues.addAll(defaultUserReqFieldValues);
         jdbcTemplate.update(buildPreparedStatementCreator(insertUserSql, userColumnValues), keyHolder);
+        
+        return keyHolder.getKey().intValue();
     }
 
 }
