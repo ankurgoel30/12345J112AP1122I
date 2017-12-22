@@ -40,7 +40,6 @@ import org.springframework.web.multipart.MultipartFile;
 
 import com.thinkhr.external.api.db.entities.Company;
 import com.thinkhr.external.api.db.entities.User;
-import com.thinkhr.external.api.db.learn.entities.LearnRole;
 import com.thinkhr.external.api.exception.APIErrorCodes;
 import com.thinkhr.external.api.exception.ApplicationException;
 import com.thinkhr.external.api.model.FileImportResult;
@@ -144,11 +143,7 @@ public class UserService extends CommonService {
      * @return
      */
     public boolean validateRoleIdFromDB(Integer roleId) {
-        LearnRole role = learnRoleRepository.findOne(roleId);
-        if (role != null) {
-            return true;
-        }
-        return false;
+        return learnRoleRepository.findOne(roleId) == null ? false : true;
     }
 
     /**

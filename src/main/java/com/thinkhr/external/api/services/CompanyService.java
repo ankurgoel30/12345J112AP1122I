@@ -35,7 +35,6 @@ import org.springframework.web.multipart.MultipartFile;
 
 import com.thinkhr.external.api.ApplicationConstants;
 import com.thinkhr.external.api.db.entities.Company;
-import com.thinkhr.external.api.db.entities.Configuration;
 import com.thinkhr.external.api.db.entities.Location;
 import com.thinkhr.external.api.exception.APIErrorCodes;
 import com.thinkhr.external.api.exception.ApplicationException;
@@ -151,11 +150,7 @@ public class CompanyService  extends CommonService {
      * @return
      */
     public boolean validateConfigurationIdFromDB(Integer configurationId) {
-        Configuration configuration = configurationRepository.findOne(configurationId);
-        if (configuration != null) {
-            return true;
-        }
-        return false;
+        return configurationRepository.findOne(configurationId) == null ? false : true;
     }
 
     /**
