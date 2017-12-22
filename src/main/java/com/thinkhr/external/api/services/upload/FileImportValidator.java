@@ -16,7 +16,6 @@ import java.util.regex.Pattern;
 
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang.StringUtils;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.thinkhr.external.api.exception.APIErrorCodes;
@@ -149,6 +148,9 @@ public class FileImportValidator {
             return true;
         }
         String [] colValues = record.split(COMMA_SEPARATOR);
+
+        //Username is generated if not available so skipping it from required fields
+        requiredFields.remove(FileUploadEnum.USER_USER_NAME.getHeader());// THR-3927
 
         for (String field : requiredFields) {
             Integer index = headerIndexMap.get(field); 

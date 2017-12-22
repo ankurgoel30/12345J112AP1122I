@@ -1,10 +1,10 @@
 package com.thinkhr.external.api.services;
 
 import static com.thinkhr.external.api.ApplicationConstants.DEFAULT_SORT_BY_USER_NAME;
+import static com.thinkhr.external.api.ApplicationConstants.UNDERSCORE;
 import static com.thinkhr.external.api.services.utils.EntitySearchUtil.getPageable;
 import static com.thinkhr.external.api.utils.ApiTestDataUtil.createUser;
 import static com.thinkhr.external.api.utils.ApiTestDataUtil.createUserList;
-import static com.thinkhr.external.api.utils.ApiTestDataUtil.getFileRecordForUser;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
@@ -266,11 +266,8 @@ public class UserServiceTest {
      */
     @Test
     public void testCheckDuplicateForUserNameNull() {
-        String record = getFileRecordForUser();
-        FileImportResult fileImportResult = new FileImportResult();
         String userName = null;
-        
-        boolean isDuplicate = userService.checkDuplicate(record, userName, fileImportResult);
+        boolean isDuplicate = userService.checkDuplicate(userName);
         
         assertFalse(isDuplicate);
     }
@@ -281,26 +278,12 @@ public class UserServiceTest {
      */
     @Test
     public void testCheckDuplicateForDuplicateUserName() {
-        String record = getFileRecordForUser();
-        FileImportResult fileImportResult = new FileImportResult();
         String userName = "ajain";
         User user = createUser(1, "Ajay", "Jain", "ajay.jain@pepcus.com", "ajain", "ThinkHR");
         
         when(userRepository.findByUserName(userName)).thenReturn(user);
         
-        try {
-            mockStatic(APIMessageUtil.class);
-
-            PowerMockito.doReturn("DUPLICATE_USER_RECORD").when(APIMessageUtil.class,
-                    "getMessageFromResourceBundle", resourceHandler, APIErrorCodes.DUPLICATE_USER_RECORD, userName);
-
-        } catch (Exception e) {
-            fail("Exception not expected");
-        }
-        
-        boolean isDuplicate = userService.checkDuplicate(record, userName, fileImportResult);
-        
-        assertEquals(1, fileImportResult.getNumFailedRecords());
+        boolean isDuplicate = userService.checkDuplicate(userName);
         assertTrue(isDuplicate);
     }
     
@@ -310,14 +293,11 @@ public class UserServiceTest {
      */
     @Test
     public void testCheckDuplicateForNoDuplicateUserName() {
-        String record = getFileRecordForUser();
-        FileImportResult fileImportResult = new FileImportResult();
         String userName = "ajain";
-        User user = createUser(1, "Ajay", "Jain", "ajay.jain@pepcus.com", "ajain", "ThinkHR");
         
         when(userRepository.findByUserName(userName)).thenReturn(null); 
         
-        boolean isDuplicate = userService.checkDuplicate(record, userName, fileImportResult);
+        boolean isDuplicate = userService.checkDuplicate(userName);
         
         assertFalse(isDuplicate);
     }
@@ -715,6 +695,129 @@ public class UserServiceTest {
             assertEquals(APIErrorCodes.NO_RECORDS_FOUND_FOR_IMPORT,
                     ae.getApiErrorCode());
         }
+    }
+
+    /**
+     * Test to verify generateUserName if userName is not blank and not duplicate
+     * 
+     */
+    @Test
+    public void testGenerateUserName_UsernameNotBlankNotDuplicate() {
+        String userName = "AjayJain1";
+        String email = "ajay.jain@pepcus.com";
+        String firstName = "Ajay";
+        String lastName = "Jain";
+
+        String expectedUserName = "AjayJain1";
+
+        UserService userServiceSpy = Mockito.spy(new UserService());
+        Mockito.doReturn(false).when(userServiceSpy).checkDuplicate(userName);
+        String generatedUserName = userServiceSpy.generateUserName(userName, email, firstName, lastName);
+
+        assertEquals(expectedUserName, generatedUserName);
+    }
+
+    /**
+     * Test to verify generateUserName if userName is blank/null and email not duplicate
+     * 
+     */
+    @Test
+    public void testGenerateUserName_BlankUsername_EmailNotDuplicate() {
+        String userName = null;
+        String email = "ajay.jain@pepcus.com";
+        String firstName = "Ajay";
+        String lastName = "Jain";
+
+        String expectedUserName = "ajay.jain@pepcus.com";
+
+        UserService userServiceSpy = Mockito.spy(new UserService());
+        Mockito.doReturn(false).when(userServiceSpy).checkDuplicate(email);
+        String generatedUserName = userServiceSpy.generateUserName(userName, email, firstName, lastName);
+
+        assertEquals(expectedUserName, generatedUserName);
+    }
+
+    /**
+     * Test to verify generateUserName if userName is duplicate
+     * and name generated from firstName and lastName is not duplicate
+     * 
+     */
+    @Test
+    public void testGenerateUserName_DuplicateUsernameFound() {
+        String userName = "AjayJain1";
+        String email = "ajay.jain@pepcus.com";
+        String firstName = "Ajay";
+        String lastName = "Jain";
+
+        String expectedUserName = "Ajay_Jain_1";
+
+        UserService userServiceSpy = Mockito.spy(new UserService());
+        Mockito.doReturn(true).when(userServiceSpy).checkDuplicate(userName);
+
+        // Mock checkDuplicate so that name generated from firstName and lastName is not duplicate
+        String nameFromFirstNameLastName = firstName + UNDERSCORE + lastName + UNDERSCORE + 1;
+        Mockito.doReturn(false).when(userServiceSpy).checkDuplicate(nameFromFirstNameLastName);
+
+        String generatedUserName = userServiceSpy.generateUserName(userName, email, firstName, lastName);
+
+        assertEquals(expectedUserName, generatedUserName);
+    }
+
+    /**
+     * Test to verify generateUserName if userName is duplicate
+     * and name generated from firstName and lastName is duplicate
+     * in first iteration and not in second iteration
+     * 
+     */
+    @Test
+    public void testGenerateUserName_DuplicateUsernameFound_AgainInFirstIteration() {
+        String userName = "AjayJain1";
+        String email = "ajay.jain@pepcus.com";
+        String firstName = "Ajay";
+        String lastName = "Jain";
+
+        String expectedUserName = "Ajay_Jain_2";
+
+        UserService userServiceSpy = Mockito.spy(new UserService());
+        Mockito.doReturn(true).when(userServiceSpy).checkDuplicate(userName);
+
+        // Mock checkDuplicate so that name generated from firstName and lastName is duplicate in first iteration
+        String nameFromFirstNameLastName = firstName + UNDERSCORE + lastName + UNDERSCORE + 1;
+        Mockito.doReturn(true).when(userServiceSpy).checkDuplicate(nameFromFirstNameLastName);
+
+        // Mock checkDuplicate so that name generated from firstName and lastName is not duplicate in second iteration
+        String nameFromFirstNameLastNameAgain = firstName + UNDERSCORE + lastName + UNDERSCORE + 2;
+        Mockito.doReturn(false).when(userServiceSpy).checkDuplicate(nameFromFirstNameLastNameAgain);
+
+        String generatedUserName = userServiceSpy.generateUserName(userName, email, firstName, lastName);
+
+        assertEquals(expectedUserName, generatedUserName);
+    }
+
+    /**
+     * Test to verify generateUserName if userName is duplicate
+     * and name firstName and lastName is null/blank
+     * 
+     */
+    @Test
+    public void testGenerateUserName_DuplicateUsernameFound_FirstNameLastNameNull() {
+        String userName = "AjayJain1";
+        String email = "ajay.jain@pepcus.com";
+        String firstName = null;
+        String lastName = null;
+
+        String expectedUserName = "null_null_1";
+
+        UserService userServiceSpy = Mockito.spy(new UserService());
+        Mockito.doReturn(true).when(userServiceSpy).checkDuplicate(userName);
+
+        // Mock checkDuplicate so that name generated from firstName and lastName is not duplicate
+        String nameFromFirstNameLastName = firstName + UNDERSCORE + lastName + UNDERSCORE + 1;
+        Mockito.doReturn(false).when(userServiceSpy).checkDuplicate(nameFromFirstNameLastName);
+
+        String generatedUserName = userServiceSpy.generateUserName(userName, email, firstName, lastName);
+
+        assertEquals(expectedUserName, generatedUserName);
     }
 
 }
