@@ -833,7 +833,7 @@ public class UserServiceTest {
         assertEquals(expectedUserName, generatedUserName);
     }
 
-}
+
     /**
      * Test validateRoleIdFromDB method.
      */
