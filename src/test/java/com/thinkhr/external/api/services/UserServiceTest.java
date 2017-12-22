@@ -46,9 +46,12 @@ import com.thinkhr.external.api.db.entities.Company;
 import com.thinkhr.external.api.db.entities.CustomFields;
 import com.thinkhr.external.api.db.entities.StandardFields;
 import com.thinkhr.external.api.db.entities.User;
+import com.thinkhr.external.api.db.learn.entities.LearnRole;
+import com.thinkhr.external.api.db.learn.entities.LearnUser;
 import com.thinkhr.external.api.exception.APIErrorCodes;
 import com.thinkhr.external.api.exception.ApplicationException;
 import com.thinkhr.external.api.exception.MessageResourceHandler;
+import com.thinkhr.external.api.learn.repositories.LearnRoleRepository;
 import com.thinkhr.external.api.model.FileImportResult;
 import com.thinkhr.external.api.repositories.CompanyRepository;
 import com.thinkhr.external.api.repositories.CustomFieldsRepository;
@@ -77,6 +80,9 @@ public class UserServiceTest {
     @Mock
     private UserRepository userRepository;
     
+    @Mock
+    private LearnRoleRepository roleRepository;
+
     @Mock
     private CustomFieldsRepository customFieldsRepository;
 
@@ -178,10 +184,12 @@ public class UserServiceTest {
     @Test
     public void testAddUser(){
         User user = createUser();
-        when(userRepository.save(user)).thenReturn(user);
+        LearnUser learnUser = ApiTestDataUtil.createLearnUser(1L, 10, "Ajay", "Jain", "ajain", "",
+                "ajay.jain@pepcus.com", "9009687639");
 
-        //Mock call  to add LearUser frm throneUser
-        when(learnUserService.addLearnUser(user)).thenReturn(null);
+        when(roleRepository.findOne(user.getRoleId())).thenReturn(new LearnRole());
+        when(userRepository.save(user)).thenReturn(user);
+        when(learnUserService.addLearnUser(user)).thenReturn(learnUser);
 
         User result = userService.addUser(user);
         assertEquals(user.getUserId(), result.getUserId());
@@ -201,9 +209,14 @@ public class UserServiceTest {
     public void testUpdateUser(){
 
         User user = createUser();
+        LearnUser learnUser = ApiTestDataUtil.createLearnUser(1L, 10, "Ajay", "Jain", "ajain", "",
+                "ajay.jain@pepcus.com", "9009687639");
 
         when(userRepository.save(user)).thenReturn(user);
         when(userRepository.findOne(user.getUserId())).thenReturn(user);
+
+        when(learnUserService.updateLearnUser(user)).thenReturn(learnUser);
+
         // Updating first name 
         user.setFirstName("Pepcus - Updated");
         User updatedUser = null;
@@ -715,6 +728,21 @@ public class UserServiceTest {
             assertEquals(APIErrorCodes.NO_RECORDS_FOUND_FOR_IMPORT,
                     ae.getApiErrorCode());
         }
+    }
+
+    /**
+     * Test validateRoleIdFromDB method.
+     */
+    @Test
+    public void testValidateRoleIdFromDB() {
+        Integer roleId = 1;
+        LearnRole role = ApiTestDataUtil.createLearnRole(1, "Agent");
+
+        when(roleRepository.findOne(roleId)).thenReturn(role);
+
+        boolean isValid = userService.validateRoleIdFromDB(roleId);
+
+        assertTrue(isValid);
     }
 
 }

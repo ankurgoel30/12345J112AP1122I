@@ -22,6 +22,7 @@ public enum FileUploadEnum {
     COMPANY_INDUSTRY("industry", "INDUSTRY", "company"),
     COMPANY_SIZE("companysize", "COMPANY_SIZE", "company"),
     COMPANY_PRODUCER("producer", "PRODUCER", "company"),
+    COMPANY_CONFIGURATION("t1_configuration_id", "CONFIGURATION", "company"),
 
     //USER TABLE COLUMNS/HEADERS
     USER_FIRST_NAME("first_name", "FIRST_NAME", "user"),
@@ -30,6 +31,7 @@ public enum FileUploadEnum {
     USER_EMAIL("email", "EMAIL", "user"),
     USER_CLIENT_NAME("client_name", "CLIENT_NAME", "user"),
     USER_PHONE("phone", "PHONE", "user"),
+    USER_ROLE("t1_roleId", "ROLE", "user"),
    // USER_BUSINESS_ID("phone", "BUSINESS_ID", "user"),
 
     //LOCATION COLUMN/HEADERS 

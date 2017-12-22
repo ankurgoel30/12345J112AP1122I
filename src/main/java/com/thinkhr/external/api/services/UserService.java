@@ -4,6 +4,7 @@ import static com.thinkhr.external.api.ApplicationConstants.COMMA_SEPARATOR;
 import static com.thinkhr.external.api.ApplicationConstants.CONTACT;
 import static com.thinkhr.external.api.ApplicationConstants.DEFAULT_PASSWORD;
 import static com.thinkhr.external.api.ApplicationConstants.DEFAULT_SORT_BY_USER_NAME;
+import static com.thinkhr.external.api.ApplicationConstants.ROLE_ID_FOR_INACTIVE;
 import static com.thinkhr.external.api.ApplicationConstants.TOTAL_RECORDS;
 import static com.thinkhr.external.api.ApplicationConstants.USER;
 import static com.thinkhr.external.api.ApplicationConstants.USER_COLUMN_CLIENT_ID;
@@ -39,7 +40,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import com.thinkhr.external.api.db.entities.Company;
 import com.thinkhr.external.api.db.entities.User;
-import com.thinkhr.external.api.db.learn.entities.LearnPackageMaster;
+import com.thinkhr.external.api.db.learn.entities.LearnRole;
 import com.thinkhr.external.api.exception.APIErrorCodes;
 import com.thinkhr.external.api.exception.ApplicationException;
 import com.thinkhr.external.api.model.FileImportResult;
@@ -126,26 +127,53 @@ public class UserService extends CommonService {
      */
 
     @Transactional
-    public User addUser(User user)  {
-        User throneUser =  userRepository.save(user);
+    public User addUser(User user) {
+        Integer roleId = user.getRoleId();
+        if (roleId != null && roleId != ROLE_ID_FOR_INACTIVE && !validateRoleIdFromDB(roleId)) {
+            user.setRoleId(null);
+        }
+        User throneUser = userRepository.save(user);
         learnUserService.addLearnUser(throneUser); //THR-3932
         return throneUser;
+    }
+
+    /**
+     * Validates roleId from the Database.
+     * 
+     * @param roleId
+     * @return
+     */
+    public boolean validateRoleIdFromDB(Integer roleId) {
+        LearnRole role = learnRoleRepository.findOne(roleId);
+        if (role != null) {
+            return true;
+        }
+        return false;
     }
 
     /**
      * Update a user in database
      * 
      * @param User object
-     * @throws ApplicationException 
+     * @throws ApplicationException
      */
+    @Transactional
     public User updateUser(User user) throws ApplicationException  {
         Integer userId = user.getUserId();
 
         if (null == userRepository.findOne(userId)) {
             throw ApplicationException.createEntityNotFoundError(APIErrorCodes.ENTITY_NOT_FOUND, "user", "userId="+userId);
         }
-        //If not passed in model, then object will become in-active.
-        return userRepository.save(user);
+
+        Integer roleId = user.getRoleId();
+        if (roleId != null && roleId != ROLE_ID_FOR_INACTIVE && !validateRoleIdFromDB(roleId)) {
+            user.setRoleId(null);
+        }
+
+        // If not passed in model, then object will become in-active.
+        User throneUser = userRepository.save(user);
+        learnUserService.updateLearnUser(throneUser);
+        return throneUser;
     }
 
     /**
@@ -332,7 +360,7 @@ public class UserService extends CommonService {
      * @param userColumnsToInsert
      */
     @Transactional
-    private void saveUserRecord(List<Object> userColumnValues, List<String> userColumnsToInsert) {
+    public void saveUserRecord(List<Object> userColumnValues, List<String> userColumnsToInsert) {
         Integer userId = fileDataRepository.saveUserRecord(userColumnsToInsert, userColumnValues);
         User throneUser = this.getUser(userId);
 

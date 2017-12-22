@@ -1,11 +1,13 @@
 package com.thinkhr.external.api.repositories;
 
-import static com.thinkhr.external.api.repositories.QueryBuilder.SELECT_COMPANY_QUERY;
+import static com.thinkhr.external.api.repositories.QueryBuilder.SELECT_PORTAL_COMPANY_QUERY;
+import static com.thinkhr.external.api.repositories.QueryBuilder.SELECT_PORTAL_USER_QUERY;
 import static com.thinkhr.external.api.utils.ApiTestDataUtil.getCompanyColumnList;
 import static com.thinkhr.external.api.utils.ApiTestDataUtil.getCompanyColumnValuesList;
 import static com.thinkhr.external.api.utils.ApiTestDataUtil.getLocationColumnList;
 import static com.thinkhr.external.api.utils.ApiTestDataUtil.getLocationsColumnValuesList;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -25,6 +27,8 @@ import org.springframework.test.context.junit4.SpringRunner;
 
 import com.thinkhr.external.api.ApiApplication;
 import com.thinkhr.external.api.db.entities.Company;
+import com.thinkhr.external.api.db.entities.User;
+import com.thinkhr.external.api.utils.ApiTestDataUtil;
 
 
 @RunWith(SpringRunner.class)
@@ -39,7 +43,7 @@ public class FileDataRepositoryTest {
     public void setup() {
         EmbeddedDatabase db = new EmbeddedDatabaseBuilder()
                 .setType(EmbeddedDatabaseType.H2)
-                .addScript("createTables.sql")
+                .addScript("createPortalTables.sql")
                 .build();
         fileRepository.getJdbcTemplate().setDataSource(db);
     }
@@ -57,7 +61,7 @@ public class FileDataRepositoryTest {
         
         fileRepository.saveCompanyRecord(companyList, companyValuesList, locationList, locationValuesList);
         
-        List<Map<String, Object>> rows = fileRepository.getJdbcTemplate().queryForList(SELECT_COMPANY_QUERY);
+        List<Map<String, Object>> rows = fileRepository.getJdbcTemplate().queryForList(SELECT_PORTAL_COMPANY_QUERY);
         Company company = new Company();
         for (Map<String, Object> row : rows) {
             company.setCompanyName((String) row.get("client_name"));
@@ -100,4 +104,51 @@ public class FileDataRepositoryTest {
         fileRepository.saveCompanyRecord(companyList, companyValuesList, locationList, locationValuesList);
     }
     
+    /**
+     * Test to verify when FileDataRepository.saveUserRecord() saves the user
+     * record successfully.
+     */
+    @Test
+    public void testSaveUserRecord() {
+        List<String> userColumnList = ApiTestDataUtil.getUserColumnList();
+        List<Object> userColumnValuesList = ApiTestDataUtil.getUserColumnValuesList();
+        
+        Integer userId = fileRepository.saveUserRecord(userColumnList, userColumnValuesList);
+        
+        List<Map<String, Object>> rows = fileRepository.getJdbcTemplate().queryForList(SELECT_PORTAL_USER_QUERY);
+        User user = new User();
+        for (Map<String, Object> row : rows) {
+            user.setFirstName((String) row.get("First_Name"));
+            user.setLastName((String) row.get("Last_Name"));
+            user.setCompanyName((String) row.get("client_name"));
+            user.setEmail((String) row.get("Email"));
+            user.setUserName((String) row.get("UserName"));
+            user.setPhone((String) row.get("Phone"));
+            user.setCustomField1((String) row.get("t1_customfield1"));
+        }
+
+        assertNotNull(userId);
+        assertEquals("Ajay", user.getFirstName());
+        assertEquals("Jain", user.getLastName());
+        assertEquals("ThinkHR", user.getCompanyName());
+        assertEquals("ajay.jain@pepcus.com", user.getEmail());
+        assertEquals("ajain", user.getUserName());
+        assertEquals("3457893455", user.getPhone());
+        assertEquals("20", user.getCustomField1());
+    }
+    
+    /**
+     * Test to verify when FileDataRepository.saveUserRecord() throws some DB
+     * exception while saving record into DB.
+     */
+    @Test(expected = DataAccessException.class)
+    public void testSaveUserRecordForFailure() {
+        List<String> userList = ApiTestDataUtil.getUserColumnList();
+
+        // User List is empty
+        List<Object> userValuesList = new ArrayList<Object>();
+
+        fileRepository.saveUserRecord(userList, userValuesList);
+    }
+
 }

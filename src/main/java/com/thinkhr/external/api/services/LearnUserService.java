@@ -2,6 +2,7 @@ package com.thinkhr.external.api.services;
 
 import static com.thinkhr.external.api.ApplicationConstants.BROKER_ROLE;
 import static com.thinkhr.external.api.ApplicationConstants.INACT;
+import static com.thinkhr.external.api.ApplicationConstants.ROLE_ID_FOR_INACTIVE;
 import static com.thinkhr.external.api.ApplicationConstants.STUDENT_ROLE;
 import static com.thinkhr.external.api.ApplicationConstants.UNDERSCORE;
 import static com.thinkhr.external.api.db.learn.entities.LearnUserRoleAssignment.DEFAULT_COMPONENT;
@@ -56,16 +57,49 @@ public class LearnUserService extends CommonService {
 
         LearnUser learnUser = modelConvertor.convert(throneUser);
 
-        String inactiveUserName = generateUserNameForInactive(throneUser.getUserName(), throneUser.getCompanyId(),
-                throneUser.getBrokerId());
+        learnUser.setUserName(getLearnUserNameByRoleId(throneUser));
 
         String roleName = getRoleName(throneUser);
 
         addUserRoleAssignment(learnUser, roleName);
 
-        learnUser.setUserName(inactiveUserName);
-
         return this.addLearnUser(learnUser);
+    }
+
+    /**
+     * To update learn user
+     * 
+     * @param learnUser
+     * @return
+     */
+    public LearnUser updateLearnUser(LearnUser learnUser) {
+
+        Long learnUserId = learnUser.getId();
+
+        if (null == learnUserRepository.findOne(learnUserId)) {
+            // TODO : Find what to  do ?
+        }
+
+        return learnUserRepository.save(learnUser);
+    }
+
+    /**
+     * Update a learnUser from throneUser and add it to database
+     * 
+     * @param throneUser
+     * @return
+     */
+    public LearnUser updateLearnUser(User throneUser) {
+
+        LearnUser learnUser = learnUserRepository.findFirstByThrUserId(throneUser.getUserId());
+
+        if (learnUser == null) {
+            // TODO : what to do ?
+        }
+
+        learnUser.setUserName(getLearnUserNameByRoleId(throneUser));
+
+        return this.updateLearnUser(learnUser);
     }
 
     /**
@@ -97,7 +131,7 @@ public class LearnUserService extends CommonService {
      * @param brokerId
      * @return
      */
-    private String generateUserNameForInactive(String userName, Integer companyId, Integer brokerId) {
+    private static String generateUserNameForInactive(String userName, Integer companyId, Integer brokerId) {
         return new StringBuffer(userName)
                 .append(INACT)
                 .append(UNDERSCORE)
@@ -120,12 +154,9 @@ public class LearnUserService extends CommonService {
                 "thrcontactid", "username", "password",
                 "firstname", "lastname", "email", "phone1", "companyid"));
 
-        String inactiveUserName = generateUserNameForInactive(throneUser.getUserName(), throneUser.getCompanyId(),
-                throneUser.getBrokerId());
-
         List<Object> learnUserColumnValues = new ArrayList<Object>(Arrays.asList(
                 throneUser.getUserId(),
-                inactiveUserName,
+                getLearnUserNameByRoleId(throneUser),
                 throneUser.getPassword(),
                 throneUser.getFirstName(),
                 throneUser.getLastName(),
@@ -278,6 +309,22 @@ public class LearnUserService extends CommonService {
         }
 
         throneUsers.stream().forEach(user -> activateLearnUser(user));
+    }
+
+    /**
+     * 
+     * @param throneUser
+     * @return
+     */
+    public static String getLearnUserNameByRoleId(User throneUser) {
+        String learnUserName = null;
+        if (throneUser.getRoleId() != null && throneUser.getRoleId() != ROLE_ID_FOR_INACTIVE) {
+            learnUserName = throneUser.getUserName(); // Active user 
+        } else {
+            learnUserName = generateUserNameForInactive(throneUser.getUserName(), throneUser.getCompanyId(),
+                    throneUser.getBrokerId()); // Inactive User
+        }
+        return learnUserName;
     }
 }
 

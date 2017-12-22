@@ -2,6 +2,7 @@ package com.thinkhr.external.api.services;
 
 import static com.thinkhr.external.api.ApplicationConstants.COMMA_SEPARATOR;
 import static com.thinkhr.external.api.ApplicationConstants.COMPANY;
+import static com.thinkhr.external.api.ApplicationConstants.CONFIGURATION_ID_FOR_INACTIVE;
 import static com.thinkhr.external.api.ApplicationConstants.DEFAULT_SORT_BY_COMPANY_NAME;
 import static com.thinkhr.external.api.ApplicationConstants.LOCATION;
 import static com.thinkhr.external.api.ApplicationConstants.TOTAL_RECORDS;
@@ -34,8 +35,8 @@ import org.springframework.web.multipart.MultipartFile;
 
 import com.thinkhr.external.api.ApplicationConstants;
 import com.thinkhr.external.api.db.entities.Company;
+import com.thinkhr.external.api.db.entities.Configuration;
 import com.thinkhr.external.api.db.entities.Location;
-import com.thinkhr.external.api.db.learn.entities.LearnPackageMaster;
 import com.thinkhr.external.api.exception.APIErrorCodes;
 import com.thinkhr.external.api.exception.ApplicationException;
 import com.thinkhr.external.api.model.FileImportResult;
@@ -131,6 +132,11 @@ public class CompanyService  extends CommonService {
     public Company addCompany(Company company)  {
         associateChildEntities(company);
 
+        Integer configurationId = company.getConfigurationId();
+        if (configurationId != null && configurationId != CONFIGURATION_ID_FOR_INACTIVE
+                && !validateConfigurationIdFromDB(configurationId)) {
+            company.setConfigurationId(null);
+        }
         Company throneCompany = companyRepository.save(company);
         
         learnCompanyService.addLearnCompany(throneCompany);// THR-3929 
@@ -139,7 +145,22 @@ public class CompanyService  extends CommonService {
     }
 
     /**
-     * Make a link in child entity with parent entity 
+     * Validates configurationId from the Database.
+     * 
+     * @param configurationId
+     * @return
+     */
+    public boolean validateConfigurationIdFromDB(Integer configurationId) {
+        Configuration configuration = configurationRepository.findOne(configurationId);
+        if (configuration != null) {
+            return true;
+        }
+        return false;
+    }
+
+    /**
+     * Make a link in child entity with parent entity
+     * 
      * @param company
      */
     private void associateChildEntities(Company company) {
@@ -155,14 +176,27 @@ public class CompanyService  extends CommonService {
      * @param company object
      * @throws ApplicationException 
      */
-    public Company updateCompany(Company company) throws ApplicationException  {
+    @Transactional
+    public Company updateCompany(Company company) throws ApplicationException {
+        associateChildEntities(company);
+
         Integer companyId = company.getCompanyId();
 
         if (null == companyRepository.findOne(companyId)) {
             throw ApplicationException.createEntityNotFoundError(APIErrorCodes.ENTITY_NOT_FOUND, "company", "companyId="+companyId);
         }
 
-        return companyRepository.save(company);
+        Integer configurationId = company.getConfigurationId();
+        if (configurationId != null && configurationId != CONFIGURATION_ID_FOR_INACTIVE
+                && !validateConfigurationIdFromDB(configurationId)) {
+            company.setConfigurationId(null);
+        }
+
+        Company throneCompany = companyRepository.save(company);
+
+        learnCompanyService.updateLearnCompany(throneCompany);
+
+        return throneCompany;
     }
 
     /**
@@ -345,7 +379,7 @@ public class CompanyService  extends CommonService {
      * @param locationColumnsToInsert
      */
     @Transactional(propagation=Propagation.REQUIRED)
-    private void saveCompanyRecord(List<Object> companyColumnsValues,
+    public void saveCompanyRecord(List<Object> companyColumnsValues,
             List<Object> locationColumnsValues,
             List<String> companyColumnsToInsert,
             List<String> locationColumnsToInsert) {
