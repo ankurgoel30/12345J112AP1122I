@@ -30,4 +30,5 @@ artifacts:
   files:
     - target/japi-$VERSION-$TARGET.jar
     - buildspecDOCKER.yml
+    - Dockerfile.AWS
   discard-paths: yes
