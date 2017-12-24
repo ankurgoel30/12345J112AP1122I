@@ -26,8 +26,8 @@ phases:
     commands:
       - echo Entered the build phase...
       - echo Build started on `date`
-      - docker build -t thr-japi --file Dockerfile.AWS --build-arg VER=$VERSION-$TARGET .
-      - docker tag thr-japi:latest 743115313691.dkr.ecr.us-west-2.amazonaws.com/thr-japi:$TARGET
+      - docker build -t thr-japi:$TARGET --file Dockerfile.AWS --build-arg VER=$VERSION-$TARGET .
+      - docker tag thr-japi:$TARGET 743115313691.dkr.ecr.us-west-2.amazonaws.com/thr-japi:$TARGET
   post_build:
     commands:
       - echo Entered the post_build phase...
