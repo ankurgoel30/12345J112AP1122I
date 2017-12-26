@@ -2,6 +2,7 @@ package com.thinkhr.external.api.services;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.fail;
 import static org.mockito.Mockito.when;
 
@@ -16,16 +17,19 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringRunner;
 
 import com.thinkhr.external.api.ApiApplication;
+import com.thinkhr.external.api.ApplicationConstants;
 import com.thinkhr.external.api.db.entities.Company;
 import com.thinkhr.external.api.db.entities.User;
 import com.thinkhr.external.api.db.learn.entities.LearnRole;
 import com.thinkhr.external.api.db.learn.entities.LearnUser;
+import com.thinkhr.external.api.db.learn.entities.LearnUserRoleAssignment;
 import com.thinkhr.external.api.exception.ApplicationException;
 import com.thinkhr.external.api.helpers.ModelConvertor;
 import com.thinkhr.external.api.learn.repositories.LearnFileDataRepository;
 import com.thinkhr.external.api.learn.repositories.LearnRoleRepository;
 import com.thinkhr.external.api.learn.repositories.LearnUserRepository;
 import com.thinkhr.external.api.repositories.CompanyRepository;
+import com.thinkhr.external.api.repositories.UserRepository;
 import com.thinkhr.external.api.utils.ApiTestDataUtil;
 
 @RunWith(SpringRunner.class)
@@ -35,6 +39,9 @@ public class LearnUserServiceTest {
 
     @Mock
     private LearnUserRepository learnUserRepository;
+
+    @Mock
+    private UserRepository userRepository;
 
     @Mock
     private CompanyRepository companyRepository;
@@ -173,6 +180,167 @@ public class LearnUserServiceTest {
         Integer learnUserId = learnService.addLearnUserForBulk(user);
 
         assertNotNull(learnUserId);
+    }
+
+    /**
+     * Test to verify getRoleName method.
+     * 
+     */
+    @Test
+    public void testGetRoleName_ForBroker() {
+        User user = ApiTestDataUtil.createUser();
+        Company company = ApiTestDataUtil.createCompany();
+
+        when(companyRepository.findOne(user.getCompanyId())).thenReturn(company);
+
+        String roleName = learnService.getRoleName(user);
+
+        assertEquals(ApplicationConstants.BROKER_ROLE, roleName);
+    }
+
+    /**
+     * Test to verify getRoleName method.
+     * 
+     */
+    @Test
+    public void testGetRoleName_ForStudent() {
+        User user = ApiTestDataUtil.createUser();
+        Company company = ApiTestDataUtil.createCompany();
+        company.setBroker(1);
+
+        when(companyRepository.findOne(user.getCompanyId())).thenReturn(company);
+
+        String roleName = learnService.getRoleName(user);
+
+        assertEquals(ApplicationConstants.STUDENT_ROLE, roleName);
+    }
+
+    /**
+     * Test to verify addUserRoleAssignment method.
+     */
+    @Test
+    public void testAddUserRoleAssignment() {
+        LearnUser learnUser = ApiTestDataUtil.createLearnUser(1L, 10, "Ajay", "Jain", "ajain", "",
+                "ajay.jain@pepcus.com", "9009876543");
+        String roleName = "Test Agent";
+        LearnRole role = ApiTestDataUtil.createLearnRole(1, "Test Agent");
+
+        when(learnRoleRepository.findFirstByShortName(roleName)).thenReturn(role);
+
+        LearnUserRoleAssignment userRoleAssignment = learnService.addUserRoleAssignment(learnUser, roleName);
+
+        assertEquals(roleName, userRoleAssignment.getLearnRole().getName());
+        assertEquals(learnUser.getUserName(), userRoleAssignment.getLearnUser().getUserName());
+    }
+
+    /**
+     * Test to verify addUserRoleAssignment method.
+     */
+    @Test
+    public void testAddUserRoleAssignment_ForLearnUserNull() {
+        LearnUser learnUser = null;
+        String roleName = "Test Agent";
+        LearnRole role = ApiTestDataUtil.createLearnRole(1, "Test Agent");
+
+        when(learnRoleRepository.findFirstByShortName(roleName)).thenReturn(role);
+
+        LearnUserRoleAssignment userRoleAssignment = learnService.addUserRoleAssignment(learnUser, roleName);
+
+        assertNull(userRoleAssignment);
+    }
+
+    /**
+     * Test to verify deactivateAllLearnUsers method.
+     */
+    @Test
+    public void testDeactivateAllLearnUsers() {
+        Company company = ApiTestDataUtil.createCompany();
+        List<User> userList = ApiTestDataUtil.createUserList();
+        LearnUser learnUser = new LearnUser();
+
+        when(userRepository.findByCompanyId(company.getCompanyId())).thenReturn(userList);
+
+        for (User user : userList) {
+            when(learnUserRepository.findFirstByThrUserId(user.getUserId())).thenReturn(learnUser);
+            when(learnUserRepository.save(learnUser)).thenReturn(learnUser);
+        }
+
+        learnService.deactivateAllLearnUsers(company);
+    }
+
+    /**
+     * Test to verify activateAllLearnUsers method.
+     */
+    @Test
+    public void testActivateAllLearnUsers() {
+        Company company = ApiTestDataUtil.createCompany();
+        List<User> userList = ApiTestDataUtil.createUserList();
+        LearnUser learnUser = new LearnUser();
+
+        when(userRepository.findByCompanyId(company.getCompanyId())).thenReturn(userList);
+
+        for (User user : userList) {
+            when(learnUserRepository.findFirstByThrUserId(user.getUserId())).thenReturn(learnUser);
+            when(learnUserRepository.save(learnUser)).thenReturn(learnUser);
+        }
+
+        learnService.activateAllLearnUsers(company);
+    }
+
+    /**
+     * Test to verify getLearnUserNameByRoleId method.
+     * 
+     */
+    @Test
+    public void testGetLearnUserNameByRoleId_ForInactive() {
+        User user = ApiTestDataUtil.createUser();
+        user.setRoleId(-1);
+
+        String learnUserName = LearnUserService.getLearnUserNameByRoleId(user);
+
+        assertEquals("sbhawsar_inact_null_null", learnUserName);
+    }
+
+    /**
+     * Test to verify getLearnUserNameByRoleId method.
+     * 
+     */
+    @Test
+    public void testGetLearnUserNameByRoleId_ForActive() {
+        User user = ApiTestDataUtil.createUser();
+        user.setRoleId(1);
+
+        String learnUserName = LearnUserService.getLearnUserNameByRoleId(user);
+
+        assertEquals("sbhawsar", learnUserName);
+    }
+
+    /**
+     * Test to verify generateUserNameForInactive method.
+     */
+    @Test
+    public void testGenerateUserNameForInactive_ForBrokerIdNull() {
+        String userName = "ajain";
+        Integer companyId = 2;
+        Integer brokerId = null;
+
+        String inactiveName = LearnUserService.generateUserNameForInactive(userName, companyId, brokerId);
+
+        assertEquals("ajain_inact_2_null", inactiveName);
+    }
+
+    /**
+     * Test to verify generateUserNameForInactive method.
+     */
+    @Test
+    public void testGenerateUserNameForInactive_ForCompanyIdNull() {
+        String userName = "ajain";
+        Integer companyId = null;
+        Integer brokerId = 1;
+
+        String inactiveName = LearnUserService.generateUserNameForInactive(userName, companyId, brokerId);
+
+        assertEquals("ajain_inact_null_1", inactiveName);
     }
 
 }

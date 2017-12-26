@@ -131,7 +131,7 @@ public class LearnUserService extends CommonService {
      * @param brokerId
      * @return
      */
-    private static String generateUserNameForInactive(String userName, Integer companyId, Integer brokerId) {
+    public static String generateUserNameForInactive(String userName, Integer companyId, Integer brokerId) {
         return new StringBuffer(userName)
                 .append(INACT)
                 .append(UNDERSCORE)
@@ -184,6 +184,10 @@ public class LearnUserService extends CommonService {
      * @return
      */
     public LearnUserRoleAssignment addUserRoleAssignment(LearnUser learnUser, String roleName) {
+        if (learnUser == null) {
+            return null;
+        }
+
         LearnUserRoleAssignment userRoleAssignment = new LearnUserRoleAssignment();
 
         // Set default values 
