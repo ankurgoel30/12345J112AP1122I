@@ -18,6 +18,8 @@ import javax.persistence.TemporalType;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 
+import org.hibernate.annotations.DynamicInsert;
+import org.hibernate.annotations.DynamicUpdate;
 import org.hibernate.annotations.Where;
 import org.hibernate.validator.constraints.Email;
 
@@ -40,6 +42,8 @@ import lombok.Data;
 @Data
 @Table(name="contacts")
 @Where(clause="active=1")
+@DynamicUpdate
+@DynamicInsert
 @JsonInclude(Include.NON_EMPTY) 
 public class User implements SearchableEntity {
 

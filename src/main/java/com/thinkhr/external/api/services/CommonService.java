@@ -2,6 +2,7 @@ package com.thinkhr.external.api.services;
 
 import static com.thinkhr.external.api.services.utils.FileImportUtil.getCustomFieldPrefix;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -10,6 +11,8 @@ import java.util.Map;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.ObjectReader;
 import com.thinkhr.external.api.db.entities.Company;
 import com.thinkhr.external.api.db.entities.CustomFields;
 import com.thinkhr.external.api.db.entities.StandardFields;
@@ -170,4 +173,20 @@ public class CommonService {
         return list;
     }
     
+    
+    /**
+     * This function overwrites values from given json string in to given objectToUpdate
+     * 
+     * @param json
+     * @param objectToUpdate
+     * @return
+     * @throws IOException
+     */
+    public static <T> T update(String json, T objectToUpdate) throws IOException {
+        ObjectMapper objectMapper = new ObjectMapper();
+        objectMapper.setDefaultMergeable(true); // This is required for deep update. Available in jackson-databind from 2.9 version
+        ObjectReader updater = objectMapper.readerForUpdating(objectToUpdate);
+
+        return updater.readValue(json);
+    }
 }

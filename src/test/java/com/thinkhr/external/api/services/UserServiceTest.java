@@ -198,7 +198,7 @@ public class UserServiceTest {
      */
 
     @Test
-    public void testUpdateUser(){
+    public void testUpdateUser() throws Exception {
 
         User user = createUser();
 
@@ -206,9 +206,11 @@ public class UserServiceTest {
         when(userRepository.findOne(user.getUserId())).thenReturn(user);
         // Updating first name 
         user.setFirstName("Pepcus - Updated");
+
+        String userJson = ApiTestDataUtil.getJsonString(user);
         User updatedUser = null;
         try {
-            updatedUser = userService.updateUser(user);
+            updatedUser = userService.updateUser(user.getUserId(), userJson);
         } catch (ApplicationException e) {
             fail("Not expecting application exception for a valid test case");
         }
@@ -217,16 +219,19 @@ public class UserServiceTest {
 
     /**
      * To verify updateUser method when userRepository doesn't find a match for given userId.
+     * @throws Exception 
      * 
      */
 
     @Test
-    public void testUpdateUserForEntityNotFound(){
+    public void testUpdateUserForEntityNotFound() throws Exception {
         Integer userId = 1;
         User user = createUser(null, "Jason", "Garner", "jgarner@gmail.com", "jgarner", "Pepcus");
         when(userRepository.findOne(userId)).thenReturn(null);
+
+        String userJson = ApiTestDataUtil.getJsonString(user);
         try {
-            userService.updateUser(user);
+            userService.updateUser(user.getUserId(), userJson);
         } catch (ApplicationException e) {
             assertEquals(APIErrorCodes.ENTITY_NOT_FOUND, e.getApiErrorCode());
         }

@@ -19,6 +19,8 @@ import javax.persistence.TemporalType;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 
+import org.hibernate.annotations.DynamicInsert;
+import org.hibernate.annotations.DynamicUpdate;
 import org.hibernate.annotations.Where;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
@@ -43,6 +45,8 @@ import lombok.Data;
 @Table(name = "clients")
 @Data
 @Where(clause="t1_is_active=1")
+@DynamicUpdate
+@DynamicInsert
 @JsonInclude(Include.NON_EMPTY) 
 public class Company implements SearchableEntity {
     @Id

@@ -14,6 +14,7 @@ import static com.thinkhr.external.api.services.utils.FileImportUtil.getRequired
 import static com.thinkhr.external.api.services.utils.FileImportUtil.populateColumnValues;
 import static com.thinkhr.external.api.services.utils.FileImportUtil.validateAndFilterCustomHeaders;
 
+import java.io.IOException;
 import java.sql.DataTruncation;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -32,14 +33,15 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.thinkhr.external.api.ApplicationConstants;
 import com.thinkhr.external.api.db.entities.Company;
 import com.thinkhr.external.api.db.entities.Location;
-import com.thinkhr.external.api.db.learn.entities.LearnPackageMaster;
 import com.thinkhr.external.api.exception.APIErrorCodes;
 import com.thinkhr.external.api.exception.ApplicationException;
 import com.thinkhr.external.api.model.FileImportResult;
 import com.thinkhr.external.api.services.upload.FileUploadEnum;
+import com.thinkhr.external.api.services.utils.CommonUtil;
 
 /**
  *
@@ -150,19 +152,25 @@ public class CompanyService  extends CommonService {
     }
 
     /**
-     * Update a company in database
      * 
-     * @param company object
-     * @throws ApplicationException 
+     * @param companyId
+     * @param companyJson
+     * @return
+     * @throws ApplicationException
+     * @throws IOException 
+     * @throws JsonProcessingException 
      */
-    public Company updateCompany(Company company) throws ApplicationException  {
-        Integer companyId = company.getCompanyId();
+    public Company updateCompany(Integer companyId, String companyJson)
+            throws ApplicationException, JsonProcessingException, IOException {
 
-        if (null == companyRepository.findOne(companyId)) {
+        Company companyInDb = companyRepository.findOne(companyId);
+        if (null == companyInDb) {
             throw ApplicationException.createEntityNotFoundError(APIErrorCodes.ENTITY_NOT_FOUND, "company", "companyId="+companyId);
         }
 
-        return companyRepository.save(company);
+        Company updatedCompany = update(companyJson, companyInDb);
+        associateChildEntities(updatedCompany);
+        return companyRepository.save(updatedCompany);
     }
 
     /**

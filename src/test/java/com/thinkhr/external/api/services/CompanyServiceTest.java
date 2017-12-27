@@ -214,11 +214,15 @@ public class CompanyServiceTest {
         // Updating company name 
         company.setCompanyName("Pepcus - Updated");
 
+
         Company companyUpdated = null;
         try {
-            companyUpdated = companyService.updateCompany(company);
+            String companyJson = ApiTestDataUtil.getJsonString(company);
+            companyUpdated = companyService.updateCompany(company.getCompanyId(), companyJson);
         } catch (ApplicationException e) {
             fail("Not expecting application exception for a valid test case");
+        } catch (Exception e) {
+            fail("Exception not expected");
         }
         assertEquals("Pepcus - Updated", companyUpdated.getCompanyName());
     }
@@ -234,10 +238,15 @@ public class CompanyServiceTest {
         Integer companyId = 1;
         Company company = createCompany(companyId, "Pepcus", "Software", "PEP", new Date(), "PepcusNotes", "PepcusHelp");
         when(companyRepository.findOne(companyId)).thenReturn(null);
+
+
         try {
-            companyService.updateCompany(company);
+            String companyJson = ApiTestDataUtil.getJsonString(company);
+            companyService.updateCompany(company.getCompanyId(), companyJson);
         } catch (ApplicationException e) {
             assertEquals(APIErrorCodes.ENTITY_NOT_FOUND, e.getApiErrorCode());
+        } catch (Exception e) {
+            fail("Exception not expected");
         }
     }
 

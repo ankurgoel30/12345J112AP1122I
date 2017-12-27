@@ -99,13 +99,14 @@ public class UserController {
      * Update a user in database
      * 
      * @param User object
+     * @throws IOException 
      */
     @RequestMapping(method=RequestMethod.PUT, value="/{userId}")
     public ResponseEntity <User> updateUser(@PathVariable(name="userId", value = "userId") Integer userId, 
-            @Valid @RequestBody User user) throws ApplicationException {
-        user.setUserId(userId);
-        userService.updateUser(user);
-        return new ResponseEntity<User> (user, HttpStatus.OK);
+            @RequestBody String userJson) throws ApplicationException, IOException {
+
+        User updatedUser = userService.updateUser(userId, userJson);
+        return new ResponseEntity<User>(updatedUser, HttpStatus.OK);
     }
 
 

@@ -22,6 +22,7 @@ import static com.thinkhr.external.api.services.utils.FileImportUtil.getValueFro
 import static com.thinkhr.external.api.services.utils.FileImportUtil.populateColumnValues;
 import static com.thinkhr.external.api.services.utils.FileImportUtil.validateAndFilterCustomHeaders;
 
+import java.io.IOException;
 import java.sql.DataTruncation;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -46,6 +47,7 @@ import com.thinkhr.external.api.exception.ApplicationException;
 import com.thinkhr.external.api.model.FileImportResult;
 import com.thinkhr.external.api.services.crypto.AppEncryptorDecryptor;
 import com.thinkhr.external.api.services.upload.FileUploadEnum;
+import com.thinkhr.external.api.services.utils.CommonUtil;
 
 /**
  * The UserService class provides a collection of all
@@ -138,15 +140,18 @@ public class UserService extends CommonService {
      * 
      * @param User object
      * @throws ApplicationException 
+     * @throws IOException 
      */
-    public User updateUser(User user) throws ApplicationException  {
-        Integer userId = user.getUserId();
+    public User updateUser(Integer userId, String userJson) throws ApplicationException, IOException {
 
-        if (null == userRepository.findOne(userId)) {
+        User userInDb = userRepository.findOne(userId);
+        if (null == userInDb) {
             throw ApplicationException.createEntityNotFoundError(APIErrorCodes.ENTITY_NOT_FOUND, "user", "userId="+userId);
         }
-        //If not passed in model, then object will become in-active.
-        return userRepository.save(user);
+        
+        User updatedUser = update(userJson, userInDb);
+
+        return userRepository.save(updatedUser);
     }
 
     /**
