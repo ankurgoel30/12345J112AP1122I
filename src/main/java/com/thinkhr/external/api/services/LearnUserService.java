@@ -82,7 +82,7 @@ public class LearnUserService extends CommonService {
             return null;
         }
 
-        if (throneCompany.isBroker()) {
+        if (throneCompany.isBrokerCompany()) {
             return BROKER_ROLE;
         } else {
             return STUDENT_ROLE;

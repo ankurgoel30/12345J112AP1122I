@@ -35,7 +35,6 @@ import org.springframework.web.multipart.MultipartFile;
 import com.thinkhr.external.api.ApplicationConstants;
 import com.thinkhr.external.api.db.entities.Company;
 import com.thinkhr.external.api.db.entities.Location;
-import com.thinkhr.external.api.db.learn.entities.LearnPackageMaster;
 import com.thinkhr.external.api.exception.APIErrorCodes;
 import com.thinkhr.external.api.exception.ApplicationException;
 import com.thinkhr.external.api.model.FileImportResult;
@@ -128,8 +127,17 @@ public class CompanyService  extends CommonService {
      * @param company object
      */
     @Transactional
-    public Company addCompany(Company company)  {
+    public Company addCompany(Company company, Integer brokerId) {
+
+        Company broker = validateAndGetBroker(brokerId);
+
+        // setting valid brokerId for company. 
+        company.setBroker(broker.getCompanyId());
+
         associateChildEntities(company);
+
+        // Checking Duplicate company name
+        validateDuplicateCompany(company);
 
         Company throneCompany = companyRepository.save(company);
         
@@ -155,14 +163,58 @@ public class CompanyService  extends CommonService {
      * @param company object
      * @throws ApplicationException 
      */
-    public Company updateCompany(Company company) throws ApplicationException  {
+    public Company updateCompany(Company company, Integer brokerId) throws ApplicationException {
         Integer companyId = company.getCompanyId();
 
         if (null == companyRepository.findOne(companyId)) {
             throw ApplicationException.createEntityNotFoundError(APIErrorCodes.ENTITY_NOT_FOUND, "company", "companyId="+companyId);
         }
 
+        Company broker = validateAndGetBroker(brokerId);
+
+        // setting valid brokerId for company. 
+        company.setBroker(broker.getCompanyId());
+
+        associateChildEntities(company);
+
+        // Checking Duplicate company name
+        validateDuplicateCompany(company);
+
         return companyRepository.save(company);
+    }
+
+    /**
+     * To check whether company name already exists in DB.
+     * 
+     * @param company
+     * @return
+     */
+    public void validateDuplicateCompany(Company company) {
+
+        boolean isDuplicate = false;
+
+        boolean isSpecial = (company.getBroker().equals(ApplicationConstants.SPECIAL_CASE_BROKER1) ||
+                             company.getBroker().equals(ApplicationConstants.SPECIAL_CASE_BROKER2)); 
+        
+        //find matching company by given company name and broker id
+        Company companyFromDB = companyRepository.findFirstByCompanyNameAndBroker(company.getCompanyName(),
+                company.getBroker());
+
+        if (null != companyFromDB) { //A DB query is must here to check duplicates in data
+            if (!isSpecial) {
+                isDuplicate = true;
+            }
+            // handle special case of Paychex
+            // find matching company by given company name, custom1 field and broker id
+            if (isSpecial && companyRepository.findFirstByCompanyNameAndCustom1AndBroker(company.getCompanyName(),
+                    company.getCustom1(), company.getBroker()) != null) {
+                isDuplicate = true;
+            }
+            if (isDuplicate) {
+                throw ApplicationException.createBadRequest(APIErrorCodes.DUPLICATE_COMPANY_RECORD,
+                        company.getCompanyName());
+            } 
+        }
     }
 
     /**

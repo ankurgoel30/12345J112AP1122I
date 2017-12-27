@@ -8,6 +8,7 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
+import javax.validation.constraints.NotNull;
 
 import org.hibernate.annotations.DynamicInsert;
 import org.hibernate.annotations.DynamicUpdate;
@@ -36,11 +37,20 @@ public class Location {
     @Id
     @GeneratedValue(strategy=GenerationType.AUTO)
     Integer locationId;
-    
+
+    @NotNull
     String address;
+    
+    @NotNull
     String address2;
+    
+    @NotNull
     String city;
+    
+    @NotNull
     String state;
+    
+    @NotNull
     String zip;
     
     @OneToOne(fetch=FetchType.LAZY)

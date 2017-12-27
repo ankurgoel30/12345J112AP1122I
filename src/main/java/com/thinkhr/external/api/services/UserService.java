@@ -127,7 +127,28 @@ public class UserService extends CommonService {
      */
 
     @Transactional
-    public User addUser(User user)  {
+    public User addUser(User user, Integer brokerId) {
+
+        Company broker = validateAndGetBroker(brokerId);
+
+        Company company = companyRepository.findFirstByCompanyNameAndBroker(user.getCompanyName(),
+                broker.getCompanyId());
+
+        if (company == null) {
+            throw ApplicationException.createBadRequest(APIErrorCodes.INVALID_CLIENT_NAME, user.getCompanyName(),
+                    String.valueOf(broker.getCompanyId()));
+        }
+
+        user.setCompanyId(company.getCompanyId());
+        user.setBrokerId(broker.getCompanyId());
+
+        // THR-3927 [Start]
+        String userName = generateUserName(user.getUserName(), user.getEmail(), user.getFirstName(),
+                user.getLastName());
+
+        user.setUserName(userName);
+        // THR-3927 [End]
+
         User throneUser =  userRepository.save(user);
         learnUserService.addLearnUser(throneUser); //THR-3932
         return throneUser;
@@ -139,12 +160,32 @@ public class UserService extends CommonService {
      * @param User object
      * @throws ApplicationException 
      */
-    public User updateUser(User user) throws ApplicationException  {
+    public User updateUser(User user, Integer brokerId) throws ApplicationException {
         Integer userId = user.getUserId();
 
         if (null == userRepository.findOne(userId)) {
             throw ApplicationException.createEntityNotFoundError(APIErrorCodes.ENTITY_NOT_FOUND, "user", "userId="+userId);
         }
+
+        Company broker = validateAndGetBroker(brokerId);
+
+        Company company = companyRepository.findFirstByCompanyNameAndBroker(user.getCompanyName(),
+                broker.getCompanyId());
+
+        if (company == null) {
+            throw ApplicationException.createBadRequest(APIErrorCodes.INVALID_CLIENT_NAME, user.getCompanyName());
+        }
+
+        user.setCompanyId(company.getCompanyId());
+        user.setBrokerId(broker.getCompanyId());
+
+        // THR-3927 [Start]
+        String userName = generateUserName(user.getUserName(), user.getEmail(), user.getFirstName(),
+                user.getLastName());
+
+        user.setUserName(userName);
+        // THR-3927 [End]
+
         //If not passed in model, then object will become in-active.
         return userRepository.save(user);
     }
@@ -374,13 +415,15 @@ public class UserService extends CommonService {
     }
 
     /**
-     * Logic to generate username from email, firstName and lastName if it is 
-     * blank or duplicate 
+     * Logic to generate username from email, firstName and lastName if it is
+     * blank or duplicate
      * 
      * JIRA = THR-3927
      * 
-     * @param record
-     * @param headerIndexMap
+     * @param userName
+     * @param email
+     * @param firstName
+     * @param lastName
      * @return
      */
     protected String generateUserName(String userName, String email, String firstName, String lastName) {

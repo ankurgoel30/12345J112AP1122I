@@ -119,7 +119,7 @@ public class CommonService {
         // Process files if submitted by a valid broker else throw an exception
         Company broker = companyRepository.findOne(brokerId);
         if (null == broker) {
-            throw ApplicationException.createFileImportError(APIErrorCodes.INVALID_BROKER_ID, String.valueOf(brokerId));
+            throw ApplicationException.createBadRequest(APIErrorCodes.INVALID_BROKER_ID, String.valueOf(brokerId));
         }
 
         return broker;
