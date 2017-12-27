@@ -1,5 +1,6 @@
 package com.thinkhr.external.api.services;
 
+import static com.thinkhr.external.api.ApplicationConstants.CONFIGURATION_ID_FOR_INACTIVE;
 import static com.thinkhr.external.api.ApplicationConstants.INACT;
 import static com.thinkhr.external.api.ApplicationConstants.UNDERSCORE;
 
@@ -15,10 +16,6 @@ import org.springframework.transaction.annotation.Transactional;
 import com.thinkhr.external.api.db.entities.Company;
 import com.thinkhr.external.api.db.learn.entities.LearnCompany;
 import com.thinkhr.external.api.db.learn.entities.LearnPackageMaster;
-import com.thinkhr.external.api.helpers.ModelConvertor;
-import com.thinkhr.external.api.learn.repositories.LearnCompanyRepository;
-import com.thinkhr.external.api.learn.repositories.LearnFileDataRepository;
-import com.thinkhr.external.api.learn.repositories.PackageRepository;
 
 /**
  * Provides a collection of all services related with LearnCompany
@@ -60,12 +57,7 @@ public class LearnCompanyService extends CommonService {
 
         learnCompany.setCompanyKey(companyKey);
 
-        String inactiveCompanyName = generateCompanyNameForInactive(
-                throneCompany.getCompanyName(),
-                throneCompany.getBroker(),
-                throneCompany.getCompanyId());
-
-        learnCompany.setCompanyName(inactiveCompanyName);
+        learnCompany.setCompanyName(getLearnCompanyNameByConfigurationId(throneCompany));
 
         this.addPackage(learnCompany, defaultCompanyPackage);
 
@@ -125,6 +117,26 @@ public class LearnCompanyService extends CommonService {
     }
 
     /**
+     * Update a learnCompany from throneCompany and add it to database
+     * 
+     * @param company
+     * @return
+     */
+    public LearnCompany updateLearnCompany(Company throneCompany) {
+        
+        LearnCompany learnCompany = learnCompanyRepository.findFirstByCompanyIdAndCompanyKey(
+                throneCompany.getCompanyId(), generateCompanyKey(throneCompany.getCompanyId()));
+        
+        if (learnCompany == null) {
+            // TODO : what to do ?
+        }
+
+        learnCompany.setCompanyName(getLearnCompanyNameByConfigurationId(throneCompany));
+
+        return this.updateLearnCompany(learnCompany);
+    }
+
+    /**
      * Returns true if learnCompany corresponding to  throneCompany and compannyKey
      * is deactivated successfully else false
      * 
@@ -173,6 +185,22 @@ public class LearnCompanyService extends CommonService {
                 .append(UNDERSCORE)
                 .append(companyId)
                 .append(INACT).toString();
+    }
+
+    /**
+     * 
+     * @param company
+     * @return
+     */
+    public static String getLearnCompanyNameByConfigurationId(Company company) {
+        String learnCompanyName = null;
+        if (company.getConfigurationId() != null && company.getConfigurationId() != CONFIGURATION_ID_FOR_INACTIVE) {
+            learnCompanyName = company.getCompanyName(); // Active company
+        } else {
+            learnCompanyName = LearnCompanyService.generateCompanyNameForInactive(company.getCompanyName(),
+                    company.getBroker(), company.getCompanyId()); // Inactive company name
+        }
+        return learnCompanyName;
     }
 
     /**

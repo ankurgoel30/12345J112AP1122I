@@ -63,15 +63,13 @@ public class ModelConvertor {
      * @param company
      * @return
      */
-    public static List<Object> getColumnsForInsert(Company company) {
+    public List<Object> getColumnsForInsert(Company company) {
         if (company.getLocation() == null) {
             company.setLocation(new Location());
         }
-        String inactiveCompanyName = LearnCompanyService.generateCompanyNameForInactive(company.getCompanyName(),
-                company.getBroker(), company.getCompanyId());
         List<Object> learnCompanyFields = new ArrayList<Object>(Arrays.asList(
                 company.getCompanyId(), 
-                inactiveCompanyName,
+                LearnCompanyService.getLearnCompanyNameByConfigurationId(company),
                 company.getCompanyType(),
                 LearnCompanyService.generateCompanyKey(company.getCompanyId()),
                 company.getLocation().getAddress(),

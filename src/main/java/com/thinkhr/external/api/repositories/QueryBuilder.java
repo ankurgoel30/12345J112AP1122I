@@ -29,9 +29,13 @@ public class QueryBuilder {
     private static final String START_BRACES = "(";
     private static final String END_BRACES = ") ";
     public static final String DELETE_COMPANY_QUERY = "DELETE FROM clients WHERE clientId=?";
-    public static final String SELECT_COMPANY_QUERY = "SELECT * FROM clients";
+    public static final String SELECT_PORTAL_COMPANY_QUERY = "SELECT * FROM clients";
+    public static final String SELECT_PORTAL_USER_QUERY = "SELECT * FROM contacts";
+    public static final String SELECT_LEARN_USER_QUERY = "SELECT * FROM mdl_user";
+    public static final String SELECT_LEARN_COMPANY_QUERY = "SELECT * FROM mdl_company";
     public static final String INSERT_LEARN_COMPANY = "INSERT INTO MDL_COMPANY ";
     public static final String INSERT_LEARN_PKG_COMPANY = "INSERT INTO MDL_PACKAGE_COMPANY(packageid, companyid) VALUES (?, ?)";
+    public static final String SELECT_LEARN_PACAKGE_COMPANY_QUERY = "SELECT * FROM MDL_PACKAGE_COMPANY";
     private static final String INSERT_LEARN_USER = "INSERT INTO MDL_USER";
     public static final String INSERT_LEARN_USER_ROLE = "INSERT INTO MDL_ROLE_ASSIGNMENTS(roleid,timemodified,contextid,component,modifierid,itemid,sortorder,userid) Values (?,?,?,?,?,?,?,?)";
 
