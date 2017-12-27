@@ -89,4 +89,9 @@ public class ApplicationConstants {
 
 
 
+    // TODO : Decide where to get productId
+    public static final Integer DEFAULT_PRODUCT_ID = 26;
+
+    public static final Integer DEFAULT_NUMBER_LICENSES = 1000;
+
 }

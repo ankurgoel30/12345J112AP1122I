@@ -1,5 +1,7 @@
 package com.thinkhr.external.api.helpers;
 
+import static com.thinkhr.external.api.services.CompanyService.getAuthorizationKeyFromCompanyId;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
@@ -7,12 +9,16 @@ import java.util.List;
 
 import org.springframework.stereotype.Service;
 
+import com.thinkhr.external.api.ApplicationConstants;
 import com.thinkhr.external.api.db.entities.Company;
+import com.thinkhr.external.api.db.entities.CompanyContract;
+import com.thinkhr.external.api.db.entities.CompanyProduct;
 import com.thinkhr.external.api.db.entities.Location;
 import com.thinkhr.external.api.db.entities.User;
 import com.thinkhr.external.api.db.learn.entities.LearnCompany;
 import com.thinkhr.external.api.db.learn.entities.LearnUser;
 import com.thinkhr.external.api.services.LearnCompanyService;
+import com.thinkhr.external.api.services.utils.CommonUtil;
 
 /**
  * Model convertor
@@ -60,6 +66,8 @@ public class ModelConvertor {
     }
     
     /**
+     * method to get List of learnCompany field values for bulk upload
+     * 
      * @param company
      * @return
      */
@@ -87,7 +95,13 @@ public class ModelConvertor {
         
         return learnCompanyFields;
     }
-
+    
+    /**
+     * method to convert throneUser to learnUser
+     * 
+     * @param throneUser
+     * @return
+     */
     public LearnUser convert(User throneUser) {
 
         LearnUser learnUser = new LearnUser();
@@ -105,6 +119,45 @@ public class ModelConvertor {
         learnUser.setUserName(throneUser.getUserName());
 
         return learnUser;
+    }
+
+    /**
+     * method to convert Company to CompanyContract
+     * 
+     * @param company
+     * @return
+     */
+    public CompanyContract convertToCompanyContract(Company company) {
+        CompanyContract companyContract = new CompanyContract();
+        companyContract.setCompanyId(company.getCompanyId());
+
+        // TODO : Decide where to get productId from.
+        companyContract.setProductId(ApplicationConstants.DEFAULT_PRODUCT_ID);
+        companyContract.setStartDate(company.getCompanySince());
+
+        // TODO : Decide how to get end date
+        companyContract.setEndDate(company.getCompanySince());
+        companyContract.setTempID(CommonUtil.getTempId());
+        return companyContract;
+    }
+
+    /**
+     * method to convert CompanyContract to CompanyProduct
+     * 
+     * @param company
+     * @return
+     */
+    public CompanyProduct convertToCompanyProduct(CompanyContract companyContract) {
+        CompanyProduct companyProduct = new CompanyProduct();
+        companyProduct.setContractId(companyContract.getRelId());
+        companyProduct.setCompanyId(companyContract.getCompanyId());
+        companyProduct.setStartDate(companyContract.getStartDate());
+        companyProduct.setAuthorizationKey(getAuthorizationKeyFromCompanyId(companyContract.getCompanyId()));
+
+        // TODO : Decide where to get numberLicenses from. 
+        companyProduct.setNumberLicenses(ApplicationConstants.DEFAULT_NUMBER_LICENSES);
+        companyProduct.setTempID(CommonUtil.getTempId());
+        return companyProduct;
     }
 
 }

@@ -17,8 +17,15 @@ import com.thinkhr.external.api.exception.APIErrorCodes;
 import com.thinkhr.external.api.exception.ApplicationException;
 import com.thinkhr.external.api.exception.MessageResourceHandler;
 import com.thinkhr.external.api.helpers.ModelConvertor;
+import com.thinkhr.external.api.learn.repositories.LearnCompanyRepository;
 import com.thinkhr.external.api.learn.repositories.LearnFileDataRepository;
+import com.thinkhr.external.api.learn.repositories.LearnRoleRepository;
+import com.thinkhr.external.api.learn.repositories.LearnUserRepository;
+import com.thinkhr.external.api.learn.repositories.PackageRepository;
+import com.thinkhr.external.api.repositories.CompanyContractRepository;
+import com.thinkhr.external.api.repositories.CompanyProductRepository;
 import com.thinkhr.external.api.repositories.CompanyRepository;
+import com.thinkhr.external.api.repositories.ConfigurationRepository;
 import com.thinkhr.external.api.repositories.CustomFieldsRepository;
 import com.thinkhr.external.api.repositories.FileDataRepository;
 import com.thinkhr.external.api.repositories.StandardFieldsRepository;
@@ -54,21 +61,35 @@ public class CommonService {
     protected CompanyRepository companyRepository;
     
     @Autowired
+    protected CompanyContractRepository companyContractRepository;
+
+    @Autowired
+    protected CompanyProductRepository companyProductRepository;
+    
+    @Autowired
     protected UserRepository userRepository;
     
     @Autowired
-    protected LearnCompanyService learnCompanyService;
+    LearnUserRepository learnUserRepository;
 
     @Autowired
-    LearnFileDataRepository learnFileRepository;
+    LearnFileDataRepository learnFileDataRepository;
+    
+    @Autowired
+    protected ConfigurationRepository configurationRepository;
+    
+    @Autowired
+    protected LearnRoleRepository learnRoleRepository;
 
     @Autowired
     protected ModelConvertor modelConvertor;
     
     @Autowired
-    protected LearnUserService learnUserService ;
+    LearnCompanyRepository learnCompanyRepository;
     
-
+    @Autowired
+    PackageRepository packageRepository;
+    
     /**
      * @return
      */
