@@ -26,10 +26,13 @@ import org.springframework.mock.web.MockMultipartFile;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.thinkhr.external.api.db.entities.Company;
+import com.thinkhr.external.api.db.entities.Configuration;
 import com.thinkhr.external.api.db.entities.CustomFields;
 import com.thinkhr.external.api.db.entities.StandardFields;
 import com.thinkhr.external.api.db.entities.User;
 import com.thinkhr.external.api.db.learn.entities.LearnCompany;
+import com.thinkhr.external.api.db.learn.entities.LearnRole;
+import com.thinkhr.external.api.db.learn.entities.LearnUser;
 import com.thinkhr.external.api.model.FileImportResult;
 
 /**
@@ -183,6 +186,52 @@ public class ApiTestDataUtil {
 
     /**
      * 
+     * @param company
+     * @return
+     */
+    public static List<Object> getInsertColumnsForLearn(Company company) {
+        List<Object> columns = new ArrayList<Object>();
+        columns.add(company.getCompanyId());
+        columns.add(company.getCompanyName());
+        columns.add(company.getCompanyType());
+        columns.add(company.getDisplayName());
+        return columns;
+    }
+
+    /**
+     * 
+     * @param configurationId
+     * @param configurationKey
+     * @param name
+     * @return
+     */
+    public static Configuration createConfiguration(Integer configurationId, String configurationKey, String name) {
+        Configuration configuration = new Configuration();
+        if (configurationId != null) {
+            configuration.setConfigurationId(configurationId);
+        }
+        configuration.setConfigurationKey(configurationKey);
+        configuration.setName(name);
+        return configuration;
+    }
+
+    /**
+     * 
+     * @param id
+     * @param name
+     * @return
+     */
+    public static LearnRole createLearnRole(Integer id, String name) {
+        LearnRole role = new LearnRole();
+        if (role != null) {
+            role.setId(id);
+        }
+        role.setName(name);
+        return role;
+    }
+
+    /**
+     * 
      * @param companyId
      * @param companyName
      * @param companyType
@@ -230,6 +279,34 @@ public class ApiTestDataUtil {
         user.setEmail(email);
         user.setUserName(userName);
         user.setCompanyName(companyName);
+        return user;
+    }
+
+    /**
+     * 
+     * @param id
+     * @param thrclientid
+     * @param firstName
+     * @param lastName
+     * @param userName
+     * @param password
+     * @param email
+     * @param phone
+     * @return
+     */
+    public static LearnUser createLearnUser(Long id, Integer thrclientid, String firstName, String lastName,
+            String userName, String password, String email, String phone) {
+        LearnUser user = new LearnUser();
+        if (id != null) {
+            user.setId(id);
+        }
+        user.setThrUserId(thrclientid);
+        user.setFirstName(firstName);
+        user.setLastName(lastName);
+        user.setUserName(userName);
+        user.setPassword(password);
+        user.setEmail(email);
+        user.setPhone1(phone);
         return user;
     }
 
@@ -693,6 +770,47 @@ public class ApiTestDataUtil {
     }
 
     /**
+     * Get list for column values in learn mdl_company table
+     * 
+     * @return
+     */
+    public static List<Object> getLearnCompanyColumnValuesList() {
+        List<Object> columnValuesList = new ArrayList<Object>();
+        columnValuesList.add("234");
+        columnValuesList.add("Pepcus Software Services");
+        columnValuesList.add("IT");
+        columnValuesList.add("hkf");
+        columnValuesList.add("10 Monroe St.");
+        columnValuesList.add("dummy_address");
+        columnValuesList.add("Washington");
+        columnValuesList.add("DC");
+        columnValuesList.add("34544");
+        columnValuesList.add("111");
+        columnValuesList.add("9009638270");
+        columnValuesList.add("1");
+        columnValuesList.add(String.valueOf(new Date().getTime()));
+        columnValuesList.add(String.valueOf(new Date().getTime()));
+        return columnValuesList;
+    }
+
+    /**
+     * Get list for column in user table.
+     * 
+     * @return
+     */
+    public static List<String> getUserColumnList() {
+        List<String> columnList = new ArrayList<String>();
+        columnList.add("First_Name");
+        columnList.add("Last_Name");
+        columnList.add("client_name");
+        columnList.add("Email");
+        columnList.add("UserName");
+        columnList.add("Phone");
+        columnList.add("t1_customfield1");
+        return columnList;
+    }
+
+    /**
      * Get list for column values in user table
      * 
      * @return
@@ -704,6 +822,40 @@ public class ApiTestDataUtil {
         columnValuesList.add("ThinkHR");
         columnValuesList.add("ajay.jain@pepcus.com");
         columnValuesList.add("ajain");
+        columnValuesList.add("3457893455");
+        columnValuesList.add("20");
+        return columnValuesList;
+    }
+
+    /**
+     * Get list for column in learn user table.
+     * 
+     * @return
+     */
+    public static List<String> getLearnUserColumnList() {
+        List<String> columnList = new ArrayList<String>();
+        columnList.add("firstname");
+        columnList.add("lastname");
+        columnList.add("username");
+        columnList.add("password");
+        columnList.add("email");
+        columnList.add("phone1");
+        columnList.add("thrcontactid");
+        return columnList;
+    }
+
+    /**
+     * Get list for column values in learn user table
+     * 
+     * @return
+     */
+    public static List<Object> getLearnUserColumnValuesList() {
+        List<Object> columnValuesList = new ArrayList<Object>();
+        columnValuesList.add("Ajay");
+        columnValuesList.add("Jain");
+        columnValuesList.add("ajain");
+        columnValuesList.add("");
+        columnValuesList.add("ajay.jain@pepcus.com");
         columnValuesList.add("3457893455");
         columnValuesList.add("20");
         return columnValuesList;
