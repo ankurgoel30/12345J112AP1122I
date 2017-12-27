@@ -246,7 +246,7 @@ public class ApiTestDataUtil {
             role.setId(id);
         }
         role.setName(name);
-        role.setShortName(shortName);
+        role.setShortname(shortName);
         return role;
     }
 

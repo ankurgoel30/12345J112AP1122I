@@ -2,7 +2,6 @@ package com.thinkhr.external.api.services;
 
 import static com.thinkhr.external.api.ApplicationConstants.COMMA_SEPARATOR;
 import static com.thinkhr.external.api.ApplicationConstants.COMPANY;
-import static com.thinkhr.external.api.ApplicationConstants.CONFIGURATION_ID_FOR_INACTIVE;
 import static com.thinkhr.external.api.ApplicationConstants.DEFAULT_SORT_BY_COMPANY_NAME;
 import static com.thinkhr.external.api.ApplicationConstants.LOCATION;
 import static com.thinkhr.external.api.ApplicationConstants.TOTAL_RECORDS;
@@ -150,6 +149,17 @@ public class CompanyService  extends CommonService {
         learnCompanyService.addLearnCompany(throneCompany);// THR-3929 
 
         return throneCompany;
+    }
+
+    /**
+     * Validates configurationId from the Database.
+     * 
+     * @param configurationId
+     * @return
+     */
+    public boolean validateConfigurationIdFromDB(Integer configurationId, Integer brokerId) {
+        return configurationRepository.findFirstByConfigurationIdAndCompanyId(configurationId, brokerId) == null ? false
+                : true;
     }
 
     /**

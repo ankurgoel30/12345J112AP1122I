@@ -133,6 +133,24 @@ public class LearnCompanyService {
     }
 
     /**
+     * Update a learnCompany from throneCompany and add it to database
+     * 
+     * @param company
+     * @return
+     */
+    public LearnCompany updateLearnCompany(Company throneCompany) {
+
+        LearnCompany learnCompany = learnCompanyRepository.findFirstByCompanyIdAndCompanyKey(
+                throneCompany.getCompanyId(), generateCompanyKey(throneCompany.getCompanyId()));
+
+        if (learnCompany == null) {
+            // TODO : what to do ?
+        }
+
+        return this.updateLearnCompany(learnCompany);
+    }
+
+    /**
      * Returns true if learnCompany corresponding to  throneCompany and compannyKey
      * is deactivated successfully else false
      * 

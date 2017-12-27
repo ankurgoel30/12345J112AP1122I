@@ -39,7 +39,6 @@ import org.springframework.web.multipart.MultipartFile;
 
 import com.thinkhr.external.api.db.entities.Company;
 import com.thinkhr.external.api.db.entities.User;
-import com.thinkhr.external.api.db.learn.entities.LearnPackageMaster;
 import com.thinkhr.external.api.exception.APIErrorCodes;
 import com.thinkhr.external.api.exception.ApplicationException;
 import com.thinkhr.external.api.model.FileImportResult;
@@ -62,6 +61,9 @@ public class UserService extends CommonService {
     @Autowired
     private AppEncryptorDecryptor encDecyptor;
     
+    @Autowired
+    private LearnUserService learnUserService;
+
     private static final String resource = USER;
     
     /**
