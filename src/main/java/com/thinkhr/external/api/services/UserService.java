@@ -131,6 +131,10 @@ public class UserService extends CommonService {
     public User addUser(User user) {
         Integer roleId = user.getRoleId();
         if (roleId != null && roleId != ROLE_ID_FOR_INACTIVE && !validateRoleIdFromDB(roleId)) {
+            throw ApplicationException.createBadRequest(APIErrorCodes.INVALID_ROLE_ID, String.valueOf(roleId));
+        }
+
+        if (roleId != null && roleId == ROLE_ID_FOR_INACTIVE) {
             user.setRoleId(null);
         }
         User throneUser = userRepository.save(user);
@@ -164,6 +168,10 @@ public class UserService extends CommonService {
 
         Integer roleId = user.getRoleId();
         if (roleId != null && roleId != ROLE_ID_FOR_INACTIVE && !validateRoleIdFromDB(roleId)) {
+            throw ApplicationException.createBadRequest(APIErrorCodes.INVALID_ROLE_ID, String.valueOf(roleId));
+        }
+
+        if (roleId != null && roleId == ROLE_ID_FOR_INACTIVE) {
             user.setRoleId(null);
         }
 
