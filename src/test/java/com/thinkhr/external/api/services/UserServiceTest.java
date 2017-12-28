@@ -193,7 +193,7 @@ public class UserServiceTest {
         when(userRepository.save(user)).thenReturn(user);
         when(learnUserService.addLearnUser(user)).thenReturn(learnUser);
 
-        User result = userService.addUser(user);
+        User result = userService.addUser(user,1);
         assertEquals(user.getUserId(), result.getUserId());
         assertEquals(user.getFirstName(), result.getFirstName());
         assertEquals(user.getLastName(), result.getLastName());
@@ -225,7 +225,7 @@ public class UserServiceTest {
         String userJson = ApiTestDataUtil.getJsonString(user);
         User updatedUser = null;
         try {
-            updatedUser = userService.updateUser(user.getUserId(), userJson);
+            updatedUser = userService.updateUser(user.getUserId(), userJson,1);
         } catch (ApplicationException e) {
             fail("Not expecting application exception for a valid test case");
         }
@@ -243,10 +243,9 @@ public class UserServiceTest {
         Integer userId = 1;
         User user = createUser(null, "Jason", "Garner", "jgarner@gmail.com", "jgarner", "Pepcus");
         when(userRepository.findOne(userId)).thenReturn(null);
-
         String userJson = ApiTestDataUtil.getJsonString(user);
         try {
-            userService.updateUser(user.getUserId(), userJson);
+            userService.updateUser(user.getUserId(), userJson,1);
         } catch (ApplicationException e) {
             assertEquals(APIErrorCodes.ENTITY_NOT_FOUND, e.getApiErrorCode());
         }
@@ -270,7 +269,7 @@ public class UserServiceTest {
 
         User updatedUser = null;
         try {
-            updatedUser = userService.updateUser(user.getUserId(), userJson);
+            updatedUser = userService.updateUser(user.getUserId(), userJson, 1);
             fail("Expecting Exception");
         } catch (Exception ex) {
             assertTrue(ex instanceof ConstraintViolationException);

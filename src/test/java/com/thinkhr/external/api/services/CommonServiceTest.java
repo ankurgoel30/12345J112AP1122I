@@ -92,7 +92,7 @@ public class CommonServiceTest {
         Company brokerCompanyTestData = ApiTestDataUtil.createCompany();
         Mockito.when(companyRepository.findOne(15472)).thenReturn(brokerCompanyTestData);
 
-        Company brokerCompany = commonService.validateAndGetBroker(15472);
+        Company brokerCompany = commonService.validateBrokerId(15472);
 
         assertEquals(brokerCompanyTestData.getCompanyName(), brokerCompany.getCompanyName());
     }
@@ -105,7 +105,7 @@ public class CommonServiceTest {
         Mockito.when(companyRepository.findOne(12345)).thenReturn(null);
 
         try {
-            Company brokerCompany = commonService.validateAndGetBroker(12345);
+            Company brokerCompany = commonService.validateBrokerId(12345);
             fail("Expecting validation exception for invalid extension of invalid broker id");
         } catch (ApplicationException appEx) {
             Assert.assertNotNull(appEx);

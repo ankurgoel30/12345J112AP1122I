@@ -1,5 +1,6 @@
 package com.thinkhr.external.api.controllers;
 
+import static com.thinkhr.external.api.ApplicationConstants.BROKER_ID_PARAM;
 import static com.thinkhr.external.api.ApplicationConstants.DEFAULT_SORT_BY_COMPANY_NAME;
 
 import java.io.File;
@@ -21,6 +22,7 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestAttribute;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -117,9 +119,10 @@ public class CompanyController {
      */
     @RequestMapping(method=RequestMethod.PUT,value="/{companyId}")
     public ResponseEntity <Company> updateCompany(@PathVariable(name="companyId", value = "companyId") Integer companyId, 
-            @RequestBody String companyJson) throws ApplicationException, JsonProcessingException, IOException {
+            @RequestBody String companyJson , @RequestAttribute(name = BROKER_ID_PARAM) Integer brokerId) 
+			throws ApplicationException, JsonProcessingException, IOException {
 
-        Company updatedCompany = companyService.updateCompany(companyId, companyJson);
+        Company updatedCompany = companyService.updateCompany(companyId, companyJson , brokerId);
         return new ResponseEntity<Company>(updatedCompany, HttpStatus.OK);
 
     }
@@ -131,8 +134,10 @@ public class CompanyController {
      * @param Company object
      */
     @RequestMapping(method=RequestMethod.POST)
-    public ResponseEntity<Company> addCompany(@Valid @RequestBody Company company) throws ApplicationException {
-        companyService.addCompany(company);
+    public ResponseEntity<Company> addCompany(@Valid @RequestBody Company company, 
+            @RequestAttribute(name = BROKER_ID_PARAM) Integer brokerId)
+            throws ApplicationException {
+        companyService.addCompany(company, brokerId);
         return new ResponseEntity<Company>(company, HttpStatus.CREATED);
     }
 
@@ -145,8 +150,7 @@ public class CompanyController {
      */
     @RequestMapping(method=RequestMethod.POST,  value="/bulk")
     public ResponseEntity <InputStreamResource> bulkUploadFile(@RequestParam(value="file", required=false) MultipartFile file, 
-            @RequestParam(value = "brokerId", required = false, 
-            defaultValue = ApplicationConstants.DEFAULT_BROKERID_FOR_FILE_IMPORT) Integer brokerId )
+            @RequestAttribute(name = BROKER_ID_PARAM) Integer brokerId)
                     throws ApplicationException, IOException {
 
         logger.info("##### ######### COMPANY IMPORT BEGINS ######### #####");

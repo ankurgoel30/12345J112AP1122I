@@ -1,5 +1,6 @@
 package com.thinkhr.external.api.controllers;
 
+import static com.thinkhr.external.api.ApplicationConstants.BROKER_ID_PARAM;
 import static com.thinkhr.external.api.ApplicationConstants.DEFAULT_SORT_BY_USER_NAME;
 
 import java.io.File;
@@ -21,6 +22,7 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestAttribute;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -28,7 +30,6 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
-import com.thinkhr.external.api.ApplicationConstants;
 import com.thinkhr.external.api.db.entities.User;
 import com.thinkhr.external.api.exception.ApplicationException;
 import com.thinkhr.external.api.exception.MessageResourceHandler;
@@ -99,14 +100,15 @@ public class UserController {
      * Update a user in database
      * 
      * @param User object
-     * @throws IOException 
      */
     @RequestMapping(method=RequestMethod.PUT, value="/{userId}")
     public ResponseEntity <User> updateUser(@PathVariable(name="userId", value = "userId") Integer userId, 
-            @RequestBody String userJson) throws ApplicationException, IOException {
-
-        User updatedUser = userService.updateUser(userId, userJson);
-        return new ResponseEntity<User>(updatedUser, HttpStatus.OK);
+            String userJson, @RequestAttribute(name = BROKER_ID_PARAM) Integer brokerId)
+            throws ApplicationException , IOException {
+        
+        User updatedUser = userService.updateUser(userId, userJson , brokerId);
+        
+        return new ResponseEntity<User> (updatedUser, HttpStatus.OK);
     }
 
 
@@ -116,8 +118,9 @@ public class UserController {
      * @param User object
      */
     @RequestMapping(method=RequestMethod.POST)
-    public ResponseEntity<User>  addUser(@Valid @RequestBody User user)  throws ApplicationException {
-        userService.addUser(user);
+    public ResponseEntity<User> addUser(@Valid @RequestBody User user,
+            @RequestAttribute(name = BROKER_ID_PARAM) Integer brokerId) throws ApplicationException {
+        userService.addUser(user, brokerId);
         return new ResponseEntity<User>(user, HttpStatus.CREATED);
     }
     
@@ -132,8 +135,7 @@ public class UserController {
      */
     @RequestMapping(method=RequestMethod.POST,  value="/bulk")
     public ResponseEntity <InputStreamResource> bulkUploadFile(@RequestParam(value="file", required=false) MultipartFile file, 
-            @RequestParam(value = "brokerId", required = false, 
-            defaultValue = ApplicationConstants.DEFAULT_BROKERID_FOR_FILE_IMPORT) Integer brokerId )
+            @RequestAttribute(name = BROKER_ID_PARAM) Integer brokerId)
                     throws ApplicationException, IOException {
 
         logger.info("##### ######### USER IMPORT BEGINS ######### #####");

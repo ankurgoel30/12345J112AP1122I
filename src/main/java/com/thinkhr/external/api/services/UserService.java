@@ -134,31 +134,12 @@ public class UserService extends CommonService {
      */
 
     @Transactional
-    public User addUser(User user) {
+    public User addUser(User user, Integer brokerId) {
 
-        Integer roleId = user.getRoleId();
-        
-        if (roleId == ROLE_ID_FOR_INACTIVE) {//It is additionally handled.
-            user.setRoleId(null);
-        }
-        
-        if (roleId != null  && !validateRoleIdFromDB(roleId)) {
-            throw ApplicationException.createBadRequest(APIErrorCodes.INVALID_ROLE_ID, String.valueOf(roleId));
-        }
+        User throneUser = saveUser(user, brokerId, true);
 
-        User throneUser = userRepository.save(user);
         learnUserService.addLearnUser(throneUser); //THR-3932
         return throneUser;
-    }
-
-    /**
-     * Validates roleId from the Database.
-     * 
-     * @param roleId
-     * @return
-     */
-    public boolean validateRoleIdFromDB(Integer roleId) {
-        return throneRoleRepository.findOne(roleId) == null ? false : true;
     }
 
     /**
@@ -169,7 +150,7 @@ public class UserService extends CommonService {
      * @throws IOException 
      */
     @Transactional
-    public User updateUser(Integer userId, String userJson) throws ApplicationException, IOException {
+    public User updateUser(Integer userId, String userJson, Integer brokerId) throws ApplicationException , IOException  {
 
         User userInDb = userRepository.findOne(userId);
         if (null == userInDb) {
@@ -179,19 +160,66 @@ public class UserService extends CommonService {
         User updatedUser = update(userJson, userInDb);
         validateObject(updatedUser);
 
-        Integer roleId = updatedUser.getRoleId();
+        User throneUser = saveUser(updatedUser, brokerId, false);
+        
+        learnUserService.updateLearnUser(throneUser);
+        return throneUser;
+    }
+
+    /**
+     * To save existing users
+     * 
+     * @param user
+     * @param brokerId
+     * @param isNew
+     * @return
+     */
+    private User saveUser(User user, Integer brokerId, boolean isNew) {
+        validateBrokerId(brokerId);
+
+        validateCompanyName(user, brokerId);
+
+        Integer roleId = user.getRoleId();
         
         if (roleId == ROLE_ID_FOR_INACTIVE) {
-            updatedUser.setRoleId(null);
+            user.setRoleId(null);
         }
+        
         if (roleId != null && !validateRoleIdFromDB(roleId)) {
             throw ApplicationException.createBadRequest(APIErrorCodes.INVALID_ROLE_ID, String.valueOf(roleId));
         }
 
+        if (isNew) {
+            //Validate duplicate username and generate a new one
+            String userName = generateUserName(user.getUserName(), user.getEmail(), user.getFirstName(),
+                    user.getLastName());
+
+            user.setUserName(userName);
+
+        }
         // If not passed in model, then object will become in-active.
-        User throneUser = userRepository.save(updatedUser);
-        learnUserService.updateLearnUser(throneUser);
+        User throneUser = userRepository.save(user);
         return throneUser;
+    }
+
+    /**
+     * Validate companyName
+     * 
+     * @param user
+     * @param brokerId
+     * @return
+     */
+    private Company validateCompanyName(User user, Integer brokerId) {
+        Company company = companyRepository.findFirstByCompanyNameAndBroker(user.getCompanyName(),
+                brokerId);
+
+        if (company == null) {
+            throw ApplicationException.createBadRequest(APIErrorCodes.INVALID_CLIENT_NAME, user.getCompanyName());
+        }
+        user.setCompanyId(company.getCompanyId());
+        user.setBrokerId(brokerId);
+
+        return company;
     }
 
     /**
@@ -223,7 +251,7 @@ public class UserService extends CommonService {
             throw ApplicationException.createFileImportError(APIErrorCodes.REQUIRED_PARAMETER, "file");
         }
 
-        Company broker = validateAndGetBroker(brokerId);
+        Company broker = validateBrokerId(brokerId);
 
         List<String> fileContents = validateAndGetFileContent(fileToImport, resource);
 
@@ -419,13 +447,15 @@ public class UserService extends CommonService {
     }
 
     /**
-     * Logic to generate username from email, firstName and lastName if it is 
-     * blank or duplicate 
+     * Logic to generate username from email, firstName and lastName if it is
+     * blank or duplicate
      * 
      * JIRA = THR-3927
      * 
-     * @param record
-     * @param headerIndexMap
+     * @param userName
+     * @param email
+     * @param firstName
+     * @param lastName
      * @return
      */
     protected String generateUserName(String userName, String email, String firstName, String lastName) {
@@ -456,5 +486,16 @@ public class UserService extends CommonService {
     public String getDefaultSortField()  {
         return DEFAULT_SORT_BY_USER_NAME;
     }
+
+    /**
+     * Validates roleId from the Database.
+     * 
+     * @param roleId
+     * @return
+     */
+    public boolean validateRoleIdFromDB(Integer roleId) {
+        return throneRoleRepository.findOne(roleId) == null ? false : true;
+    }
+
 
 }

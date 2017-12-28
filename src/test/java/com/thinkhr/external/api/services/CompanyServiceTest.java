@@ -199,7 +199,7 @@ public class CompanyServiceTest {
         when(companyRepository.save(company)).thenReturn(company);
         when(learnCompanyService.addLearnCompany(company)).thenReturn(learnCompany);
 
-        Company result = companyService.addCompany(company);
+        Company result = companyService.addCompany(company,1);
         assertEquals(companyId, result.getCompanyId());
         assertEquals("Pepcus", result.getCompanyName());
         assertEquals("Software", result.getCompanyType());
@@ -211,11 +211,12 @@ public class CompanyServiceTest {
 
     /**
      * To verify updateCompany method
+     * @throws Exception 
      * 
      */
 
     @Test
-    public void testUpdateCompany(){
+    public void testUpdateCompany() throws Exception {
 
         Integer brokerId = 10;
         Integer companyId = 1;
@@ -232,40 +233,34 @@ public class CompanyServiceTest {
         // Updating company name 
         company.setCompanyName("Pepcus - Updated");
 
-
         Company companyUpdated = null;
         try {
             String companyJson = ApiTestDataUtil.getJsonString(company);
-            companyUpdated = companyService.updateCompany(company.getCompanyId(), companyJson);
+            companyUpdated = companyService.updateCompany(company.getCompanyId(), companyJson,1);
         } catch (ApplicationException e) {
             fail("Not expecting application exception for a valid test case");
-        } catch (Exception e) {
-            fail("Exception not expected");
         }
         assertEquals("Pepcus - Updated", companyUpdated.getCompanyName());
     }
 
     /**
      * To verify updateCompany method when companyRepository doesn't find a match for given companyId.
+     * @throws Exception 
      * 
      * 
      */
 
     @Test
-    public void testUpdateCompanyForEntityNotFound(){
+    public void testUpdateCompanyForEntityNotFound() throws Exception {
         Integer brokerId = null;
         Integer companyId = 1;
         Company company = createCompany(companyId, "Pepcus", "Software", "PEP", new Date(), "PepcusNotes", "PepcusHelp");
         when(companyRepository.findOne(companyId)).thenReturn(null);
-
-
         try {
             String companyJson = ApiTestDataUtil.getJsonString(company);
-            companyService.updateCompany(company.getCompanyId(), companyJson);
+            companyService.updateCompany(company.getCompanyId(), companyJson,1);
         } catch (ApplicationException e) {
             assertEquals(APIErrorCodes.ENTITY_NOT_FOUND, e.getApiErrorCode());
-        } catch (Exception e) {
-            fail("Exception not expected");
         }
     }
 
@@ -289,7 +284,7 @@ public class CompanyServiceTest {
 
         Company companyUpdated = null;
         try {
-            companyUpdated = companyService.updateCompany(company.getCompanyId(), companyJson);
+            companyUpdated = companyService.updateCompany(company.getCompanyId(), companyJson, 1);
             fail("Expecting Exception");
         } catch (Exception ex) {
             assertTrue(ex instanceof ConstraintViolationException);
@@ -374,7 +369,7 @@ public class CompanyServiceTest {
                 String.valueOf(brokerId));
 
         CompanyService companyServiceSpy = Mockito.spy(new CompanyService());
-        Mockito.doThrow(appEx).when(companyServiceSpy).validateAndGetBroker(brokerId);
+        Mockito.doThrow(appEx).when(companyServiceSpy).validateBrokerId(brokerId);
 
         try {
             MultipartFile fileToImport = null;
@@ -397,7 +392,7 @@ public class CompanyServiceTest {
         int brokerId = 12345;
         Company testdataBroker = ApiTestDataUtil.createCompany();
         CompanyService companyServiceSpy = Mockito.spy(new CompanyService());
-        Mockito.doReturn(testdataBroker).when(companyServiceSpy).validateAndGetBroker(brokerId);
+        Mockito.doReturn(testdataBroker).when(companyServiceSpy).validateBrokerId(brokerId);
 
         FileImportResult fileImportResultTestData = ApiTestDataUtil.createFileImportResultWithNoFailedRecords();
 
@@ -431,7 +426,7 @@ public class CompanyServiceTest {
         int brokerId = 12345;
         Company testdataBroker = ApiTestDataUtil.createCompany();
         CompanyService companyServiceSpy = Mockito.spy(new CompanyService());
-        Mockito.doReturn(testdataBroker).when(companyServiceSpy).validateAndGetBroker(brokerId);
+        Mockito.doReturn(testdataBroker).when(companyServiceSpy).validateBrokerId(brokerId);
 
         FileImportResult fileImportResultTestData = ApiTestDataUtil.createFileImportResultWithFailedRecords();
 
@@ -468,7 +463,7 @@ public class CompanyServiceTest {
         int brokerId = 12345;
         Company testdataBroker = ApiTestDataUtil.createCompany();
         CompanyService companyServiceSpy = Mockito.spy(new CompanyService());
-        Mockito.doReturn(testdataBroker).when(companyServiceSpy).validateAndGetBroker(brokerId);
+        Mockito.doReturn(testdataBroker).when(companyServiceSpy).validateBrokerId(brokerId);
 
         ApplicationException appEx = ApplicationException.createFileImportError(APIErrorCodes.UNMAPPED_CUSTOM_HEADERS,
                 StringUtils.join(new String[] { "NAME", "AGE" }, COMMA_SEPARATOR));

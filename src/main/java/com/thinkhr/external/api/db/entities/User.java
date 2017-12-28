@@ -88,6 +88,7 @@ public class User implements SearchableEntity {
     @Column(name="Mobile")
     private String mobile;
 
+    @NotNull
     @Column(name="Phone")
     private String phone;
 

@@ -16,6 +16,7 @@ import javax.persistence.OneToOne;
 import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
+import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 
@@ -68,6 +69,7 @@ public class Company implements SearchableEntity {
     @Column(name = "Client_Name") 
     private String companyName;
 
+    @NotNull
     @Column(name = "display_name") 
     private String displayName;
 
@@ -77,6 +79,7 @@ public class Company implements SearchableEntity {
     @Column(name = "Broker") 
     private Integer broker;
 
+    @NotNull
     @Column(name = "Client_Phone") 
     private String companyPhone;
 
@@ -110,9 +113,11 @@ public class Company implements SearchableEntity {
     @Column(name = "issue_frequency") 
     private Integer issueFrequency;
 
+    @NotNull
     @Column(name = "industry") 
     private String industry;
 
+    @NotNull
     @Column(name = "companySize") 
     private String companySize;
 
@@ -139,6 +144,7 @@ public class Company implements SearchableEntity {
     @Column(name = "login") 
     private Integer login;
 
+    @NotNull
     @Column(name = "producer") 
     private String producer;
 
@@ -352,7 +358,9 @@ public class Company implements SearchableEntity {
 
     @Column(name = "t1_email_template_id")
     private String emailTemplateId;
-    
+
+    @NotNull
+    @Valid
     @OneToOne(mappedBy = "company",cascade=CascadeType.ALL,fetch=FetchType.LAZY )
     private Location location ;
     
