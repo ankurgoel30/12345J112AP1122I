@@ -810,12 +810,13 @@ public class CompanyServiceTest {
      */
     @Test
     public void testValidateConfigurationIdFromDB() {
+        Integer roleId = 5;
         Integer configurationId = 1;
-        Configuration configuration = ApiTestDataUtil.createConfiguration(2, "ABC", "test config");
+        Configuration configuration = ApiTestDataUtil.createConfiguration(1, 2, "ABC", "test config");
 
         when(configurationRepository.findOne(configurationId)).thenReturn(configuration);
 
-        boolean isValid = companyService.validateConfigurationIdFromDB(configurationId);
+        boolean isValid = companyService.validateConfigurationIdFromDB(configurationId, roleId);
 
         assertTrue(isValid);
     }
