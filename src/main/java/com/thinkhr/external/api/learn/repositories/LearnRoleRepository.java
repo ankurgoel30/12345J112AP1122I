@@ -12,13 +12,4 @@ public interface LearnRoleRepository extends CrudRepository<LearnRole, Integer> 
      * @return
      */
     public LearnRole findFirstByShortName(String shortName);
-
-public interface LearnRoleRepository extends CrudRepository<LearnRole, Integer> {
-
-    /**
-     * 
-     * @param shortName
-     * @return
-     */
-    public LearnRole findFirstByShortName(String shortName);
 }
