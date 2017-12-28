@@ -188,7 +188,9 @@ public class CompanyService  extends CommonService {
 
         Company updatedCompany = update(companyJson, companyInDb);
 
-        updatedCompany.getLocation().setCompany(null); // This is required before doing validation otherwise validation is cascaded recursively and gives stackoverflow error
+        if (updatedCompany.getLocation() != null) {
+            updatedCompany.getLocation().setCompany(null); // This is required before doing validation otherwise validation is cascaded recursively and gives stackoverflow error
+        }
         validateObject(updatedCompany);
 
         associateChildEntities(updatedCompany);

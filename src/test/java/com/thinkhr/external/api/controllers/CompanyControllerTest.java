@@ -99,10 +99,10 @@ public class CompanyControllerTest {
 
         mockMvc.perform(get(COMPANY_API_BASE_PATH+"?limit=10")
                 .accept(MediaType.APPLICATION_JSON))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("limit", is("10")))
-                .andExpect(jsonPath("sort", is("companyName ASC")))
-                .andExpect(jsonPath("offset", is("0")));
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("limit", is("10")))
+        .andExpect(jsonPath("sort", is("companyName ASC")))
+        .andExpect(jsonPath("offset", is("0")));
     }
 
     /**
@@ -119,7 +119,7 @@ public class CompanyControllerTest {
 
         mockMvc.perform(get(COMPANY_API_BASE_PATH)
                 .accept(MediaType.APPLICATION_JSON))
-                .andExpect(status().isOk())
+        .andExpect(status().isOk())
         .andExpect(jsonPath("message", IsNot.not(""))); 
     }
 
@@ -136,9 +136,9 @@ public class CompanyControllerTest {
 
         mockMvc.perform(get(COMPANY_API_BASE_PATH + company.getCompanyId())
                 .accept(MediaType.APPLICATION_JSON))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("company.companyName", is(company.getCompanyName())))
-                .andExpect(jsonPath("company.companyId", is(company.getCompanyId())));
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("company.companyName", is(company.getCompanyName())))
+        .andExpect(jsonPath("company.companyId", is(company.getCompanyId())));
 
     }
 
@@ -181,8 +181,8 @@ public class CompanyControllerTest {
                 .accept(MediaType.APPLICATION_JSON)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(getJsonString(company)))
-                .andExpect(status().isCreated())
-                .andExpect(jsonPath("company.companyName", is(company.getCompanyName())));
+        .andExpect(status().isCreated())
+        .andExpect(jsonPath("company.companyName", is(company.getCompanyName())));
     }
 
     /**
@@ -199,11 +199,11 @@ public class CompanyControllerTest {
                 .accept(MediaType.APPLICATION_JSON)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(getJsonString(company)))
-                .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("errorCode", is(APIErrorCodes.VALIDATION_FAILED.getCode().toString())))
-                .andExpect(jsonPath("errorDetails[0].field", is("searchHelp")))
-                .andExpect(jsonPath("errorDetails[0].object", is("company")))
-                .andExpect(jsonPath("errorDetails[0].rejectedValue", is(company.getSearchHelp())));
+        .andExpect(status().isBadRequest())
+        .andExpect(jsonPath("errorCode", is(APIErrorCodes.VALIDATION_FAILED.getCode().toString())))
+        .andExpect(jsonPath("errorDetails[0].field", is("searchHelp")))
+        .andExpect(jsonPath("errorDetails[0].object", is("company")))
+        .andExpect(jsonPath("errorDetails[0].rejectedValue", is(company.getSearchHelp())));
     }
 
     /**
@@ -220,11 +220,11 @@ public class CompanyControllerTest {
                 .accept(MediaType.APPLICATION_JSON)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(getJsonString(company)))
-                .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("errorCode", is(APIErrorCodes.VALIDATION_FAILED.getCode().toString())))
-                .andExpect(jsonPath("errorDetails[0].field", is("companyType")))
-                .andExpect(jsonPath("errorDetails[0].object", is("company")))
-                .andExpect(jsonPath("errorDetails[0].rejectedValue", is(company.getCompanyType())));
+        .andExpect(status().isBadRequest())
+        .andExpect(jsonPath("errorCode", is(APIErrorCodes.VALIDATION_FAILED.getCode().toString())))
+        .andExpect(jsonPath("errorDetails[0].field", is("companyType")))
+        .andExpect(jsonPath("errorDetails[0].object", is("company")))
+        .andExpect(jsonPath("errorDetails[0].rejectedValue", is(company.getCompanyType())));
     }
 
     /**
@@ -241,11 +241,11 @@ public class CompanyControllerTest {
                 .accept(MediaType.APPLICATION_JSON)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(getJsonString(company)))
-                .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("errorCode", is(APIErrorCodes.VALIDATION_FAILED.getCode().toString())))
-                .andExpect(jsonPath("errorDetails[0].field", is("companyName")))
-                .andExpect(jsonPath("errorDetails[0].object", is("company")))
-                .andExpect(jsonPath("errorDetails[0].rejectedValue", is(company.getCompanyName())));
+        .andExpect(status().isBadRequest())
+        .andExpect(jsonPath("errorCode", is(APIErrorCodes.VALIDATION_FAILED.getCode().toString())))
+        .andExpect(jsonPath("errorDetails[0].field", is("companyName")))
+        .andExpect(jsonPath("errorDetails[0].object", is("company")))
+        .andExpect(jsonPath("errorDetails[0].rejectedValue", is(company.getCompanyName())));
     }
 
     /**
@@ -262,11 +262,11 @@ public class CompanyControllerTest {
                 .accept(MediaType.APPLICATION_JSON)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(getJsonString(company)))
-                .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("errorCode", is(APIErrorCodes.VALIDATION_FAILED.getCode().toString())))
-                .andExpect(jsonPath("errorDetails[0].field", is("companySince")))
-                .andExpect(jsonPath("errorDetails[0].object", is("company")))
-                .andExpect(jsonPath("errorDetails[0].rejectedValue", is(company.getCompanySince())));
+        .andExpect(status().isBadRequest())
+        .andExpect(jsonPath("errorCode", is(APIErrorCodes.VALIDATION_FAILED.getCode().toString())))
+        .andExpect(jsonPath("errorDetails[0].field", is("companySince")))
+        .andExpect(jsonPath("errorDetails[0].object", is("company")))
+        .andExpect(jsonPath("errorDetails[0].rejectedValue", is(company.getCompanySince())));
     }
 
     /**
@@ -283,11 +283,11 @@ public class CompanyControllerTest {
                 .accept(MediaType.APPLICATION_JSON)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(getJsonString(company)))
-                .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("errorCode", is(APIErrorCodes.VALIDATION_FAILED.getCode().toString())))
-                .andExpect(jsonPath("errorDetails[0].field", is("specialNote")))
-                .andExpect(jsonPath("errorDetails[0].object", is("company")))
-                .andExpect(jsonPath("errorDetails[0].rejectedValue", is(company.getSpecialNote())));
+        .andExpect(status().isBadRequest())
+        .andExpect(jsonPath("errorCode", is(APIErrorCodes.VALIDATION_FAILED.getCode().toString())))
+        .andExpect(jsonPath("errorDetails[0].field", is("specialNote")))
+        .andExpect(jsonPath("errorDetails[0].object", is("company")))
+        .andExpect(jsonPath("errorDetails[0].rejectedValue", is(company.getSpecialNote())));
     }
 
     /**
@@ -313,8 +313,8 @@ public class CompanyControllerTest {
                 .accept(MediaType.APPLICATION_JSON)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(request))
-                .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("errorCode", is(APIErrorCodes.MALFORMED_JSON_REQUEST.getCode().toString())));
+        .andExpect(status().isBadRequest())
+        .andExpect(jsonPath("errorCode", is(APIErrorCodes.MALFORMED_JSON_REQUEST.getCode().toString())));
     }
 
     /**
@@ -337,7 +337,7 @@ public class CompanyControllerTest {
                 .accept(MediaType.APPLICATION_JSON)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(getJsonString(company)))
-                .andExpect(status().isMethodNotAllowed());
+        .andExpect(status().isMethodNotAllowed());
     }
 
 
@@ -359,8 +359,8 @@ public class CompanyControllerTest {
                 .accept(MediaType.APPLICATION_JSON)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(getJsonString(company)))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("company.companyName", is(company.getCompanyName())));
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("company.companyName", is(company.getCompanyName())));
     }
 
     /**
@@ -397,7 +397,7 @@ public class CompanyControllerTest {
 
         mockMvc.perform(delete(COMPANY_API_BASE_PATH+company.getCompanyId())
                 .accept(MediaType.APPLICATION_JSON))
-                .andExpect(status().isNotFound());
+        .andExpect(status().isNotFound());
     }
 
     /**
