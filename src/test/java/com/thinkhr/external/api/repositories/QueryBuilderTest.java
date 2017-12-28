@@ -30,7 +30,7 @@ public class QueryBuilderTest {
         List<String> allColumns = getCompanyColumnList();
         allColumns.addAll(QueryBuilder.companyRequiredFields);
         assertNotNull(insertQuery);
-        assertEquals(15, allColumns.size());
+        assertEquals(16, allColumns.size());
         assertEquals(testQueryForCompany(), insertQuery);
         assertNotEquals(testQueryForLocation(), insertQuery); 
     }
@@ -54,9 +54,9 @@ public class QueryBuilderTest {
     public void testBuildLocationInsertQuery() {
         String insertQuery = QueryBuilder.buildLocationInsertQuery(getLocationColumnList());
         List<String> allColumns = getLocationColumnList();
-        allColumns.add(QueryBuilder.REQUIRED_FIELD_FOR_LOCATION);
+        allColumns.addAll(QueryBuilder.locationRequiredFields);
         assertNotNull(insertQuery);
-        assertEquals(6, allColumns.size());
+        assertEquals(7, allColumns.size());
         assertNotEquals(testQueryForCompany(), insertQuery);
         assertEquals(testQueryForLocation(), insertQuery);
     }

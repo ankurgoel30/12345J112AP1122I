@@ -1,5 +1,6 @@
 package com.thinkhr.external.api.db.entities;
 
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
@@ -52,6 +53,7 @@ public class Location {
     
     @NotNull
     String zip;
+    String tempID;
     
     @OneToOne(fetch=FetchType.LAZY)
     @JoinColumn(name="client_id")

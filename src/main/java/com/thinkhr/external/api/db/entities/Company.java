@@ -335,7 +335,7 @@ public class Company implements SearchableEntity {
     private Integer parentCompanyId;
 
     @Column(name = "t1_configuration_id")
-    private Integer parentConfigurationId;
+    private Integer configurationId;
 
     @Column(name = "t1_customfield1")
     private String customfield1;
