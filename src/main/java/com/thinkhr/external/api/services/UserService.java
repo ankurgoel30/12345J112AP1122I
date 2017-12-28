@@ -166,6 +166,7 @@ public class UserService extends CommonService {
         }
 
         User updatedUser = update(userJson, userInDb);
+        validateObject(updatedUser);
 
         Integer roleId = updatedUser.getRoleId();
         if (roleId != null && roleId != ROLE_ID_FOR_INACTIVE && !validateRoleIdFromDB(roleId)) {

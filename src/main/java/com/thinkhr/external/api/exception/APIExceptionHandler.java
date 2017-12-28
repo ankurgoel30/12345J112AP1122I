@@ -117,15 +117,18 @@ public class APIExceptionHandler extends ResponseEntityExceptionHandler {
      * @return the APIError object
      */
     @ExceptionHandler(javax.validation.ConstraintViolationException.class)
-    protected ResponseEntity<Object> handleConstraintViolation(
-            javax.validation.ConstraintViolationException ex) {
+    protected ResponseEntity<Object> handleConstraintViolation(javax.validation.ConstraintViolationException ex) {
 
         logger.error(ex);
         APIError apiError = new APIError(BAD_REQUEST, APIErrorCodes.VALIDATION_FAILED, ex);
-        ex.getConstraintViolations().forEach(obj -> { String messageTemplate = obj.getConstraintDescriptor().getMessageTemplate();
-        if (StringUtils.isNotBlank(messageTemplate)) {
-            apiError.setExceptionDetail(messageTemplate);
-        } } );
+        ex.getConstraintViolations().forEach(obj -> {
+            String messageTemplate = obj.getConstraintDescriptor().getMessageTemplate();
+            if (StringUtils.isNotBlank(messageTemplate)) {
+                apiError.setExceptionDetail(messageTemplate);
+            }
+        });
+
+        apiError.addErrorDetail(ex.getConstraintViolations());
         apiError.setMessage(resourceHandler.get(APIErrorCodes.VALIDATION_FAILED.name()));
         return buildResponseEntity(apiError);
     }

@@ -7,6 +7,12 @@ import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+
+import javax.validation.ConstraintViolation;
+import javax.validation.ConstraintViolationException;
+import javax.validation.Validation;
+import javax.validation.Validator;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -186,11 +192,29 @@ public class CommonService {
      * @return
      * @throws IOException
      */
-    public static <T> T update(String json, T objectToUpdate) throws IOException {
+    public <T> T update(String json, T objectToUpdate) throws IOException {
         ObjectMapper objectMapper = new ObjectMapper();
         objectMapper.setDefaultMergeable(true); // This is required for deep update. Available in jackson-databind from 2.9 version
         ObjectReader updater = objectMapper.readerForUpdating(objectToUpdate);
 
         return updater.readValue(json);
+    }
+    
+    /**
+     * Validates given object for any constraint voilations and throws ConstraintViolationException if any 
+     * voilations are found
+     * 
+     * @param object
+     */
+    public <T> void validateObject(T object) {
+
+        Validator validator = Validation.buildDefaultValidatorFactory().getValidator();
+
+        Set<ConstraintViolation<T>> constraintViolations = validator.validate(object);
+
+        if(constraintViolations!=null && !constraintViolations.isEmpty()) {
+            ConstraintViolationException ex = new ConstraintViolationException(constraintViolations);
+            throw ex;
+        }
     }
 }
