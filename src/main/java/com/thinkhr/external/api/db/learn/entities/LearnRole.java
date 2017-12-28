@@ -1,11 +1,12 @@
 package com.thinkhr.external.api.db.learn.entities;
 
+import javax.persistence.Basic;
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
-import javax.persistence.Lob;
 import javax.persistence.Table;
 
 import lombok.Data;
@@ -30,14 +31,15 @@ public class LearnRole {
     private String name;
 
     @Column(name = "shortname")
-    private String shortname;
+    private String shortName;
 
     @Column(name = "description")
+    @Basic(fetch = FetchType.LAZY)
     private String description;
 
     @Column(name = "sortorder")
-    private Integer sortorder;
+    private Integer sortOrder;
 
     @Column(name = "archetype")
-    private String archetype;
+    private String archeType;
 }

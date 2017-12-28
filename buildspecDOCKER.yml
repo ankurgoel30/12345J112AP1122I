@@ -3,6 +3,8 @@ version: 0.2
 env:
   variables:
     JAVA_HOME: "/usr/lib/jvm/java-8-openjdk-amd64"
+    TARGET: "DEV"
+    VERSION: "0.7"
 
 phases:
   install:
@@ -24,12 +26,11 @@ phases:
     commands:
       - echo Entered the build phase...
       - echo Build started on `date`
-      - mvn clean compile test install
-      - docker build -t thr-japi .
-      - docker tag thr-japi:latest 743115313691.dkr.ecr.us-west-2.amazonaws.com/thr-japi:latest
+      - docker build -t thr-japi:$TARGET --file Dockerfile.AWS --build-arg VER=$VERSION-$TARGET .
+      - docker tag thr-japi:$TARGET 743115313691.dkr.ecr.us-west-2.amazonaws.com/thr-japi:$TARGET
   post_build:
     commands:
       - echo Entered the post_build phase...
       - echo Build completed on `date`
       - echo Build pushing the docker image
-      - docker push 743115313691.dkr.ecr.us-west-2.amazonaws.com/thr-japi:latest
+      - docker push 743115313691.dkr.ecr.us-west-2.amazonaws.com/thr-japi:$TARGET

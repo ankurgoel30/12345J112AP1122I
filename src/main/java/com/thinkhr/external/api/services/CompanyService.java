@@ -2,6 +2,7 @@ package com.thinkhr.external.api.services;
 
 import static com.thinkhr.external.api.ApplicationConstants.COMMA_SEPARATOR;
 import static com.thinkhr.external.api.ApplicationConstants.COMPANY;
+import static com.thinkhr.external.api.ApplicationConstants.CONFIGURATION_ID_FOR_INACTIVE;
 import static com.thinkhr.external.api.ApplicationConstants.DEFAULT_SORT_BY_COMPANY_NAME;
 import static com.thinkhr.external.api.ApplicationConstants.LOCATION;
 import static com.thinkhr.external.api.ApplicationConstants.TOTAL_RECORDS;
@@ -138,6 +139,11 @@ public class CompanyService  extends CommonService {
 
         associateChildEntities(company);
 
+        Integer configurationId = company.getConfigurationId();
+        if (configurationId != null && configurationId != CONFIGURATION_ID_FOR_INACTIVE
+                && !validateConfigurationIdFromDB(configurationId)) {
+            company.setConfigurationId(null);
+        }
         Company throneCompany = companyRepository.save(company);
         
         // Saving CompanyContract
@@ -488,6 +494,27 @@ public class CompanyService  extends CommonService {
         }
 
         return isDuplicate;
+    }
+
+    /**
+     * Enable specific company in database
+     * //TODO: Understand  how this function will be used and what will be the inputs
+     * 
+     * @param companyId
+     */
+    public int activateCompany(int companyId) throws ApplicationException {
+        Company company = companyRepository.findOne(companyId);
+
+        if (null == company) {
+            throw ApplicationException.createEntityNotFoundError(APIErrorCodes.ENTITY_NOT_FOUND, "company",
+                    "companyId=" + companyId);
+        }
+
+        companyRepository.activateCompany(companyId);
+
+        learnCompanyService.activateLearnCompany(company, null);
+
+        return companyId;
     }
 
     /**

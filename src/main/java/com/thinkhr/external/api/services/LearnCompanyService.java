@@ -1,5 +1,6 @@
 package com.thinkhr.external.api.services;
 
+import static com.thinkhr.external.api.ApplicationConstants.CONFIGURATION_ID_FOR_INACTIVE;
 import static com.thinkhr.external.api.ApplicationConstants.INACT;
 import static com.thinkhr.external.api.ApplicationConstants.UNDERSCORE;
 
@@ -10,14 +11,11 @@ import org.hashids.Hashids;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.thinkhr.external.api.db.entities.Company;
 import com.thinkhr.external.api.db.learn.entities.LearnCompany;
 import com.thinkhr.external.api.db.learn.entities.LearnPackageMaster;
-import com.thinkhr.external.api.helpers.ModelConvertor;
-import com.thinkhr.external.api.learn.repositories.LearnCompanyRepository;
-import com.thinkhr.external.api.learn.repositories.LearnFileDataRepository;
-import com.thinkhr.external.api.learn.repositories.PackageRepository;
 
 /**
  * Provides a collection of all services related with LearnCompany
@@ -28,21 +26,12 @@ import com.thinkhr.external.api.learn.repositories.PackageRepository;
  *
  */
 @Service
-public class LearnCompanyService {
-    @Autowired
-    LearnCompanyRepository learnCompanyRepository;
-
-    @Autowired
-    PackageRepository packageRepository;
-
-    @Autowired
-    protected ModelConvertor modelConvertor;
-
-    @Autowired
-    protected LearnFileDataRepository learnFileRepository;
-
+public class LearnCompanyService extends CommonService {
     @Value("${com.thinkhr.external.api.learn.default.package}")
     protected String defaultCompanyPackage;
+
+    @Autowired
+    protected LearnUserService learnUserService;
 
     /**
      * Save learnCompany to database
@@ -68,12 +57,7 @@ public class LearnCompanyService {
 
         learnCompany.setCompanyKey(companyKey);
 
-        String inactiveCompanyName = generateCompanyNameForInactive(
-                throneCompany.getCompanyName(),
-                throneCompany.getBroker(),
-                throneCompany.getCompanyId());
-
-        learnCompany.setCompanyName(inactiveCompanyName);
+        learnCompany.setCompanyName(getLearnCompanyNameByConfigurationId(throneCompany));
 
         this.addPackage(learnCompany, defaultCompanyPackage);
 
@@ -139,13 +123,15 @@ public class LearnCompanyService {
      * @return
      */
     public LearnCompany updateLearnCompany(Company throneCompany) {
-
+        
         LearnCompany learnCompany = learnCompanyRepository.findFirstByCompanyIdAndCompanyKey(
                 throneCompany.getCompanyId(), generateCompanyKey(throneCompany.getCompanyId()));
-
+        
         if (learnCompany == null) {
             // TODO : what to do ?
         }
+
+        learnCompany.setCompanyName(getLearnCompanyNameByConfigurationId(throneCompany));
 
         return this.updateLearnCompany(learnCompany);
     }
@@ -154,9 +140,12 @@ public class LearnCompanyService {
      * Returns true if learnCompany corresponding to  throneCompany and compannyKey
      * is deactivated successfully else false
      * 
+     * Also deactivates all learnUsers corresponding to given throneCompany
+     * 
      * @param throneCompany
      * @return
      */
+    @Transactional
     public boolean deactivateLearnCompany(Company throneCompany) {
 
         Integer companyId = throneCompany.getCompanyId();
@@ -180,6 +169,7 @@ public class LearnCompanyService {
 
         learnCompanyRepository.save(learnCompany);
         
+        learnUserService.deactivateAllLearnUsers(throneCompany); // THR-3932
         return true;
     }
 
@@ -195,6 +185,22 @@ public class LearnCompanyService {
                 .append(UNDERSCORE)
                 .append(companyId)
                 .append(INACT).toString();
+    }
+
+    /**
+     * 
+     * @param company
+     * @return
+     */
+    public static String getLearnCompanyNameByConfigurationId(Company company) {
+        String learnCompanyName = null;
+        if (company.getConfigurationId() != null && company.getConfigurationId() != CONFIGURATION_ID_FOR_INACTIVE) {
+            learnCompanyName = company.getCompanyName(); // Active company
+        } else {
+            learnCompanyName = LearnCompanyService.generateCompanyNameForInactive(company.getCompanyName(),
+                    company.getBroker(), company.getCompanyId()); // Inactive company name
+        }
+        return learnCompanyName;
     }
 
     /**
@@ -218,10 +224,8 @@ public class LearnCompanyService {
      * @return
      */
     public boolean activateLearnCompany(Company throneCompany, String companyKey) {
-        boolean isActivated = false;
-
         if (throneCompany == null || throneCompany.getCompanyId() == null || companyKey == null) {
-            return isActivated;
+            return false;
         }
 
 
@@ -230,14 +234,16 @@ public class LearnCompanyService {
                 companyKey);
 
         if (learnCompany == null) {
-            //TODO :  What to do ?
+            //Skip this as no learnCompany for throneCompany is found
+            return true;
         }
 
         learnCompany.setCompanyName(throneCompany.getCompanyName());
 
         learnCompanyRepository.save(learnCompany);
-        isActivated = true;
-        return isActivated;
+
+        learnUserService.activateAllLearnUsers(throneCompany); // THR-3932
+        return true;
     }
 
     /**
@@ -249,7 +255,7 @@ public class LearnCompanyService {
     public Integer addLearnCompanyForBulk(Company throneCompany) {
         LearnPackageMaster pkg = this.getDefaultPackageMaster();
         Integer pkgId = pkg == null ? null : pkg.getId().intValue();
-        return learnFileRepository.saveLearnCompanyRecord(modelConvertor.getColumnsForInsert(throneCompany), pkgId);
+        return learnFileDataRepository.saveLearnCompanyRecord(modelConvertor.getColumnsForInsert(throneCompany), pkgId);
 
     }
 }

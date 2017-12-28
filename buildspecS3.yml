@@ -3,6 +3,8 @@ version: 0.2
 env:
   variables:
     JAVA_HOME: "/usr/lib/jvm/java-8-openjdk-amd64"
+    TARGET: "DEV"
+    VERSION: "0.7"
 
 phases:
   install:
@@ -14,12 +16,19 @@ phases:
   pre_build:
     commands:
       - echo Entered the pre_build phase...
+      - mvn versions:set -DnewVersion=$VERSION-$TARGET
   build:
     commands:
       - echo Entered the build phase...
       - echo Build started on `date`
-      - mvn test
+      - mvn -Dmaven.test.skip=true install
   post_build:
     commands:
       - echo Entered the post_build phase...
       - echo Build completed on `date`
+artifacts:
+  files:
+    - target/japi-$VERSION-$TARGET.jar
+    - buildspecDOCKER.yml
+    - Dockerfile.AWS
+  discard-paths: yes

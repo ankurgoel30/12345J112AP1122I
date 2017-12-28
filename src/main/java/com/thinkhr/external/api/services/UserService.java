@@ -4,7 +4,10 @@ import static com.thinkhr.external.api.ApplicationConstants.COMMA_SEPARATOR;
 import static com.thinkhr.external.api.ApplicationConstants.CONTACT;
 import static com.thinkhr.external.api.ApplicationConstants.DEFAULT_PASSWORD;
 import static com.thinkhr.external.api.ApplicationConstants.DEFAULT_SORT_BY_USER_NAME;
+import static com.thinkhr.external.api.ApplicationConstants.ROLE_ID_FOR_INACTIVE;
+import static com.thinkhr.external.api.ApplicationConstants.SPACE;
 import static com.thinkhr.external.api.ApplicationConstants.TOTAL_RECORDS;
+import static com.thinkhr.external.api.ApplicationConstants.UNDERSCORE;
 import static com.thinkhr.external.api.ApplicationConstants.USER;
 import static com.thinkhr.external.api.ApplicationConstants.USER_COLUMN_CLIENT_ID;
 import static com.thinkhr.external.api.ApplicationConstants.USER_COLUMN_PASSWORD;
@@ -125,26 +128,49 @@ public class UserService extends CommonService {
      */
 
     @Transactional
-    public User addUser(User user)  {
-        User throneUser =  userRepository.save(user);
+    public User addUser(User user) {
+        Integer roleId = user.getRoleId();
+        if (roleId != null && roleId != ROLE_ID_FOR_INACTIVE && !validateRoleIdFromDB(roleId)) {
+            user.setRoleId(null);
+        }
+        User throneUser = userRepository.save(user);
         learnUserService.addLearnUser(throneUser); //THR-3932
         return throneUser;
+    }
+
+    /**
+     * Validates roleId from the Database.
+     * 
+     * @param roleId
+     * @return
+     */
+    public boolean validateRoleIdFromDB(Integer roleId) {
+        return learnRoleRepository.findOne(roleId) == null ? false : true;
     }
 
     /**
      * Update a user in database
      * 
      * @param User object
-     * @throws ApplicationException 
+     * @throws ApplicationException
      */
+    @Transactional
     public User updateUser(User user) throws ApplicationException  {
         Integer userId = user.getUserId();
 
         if (null == userRepository.findOne(userId)) {
             throw ApplicationException.createEntityNotFoundError(APIErrorCodes.ENTITY_NOT_FOUND, "user", "userId="+userId);
         }
-        //If not passed in model, then object will become in-active.
-        return userRepository.save(user);
+
+        Integer roleId = user.getRoleId();
+        if (roleId != null && roleId != ROLE_ID_FOR_INACTIVE && !validateRoleIdFromDB(roleId)) {
+            user.setRoleId(null);
+        }
+
+        // If not passed in model, then object will become in-active.
+        User throneUser = userRepository.save(user);
+        learnUserService.updateLearnUser(throneUser);
+        return throneUser;
     }
 
     /**
@@ -224,7 +250,6 @@ public class UserService extends CommonService {
                 continue; //skip any fully blank line 
             }
             
-            String userName = getValueFromRow(record, headerIndexMap.get(FileUploadEnum.USER_USER_NAME.getHeader()));
            
            List<String> requiredFields = getRequiredHeadersFromStdFields(CONTACT);
            
@@ -248,11 +273,6 @@ public class UserService extends CommonService {
                         getMessageFromResourceBundle(resourceHandler, APIErrorCodes.INVALID_CLIENT_NAME, clientName,
                                 String.valueOf(broker.getCompanyId())),
                        getMessageFromResourceBundle(resourceHandler, APIErrorCodes.SKIPPED_RECORD));
-               continue;
-           }
-           
-            //Check to validate duplicate record
-            if (checkDuplicate(record, userName, fileImportResult)) {
                 continue;
             }
             
@@ -304,13 +324,29 @@ public class UserService extends CommonService {
 
         try {
 
-            //Finally save companies one by one
+            //Finally save users one by one
             List<String> userColumnsToInsert = new ArrayList<String>(userHeaderColumnMap.keySet());
             userColumnValues.add(companyId);
             userColumnValues.add(encDecyptor.encrypt(DEFAULT_PASSWORD));
             
             userColumnsToInsert.add(USER_COLUMN_CLIENT_ID);
             userColumnsToInsert.add(USER_COLUMN_PASSWORD);
+
+            // THR-3927 [Start]
+            String userName = getValueFromRow(record, headerIndexMap.get(FileUploadEnum.USER_USER_NAME.getHeader()));
+            String lastName = getValueFromRow(record, headerIndexMap.get(FileUploadEnum.USER_LAST_NAME.getHeader()));
+            String firstName = getValueFromRow(record, headerIndexMap.get(FileUploadEnum.USER_FIRST_NAME.getHeader()));
+            String email = getValueFromRow(record, headerIndexMap.get(FileUploadEnum.USER_EMAIL.getHeader()));
+
+            userName = generateUserName(userName, email, firstName, lastName);
+
+            // Get Index of UserName field in userColumnsToInsert and replace the username  
+            // value in userColumnValues with the generated user name
+            int userNameColumnIndex = userColumnsToInsert.indexOf(FileUploadEnum.USER_USER_NAME.getColumn());
+            if (userNameColumnIndex != -1) {
+                userColumnValues.set(userNameColumnIndex, userName);
+            }
+            // THR-3927 [End]
 
             saveUserRecord(userColumnValues, userColumnsToInsert);
 
@@ -331,7 +367,7 @@ public class UserService extends CommonService {
      * @param userColumnsToInsert
      */
     @Transactional
-    private void saveUserRecord(List<Object> userColumnValues, List<String> userColumnsToInsert) {
+    public void saveUserRecord(List<Object> userColumnValues, List<String> userColumnsToInsert) {
         Integer userId = fileDataRepository.saveUserRecord(userColumnsToInsert, userColumnValues);
         User throneUser = this.getUser(userId);
 
@@ -347,29 +383,48 @@ public class UserService extends CommonService {
     }
 
     /**
-     * Check validate username is duplicate or not
-     *  
-     * @param record
+     * Check for duplicate username in database
      * @param username
-     * @param fileImportResult
      * @return
      */
-    public boolean checkDuplicate(String record, String username, 
-            FileImportResult fileImportResult) {
-
+    public boolean checkDuplicate(String username) {
         if (username == null) {
             return false;
         }
         if (userRepository.findByUserName(username) != null) {
-            String causeDuplicateName = getMessageFromResourceBundle(resourceHandler, APIErrorCodes.DUPLICATE_USER_RECORD, username);
-            fileImportResult.addFailedRecord(record, causeDuplicateName,
-                    getMessageFromResourceBundle(resourceHandler, APIErrorCodes.SKIPPED_RECORD));
             return true;
         }
-
         return false;
     }
 
+    /**
+     * Logic to generate username from email, firstName and lastName if it is 
+     * blank or duplicate 
+     * 
+     * JIRA = THR-3927
+     * 
+     * @param record
+     * @param headerIndexMap
+     * @return
+     */
+    protected String generateUserName(String userName, String email, String firstName, String lastName) {
+        if (StringUtils.isBlank(userName)) {
+            userName = email;
+        }
+
+        int i = 1;
+        while (true) {
+            if (!StringUtils.isBlank(userName) && !checkDuplicate(userName)) { // Not blank and not duplicate
+                break;
+            }
+            firstName = firstName != null ? firstName.replace(SPACE, UNDERSCORE) : null;
+            lastName = lastName != null ? lastName.replace(SPACE, UNDERSCORE) : null;
+            userName = firstName + UNDERSCORE + lastName + UNDERSCORE + i;
+            i = i + 1;
+        }
+
+        return userName;
+    }
     
     /**
      * Return default sort field for user service

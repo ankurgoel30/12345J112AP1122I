@@ -87,7 +87,11 @@ public class ApplicationConstants {
     public static final String INACT = "_inact";
     public static final String UNDERSCORE = "_";
 
+    public static final String BROKER_ROLE = "broker";
+    public static final String STUDENT_ROLE = "student";
 
+    public static final Integer ROLE_ID_FOR_INACTIVE = -1;
+    public static final Integer CONFIGURATION_ID_FOR_INACTIVE = -1;
 
     // TODO : Decide where to get productId
     public static final Integer DEFAULT_PRODUCT_ID = 26;

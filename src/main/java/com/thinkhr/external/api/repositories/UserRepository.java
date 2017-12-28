@@ -1,5 +1,7 @@
 package com.thinkhr.external.api.repositories;
 
+import java.util.List;
+
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
@@ -25,5 +27,7 @@ public interface UserRepository extends PagingAndSortingRepository<User, Integer
     public void softDelete(int userID);
     
     public User findByUserName(String userName);
+
+    public List<User> findByCompanyId(Integer companyId);
 
 }

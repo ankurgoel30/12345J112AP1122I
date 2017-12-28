@@ -285,4 +285,25 @@ public class UserRepositoryTest {
         assertEquals(1, users.getContent().size()); //As we have only one record have searchKey = "Sandeep"
     }
 
+    /**
+     * Test to verify findByUserName method.
+     * 
+     */
+    @Test
+    public void testFindByUserName() {
+
+        for (User user : createUserList()) {
+            userRepository.save(user);
+        }
+
+        User user = userRepository.findByUserName("smahajan");
+
+        assertNotNull(user.getUserId());
+        assertEquals("Sushil", user.getFirstName());
+        assertEquals("Mahajan", user.getLastName());
+        assertEquals("smahajan@gmail.com", user.getEmail());
+        assertEquals("smahajan", user.getUserName());
+        assertEquals("ASI", user.getCompanyName());
+    }
+
 }

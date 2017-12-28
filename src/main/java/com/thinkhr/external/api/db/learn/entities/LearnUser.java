@@ -1,10 +1,14 @@
 package com.thinkhr.external.api.db.learn.entities;
 
+import java.util.List;
+
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.OneToMany;
 import javax.persistence.Table;
 
 import org.hibernate.annotations.DynamicInsert;
@@ -57,4 +61,7 @@ public class LearnUser {
     
     @Column(name="blockedaccount")
     private Integer blockedAccount;
+    
+    @OneToMany(mappedBy= "learnUser" , cascade = CascadeType.ALL)
+    private List<LearnUserRoleAssignment> roleAssignments;
 }

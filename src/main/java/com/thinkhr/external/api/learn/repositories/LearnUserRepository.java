@@ -16,4 +16,11 @@ import com.thinkhr.external.api.db.learn.entities.LearnUser;
 
 public interface LearnUserRepository extends PagingAndSortingRepository<LearnUser, Long>, JpaSpecificationExecutor<LearnUser> {
 
+    /**
+     * 
+     * @param thrUserId
+     * @return
+     */
+    public LearnUser findFirstByThrUserId(Integer thrUserId);
+
 }

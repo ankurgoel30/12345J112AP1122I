@@ -9,12 +9,14 @@ import static org.junit.Assert.fail;
 import static org.mockito.Mockito.when;
 
 import java.util.Date;
+import java.util.List;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Matchers;
 import org.mockito.Mock;
+import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ContextConfiguration;
@@ -27,6 +29,7 @@ import com.thinkhr.external.api.db.learn.entities.LearnPackageMaster;
 import com.thinkhr.external.api.exception.ApplicationException;
 import com.thinkhr.external.api.helpers.ModelConvertor;
 import com.thinkhr.external.api.learn.repositories.LearnCompanyRepository;
+import com.thinkhr.external.api.learn.repositories.LearnFileDataRepository;
 import com.thinkhr.external.api.learn.repositories.PackageRepository;
 import com.thinkhr.external.api.utils.ApiTestDataUtil;
 
@@ -42,10 +45,16 @@ public class LearnCompanyServiceTest {
     private LearnCompanyRepository learnCompanyRepository;
 
     @Mock
+    private LearnFileDataRepository learnFileDataRepository;
+
+    @Mock
     private PackageRepository packageRepository;
 
     @Mock
     private ModelConvertor modelConvertor;
+
+    @Mock
+    private LearnUserService learnUserService;
 
     @Value("${com.thinkhr.external.api.learn.default.package}")
     private String defaultCompanyPackage;
@@ -118,7 +127,7 @@ public class LearnCompanyServiceTest {
      * 
      */
     @Test
-    public void testUpdateLearnCompany() {
+    public void testUpdateLearnCompany_ForLearnCompany() {
         Long companyId = 1L;
 
         LearnCompany company = ApiTestDataUtil.createLearnCompany(companyId, 1, "Pepcus", "Software");
@@ -136,6 +145,32 @@ public class LearnCompanyServiceTest {
             fail("Not expecting application exception for a valid test case");
         }
         assertEquals("Pepcus - Updated", companyUpdated.getCompanyName());
+    }
+
+    /**
+     * Test to verify when learnCompany is updated.
+     * 
+     */
+    @Test
+    public void testUpdateLearnCompany_ForCompany() {
+        Long companyId = 1L;
+
+        Company company = createCompany();
+        LearnCompany learnCompany = ApiTestDataUtil.createLearnCompany(companyId, 1, "Pepcus", "Software");
+
+        when(learnCompanyRepository.findFirstByCompanyIdAndCompanyKey(company.getCompanyId(),
+                LearnCompanyService.generateCompanyKey(company.getCompanyId()))).thenReturn(learnCompany);
+
+        when(learnCompanyRepository.save(learnCompany)).thenReturn(learnCompany);
+        when(learnCompanyRepository.findOne(companyId)).thenReturn(learnCompany);
+
+        LearnCompany companyUpdated = null;
+        try {
+            companyUpdated = learnService.updateLearnCompany(company);
+        } catch (ApplicationException e) {
+            fail("Not expecting application exception for a valid test case");
+        }
+        assertEquals("Pepcus_null_1_inact", companyUpdated.getCompanyName());
     }
 
     /**
@@ -176,9 +211,32 @@ public class LearnCompanyServiceTest {
         when(learnCompanyRepository.findFirstByCompanyIdAndCompanyKey(companyId, companyKey)).thenReturn(learnCompany);
         when(learnCompanyRepository.save(learnCompany)).thenReturn(learnCompany);
 
+        //Mock call to activatte all learnUsers 
+        Mockito.doNothing().when(learnUserService).activateAllLearnUsers(Matchers.any());
+
         boolean isAactivate = learnService.activateLearnCompany(company, companyKey);
 
         assertTrue(isAactivate);
 
+    }
+
+    /**
+     * Test to verify addLearnCompanyForBulk method.
+     */
+    @Test
+    public void testAddLearnCompanyForBulk() {
+        Company company = createCompany();
+
+        LearnPackageMaster package1 = ApiTestDataUtil.createPacakge(1L, 10, "World");
+        List<Object> columns = ApiTestDataUtil.getInsertColumnsForLearn(company);
+
+        when(packageRepository.findFirstByName(defaultCompanyPackage)).thenReturn(package1);
+
+        when(learnFileDataRepository.saveLearnCompanyRecord(columns, package1.getId().intValue()))
+                .thenReturn(Matchers.anyInt());
+
+        Integer companyId = learnService.addLearnCompanyForBulk(company);
+
+        assertNotNull(companyId);
     }
 }

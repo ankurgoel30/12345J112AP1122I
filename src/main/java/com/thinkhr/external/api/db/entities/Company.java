@@ -329,7 +329,7 @@ public class Company implements SearchableEntity {
     private Integer parentCompanyId;
 
     @Column(name = "t1_configuration_id")
-    private Integer parentConfigurationId;
+    private Integer configurationId;
 
     @Column(name = "t1_customfield1")
     private String customfield1;
@@ -351,6 +351,17 @@ public class Company implements SearchableEntity {
     
     @OneToOne(mappedBy = "company",cascade=CascadeType.ALL,fetch=FetchType.LAZY )
     private Location location ;
+    
+    
+    /**
+     * Determines whether this company is broker/partner company
+     * 
+     * @return
+     */
+    @JsonIgnore
+    public boolean isBroker() {
+        return this.getBroker() == null;
+    }
 
     /**
      * Returns fields where "SearchSpec" searching acts on.
@@ -378,4 +389,6 @@ public class Company implements SearchableEntity {
     public String getMultiDataNodeName() {
         return "companies";
     }
+    
+  
 }
