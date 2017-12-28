@@ -137,20 +137,7 @@ public class CompanyService  extends CommonService {
         // setting tempID for company 
         company.setTempID(CommonUtil.getTempId());
 
-        associateChildEntities(company);
-
-        Integer configurationId = company.getConfigurationId();
-        Integer brokerId = company.getBroker();
-        if (configurationId != null && configurationId != CONFIGURATION_ID_FOR_INACTIVE && brokerId != null
-                && !validateConfigurationIdFromDB(configurationId, brokerId)) {
-            throw ApplicationException.createBadRequest(APIErrorCodes.INVALID_CONFIGURATION_ID,
-                    String.valueOf(configurationId));
-        }
-
-        if (configurationId != null && configurationId == CONFIGURATION_ID_FOR_INACTIVE) {
-            company.setConfigurationId(null);
-        }
-        Company throneCompany = companyRepository.save(company);
+        Company throneCompany = saveCompany(company);
         
         // Saving CompanyContract
         CompanyContract companyContract = this.addCompanyContract(throneCompany);
@@ -227,24 +214,41 @@ public class CompanyService  extends CommonService {
         Integer companyId = company.getCompanyId();
 
         if (null == companyRepository.findOne(companyId)) {
-            throw ApplicationException.createEntityNotFoundError(APIErrorCodes.ENTITY_NOT_FOUND, "company", "companyId="+companyId);
+            throw ApplicationException.createEntityNotFoundError(APIErrorCodes.ENTITY_NOT_FOUND,
+                    "company", "companyId="+companyId);
         }
+        
+        Company throneCompany = saveCompany(company);
+        learnCompanyService.updateLearnCompany(throneCompany);
+        return throneCompany;
+    }
+
+
+    /**
+     * To save company object
+     * 
+     * @param company
+     * @return
+     */
+    private Company saveCompany(Company company) {
+       
         associateChildEntities(company);
 
         Integer configurationId = company.getConfigurationId();
         Integer brokerId = company.getBroker();
-        if (configurationId != null && configurationId != CONFIGURATION_ID_FOR_INACTIVE && brokerId != null
+
+        if (configurationId == CONFIGURATION_ID_FOR_INACTIVE) {
+            company.setConfigurationId(null);
+        }
+        
+        if (configurationId != null && brokerId != null
                 && !validateConfigurationIdFromDB(configurationId, brokerId)) {
             throw ApplicationException.createBadRequest(APIErrorCodes.INVALID_CONFIGURATION_ID,
                     String.valueOf(configurationId));
         }
 
-        if (configurationId != null && configurationId == CONFIGURATION_ID_FOR_INACTIVE) {
-            company.setConfigurationId(null);
-        }
-
         Company throneCompany = companyRepository.save(company);
-        learnCompanyService.updateLearnCompany(throneCompany);
+        
         return throneCompany;
     }
 

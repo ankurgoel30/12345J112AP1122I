@@ -171,16 +171,17 @@ public class UserService extends CommonService {
         Integer userId = user.getUserId();
 
         if (null == userRepository.findOne(userId)) {
-            throw ApplicationException.createEntityNotFoundError(APIErrorCodes.ENTITY_NOT_FOUND, "user", "userId="+userId);
+            throw ApplicationException.createEntityNotFoundError(APIErrorCodes.ENTITY_NOT_FOUND, 
+                    "user", "userId="+userId);
         }
 
         Integer roleId = user.getRoleId();
-        if (roleId != null && roleId != ROLE_ID_FOR_INACTIVE && !validateRoleIdFromDB(roleId)) {
-            throw ApplicationException.createBadRequest(APIErrorCodes.INVALID_ROLE_ID, String.valueOf(roleId));
-        }
-
-        if (roleId != null && roleId == ROLE_ID_FOR_INACTIVE) {
+        
+        if (roleId == ROLE_ID_FOR_INACTIVE) {
             user.setRoleId(null);
+        }
+        if (roleId != null && !validateRoleIdFromDB(roleId)) {
+            throw ApplicationException.createBadRequest(APIErrorCodes.INVALID_ROLE_ID, String.valueOf(roleId));
         }
 
         // If not passed in model, then object will become in-active.
