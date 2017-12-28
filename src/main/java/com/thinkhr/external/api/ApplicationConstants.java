@@ -98,4 +98,7 @@ public class ApplicationConstants {
 
     public static final Integer DEFAULT_NUMBER_LICENSES = 1000;
 
+	// For Development Environment
+    public static final Integer DEFAULT_BROKER_ID = 8148;
+
 }
