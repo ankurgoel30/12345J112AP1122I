@@ -132,8 +132,14 @@ public class CompanyService  extends CommonService {
         associateChildEntities(company);
 
         Integer configurationId = company.getConfigurationId();
-        if (configurationId != null && configurationId != CONFIGURATION_ID_FOR_INACTIVE
-                && !validateConfigurationIdFromDB(configurationId)) {
+        Integer brokerId = company.getBroker();
+        if (configurationId != null && configurationId != CONFIGURATION_ID_FOR_INACTIVE && brokerId != null
+                && !validateConfigurationIdFromDB(configurationId, brokerId)) {
+            throw ApplicationException.createBadRequest(APIErrorCodes.INVALID_CONFIGURATION_ID,
+                    String.valueOf(configurationId));
+        }
+
+        if (configurationId != null && configurationId == CONFIGURATION_ID_FOR_INACTIVE) {
             company.setConfigurationId(null);
         }
         Company throneCompany = companyRepository.save(company);
@@ -149,8 +155,9 @@ public class CompanyService  extends CommonService {
      * @param configurationId
      * @return
      */
-    public boolean validateConfigurationIdFromDB(Integer configurationId) {
-        return configurationRepository.findOne(configurationId) == null ? false : true;
+    public boolean validateConfigurationIdFromDB(Integer configurationId, Integer brokerId) {
+        return configurationRepository.findFirstByConfigurationIdAndCompanyId(configurationId, brokerId) == null ? false
+                : true;
     }
 
     /**
@@ -182,8 +189,14 @@ public class CompanyService  extends CommonService {
         }
 
         Integer configurationId = company.getConfigurationId();
-        if (configurationId != null && configurationId != CONFIGURATION_ID_FOR_INACTIVE
-                && !validateConfigurationIdFromDB(configurationId)) {
+        Integer brokerId = company.getBroker();
+        if (configurationId != null && configurationId != CONFIGURATION_ID_FOR_INACTIVE && brokerId != null
+                && !validateConfigurationIdFromDB(configurationId, brokerId)) {
+            throw ApplicationException.createBadRequest(APIErrorCodes.INVALID_CONFIGURATION_ID,
+                    String.valueOf(configurationId));
+        }
+
+        if (configurationId != null && configurationId == CONFIGURATION_ID_FOR_INACTIVE) {
             company.setConfigurationId(null);
         }
 

@@ -14,5 +14,11 @@ import com.thinkhr.external.api.db.learn.entities.LearnRole;
  */
 
 public interface LearnRoleRepository extends CrudRepository<LearnRole, Integer> {
-    LearnRole findFirstByShortName(String shortName);
+
+    /**
+     * 
+     * @param shortName
+     * @return
+     */
+    public LearnRole findFirstByShortName(String shortName);
 }

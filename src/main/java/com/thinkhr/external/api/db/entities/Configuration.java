@@ -27,6 +27,9 @@ public class Configuration {
     @Column(name = "id")
     private Integer configurationId;
     
+    @Column(name = "companyId")
+    private Integer companyId;
+    
     @Column(name = "configurationKey")
     @Basic(fetch=FetchType.LAZY)
     private String configurationKey;
