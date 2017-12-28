@@ -1,6 +1,5 @@
 package com.thinkhr.external.api.db.entities;
 
-import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
@@ -42,7 +41,6 @@ public class Location {
     @NotNull
     String address;
     
-    @NotNull
     String address2;
     
     @NotNull
