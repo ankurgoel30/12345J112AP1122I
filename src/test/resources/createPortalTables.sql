@@ -179,3 +179,57 @@ CREATE TABLE `contacts` (
             `t1_roleId` int(11) DEFAULT NULL,                                      
             PRIMARY KEY (`contactID`)                                                                                       
 ); 
+
+
+DROP TABLE IF EXISTS `clients_contracts`;
+CREATE TABLE `clients_contracts` (                           
+                     `relID` int(11) NOT NULL AUTO_INCREMENT,                   
+                     `Client_ID` int(8) NOT NULL,                               
+                     `brokerID` int(11) DEFAULT NULL,                           
+                     `Product_ID` int(2) NOT NULL,                              
+                     `Start_Date` timestamp NOT NULL DEFAULT '0000-00-00',           
+                     `End_Date` timestamp NOT NULL DEFAULT '0000-00-00',             
+                     `parentID` int(11) DEFAULT NULL,                           
+                     `active` int(11) DEFAULT '1',                              
+                     `authKeyContracts` varchar(25) DEFAULT NULL,               
+                     `variable1` varchar(255) DEFAULT NULL,                     
+                     `variable2` varchar(255) DEFAULT NULL,                     
+                     `variable3` varchar(255) DEFAULT NULL,                     
+                     `variable4` varchar(255) DEFAULT NULL,                     
+                     `tempID` varchar(100) DEFAULT NULL,                        
+                     `removeMe` int(11) DEFAULT '0',                            
+                     `activated` int(11) DEFAULT '0',                           
+                     `learn_purchase_id` int(11) DEFAULT NULL,                  
+                     PRIMARY KEY (`relID`)                                     
+);
+
+DROP TABLE IF EXISTS `clients_products`;
+CREATE TABLE `clients_products` (                           
+                    `relID` int(11) NOT NULL AUTO_INCREMENT,                  
+                    `contractID` int(11) NOT NULL DEFAULT '0',                
+                    `Client_ID` varchar(8) DEFAULT '',                        
+                    `Product_ID` varchar(2) DEFAULT '',                       
+                    `Start_Date` timestamp DEFAULT NULL,                   
+                    `End_Date` timestamp DEFAULT NULL,                     
+                    `Setup_Amount` decimal(10,0) DEFAULT '0',                 
+                    `Price_Per_Seat` decimal(11,2) DEFAULT NULL,              
+                    `Monthly_Amount` decimal(10,0) DEFAULT '0',               
+                    `workplaceUsers` int(11) DEFAULT NULL,                    
+                    `clients` int(11) DEFAULT NULL,                           
+                    `issue_frequency` int(11) DEFAULT NULL,                   
+                    `Hourly_Rate` decimal(8,0) DEFAULT '0',                   
+                    `Contract_Hours` varchar(50) DEFAULT '',                  
+                    `Contract_Notes` varchar(250) DEFAULT '',                 
+                    `Contract_File` varchar(150) DEFAULT '',                  
+                    `Contract_Posted` date DEFAULT NULL,              
+                    `Sales_Person` varchar(100) DEFAULT '',                   
+                    `Acct_Exec` varchar(100) DEFAULT '',                      
+                    `Posted_By` varchar(100) DEFAULT '',                      
+                    `authorizationKey` varchar(255) DEFAULT NULL,             
+                    `license_type` varchar(50) DEFAULT 'UNLIMITED',           
+                    `numberLicenses` int(11) DEFAULT NULL,                    
+                    `sponsoredEmail` varchar(30) DEFAULT '0',                 
+                    `sponsored` int(11) DEFAULT '0',                          
+                    `tempID` varchar(255) DEFAULT NULL,                       
+                    PRIMARY KEY (`relID`)                                    
+);

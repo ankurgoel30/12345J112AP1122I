@@ -26,6 +26,8 @@ import org.springframework.mock.web.MockMultipartFile;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.thinkhr.external.api.db.entities.Company;
+import com.thinkhr.external.api.db.entities.CompanyContract;
+import com.thinkhr.external.api.db.entities.CompanyProduct;
 import com.thinkhr.external.api.db.entities.Configuration;
 import com.thinkhr.external.api.db.entities.CustomFields;
 import com.thinkhr.external.api.db.entities.StandardFields;
@@ -205,11 +207,13 @@ public class ApiTestDataUtil {
      * @param name
      * @return
      */
-    public static Configuration createConfiguration(Integer configurationId, String configurationKey, String name) {
+    public static Configuration createConfiguration(Integer configurationId, Integer companyId, String configurationKey,
+            String name) {
         Configuration configuration = new Configuration();
         if (configurationId != null) {
             configuration.setConfigurationId(configurationId);
         }
+        configuration.setCompanyId(companyId);
         configuration.setConfigurationKey(configurationKey);
         configuration.setName(name);
         return configuration;
@@ -227,6 +231,22 @@ public class ApiTestDataUtil {
             role.setId(id);
         }
         role.setName(name);
+        return role;
+    }
+
+    /**
+     * 
+     * @param id
+     * @param name
+     * @return
+     */
+    public static LearnRole createLearnRole(Integer id, String name, String shortName) {
+        LearnRole role = new LearnRole();
+        if (role != null) {
+            role.setId(id);
+        }
+        role.setName(name);
+        role.setShortName(shortName);
         return role;
     }
 
@@ -254,7 +274,7 @@ public class ApiTestDataUtil {
         company.setCompanySince(companySince);
         company.setSpecialNote(specialNote);
         company.setSearchHelp(searchHelp);
-        company.setBroker(broker); 
+        company.setBroker(broker);
         company.setCustom1(custom1);
         company.setIsActive(1);
         return company;
@@ -372,6 +392,53 @@ public class ApiTestDataUtil {
     }
 
     /**
+     * Create object for CompanyContract
+     * 
+     * @param relId
+     * @param companyId
+     * @param startDate
+     * @param tempID
+     * @return
+     */
+    public static CompanyContract createCompanyContract(Integer relId, Integer companyId, Integer productId,
+            Date startDate, String tempID) {
+        CompanyContract contract = new CompanyContract();
+        if (relId != null) {
+            contract.setRelId(relId);
+        }
+        contract.setCompanyId(companyId);
+        contract.setProductId(productId);
+        contract.setStartDate(startDate);
+        contract.setTempID(tempID);
+        return contract;
+    }
+
+    /**
+     * Create object for CompanyProduct
+     * 
+     * @param relId
+     * @param companyId
+     * @param startDate
+     * @param authorizationKey
+     * @param numberLicenses
+     * @param tempID
+     * @return
+     */
+    public static CompanyProduct createCompanyProduct(Integer relId, Integer companyId, Date startDate,
+            String authorizationKey, Integer numberLicenses, String tempID) {
+        CompanyProduct product = new CompanyProduct();
+        if (relId != null) {
+            product.setRelId(relId);
+        }
+        product.setCompanyId(companyId);
+        product.setStartDate(startDate);
+        product.setAuthorizationKey(authorizationKey);
+        product.setNumberLicenses(numberLicenses);
+        product.setTempID(tempID);
+        return product;
+    }
+
+    /**
      * Create List for Company objects
      * 
      * @return
@@ -420,6 +487,28 @@ public class ApiTestDataUtil {
             customFields.setId(id);
         }
         customFields.setCompanyId(companyId);
+        customFields.setCustomFieldColumnName(customFieldColumnName);
+        customFields.setCustomFieldDisplayLabel(customFieldDisplayLabel);
+        return customFields;
+    }
+
+    /**
+     * 
+     * @param id
+     * @param companyId
+     * @param customFieldType
+     * @param customFieldColumnName
+     * @param customFieldDisplayLabel
+     * @return
+     */
+    public static CustomFields createCustomField(Integer id, Integer companyId, String customFieldType,
+            String customFieldColumnName, String customFieldDisplayLabel) {
+        CustomFields customFields = new CustomFields();
+        if (id != null) {
+            customFields.setId(id);
+        }
+        customFields.setCompanyId(companyId);
+        customFields.setCustomFieldType(customFieldType);
         customFields.setCustomFieldColumnName(customFieldColumnName);
         customFields.setCustomFieldDisplayLabel(customFieldDisplayLabel);
         return customFields;
@@ -898,7 +987,7 @@ public class ApiTestDataUtil {
      */
     public static String testQueryForCompany() {
         return "INSERT INTO clients(client_name,display_name,client_phone,industry,companySize,producer,custom1,custom2,custom3,custom4,"
-                + "search_help,client_type,special_note,client_since,t1_is_active) VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?) ";
+                + "search_help,client_type,special_note,client_since,t1_is_active,tempID) VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?) ";
     }
 
     /**
@@ -907,7 +996,7 @@ public class ApiTestDataUtil {
      * @return
      */
     public static String testQueryForLocation() {
-        return "INSERT INTO locations(address,address2,city,state,zip,client_id) VALUES(?,?,?,?,?,?) ";
+        return "INSERT INTO locations(address,address2,city,state,zip,client_id,tempID) VALUES(?,?,?,?,?,?,?) ";
     }
 
     /**
@@ -1276,6 +1365,22 @@ public class ApiTestDataUtil {
         list.add("LINE1");
         list.add("LINE2");
         list.add("LINE3");
+        return list;
+    }
+
+    /**
+     * Get CustomFields List for CustomFieldsRepository methods.
+     * 
+     * @return
+     */
+    public static List<CustomFields> getCustomFieldsList() {
+        List<CustomFields> list = new ArrayList<CustomFields>();
+        list.add(createCustomField(null, 1, "COMPANY", "1", "BUSINESS_ID"));
+        list.add(createCustomField(null, 2, "COMPANY", "2", "BRANCH_ID"));
+        list.add(createCustomField(null, 3, "COMPANY", "3", "CLIENT_ID"));
+        list.add(createCustomField(null, 1, "COMPANY", "4", "CLIENT_TYPE"));
+        list.add(createCustomField(null, 1, "USER", "5", "CORRLELATION_ID"));
+        list.add(createCustomField(null, 4, "USER", "6", "GROUP"));
         return list;
     }
 

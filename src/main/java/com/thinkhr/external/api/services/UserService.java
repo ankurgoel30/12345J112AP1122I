@@ -4,13 +4,13 @@ import static com.thinkhr.external.api.ApplicationConstants.COMMA_SEPARATOR;
 import static com.thinkhr.external.api.ApplicationConstants.CONTACT;
 import static com.thinkhr.external.api.ApplicationConstants.DEFAULT_PASSWORD;
 import static com.thinkhr.external.api.ApplicationConstants.DEFAULT_SORT_BY_USER_NAME;
-import static com.thinkhr.external.api.ApplicationConstants.ROLE_ID_FOR_INACTIVE;
 import static com.thinkhr.external.api.ApplicationConstants.SPACE;
 import static com.thinkhr.external.api.ApplicationConstants.TOTAL_RECORDS;
 import static com.thinkhr.external.api.ApplicationConstants.UNDERSCORE;
 import static com.thinkhr.external.api.ApplicationConstants.USER;
 import static com.thinkhr.external.api.ApplicationConstants.USER_COLUMN_CLIENT_ID;
 import static com.thinkhr.external.api.ApplicationConstants.USER_COLUMN_PASSWORD;
+import static com.thinkhr.external.api.ApplicationConstants.ROLE_ID_FOR_INACTIVE;
 import static com.thinkhr.external.api.request.APIRequestHelper.setRequestAttribute;
 import static com.thinkhr.external.api.response.APIMessageUtil.getMessageFromResourceBundle;
 import static com.thinkhr.external.api.services.upload.FileImportValidator.validateAndGetFileContent;
@@ -46,9 +46,9 @@ import com.thinkhr.external.api.db.entities.User;
 import com.thinkhr.external.api.exception.APIErrorCodes;
 import com.thinkhr.external.api.exception.ApplicationException;
 import com.thinkhr.external.api.model.FileImportResult;
+import com.thinkhr.external.api.repositories.ThroneRoleRepository;
 import com.thinkhr.external.api.services.crypto.AppEncryptorDecryptor;
 import com.thinkhr.external.api.services.upload.FileUploadEnum;
-import com.thinkhr.external.api.services.utils.CommonUtil;
 
 /**
  * The UserService class provides a collection of all
@@ -67,7 +67,11 @@ public class UserService extends CommonService {
     private AppEncryptorDecryptor encDecyptor;
     
     @Autowired
-    protected LearnUserService learnUserService;
+    private LearnUserService learnUserService;
+    
+    @Autowired
+    protected ThroneRoleRepository throneRoleRepository;
+
 
     private static final String resource = USER;
     
@@ -130,12 +134,19 @@ public class UserService extends CommonService {
      */
 
     @Transactional
-    public User addUser(User user)  {
+    public User addUser(User user) {
+
         Integer roleId = user.getRoleId();
-        if (roleId != null && roleId != ROLE_ID_FOR_INACTIVE && !validateRoleIdFromDB(roleId)) {
+        
+        if (roleId == ROLE_ID_FOR_INACTIVE) {//It is additionally handled.
             user.setRoleId(null);
         }
-        User throneUser =  userRepository.save(user);
+        
+        if (roleId != null  && !validateRoleIdFromDB(roleId)) {
+            throw ApplicationException.createBadRequest(APIErrorCodes.INVALID_ROLE_ID, String.valueOf(roleId));
+        }
+
+        User throneUser = userRepository.save(user);
         learnUserService.addLearnUser(throneUser); //THR-3932
         return throneUser;
     }
@@ -147,7 +158,7 @@ public class UserService extends CommonService {
      * @return
      */
     public boolean validateRoleIdFromDB(Integer roleId) {
-        return learnRoleRepository.findOne(roleId) == null ? false : true;
+        return throneRoleRepository.findOne(roleId) == null ? false : true;
     }
 
     /**
@@ -169,8 +180,12 @@ public class UserService extends CommonService {
         validateObject(updatedUser);
 
         Integer roleId = updatedUser.getRoleId();
-        if (roleId != null && roleId != ROLE_ID_FOR_INACTIVE && !validateRoleIdFromDB(roleId)) {
+        
+        if (roleId == ROLE_ID_FOR_INACTIVE) {
             updatedUser.setRoleId(null);
+        }
+        if (roleId != null && !validateRoleIdFromDB(roleId)) {
+            throw ApplicationException.createBadRequest(APIErrorCodes.INVALID_ROLE_ID, String.valueOf(roleId));
         }
 
         // If not passed in model, then object will become in-active.

@@ -2,10 +2,10 @@ package com.thinkhr.external.api.services;
 
 import static com.thinkhr.external.api.ApplicationConstants.COMMA_SEPARATOR;
 import static com.thinkhr.external.api.ApplicationConstants.COMPANY;
-import static com.thinkhr.external.api.ApplicationConstants.CONFIGURATION_ID_FOR_INACTIVE;
 import static com.thinkhr.external.api.ApplicationConstants.DEFAULT_SORT_BY_COMPANY_NAME;
 import static com.thinkhr.external.api.ApplicationConstants.LOCATION;
 import static com.thinkhr.external.api.ApplicationConstants.TOTAL_RECORDS;
+import static com.thinkhr.external.api.ApplicationConstants.CONFIGURATION_ID_FOR_INACTIVE;
 import static com.thinkhr.external.api.request.APIRequestHelper.setRequestAttribute;
 import static com.thinkhr.external.api.response.APIMessageUtil.getMessageFromResourceBundle;
 import static com.thinkhr.external.api.services.upload.FileImportValidator.validateAndGetFileContent;
@@ -23,6 +23,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.lang.StringUtils;
+import org.hashids.Hashids;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -37,6 +38,8 @@ import org.springframework.web.multipart.MultipartFile;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.thinkhr.external.api.ApplicationConstants;
 import com.thinkhr.external.api.db.entities.Company;
+import com.thinkhr.external.api.db.entities.CompanyContract;
+import com.thinkhr.external.api.db.entities.CompanyProduct;
 import com.thinkhr.external.api.db.entities.Location;
 import com.thinkhr.external.api.exception.APIErrorCodes;
 import com.thinkhr.external.api.exception.ApplicationException;
@@ -131,16 +134,19 @@ public class CompanyService  extends CommonService {
      * @param company object
      */
     @Transactional
-    public Company addCompany(Company company)  {
-        associateChildEntities(company);
+    public Company addCompany(Company company) {
 
-        Integer configurationId = company.getConfigurationId();
-        if (configurationId != null && configurationId != CONFIGURATION_ID_FOR_INACTIVE
-                && !validateConfigurationIdFromDB(configurationId)) {
-            company.setConfigurationId(null);
-        }
-        Company throneCompany = companyRepository.save(company);
+        // setting tempID for company 
+        company.setTempID(CommonUtil.getTempId());
+
+        Company throneCompany = saveCompany(company);
         
+        // Saving CompanyContract
+        CompanyContract companyContract = this.addCompanyContract(throneCompany);
+
+        // Saving CompanyProduct
+        this.addCompanyProduct(companyContract);
+
         learnCompanyService.addLearnCompany(throneCompany);// THR-3929 
 
         return throneCompany;
@@ -152,11 +158,38 @@ public class CompanyService  extends CommonService {
      * @param configurationId
      * @return
      */
-    public boolean validateConfigurationIdFromDB(Integer configurationId) {
-        return configurationRepository.findOne(configurationId) == null ? false : true;
+    public boolean validateConfigurationIdFromDB(Integer configurationId, Integer brokerId) {
+        return configurationRepository.findFirstByConfigurationIdAndCompanyId(configurationId, brokerId) == null ? false
+                : true;
     }
 
     /**
+     * Add a CompanyContract in database
+     * 
+     * @param throneCompany
+     */
+    public CompanyContract addCompanyContract(Company throneCompany) {
+        if (throneCompany != null && throneCompany.getCompanyId() != null) {
+            CompanyContract companyContract = modelConvertor.convertToCompanyContract(throneCompany);
+            return companyContractRepository.save(companyContract);
+        }
+        return null;
+    }
+
+    /**
+     * Add a CompanyProduct in database
+     * 
+     * @param companyContract
+     */
+    public CompanyProduct addCompanyProduct(CompanyContract companyContract) {
+        if (companyContract != null && companyContract.getRelId() != null) {
+            CompanyProduct companyProduct = modelConvertor.convertToCompanyProduct(companyContract);
+            return companyProductRepository.save(companyProduct);
+        }
+        return null;
+    }
+
+     /**
      * Make a link in child entity with parent entity
      * 
      * @param company
@@ -165,10 +198,14 @@ public class CompanyService  extends CommonService {
         Location location = company.getLocation();
         if (location != null && location.getCompany() == null) {
             location.setCompany(company);
+
+            // setting tempID for location
+            location.setTempID(CommonUtil.getTempId());
         }
     }
 
     /**
+     * Update a company in database
      * 
      * @param companyId
      * @param companyJson
@@ -185,7 +222,7 @@ public class CompanyService  extends CommonService {
         if (null == companyInDb) {
             throw ApplicationException.createEntityNotFoundError(APIErrorCodes.ENTITY_NOT_FOUND, "company", "companyId="+companyId);
         }
-
+        
         Company updatedCompany = update(companyJson, companyInDb);
 
         if (updatedCompany.getLocation() != null) {
@@ -193,20 +230,37 @@ public class CompanyService  extends CommonService {
         }
         validateObject(updatedCompany);
 
-        associateChildEntities(updatedCompany);
+        Company throneCompany = saveCompany(updatedCompany);
+        learnCompanyService.updateLearnCompany(throneCompany);
+        return throneCompany;
+    }
 
-    
-        Integer configurationId = updatedCompany.getConfigurationId();
-        if (configurationId != null && configurationId != CONFIGURATION_ID_FOR_INACTIVE
-                && !validateConfigurationIdFromDB(configurationId)) {
 
-            updatedCompany.setConfigurationId(null);
+    /**
+     * To save company object
+     * 
+     * @param company
+     * @return
+     */
+    private Company saveCompany(Company company) {
+       
+        associateChildEntities(company);
+
+        Integer configurationId = company.getConfigurationId();
+        Integer brokerId = company.getBroker();
+
+        if (configurationId == CONFIGURATION_ID_FOR_INACTIVE) {
+            company.setConfigurationId(null);
+        }
+        
+        if (configurationId != null && brokerId != null
+                && !validateConfigurationIdFromDB(configurationId, brokerId)) {
+            throw ApplicationException.createBadRequest(APIErrorCodes.INVALID_CONFIGURATION_ID,
+                    String.valueOf(configurationId));
         }
 
-        Company throneCompany = companyRepository.save(updatedCompany);
-
-        learnCompanyService.updateLearnCompany(throneCompany);
-
+        Company throneCompany = companyRepository.save(company);
+        
         return throneCompany;
     }
 
@@ -379,6 +433,19 @@ public class CompanyService  extends CommonService {
                             getMessageFromResourceBundle(resourceHandler, APIErrorCodes.RECORD_NOT_ADDED));
         }
 
+    }
+
+    /**
+     * Get authorizationKey from companyId for CompanyProduct entity on the
+     * basis of Hashids.
+     * 
+     * @param companyId
+     * @return
+     */
+    public static String getAuthorizationKeyFromCompanyId(Integer companyId) {
+        Hashids hashids = new Hashids("thinkHRLandI");
+        String authorizationKey = hashids.encode(companyId);
+        return authorizationKey;
     }
 
     /**

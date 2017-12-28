@@ -57,6 +57,7 @@ import com.thinkhr.external.api.db.learn.entities.LearnCompany;
 import com.thinkhr.external.api.exception.APIErrorCodes;
 import com.thinkhr.external.api.exception.ApplicationException;
 import com.thinkhr.external.api.exception.MessageResourceHandler;
+import com.thinkhr.external.api.helpers.ModelConvertor;
 import com.thinkhr.external.api.model.FileImportResult;
 import com.thinkhr.external.api.repositories.CompanyRepository;
 import com.thinkhr.external.api.repositories.ConfigurationRepository;
@@ -92,6 +93,9 @@ public class CompanyServiceTest {
 
     @Mock
     private CustomFieldsRepository customFieldRepository;
+
+    @Mock
+    private ModelConvertor modelConvertor;
 
     @Mock
     private ConfigurationRepository configurationRepository;
@@ -184,6 +188,7 @@ public class CompanyServiceTest {
     @Test
     public void testAddCompany_whenLearnCompanySaved() {
         //When all data is correct, it should assert true 
+        Integer brokerId = 10;
         Integer companyId = 1;
         Company company = createCompany(companyId, "Pepcus", "Software", "PEP", new Date(), "PepcusNotes",
                 "PepcusHelp");
@@ -211,6 +216,8 @@ public class CompanyServiceTest {
 
     @Test
     public void testUpdateCompany(){
+
+        Integer brokerId = 10;
         Integer companyId = 1;
 
         Company company = createCompany(companyId, "Pepcus", "Software", "PEP", new Date(), "PepcusNotes", "PepcusHelp");
@@ -246,6 +253,7 @@ public class CompanyServiceTest {
 
     @Test
     public void testUpdateCompanyForEntityNotFound(){
+        Integer brokerId = null;
         Integer companyId = 1;
         Company company = createCompany(companyId, "Pepcus", "Software", "PEP", new Date(), "PepcusNotes", "PepcusHelp");
         when(companyRepository.findOne(companyId)).thenReturn(null);
@@ -851,14 +859,17 @@ public class CompanyServiceTest {
      */
     @Test
     public void testValidateConfigurationIdFromDB() {
+        Integer roleId = 5;
         Integer configurationId = 1;
-        Configuration configuration = ApiTestDataUtil.createConfiguration(2, "ABC", "test config");
+        Integer companyId = 2;
+        Configuration configuration = ApiTestDataUtil.createConfiguration(1, 2, "ABC", "test config");
 
-        when(configurationRepository.findOne(configurationId)).thenReturn(configuration);
+        when(configurationRepository.findFirstByConfigurationIdAndCompanyId(configurationId, companyId))
+                .thenReturn(configuration);
 
-        boolean isValid = companyService.validateConfigurationIdFromDB(configurationId);
+        boolean isValid = companyService.validateConfigurationIdFromDB(configurationId, companyId);
 
         assertTrue(isValid);
     }
-    
+
 }
