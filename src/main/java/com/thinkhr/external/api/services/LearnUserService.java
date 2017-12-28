@@ -316,6 +316,7 @@ public class LearnUserService extends CommonService {
     }
 
     /**
+     * Generate userName based on roleId. 
      * 
      * @param throneUser
      * @return
