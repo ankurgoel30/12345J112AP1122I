@@ -4,7 +4,6 @@ import static com.thinkhr.external.api.ApplicationConstants.COMMA_SEPARATOR;
 import static com.thinkhr.external.api.ApplicationConstants.CONTACT;
 import static com.thinkhr.external.api.ApplicationConstants.DEFAULT_PASSWORD;
 import static com.thinkhr.external.api.ApplicationConstants.DEFAULT_SORT_BY_USER_NAME;
-import static com.thinkhr.external.api.ApplicationConstants.ROLE_ID_FOR_INACTIVE;
 import static com.thinkhr.external.api.ApplicationConstants.SPACE;
 import static com.thinkhr.external.api.ApplicationConstants.TOTAL_RECORDS;
 import static com.thinkhr.external.api.ApplicationConstants.UNDERSCORE;
@@ -66,7 +65,7 @@ public class UserService extends CommonService {
     private AppEncryptorDecryptor encDecyptor;
     
     @Autowired
-    protected LearnUserService learnUserService;
+    private LearnUserService learnUserService;
     
     @Autowired
     protected ThroneRoleRepository throneRoleRepository;

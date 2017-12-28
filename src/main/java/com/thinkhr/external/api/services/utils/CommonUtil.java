@@ -3,6 +3,7 @@ package com.thinkhr.external.api.services.utils;
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.Calendar;
 
 import com.thinkhr.external.api.ApplicationConstants;
 
@@ -24,6 +25,17 @@ public class CommonUtil {
         DateTimeFormatter format = DateTimeFormatter.ofPattern(ApplicationConstants.VALID_FORMAT_YYYY_MM_DD);
         ZonedDateTime utcDateTime = ZonedDateTime.now(ZoneOffset.UTC);
         return format.format(utcDateTime);
+    }
+
+    /**
+     * Get tempID column value for Company entity.
+     * 
+     * @return
+     */
+    public static String getTempId() {
+        Calendar cal = Calendar.getInstance();
+        long currentTime = cal.getTime().getTime();
+        return String.valueOf(currentTime);
     }
     	
 	

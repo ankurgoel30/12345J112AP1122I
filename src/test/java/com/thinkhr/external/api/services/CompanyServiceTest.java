@@ -818,6 +818,7 @@ public class CompanyServiceTest {
      */
     @Test
     public void testValidateConfigurationIdFromDB() {
+        Integer roleId = 5;
         Integer configurationId = 1;
         Integer companyId = 2;
         Configuration configuration = ApiTestDataUtil.createConfiguration(1, 2, "ABC", "test config");

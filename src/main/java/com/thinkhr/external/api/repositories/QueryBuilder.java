@@ -3,6 +3,8 @@ package com.thinkhr.external.api.repositories;
 import static com.thinkhr.external.api.ApplicationConstants.COMMA_SEPARATOR;
 import static com.thinkhr.external.api.ApplicationConstants.DEFAULT_ACTIVE_STATUS;
 import static com.thinkhr.external.api.ApplicationConstants.DEFAULT_COLUMN_VALUE;
+import static com.thinkhr.external.api.ApplicationConstants.DEFAULT_NUMBER_LICENSES;
+import static com.thinkhr.external.api.ApplicationConstants.DEFAULT_PRODUCT_ID;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -33,6 +35,8 @@ public class QueryBuilder {
     public static final String SELECT_PORTAL_USER_QUERY = "SELECT * FROM contacts";
     public static final String SELECT_LEARN_USER_QUERY = "SELECT * FROM mdl_user";
     public static final String SELECT_LEARN_COMPANY_QUERY = "SELECT * FROM mdl_company";
+    public static final String INSERT_PORTAL_COMPANY_CONTRACT = "INSERT INTO CLIENTS_CONTRACTS ";
+    public static final String INSERT_PORTAL_COMPANY_PRODUCT = "INSERT INTO CLIENTS_PRODUCTS ";
     public static final String INSERT_LEARN_COMPANY = "INSERT INTO MDL_COMPANY ";
     public static final String INSERT_LEARN_PKG_COMPANY = "INSERT INTO MDL_PACKAGE_COMPANY(packageid, companyid) VALUES (?, ?)";
     public static final String SELECT_LEARN_PACAKGE_COMPANY_QUERY = "SELECT * FROM MDL_PACKAGE_COMPANY";
@@ -44,38 +48,79 @@ public class QueryBuilder {
 
     public static List<String> userRequiredFields;
     public static List<Object> defaultUserReqFieldValues;
+    public static List<Object> companyContractFieldValues;
+    public static List<Object> companyProductFieldValues;
     public static List<String> learnCompanyFields;
-    public static String REQUIRED_FIELD_FOR_LOCATION = "client_id";
+    public static List<String> companyContractFields;
+    public static List<String> companyProductFields;
+    public static List<String> locationRequiredFields;
     static {
         companyRequiredFields = new ArrayList<String>(Arrays.asList("search_help", 
                                                                     "client_type", 
                                                                     "special_note", 
                                                                     "client_since", 
-                                                                    "t1_is_active"));
+                                                                    "t1_is_active",
+                                                                    "tempID"));
+        
+        locationRequiredFields = new ArrayList<String>(Arrays.asList("client_id",
+                                                                     "tempID"));
 
-        defaultCompReqFieldValues = new ArrayList<Object>(Arrays.asList
-                                                           (DEFAULT_COLUMN_VALUE, 
-                                                            DEFAULT_COLUMN_VALUE, 
-                                                            DEFAULT_COLUMN_VALUE, 
-                                                            CommonUtil.getTodayInUTC(), 
-                                                            DEFAULT_ACTIVE_STATUS)); //default all clients are active
+        defaultCompReqFieldValues = new ArrayList<Object>(Arrays.asList(DEFAULT_COLUMN_VALUE, 
+                                                                        DEFAULT_COLUMN_VALUE, 
+                                                                        DEFAULT_COLUMN_VALUE, 
+                                                                        CommonUtil.getTodayInUTC(), 
+                                                                        DEFAULT_ACTIVE_STATUS, //default all clients are active
+                                                                        CommonUtil.getTempId())); 
 
         userRequiredFields = new ArrayList<String>(Arrays.asList("search_help", 
                                                                  "mkdate", 
-                                                                  "codevalid", 
-                                                                  "update_password", 
-                                                                  "blockedaccount"));
+                                                                 "codevalid", 
+                                                                 "update_password", 
+                                                                 "blockedaccount"));
 
-        defaultUserReqFieldValues =  new ArrayList<Object>(Arrays.asList (DEFAULT_COLUMN_VALUE, 
-                                                                          DEFAULT_COLUMN_VALUE, 
-                                                                          DEFAULT_COLUMN_VALUE, 
-                                                                          DEFAULT_COLUMN_VALUE, 
-                                                                          new Integer(0)));
-        learnCompanyFields = new ArrayList<String>(Arrays.asList(
-                "thrclientid", "company_name", "company_type","company_key", 
-                "address", "address2", "city", "state", "zip",
-                "partnerid", "phone", "createdby", "timecreated", "timemodified"));
+        defaultUserReqFieldValues =  new ArrayList<Object>(Arrays.asList(DEFAULT_COLUMN_VALUE, 
+                                                                         DEFAULT_COLUMN_VALUE, 
+                                                                         DEFAULT_COLUMN_VALUE, 
+                                                                         DEFAULT_COLUMN_VALUE, 
+                                                                         new Integer(0)));
+        
+        learnCompanyFields = new ArrayList<String>(Arrays.asList("thrclientid", 
+                                                                 "company_name", 
+                                                                 "company_type",
+                                                                 "company_key", 
+                                                                 "address", 
+                                                                 "address2", 
+                                                                 "city", 
+                                                                 "state", 
+                                                                 "zip",
+                                                                 "partnerid", 
+                                                                 "phone", 
+                                                                 "createdby", 
+                                                                 "timecreated", 
+                                                                 "timemodified"));
 
+        companyContractFields = new ArrayList<String>(Arrays.asList("Product_ID", 
+                                                                    "Start_Date", 
+                                                                    "End_Date", 
+                                                                    "tempID", 
+                                                                    "Client_ID"));
+
+        companyContractFieldValues = new ArrayList<Object>(Arrays.asList(DEFAULT_PRODUCT_ID, 
+                                                                         CommonUtil.getTodayInUTC(), 
+                                                                         CommonUtil.getTodayInUTC(), 
+                                                                         CommonUtil.getTempId()));
+        
+        companyProductFields = new ArrayList<String>(Arrays.asList("Start_Date", 
+                                                                   "numberLicenses", 
+                                                                   "tempID", 
+                                                                   "contractID", 
+                                                                   "Client_ID", 
+                                                                   "authorizationKey"));
+        
+        companyProductFieldValues = new ArrayList<Object>(Arrays.asList(CommonUtil.getTodayInUTC(), 
+                                                                        DEFAULT_NUMBER_LICENSES, 
+                                                                        CommonUtil.getTempId()));
+    
     }
     /**
      *   //INSERT INTO locations(address,address2,city,state,zip,client_id) values(?,?,?,?,?,?);
@@ -84,25 +129,26 @@ public class QueryBuilder {
      * @return
      */
     public static String buildLocationInsertQuery(List<String> locationColumns) {
-        locationColumns.add(REQUIRED_FIELD_FOR_LOCATION);
+        locationColumns.addAll(locationRequiredFields);
         return buildQuery(INSERT_LOCATION, locationColumns);
     }
 
     /**
      * Build query
      * 
-     * @param locationColumns
+     * @param insertQueryType
+     * @param columns
      * @return
      */
     public static String buildQuery(String insertQueryType, List<String> columns) {
-        StringBuffer insertLocationSql = new StringBuffer();
-        insertLocationSql.append(insertQueryType)
+        StringBuffer insertSql = new StringBuffer();
+        insertSql.append(insertQueryType)
                 .append(START_BRACES).append(StringUtils.join(columns, COMMA_SEPARATOR))
         .append(END_BRACES)
         .append(VALUES)
                 .append(START_BRACES).append(getQueryParaSpecifiers(columns.size()))
         .append(END_BRACES);
-        return insertLocationSql.toString();
+        return insertSql.toString();
     }
 
     /**
