@@ -69,7 +69,6 @@ public class Company implements SearchableEntity {
     @Column(name = "Client_Name") 
     private String companyName;
 
-    @NotNull
     @Column(name = "display_name") 
     private String displayName;
 
@@ -144,7 +143,6 @@ public class Company implements SearchableEntity {
     @Column(name = "login") 
     private Integer login;
 
-    @NotNull
     @Column(name = "producer") 
     private String producer;
 
