@@ -26,6 +26,8 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
+import javax.validation.ConstraintViolationException;
+
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.junit.Before;
@@ -257,6 +259,36 @@ public class CompanyServiceTest {
         } catch (Exception e) {
             fail("Exception not expected");
         }
+    }
+
+    /**
+     * To verify updateCompany method throws exception when trying to update 
+     * a NotNull field with null value
+     * 
+     */
+
+    @Test
+    public void testUpdateCompany_UpdateNotNullFieldWithNull() {
+        Integer companyId = 1;
+
+        Company company = createCompany(companyId, "Pepcus", "Software", "PEP", new Date(), "PepcusNotes",
+                "PepcusHelp");
+
+        when(companyRepository.findOne(companyId)).thenReturn(company);
+
+        // Updating company name with null
+        String companyJson = "{\"companyName\": null}";
+
+        Company companyUpdated = null;
+        try {
+            companyUpdated = companyService.updateCompany(company.getCompanyId(), companyJson);
+            fail("Expecting Exception");
+        } catch (Exception ex) {
+            assertTrue(ex instanceof ConstraintViolationException);
+            ConstraintViolationException cv = (ConstraintViolationException) ex;
+            assertEquals(1, cv.getConstraintViolations().size());
+        }
+
     }
 
 

@@ -20,6 +20,8 @@ import java.sql.DataTruncation;
 import java.util.List;
 import java.util.Map;
 
+import javax.validation.ConstraintViolationException;
+
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -247,6 +249,33 @@ public class UserServiceTest {
             userService.updateUser(user.getUserId(), userJson);
         } catch (ApplicationException e) {
             assertEquals(APIErrorCodes.ENTITY_NOT_FOUND, e.getApiErrorCode());
+        }
+    }
+
+    /**
+     * To verify updateUser method throws exception when trying to update 
+     * a NotNull field with null value
+     * 
+     */
+
+    @Test
+    public void testUpdateUser_UpdateNotNullFieldWithNull() throws Exception {
+
+        User user = createUser();
+
+        when(userRepository.findOne(user.getUserId())).thenReturn(user);
+
+        // Updating notNull field firstName with null
+        String userJson = "{\"firstName\": null}";
+
+        User updatedUser = null;
+        try {
+            updatedUser = userService.updateUser(user.getUserId(), userJson);
+            fail("Expecting Exception");
+        } catch (Exception ex) {
+            assertTrue(ex instanceof ConstraintViolationException);
+            ConstraintViolationException cv = (ConstraintViolationException) ex;
+            assertEquals(1, cv.getConstraintViolations().size());
         }
     }
 
