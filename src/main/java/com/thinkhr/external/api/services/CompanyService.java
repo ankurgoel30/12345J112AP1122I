@@ -2,7 +2,6 @@ package com.thinkhr.external.api.services;
 
 import static com.thinkhr.external.api.ApplicationConstants.COMMA_SEPARATOR;
 import static com.thinkhr.external.api.ApplicationConstants.COMPANY;
-import static com.thinkhr.external.api.ApplicationConstants.CONFIGURATION_ID_FOR_INACTIVE;
 import static com.thinkhr.external.api.ApplicationConstants.DEFAULT_SORT_BY_COMPANY_NAME;
 import static com.thinkhr.external.api.ApplicationConstants.LOCATION;
 import static com.thinkhr.external.api.ApplicationConstants.TOTAL_RECORDS;
@@ -132,18 +131,13 @@ public class CompanyService  extends CommonService {
      * @param company object
      */
     @Transactional
-    public Company addCompany(Company company, Integer brokerId) {
+    public Company addCompany(Company company) {
 
         // setting tempID for company 
         company.setTempID(CommonUtil.getTempId());
 
         associateChildEntities(company);
 
-        Integer configurationId = company.getConfigurationId();
-        if (configurationId != null && configurationId != CONFIGURATION_ID_FOR_INACTIVE
-                && !validateConfigurationIdFromDB(configurationId)) {
-            company.setConfigurationId(null);
-        }
         Company throneCompany = companyRepository.save(company);
         
         // Saving CompanyContract
@@ -216,7 +210,7 @@ public class CompanyService  extends CommonService {
      * @throws ApplicationException 
      */
     @Transactional
-    public Company updateCompany(Company company, Integer brokerId) throws ApplicationException {
+    public Company updateCompany(Company company) throws ApplicationException {
 
         Integer companyId = company.getCompanyId();
 

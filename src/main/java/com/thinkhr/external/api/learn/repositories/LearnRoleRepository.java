@@ -11,6 +11,6 @@ public interface LearnRoleRepository extends CrudRepository<LearnRole, Integer> 
      * @param shortName
      * @return
      */
-    public LearnRole findFirstByShortname(String shortName);
+    public LearnRole findFirstByShortName(String shortName);
 
 }

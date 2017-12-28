@@ -35,10 +35,6 @@ public class QueryBuilder {
     public static final String SELECT_PORTAL_USER_QUERY = "SELECT * FROM contacts";
     public static final String SELECT_LEARN_USER_QUERY = "SELECT * FROM mdl_user";
     public static final String SELECT_LEARN_COMPANY_QUERY = "SELECT * FROM mdl_company";
-    public static final String SELECT_PORTAL_COMPANY_QUERY = "SELECT * FROM clients";
-    public static final String SELECT_PORTAL_USER_QUERY = "SELECT * FROM contacts";
-    public static final String SELECT_LEARN_USER_QUERY = "SELECT * FROM mdl_user";
-    public static final String SELECT_LEARN_COMPANY_QUERY = "SELECT * FROM mdl_company";
     public static final String INSERT_PORTAL_COMPANY_CONTRACT = "INSERT INTO CLIENTS_CONTRACTS ";
     public static final String INSERT_PORTAL_COMPANY_PRODUCT = "INSERT INTO CLIENTS_PRODUCTS ";
     public static final String INSERT_LEARN_COMPANY = "INSERT INTO MDL_COMPANY ";
