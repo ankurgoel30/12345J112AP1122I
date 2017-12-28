@@ -4,6 +4,7 @@ import static com.thinkhr.external.api.ApplicationConstants.COMMA_SEPARATOR;
 import static com.thinkhr.external.api.ApplicationConstants.CONTACT;
 import static com.thinkhr.external.api.ApplicationConstants.DEFAULT_PASSWORD;
 import static com.thinkhr.external.api.ApplicationConstants.DEFAULT_SORT_BY_USER_NAME;
+import static com.thinkhr.external.api.ApplicationConstants.ROLE_ID_FOR_INACTIVE;
 import static com.thinkhr.external.api.ApplicationConstants.SPACE;
 import static com.thinkhr.external.api.ApplicationConstants.TOTAL_RECORDS;
 import static com.thinkhr.external.api.ApplicationConstants.UNDERSCORE;
@@ -130,28 +131,51 @@ public class UserService extends CommonService {
 
     @Transactional
     public User addUser(User user)  {
+        Integer roleId = user.getRoleId();
+        if (roleId != null && roleId != ROLE_ID_FOR_INACTIVE && !validateRoleIdFromDB(roleId)) {
+            user.setRoleId(null);
+        }
         User throneUser =  userRepository.save(user);
         learnUserService.addLearnUser(throneUser); //THR-3932
         return throneUser;
     }
 
     /**
+     * Validates roleId from the Database.
+     * 
+     * @param roleId
+     * @return
+     */
+    public boolean validateRoleIdFromDB(Integer roleId) {
+        return learnRoleRepository.findOne(roleId) == null ? false : true;
+    }
+
+    /**
      * Update a user in database
      * 
      * @param User object
-     * @throws ApplicationException 
+     * @throws ApplicationException
      * @throws IOException 
      */
+    @Transactional
     public User updateUser(Integer userId, String userJson) throws ApplicationException, IOException {
 
         User userInDb = userRepository.findOne(userId);
         if (null == userInDb) {
             throw ApplicationException.createEntityNotFoundError(APIErrorCodes.ENTITY_NOT_FOUND, "user", "userId="+userId);
         }
-        
+
         User updatedUser = update(userJson, userInDb);
 
-        return userRepository.save(updatedUser);
+        Integer roleId = updatedUser.getRoleId();
+        if (roleId != null && roleId != ROLE_ID_FOR_INACTIVE && !validateRoleIdFromDB(roleId)) {
+            updatedUser.setRoleId(null);
+        }
+
+        // If not passed in model, then object will become in-active.
+        User throneUser = userRepository.save(updatedUser);
+        learnUserService.updateLearnUser(throneUser);
+        return throneUser;
     }
 
     /**
@@ -348,7 +372,7 @@ public class UserService extends CommonService {
      * @param userColumnsToInsert
      */
     @Transactional
-    private void saveUserRecord(List<Object> userColumnValues, List<String> userColumnsToInsert) {
+    public void saveUserRecord(List<Object> userColumnValues, List<String> userColumnsToInsert) {
         Integer userId = fileDataRepository.saveUserRecord(userColumnsToInsert, userColumnValues);
         User throneUser = this.getUser(userId);
 

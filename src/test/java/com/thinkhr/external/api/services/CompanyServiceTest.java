@@ -49,6 +49,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import com.thinkhr.external.api.ApplicationConstants;
 import com.thinkhr.external.api.db.entities.Company;
+import com.thinkhr.external.api.db.entities.Configuration;
 import com.thinkhr.external.api.db.entities.CustomFields;
 import com.thinkhr.external.api.db.learn.entities.LearnCompany;
 import com.thinkhr.external.api.exception.APIErrorCodes;
@@ -56,6 +57,7 @@ import com.thinkhr.external.api.exception.ApplicationException;
 import com.thinkhr.external.api.exception.MessageResourceHandler;
 import com.thinkhr.external.api.model.FileImportResult;
 import com.thinkhr.external.api.repositories.CompanyRepository;
+import com.thinkhr.external.api.repositories.ConfigurationRepository;
 import com.thinkhr.external.api.repositories.CustomFieldsRepository;
 import com.thinkhr.external.api.repositories.FileDataRepository;
 import com.thinkhr.external.api.response.APIMessageUtil;
@@ -88,6 +90,9 @@ public class CompanyServiceTest {
 
     @Mock
     private CustomFieldsRepository customFieldRepository;
+
+    @Mock
+    private ConfigurationRepository configurationRepository;
 
     @Mock
     private FileDataRepository fileDataRepository;
@@ -208,8 +213,12 @@ public class CompanyServiceTest {
 
         Company company = createCompany(companyId, "Pepcus", "Software", "PEP", new Date(), "PepcusNotes", "PepcusHelp");
 
+        LearnCompany learnCompany = ApiTestDataUtil.createLearnCompany(1L, 10, "Pepcus", "IT");
+
         when(companyRepository.save(company)).thenReturn(company);
         when(companyRepository.findOne(companyId)).thenReturn(company);
+
+        when(learnCompanyService.updateLearnCompany(company)).thenReturn(learnCompany);
 
         // Updating company name 
         company.setCompanyName("Pepcus - Updated");
@@ -589,6 +598,7 @@ public class CompanyServiceTest {
 
     /**
      * Test PopulateAndSaveToDB when record saved is failed
+     * 
      */
     @Test
     public void testPopulateAndSaveToDB_RecordSave_Failed() {
@@ -779,4 +789,44 @@ public class CompanyServiceTest {
             assertEquals(APIErrorCodes.NO_RECORDS_FOUND_FOR_IMPORT, appExp.getApiErrorCode());
         }
     }
+    
+    /**
+     * Test SaveCompanyRecord
+     */
+    @Test
+    public void testSaveCompanyRecord() {
+        Integer companyId = 1;
+        Integer learnCompanyId = 2;
+        Company company = createCompany();
+
+        List<String> companyColumns = ApiTestDataUtil.getCompanyColumnList();
+        List<Object> companyColumnsValues = ApiTestDataUtil.getCompanyColumnValuesList();
+        List<String> locationColumns = ApiTestDataUtil.getLocationColumnList();
+        List<Object> locationColumnValues = ApiTestDataUtil.getLocationsColumnValuesList();
+
+        Mockito.when(fileDataRepository.saveCompanyRecord(companyColumns, companyColumnsValues, locationColumns,
+                locationColumnValues)).thenReturn(companyId);
+
+        when(companyRepository.findOne(companyId)).thenReturn(company);
+
+        Mockito.when(learnCompanyService.addLearnCompanyForBulk(company)).thenReturn(learnCompanyId);
+
+        companyService.saveCompanyRecord(companyColumnsValues, locationColumnValues, companyColumns, locationColumns);
+    }
+    
+    /**
+     * Test validateConfigurationIdFromDB method.
+     */
+    @Test
+    public void testValidateConfigurationIdFromDB() {
+        Integer configurationId = 1;
+        Configuration configuration = ApiTestDataUtil.createConfiguration(2, "ABC", "test config");
+
+        when(configurationRepository.findOne(configurationId)).thenReturn(configuration);
+
+        boolean isValid = companyService.validateConfigurationIdFromDB(configurationId);
+
+        assertTrue(isValid);
+    }
+    
 }

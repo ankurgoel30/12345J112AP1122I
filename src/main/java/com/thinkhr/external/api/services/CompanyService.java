@@ -2,6 +2,7 @@ package com.thinkhr.external.api.services;
 
 import static com.thinkhr.external.api.ApplicationConstants.COMMA_SEPARATOR;
 import static com.thinkhr.external.api.ApplicationConstants.COMPANY;
+import static com.thinkhr.external.api.ApplicationConstants.CONFIGURATION_ID_FOR_INACTIVE;
 import static com.thinkhr.external.api.ApplicationConstants.DEFAULT_SORT_BY_COMPANY_NAME;
 import static com.thinkhr.external.api.ApplicationConstants.LOCATION;
 import static com.thinkhr.external.api.ApplicationConstants.TOTAL_RECORDS;
@@ -133,6 +134,11 @@ public class CompanyService  extends CommonService {
     public Company addCompany(Company company)  {
         associateChildEntities(company);
 
+        Integer configurationId = company.getConfigurationId();
+        if (configurationId != null && configurationId != CONFIGURATION_ID_FOR_INACTIVE
+                && !validateConfigurationIdFromDB(configurationId)) {
+            company.setConfigurationId(null);
+        }
         Company throneCompany = companyRepository.save(company);
         
         learnCompanyService.addLearnCompany(throneCompany);// THR-3929 
@@ -141,7 +147,18 @@ public class CompanyService  extends CommonService {
     }
 
     /**
-     * Make a link in child entity with parent entity 
+     * Validates configurationId from the Database.
+     * 
+     * @param configurationId
+     * @return
+     */
+    public boolean validateConfigurationIdFromDB(Integer configurationId) {
+        return configurationRepository.findOne(configurationId) == null ? false : true;
+    }
+
+    /**
+     * Make a link in child entity with parent entity
+     * 
      * @param company
      */
     private void associateChildEntities(Company company) {
@@ -160,6 +177,7 @@ public class CompanyService  extends CommonService {
      * @throws IOException 
      * @throws JsonProcessingException 
      */
+    @Transactional
     public Company updateCompany(Integer companyId, String companyJson)
             throws ApplicationException, JsonProcessingException, IOException {
 
@@ -170,7 +188,20 @@ public class CompanyService  extends CommonService {
 
         Company updatedCompany = update(companyJson, companyInDb);
         associateChildEntities(updatedCompany);
-        return companyRepository.save(updatedCompany);
+
+    
+        Integer configurationId = updatedCompany.getConfigurationId();
+        if (configurationId != null && configurationId != CONFIGURATION_ID_FOR_INACTIVE
+                && !validateConfigurationIdFromDB(configurationId)) {
+
+            updatedCompany.setConfigurationId(null);
+        }
+
+        Company throneCompany = companyRepository.save(updatedCompany);
+
+        learnCompanyService.updateLearnCompany(throneCompany);
+
+        return throneCompany;
     }
 
     /**
@@ -353,7 +384,7 @@ public class CompanyService  extends CommonService {
      * @param locationColumnsToInsert
      */
     @Transactional(propagation=Propagation.REQUIRED)
-    private void saveCompanyRecord(List<Object> companyColumnsValues,
+    public void saveCompanyRecord(List<Object> companyColumnsValues,
             List<Object> locationColumnsValues,
             List<String> companyColumnsToInsert,
             List<String> locationColumnsToInsert) {

@@ -26,6 +26,7 @@ import com.thinkhr.external.api.learn.repositories.LearnRoleRepository;
 import com.thinkhr.external.api.learn.repositories.LearnUserRepository;
 import com.thinkhr.external.api.learn.repositories.PackageRepository;
 import com.thinkhr.external.api.repositories.CompanyRepository;
+import com.thinkhr.external.api.repositories.ConfigurationRepository;
 import com.thinkhr.external.api.repositories.CustomFieldsRepository;
 import com.thinkhr.external.api.repositories.FileDataRepository;
 import com.thinkhr.external.api.repositories.StandardFieldsRepository;
@@ -68,9 +69,12 @@ public class CommonService {
 
     @Autowired
     LearnFileDataRepository learnFileDataRepository;
-
+    
     @Autowired
-    LearnRoleRepository learnRoleRepository;
+    protected ConfigurationRepository configurationRepository;
+    
+    @Autowired
+    protected LearnRoleRepository learnRoleRepository;
 
     @Autowired
     protected ModelConvertor modelConvertor;
