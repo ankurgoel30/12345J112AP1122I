@@ -120,7 +120,8 @@ public class CompanyService  extends CommonService {
         Company company =  companyRepository.findOne(companyId);
 
         if (null == company) {
-            throw ApplicationException.createEntityNotFoundError(APIErrorCodes.ENTITY_NOT_FOUND, "company", "companyId="+ companyId);
+            throw ApplicationException.createEntityNotFoundError(APIErrorCodes.ENTITY_NOT_FOUND,
+                    "company", "companyId="+ companyId);
         }
 
         return company;
@@ -133,26 +134,13 @@ public class CompanyService  extends CommonService {
      */
     @Transactional
     public Company addCompany(Company company, Integer brokerId) {
-
-        Company broker = validateAndGetBroker(brokerId);
-
-        // setting valid brokerId for company. 
-        company.setBroker(broker.getCompanyId());
-
-        associateChildEntities(company);
-
         // Checking Duplicate company name
         company.setTempID(CommonUtil.getTempId());
-        validateDuplicateCompany(company);
 
-
-        Company throneCompany = companyRepository.save(company);
+        Company throneCompany = saveCompany(company, brokerId);
         
         // Saving CompanyContract
-        CompanyContract companyContract = this.addCompanyContract(throneCompany);
-
-        // Saving CompanyProduct
-        this.addCompanyProduct(companyContract);
+        addCompanyContractAndProduct(throneCompany);
 
         learnCompanyService.addLearnCompany(throneCompany);// THR-3929 
 
@@ -166,34 +154,24 @@ public class CompanyService  extends CommonService {
      * @return
      */
     public boolean validateConfigurationIdFromDB(Integer configurationId, Integer brokerId) {
-        return configurationRepository.findFirstByConfigurationIdAndCompanyId(configurationId, brokerId) == null ? false
-                : true;
+        return configurationRepository.findFirstByConfigurationIdAndCompanyId(configurationId, brokerId) == null ? 
+                 false : true;
     }
 
     /**
-     * Add a CompanyContract in database
+     * Add a CompanyContract and ContractProduct into database
      * 
      * @param throneCompany
      */
-    public CompanyContract addCompanyContract(Company throneCompany) {
-        if (throneCompany != null && throneCompany.getCompanyId() != null) {
-            CompanyContract companyContract = modelConvertor.convertToCompanyContract(throneCompany);
-            return companyContractRepository.save(companyContract);
+    public void addCompanyContractAndProduct(Company throneCompany) {
+        if (throneCompany == null || throneCompany.getCompanyId() == null) {
+            return;
         }
-        return null;
-    }
+        CompanyContract companyContract = modelConvertor.convertToCompanyContract(throneCompany);
+        companyContract = companyContractRepository.save(companyContract);
 
-    /**
-     * Add a CompanyProduct in database
-     * 
-     * @param companyContract
-     */
-    public CompanyProduct addCompanyProduct(CompanyContract companyContract) {
-        if (companyContract != null && companyContract.getRelId() != null) {
-            CompanyProduct companyProduct = modelConvertor.convertToCompanyProduct(companyContract);
-            return companyProductRepository.save(companyProduct);
-        }
-        return null;
+        CompanyProduct companyProduct = modelConvertor.convertToCompanyProduct(companyContract);
+        companyProductRepository.save(companyProduct);
     }
 
      /**
@@ -225,17 +203,7 @@ public class CompanyService  extends CommonService {
                     "company", "companyId="+companyId);
         }
         
-        Company broker = validateAndGetBroker(brokerId);
-
-        // setting valid brokerId for company. 
-        company.setBroker(broker.getCompanyId());
-
-        associateChildEntities(company);
-
-        // Checking Duplicate company name
-        validateDuplicateCompany(company);
-
-        Company throneCompany = saveCompany(company);
+        Company throneCompany = saveCompany(company, brokerId);
         
         learnCompanyService.updateLearnCompany(throneCompany);
         return throneCompany;
@@ -245,14 +213,21 @@ public class CompanyService  extends CommonService {
      * To save company object
      * 
      * @param company
+     * @param brokerId
      * @return
      */
-    private Company saveCompany(Company company) {
-       
+    private Company saveCompany(Company company, Integer brokerId) {
+        validateBrokerId(brokerId);
+
+        // setting valid brokerId for company. 
+        company.setBroker(brokerId);
+
         associateChildEntities(company);
 
+        // Checking Duplicate company name
+        validateDuplicateCompany(company);
+
         Integer configurationId = company.getConfigurationId();
-        Integer brokerId = company.getBroker();
 
         if (configurationId == CONFIGURATION_ID_FOR_INACTIVE) {
             company.setConfigurationId(null);
@@ -331,7 +306,7 @@ public class CompanyService  extends CommonService {
      */
     public FileImportResult bulkUpload(MultipartFile fileToImport, int brokerId) throws ApplicationException {
 
-        Company broker = validateAndGetBroker(brokerId);
+        Company broker = validateBrokerId(brokerId);
 
         List<String> fileContents = validateAndGetFileContent(fileToImport, COMPANY);
 

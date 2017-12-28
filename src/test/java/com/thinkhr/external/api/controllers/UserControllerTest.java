@@ -161,7 +161,7 @@ public class UserControllerTest {
 
         ResponseEntity<User> responseEntity = createUserResponseEntity(user, HttpStatus.CREATED);
 
-        given(userController.addUser(user)).willReturn(responseEntity);
+        given(userController.addUser(user, 1)).willReturn(responseEntity);
 
         mockMvc.perform(post(USER_API_BASE_PATH)
                 .accept(MediaType.APPLICATION_JSON)
@@ -320,7 +320,7 @@ public class UserControllerTest {
 
         ResponseEntity<User> responseEntity = createUserResponseEntity(user, HttpStatus.OK);
 
-        given(userController.updateUser(user.getUserId(), user)).willReturn(responseEntity);
+        given(userController.updateUser(user.getUserId(), user, 1)).willReturn(responseEntity);
 
         mockMvc.perform(put(USER_API_BASE_PATH)
                 .accept(MediaType.APPLICATION_JSON)
@@ -340,7 +340,7 @@ public class UserControllerTest {
 
         ResponseEntity<User> responseEntity = createUserResponseEntity(user, HttpStatus.OK);
 
-        given(userController.updateUser(user.getUserId(), user)).willReturn(responseEntity);
+        given(userController.updateUser(user.getUserId(), user, 1)).willReturn(responseEntity);
 
         mockMvc.perform(put(USER_API_BASE_PATH + user.getUserId())
                 .accept(MediaType.APPLICATION_JSON)

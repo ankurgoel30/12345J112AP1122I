@@ -127,14 +127,14 @@ public class CommonService {
      * @param brokerId
      * @return
      */
-    public Company validateAndGetBroker(int brokerId) {
+    public Company validateBrokerId(int brokerId) {
         // Process files if submitted by a valid broker else throw an exception
         Company broker = companyRepository.findOne(brokerId);
         if (null == broker) {
             throw ApplicationException.createBadRequest(APIErrorCodes.INVALID_BROKER_ID, String.valueOf(brokerId));
         }
-
         return broker;
+
     }
     
     /**

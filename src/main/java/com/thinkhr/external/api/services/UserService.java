@@ -135,39 +135,10 @@ public class UserService extends CommonService {
     @Transactional
     public User addUser(User user, Integer brokerId) {
 
-        Company broker = validateAndGetBroker(brokerId);
+        User throneUser = saveUser(user, brokerId, true);
 
-        Company company = companyRepository.findFirstByCompanyNameAndBroker(user.getCompanyName(),
-                broker.getCompanyId());
-
-        if (company == null) {
-            throw ApplicationException.createBadRequest(APIErrorCodes.INVALID_CLIENT_NAME, user.getCompanyName(),
-                    String.valueOf(broker.getCompanyId()));
-        }
-
-        user.setCompanyId(company.getCompanyId());
-        user.setBrokerId(broker.getCompanyId());
-
-        // THR-3927 [Start]
-        String userName = generateUserName(user.getUserName(), user.getEmail(), user.getFirstName(),
-                user.getLastName());
-
-        user.setUserName(userName);
-        // THR-3927 [End]
-
-        User throneUser =  userRepository.save(user);
         learnUserService.addLearnUser(throneUser); //THR-3932
         return throneUser;
-    }
-
-    /**
-     * Validates roleId from the Database.
-     * 
-     * @param roleId
-     * @return
-     */
-    public boolean validateRoleIdFromDB(Integer roleId) {
-        return throneRoleRepository.findOne(roleId) == null ? false : true;
     }
 
     /**
@@ -184,38 +155,66 @@ public class UserService extends CommonService {
                     "user", "userId="+userId);
         }
 
-        Company broker = validateAndGetBroker(brokerId);
+        User throneUser = saveUser(user, brokerId, false);
+        
+        learnUserService.updateLearnUser(throneUser);
+        return throneUser;
+    }
 
-        Company company = companyRepository.findFirstByCompanyNameAndBroker(user.getCompanyName(),
-                broker.getCompanyId());
+    /**
+     * To save existing users
+     * 
+     * @param user
+     * @param brokerId
+     * @param isNew
+     * @return
+     */
+    private User saveUser(User user, Integer brokerId, boolean isNew) {
+        validateBrokerId(brokerId);
 
-        if (company == null) {
-            throw ApplicationException.createBadRequest(APIErrorCodes.INVALID_CLIENT_NAME, user.getCompanyName());
-        }
-
-        user.setCompanyId(company.getCompanyId());
-        user.setBrokerId(broker.getCompanyId());
-
-        // THR-3927 [Start]
-        String userName = generateUserName(user.getUserName(), user.getEmail(), user.getFirstName(),
-                user.getLastName());
-
-        user.setUserName(userName);
-        // THR-3927 [End]
+        validateCompanyName(user, brokerId);
 
         Integer roleId = user.getRoleId();
         
         if (roleId == ROLE_ID_FOR_INACTIVE) {
             user.setRoleId(null);
         }
+        
         if (roleId != null && !validateRoleIdFromDB(roleId)) {
             throw ApplicationException.createBadRequest(APIErrorCodes.INVALID_ROLE_ID, String.valueOf(roleId));
         }
 
+        if (isNew) {
+            //Validate duplicate username and generate a new one
+            String userName = generateUserName(user.getUserName(), user.getEmail(), user.getFirstName(),
+                    user.getLastName());
+
+            user.setUserName(userName);
+
+        }
         // If not passed in model, then object will become in-active.
         User throneUser = userRepository.save(user);
-        learnUserService.updateLearnUser(throneUser);
         return throneUser;
+    }
+
+    /**
+     * Validate companyName
+     * 
+     * @param user
+     * @param brokerId
+     * @return
+     */
+    private Company validateCompanyName(User user, Integer brokerId) {
+        Company company = companyRepository.findFirstByCompanyNameAndBroker(user.getCompanyName(),
+                brokerId);
+
+        if (company == null) {
+            throw ApplicationException.createBadRequest(APIErrorCodes.INVALID_CLIENT_NAME, user.getCompanyName());
+        }
+        user.setCompanyId(company.getCompanyId());
+        user.setBrokerId(brokerId);
+
+        return company;
     }
 
     /**
@@ -247,7 +246,7 @@ public class UserService extends CommonService {
             throw ApplicationException.createFileImportError(APIErrorCodes.REQUIRED_PARAMETER, "file");
         }
 
-        Company broker = validateAndGetBroker(brokerId);
+        Company broker = validateBrokerId(brokerId);
 
         List<String> fileContents = validateAndGetFileContent(fileToImport, resource);
 
@@ -482,5 +481,16 @@ public class UserService extends CommonService {
     public String getDefaultSortField()  {
         return DEFAULT_SORT_BY_USER_NAME;
     }
+
+    /**
+     * Validates roleId from the Database.
+     * 
+     * @param roleId
+     * @return
+     */
+    public boolean validateRoleIdFromDB(Integer roleId) {
+        return throneRoleRepository.findOne(roleId) == null ? false : true;
+    }
+
 
 }
