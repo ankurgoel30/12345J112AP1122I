@@ -116,7 +116,7 @@ public class LearnUserService extends CommonService {
             return null;
         }
 
-        if (throneCompany.isBroker()) {
+        if (throneCompany.isBrokerCompany()) {
             return BROKER_ROLE;
         } else {
             return STUDENT_ROLE;
@@ -316,6 +316,7 @@ public class LearnUserService extends CommonService {
     }
 
     /**
+     * Generate userName based on roleId. 
      * 
      * @param throneUser
      * @return

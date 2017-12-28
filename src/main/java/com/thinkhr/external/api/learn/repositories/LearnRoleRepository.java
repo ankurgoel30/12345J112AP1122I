@@ -12,5 +12,4 @@ public interface LearnRoleRepository extends CrudRepository<LearnRole, Integer> 
      * @return
      */
     public LearnRole findFirstByShortName(String shortName);
-
 }

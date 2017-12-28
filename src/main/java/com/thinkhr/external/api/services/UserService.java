@@ -10,6 +10,7 @@ import static com.thinkhr.external.api.ApplicationConstants.UNDERSCORE;
 import static com.thinkhr.external.api.ApplicationConstants.USER;
 import static com.thinkhr.external.api.ApplicationConstants.USER_COLUMN_CLIENT_ID;
 import static com.thinkhr.external.api.ApplicationConstants.USER_COLUMN_PASSWORD;
+import static com.thinkhr.external.api.ApplicationConstants.ROLE_ID_FOR_INACTIVE;
 import static com.thinkhr.external.api.request.APIRequestHelper.setRequestAttribute;
 import static com.thinkhr.external.api.response.APIMessageUtil.getMessageFromResourceBundle;
 import static com.thinkhr.external.api.services.upload.FileImportValidator.validateAndGetFileContent;
@@ -44,6 +45,7 @@ import com.thinkhr.external.api.db.entities.User;
 import com.thinkhr.external.api.exception.APIErrorCodes;
 import com.thinkhr.external.api.exception.ApplicationException;
 import com.thinkhr.external.api.model.FileImportResult;
+import com.thinkhr.external.api.repositories.ThroneRoleRepository;
 import com.thinkhr.external.api.services.crypto.AppEncryptorDecryptor;
 import com.thinkhr.external.api.services.upload.FileUploadEnum;
 
@@ -65,6 +67,10 @@ public class UserService extends CommonService {
     
     @Autowired
     private LearnUserService learnUserService;
+    
+    @Autowired
+    protected ThroneRoleRepository throneRoleRepository;
+
 
     private static final String resource = USER;
     
@@ -128,6 +134,17 @@ public class UserService extends CommonService {
 
     @Transactional
     public User addUser(User user) {
+
+        Integer roleId = user.getRoleId();
+        
+        if (roleId == ROLE_ID_FOR_INACTIVE) {//It is additionally handled.
+            user.setRoleId(null);
+        }
+        
+        if (roleId != null  && !validateRoleIdFromDB(roleId)) {
+            throw ApplicationException.createBadRequest(APIErrorCodes.INVALID_ROLE_ID, String.valueOf(roleId));
+        }
+
         User throneUser = userRepository.save(user);
         learnUserService.addLearnUser(throneUser); //THR-3932
         return throneUser;
@@ -140,7 +157,7 @@ public class UserService extends CommonService {
      * @return
      */
     public boolean validateRoleIdFromDB(Integer roleId) {
-        return learnRoleRepository.findOne(roleId) == null ? false : true;
+        return throneRoleRepository.findOne(roleId) == null ? false : true;
     }
 
     /**
@@ -154,7 +171,17 @@ public class UserService extends CommonService {
         Integer userId = user.getUserId();
 
         if (null == userRepository.findOne(userId)) {
-            throw ApplicationException.createEntityNotFoundError(APIErrorCodes.ENTITY_NOT_FOUND, "user", "userId="+userId);
+            throw ApplicationException.createEntityNotFoundError(APIErrorCodes.ENTITY_NOT_FOUND, 
+                    "user", "userId="+userId);
+        }
+
+        Integer roleId = user.getRoleId();
+        
+        if (roleId == ROLE_ID_FOR_INACTIVE) {
+            user.setRoleId(null);
+        }
+        if (roleId != null && !validateRoleIdFromDB(roleId)) {
+            throw ApplicationException.createBadRequest(APIErrorCodes.INVALID_ROLE_ID, String.valueOf(roleId));
         }
 
         // If not passed in model, then object will become in-active.
