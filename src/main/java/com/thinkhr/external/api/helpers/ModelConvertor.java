@@ -129,11 +129,8 @@ public class ModelConvertor {
         CompanyContract companyContract = new CompanyContract();
         companyContract.setCompanyId(company.getCompanyId());
 
-        // TODO : Decide where to get productId from.
         companyContract.setProductId(ApplicationConstants.DEFAULT_PRODUCT_ID);
         companyContract.setStartDate(company.getCompanySince());
-
-        // TODO : Decide how to get end date
         companyContract.setEndDate(company.getCompanySince());
         companyContract.setTempID(CommonUtil.getTempId());
         return companyContract;
@@ -152,7 +149,6 @@ public class ModelConvertor {
         companyProduct.setStartDate(companyContract.getStartDate());
         companyProduct.setAuthorizationKey(getAuthorizationKeyFromCompanyId(companyContract.getCompanyId()));
 
-        // TODO : Decide where to get numberLicenses from. 
         companyProduct.setNumberLicenses(ApplicationConstants.DEFAULT_NUMBER_LICENSES);
         companyProduct.setTempID(CommonUtil.getTempId());
         return companyProduct;
