@@ -225,11 +225,6 @@ public class CompanyService  extends CommonService {
                     "company", "companyId="+companyId);
         }
         
-        Company throneCompany = saveCompany(company);
-        learnCompanyService.updateLearnCompany(throneCompany);
-        return throneCompany;
-    }
-
         Company broker = validateAndGetBroker(brokerId);
 
         // setting valid brokerId for company. 
@@ -240,7 +235,11 @@ public class CompanyService  extends CommonService {
         // Checking Duplicate company name
         validateDuplicateCompany(company);
 
-        return companyRepository.save(company);
+        Company throneCompany = saveCompany(company);
+        
+        learnCompanyService.updateLearnCompany(throneCompany);
+        return throneCompany;
+    }
 
     /**
      * To save company object

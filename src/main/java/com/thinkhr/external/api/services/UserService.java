@@ -203,9 +203,6 @@ public class UserService extends CommonService {
         user.setUserName(userName);
         // THR-3927 [End]
 
-        //If not passed in model, then object will become in-active.
-        return userRepository.save(user);
-
         Integer roleId = user.getRoleId();
         
         if (roleId == ROLE_ID_FOR_INACTIVE) {
