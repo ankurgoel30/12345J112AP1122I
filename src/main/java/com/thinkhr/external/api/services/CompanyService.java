@@ -226,7 +226,7 @@ public class CompanyService  extends CommonService {
         associateChildEntities(company);
 
         // Checking Duplicate company name
-        if (!validateDuplicateCompany(company.getCompanyName(), 
+        if (isDuplicateCompany(company.getCompanyName(), 
                 company.getBroker(), company.getCustom1())) {
             throw ApplicationException.createBadRequest(APIErrorCodes.DUPLICATE_COMPANY_RECORD,
                     company.getCompanyName());
@@ -258,7 +258,7 @@ public class CompanyService  extends CommonService {
      * @param custom1
      * @return
      */
-    public boolean validateDuplicateCompany(String companyName, Integer brokerId, String custom1) {
+    public boolean isDuplicateCompany(String companyName, Integer brokerId, String custom1) {
 
         boolean isDuplicate = false;
 
@@ -521,7 +521,7 @@ public class CompanyService  extends CommonService {
             custom1Value = rowColValues[11].trim();
         }
 
-        boolean isDuplicate = validateDuplicateCompany(companyName, brokerId, custom1Value);
+        boolean isDuplicate = isDuplicateCompany(companyName, brokerId, custom1Value);
 
         boolean isSpecial = (brokerId.equals(ApplicationConstants.SPECIAL_CASE_BROKER1) ||
                 brokerId.equals(ApplicationConstants.SPECIAL_CASE_BROKER2)); 
