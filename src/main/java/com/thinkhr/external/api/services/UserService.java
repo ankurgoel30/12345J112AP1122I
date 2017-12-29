@@ -4,13 +4,13 @@ import static com.thinkhr.external.api.ApplicationConstants.COMMA_SEPARATOR;
 import static com.thinkhr.external.api.ApplicationConstants.CONTACT;
 import static com.thinkhr.external.api.ApplicationConstants.DEFAULT_PASSWORD;
 import static com.thinkhr.external.api.ApplicationConstants.DEFAULT_SORT_BY_USER_NAME;
+import static com.thinkhr.external.api.ApplicationConstants.ROLE_ID_FOR_INACTIVE;
 import static com.thinkhr.external.api.ApplicationConstants.SPACE;
 import static com.thinkhr.external.api.ApplicationConstants.TOTAL_RECORDS;
 import static com.thinkhr.external.api.ApplicationConstants.UNDERSCORE;
 import static com.thinkhr.external.api.ApplicationConstants.USER;
 import static com.thinkhr.external.api.ApplicationConstants.USER_COLUMN_CLIENT_ID;
 import static com.thinkhr.external.api.ApplicationConstants.USER_COLUMN_PASSWORD;
-import static com.thinkhr.external.api.ApplicationConstants.ROLE_ID_FOR_INACTIVE;
 import static com.thinkhr.external.api.request.APIRequestHelper.setRequestAttribute;
 import static com.thinkhr.external.api.response.APIMessageUtil.getMessageFromResourceBundle;
 import static com.thinkhr.external.api.services.upload.FileImportValidator.validateAndGetFileContent;
@@ -181,12 +181,12 @@ public class UserService extends CommonService {
 
         Integer roleId = user.getRoleId();
         
+        if (roleId != null && roleId != ROLE_ID_FOR_INACTIVE && !validateRoleIdFromDB(roleId)) {
+            throw ApplicationException.createBadRequest(APIErrorCodes.INVALID_ROLE_ID, String.valueOf(roleId));
+        }
+
         if (roleId == ROLE_ID_FOR_INACTIVE) {
             user.setRoleId(null);
-        }
-        
-        if (roleId != null && !validateRoleIdFromDB(roleId)) {
-            throw ApplicationException.createBadRequest(APIErrorCodes.INVALID_ROLE_ID, String.valueOf(roleId));
         }
 
         if (isNew) {

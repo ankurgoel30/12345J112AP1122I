@@ -1,7 +1,5 @@
 package com.thinkhr.external.api.config;
 
-import static com.thinkhr.external.api.ApplicationConstants.DEVELOPMENT_ENV;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
@@ -39,8 +37,7 @@ public class AppConfig extends WebMvcConfigurerAdapter {
     @Override
     public void addInterceptors(InterceptorRegistry registry) {
         registry.addInterceptor(new APIProcessingTimeInterceptor()).addPathPatterns("/v1/**");
-        if (!DEVELOPMENT_ENV.equalsIgnoreCase(environment.trim())) {
-            registry.addInterceptor(new JwtTokenInterceptor(key, iss, authorizationManager)).addPathPatterns("/v1/**");
-        }
+        registry.addInterceptor(new JwtTokenInterceptor(key, iss, authorizationManager, environment))
+                .addPathPatterns("/v1/**");
     }
 }
