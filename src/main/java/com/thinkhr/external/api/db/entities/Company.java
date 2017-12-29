@@ -21,6 +21,7 @@ import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 
 import org.hibernate.annotations.Where;
+import org.hibernate.validator.constraints.NotBlank;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -60,8 +61,7 @@ public class Company implements SearchableEntity {
     @Column(name = "Client_Type") 
     private String companyType;
 
-    @NotNull
-    @Size(min=1)
+    @NotBlank
     @Column(name = "Client_Name") 
     private String companyName;
 
@@ -74,7 +74,7 @@ public class Company implements SearchableEntity {
     @Column(name = "Broker") 
     private Integer broker;
 
-    @NotNull
+    @NotBlank
     @Column(name = "Client_Phone") 
     private String companyPhone;
 
@@ -108,11 +108,11 @@ public class Company implements SearchableEntity {
     @Column(name = "issue_frequency") 
     private Integer issueFrequency;
 
-    @NotNull
+    @NotBlank
     @Column(name = "industry") 
     private String industry;
 
-    @NotNull
+    @NotBlank
     @Column(name = "companySize") 
     private String companySize;
 

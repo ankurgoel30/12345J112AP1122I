@@ -12,6 +12,7 @@ import javax.validation.constraints.NotNull;
 
 import org.hibernate.annotations.DynamicInsert;
 import org.hibernate.annotations.DynamicUpdate;
+import org.hibernate.validator.constraints.NotBlank;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
@@ -38,18 +39,18 @@ public class Location {
     @GeneratedValue(strategy=GenerationType.AUTO)
     Integer locationId;
 
-    @NotNull
+    @NotBlank
     String address;
     
     String address2;
     
-    @NotNull
+    @NotBlank
     String city;
     
-    @NotNull
+    @NotBlank
     String state;
     
-    @NotNull
+    @NotBlank
     String zip;
     String tempID;
     
