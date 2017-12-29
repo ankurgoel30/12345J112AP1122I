@@ -139,10 +139,7 @@ public class CompanyService  extends CommonService {
         // Checking Duplicate company name
         company.setTempID(CommonUtil.getTempId());
 
-        // Checking Duplicate company name
-        validateDuplicateCompany(company);
-
-        Company throneCompany = saveCompany(company, brokerId);
+        Company throneCompany = saveCompany(company, brokerId, true);
         
         // Saving CompanyContract
         addCompanyContractAndProduct(throneCompany);
@@ -220,7 +217,7 @@ public class CompanyService  extends CommonService {
         }
         validateObject(updatedCompany);
 
-        Company throneCompany = saveCompany(updatedCompany, brokerId);
+        Company throneCompany = saveCompany(updatedCompany, brokerId, false);
         learnCompanyService.updateLearnCompany(throneCompany);
         return throneCompany;
     }
@@ -230,9 +227,10 @@ public class CompanyService  extends CommonService {
      * 
      * @param company
      * @param brokerId
+     * @param isNew
      * @return
      */
-    private Company saveCompany(Company company, Integer brokerId) {
+    private Company saveCompany(Company company, Integer brokerId, boolean isNew) {
         validateBrokerId(brokerId);
 
         // setting valid brokerId for company. 
@@ -240,13 +238,19 @@ public class CompanyService  extends CommonService {
 
         associateChildEntities(company);
 
+        // Checking Duplicate company name
+        if (isNew && isDuplicateCompany(company.getCompanyName(), company.getBroker(), company.getCustom1())) {
+            throw ApplicationException.createBadRequest(APIErrorCodes.DUPLICATE_COMPANY_RECORD,
+                    company.getCompanyName());
+        }
+
         Integer configurationId = company.getConfigurationId();
 
         if (configurationId != null && configurationId != CONFIGURATION_ID_FOR_INACTIVE
                 && !validateConfigurationIdFromDB(configurationId, brokerId)) {
 
             throw ApplicationException.createBadRequest(APIErrorCodes.INVALID_CONFIGURATION_ID,
-                    String.valueOf(configurationId));
+                    String.valueOf(configurationId), String.valueOf(brokerId));
         }
 
         if (configurationId == CONFIGURATION_ID_FOR_INACTIVE) {
@@ -261,19 +265,21 @@ public class CompanyService  extends CommonService {
     /**
      * To check whether company name already exists in DB.
      * 
-     * @param company
+     * @param companyName
+     * @param brokerId
+     * @param custom1
      * @return
      */
-    public void validateDuplicateCompany(Company company) {
+    public boolean isDuplicateCompany(String companyName, Integer brokerId, String custom1) {
 
         boolean isDuplicate = false;
 
-        boolean isSpecial = (company.getBroker().equals(ApplicationConstants.SPECIAL_CASE_BROKER1) ||
-                             company.getBroker().equals(ApplicationConstants.SPECIAL_CASE_BROKER2)); 
+        boolean isSpecial = (brokerId.equals(ApplicationConstants.SPECIAL_CASE_BROKER1) ||
+                brokerId.equals(ApplicationConstants.SPECIAL_CASE_BROKER2)); 
         
         //find matching company by given company name and broker id
-        Company companyFromDB = companyRepository.findFirstByCompanyNameAndBroker(company.getCompanyName(),
-                company.getBroker());
+        Company companyFromDB = companyRepository.findFirstByCompanyNameAndBroker(companyName,
+                brokerId);
 
         if (null != companyFromDB) { //A DB query is must here to check duplicates in data
             if (!isSpecial) {
@@ -281,15 +287,12 @@ public class CompanyService  extends CommonService {
             }
             // handle special case of Paychex
             // find matching company by given company name, custom1 field and broker id
-            if (isSpecial && companyRepository.findFirstByCompanyNameAndCustom1AndBroker(company.getCompanyName(),
-                    company.getCustom1(), company.getBroker()) != null) {
+            if (isSpecial && companyRepository.findFirstByCompanyNameAndCustom1AndBroker(companyName,
+                    custom1, brokerId) != null) {
                 isDuplicate = true;
             }
-            if (isDuplicate) {
-                throw ApplicationException.createBadRequest(APIErrorCodes.DUPLICATE_COMPANY_RECORD,
-                        company.getCompanyName());
-            } 
         }
+        return isDuplicate;
     }
 
     /**
@@ -530,31 +533,17 @@ public class CompanyService  extends CommonService {
             custom1Value = rowColValues[11].trim();
         }
 
-        boolean isDuplicate = false;
+        boolean isDuplicate = isDuplicateCompany(companyName, brokerId, custom1Value);
 
         boolean isSpecial = (brokerId.equals(ApplicationConstants.SPECIAL_CASE_BROKER1) ||
-                             brokerId.equals(ApplicationConstants.SPECIAL_CASE_BROKER2)); 
-        
-        //find matching company by given company name and broker id
-        Company companyFromDB = companyRepository.findFirstByCompanyNameAndBroker(companyName, brokerId);
-
-        if (null != companyFromDB) { //A DB query is must here to check duplicates in data
-            if (!isSpecial) {
-                isDuplicate = true;
-            }
-            //handle special case of Paychex
-          //find matching company by given company name, custom1 field and broker id
-            if (isSpecial && companyRepository.findFirstByCompanyNameAndCustom1AndBroker(companyName, custom1Value, brokerId) != null) {  
-                isDuplicate = true;
-            }
-            if (isDuplicate) {
-                String causeDuplicateName = getMessageFromResourceBundle(resourceHandler, APIErrorCodes.DUPLICATE_RECORD);
-                causeDuplicateName = (!isSpecial ? causeDuplicateName + " - " + companyName : 
-                    causeDuplicateName + " - " + companyName + ", " + custom1Value);
-                fileImportResult.addFailedRecord(record, causeDuplicateName,
-                        getMessageFromResourceBundle(resourceHandler, APIErrorCodes.SKIPPED_RECORD));
-            } 
-        }
+                brokerId.equals(ApplicationConstants.SPECIAL_CASE_BROKER2)); 
+        if (isDuplicate) {
+            String causeDuplicateName = getMessageFromResourceBundle(resourceHandler, APIErrorCodes.DUPLICATE_RECORD);
+            causeDuplicateName = (!isSpecial ? causeDuplicateName + " - " + companyName : 
+                causeDuplicateName + " - " + companyName + ", " + custom1Value);
+            fileImportResult.addFailedRecord(record, causeDuplicateName,
+                    getMessageFromResourceBundle(resourceHandler, APIErrorCodes.SKIPPED_RECORD));
+        } 
 
         return isDuplicate;
     }
