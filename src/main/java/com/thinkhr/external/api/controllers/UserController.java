@@ -103,7 +103,7 @@ public class UserController {
      */
     @RequestMapping(method=RequestMethod.PUT, value="/{userId}")
     public ResponseEntity <User> updateUser(@PathVariable(name="userId", value = "userId") Integer userId, 
-            String userJson, @RequestAttribute(name = BROKER_ID_PARAM) Integer brokerId)
+            @RequestBody String userJson, @RequestAttribute(name = BROKER_ID_PARAM) Integer brokerId)
             throws ApplicationException , IOException {
         
         User updatedUser = userService.updateUser(userId, userJson , brokerId);

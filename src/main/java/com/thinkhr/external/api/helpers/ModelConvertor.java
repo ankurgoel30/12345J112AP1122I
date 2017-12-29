@@ -1,6 +1,7 @@
 package com.thinkhr.external.api.helpers;
 
 import static com.thinkhr.external.api.services.CompanyService.getAuthorizationKeyFromCompanyId;
+import static com.thinkhr.external.api.services.utils.CommonUtil.*;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -56,9 +57,8 @@ public class ModelConvertor {
         learnCompany.setCompanyName(company.getCompanyName());
         learnCompany.setCompanyType(company.getCompanyType());
         learnCompany.setPhone(company.getCompanyPhone());
-        Date now = new Date();
-        learnCompany.setTimeCreated(now.getTime());
-        learnCompany.setTimeModified(now.getTime());
+        learnCompany.setTimeCreated(getNowInMiliseconds());
+        learnCompany.setTimeModified(getNowInMiliseconds());
 
         
         return learnCompany;
@@ -88,8 +88,8 @@ public class ModelConvertor {
                 company.getBroker(),
                 company.getCompanyPhone(),
                 "1",
-                String.valueOf(new Date().getTime()),
-                String.valueOf(new Date().getTime())));
+                String.valueOf(getNowInMiliseconds()),
+                String.valueOf(getNowInMiliseconds())));
         
         return learnCompanyFields;
     }
@@ -152,6 +152,63 @@ public class ModelConvertor {
         companyProduct.setNumberLicenses(ApplicationConstants.DEFAULT_NUMBER_LICENSES);
         companyProduct.setTempID(CommonUtil.getTempId());
         return companyProduct;
+    }
+
+    /**
+     * This funcion updates desired fields in given learnCompany instance from throneCompany instance
+     * @param learnCompany
+     * @param throneCompany
+     */
+    public void update(LearnCompany learnCompany, Company company) {
+        if (learnCompany == null || company == null) {
+            return;
+        }
+
+        Location location = company.getLocation();
+        if (location != null) {
+            learnCompany.setAddress(location.getAddress());
+            learnCompany.setAddress2(location.getAddress2());
+            learnCompany.setCity(location.getCity());
+            learnCompany.setState(location.getState());
+            learnCompany.setZip(location.getZip());
+        } else {
+            learnCompany.setAddress(null);
+            learnCompany.setAddress2(null);
+            learnCompany.setCity(null);
+            learnCompany.setState(null);
+            learnCompany.setZip(null);
+        }
+
+        learnCompany.setBroker(String.valueOf(company.getBroker()));
+        learnCompany.setCompanyName(company.getCompanyName());
+        learnCompany.setCompanyType(company.getCompanyType());
+        learnCompany.setPhone(company.getCompanyPhone());
+        learnCompany.setTimeModified(getNowInMiliseconds());
+    }
+
+    /**
+     * This funcion updates desired fields in given learnUser instance from throneUser instance
+     * 
+     * @param learnUser
+     * @param throneUser
+     */
+    public void update(LearnUser learnUser, User throneUser) {
+        if (learnUser == null || throneUser == null) {
+            return;
+        }
+        learnUser.setBlockedAccount(throneUser.getBlockedAccount());
+        learnUser.setBounced(throneUser.getBounced());
+        if (throneUser.getDeleted() != null) { // In mdl_user table deleted column is Not Null . so to avoid Constraint  Voilation Exception this check is required
+            learnUser.setDeleted(throneUser.getDeleted());
+        }
+        learnUser.setEmail(throneUser.getEmail());
+        learnUser.setFirstName(throneUser.getFirstName());
+        learnUser.setJobTitle(throneUser.getTitle());
+        learnUser.setLastName(throneUser.getLastName());
+        learnUser.setPassword(throneUser.getPassword());
+        learnUser.setPhone1(throneUser.getPhone());
+        learnUser.setThrUserId(throneUser.getUserId());
+        learnUser.setUserName(throneUser.getUserName());
     }
 
 }

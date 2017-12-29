@@ -94,9 +94,10 @@ public class LearnUserService extends CommonService {
         LearnUser learnUser = learnUserRepository.findFirstByThrUserId(throneUser.getUserId());
 
         if (learnUser == null) {
-            // TODO : what to do ?
+            return null;
         }
 
+        modelConvertor.update(learnUser, throneUser);
         learnUser.setUserName(getLearnUserNameByRoleId(throneUser));
 
         return this.updateLearnUser(learnUser);

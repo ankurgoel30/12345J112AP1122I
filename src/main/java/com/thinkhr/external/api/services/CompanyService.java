@@ -139,6 +139,9 @@ public class CompanyService  extends CommonService {
         // Checking Duplicate company name
         company.setTempID(CommonUtil.getTempId());
 
+        // Checking Duplicate company name
+        validateDuplicateCompany(company);
+
         Company throneCompany = saveCompany(company, brokerId);
         
         // Saving CompanyContract
@@ -236,9 +239,6 @@ public class CompanyService  extends CommonService {
         company.setBroker(brokerId);
 
         associateChildEntities(company);
-
-        // Checking Duplicate company name
-        validateDuplicateCompany(company);
 
         Integer configurationId = company.getConfigurationId();
 

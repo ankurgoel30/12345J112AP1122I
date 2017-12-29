@@ -98,7 +98,6 @@ public class User implements SearchableEntity {
     private String location;
 
     @JsonIgnore
-    @Size(min = 1, max = 25)
     @Column(name="Password")
     private String password;
 
