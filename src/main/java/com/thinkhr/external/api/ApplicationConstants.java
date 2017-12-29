@@ -37,7 +37,8 @@ public class ApplicationConstants {
     public static final int MAX_RECORDS_COMPANY_CSV_IMPORT = 3500;
     public static final int MAX_RECORDS_USER_CSV_IMPORT = 500;
     public static final String SPACE = " ";
-    public static final String DEFAULT_BROKERID_FOR_FILE_IMPORT = "187624";
+
+    public static final String DEFAULT_BROKER_ID = "187624";
     public static final String FILE_IMPORT_RESULT_MSG = "FILE_IMPORT_RESULT";
 
     public static final String COMMA_SEPARATOR = ",";
@@ -97,8 +98,5 @@ public class ApplicationConstants {
     public static final Integer DEFAULT_PRODUCT_ID = 26;
 
     public static final Integer DEFAULT_NUMBER_LICENSES = 1000;
-
-	// For Development Environment
-    public static final Integer DEFAULT_BROKER_ID = 8148;
 
 }

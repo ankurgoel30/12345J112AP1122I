@@ -177,12 +177,12 @@ public class UserService extends CommonService {
 
         Integer roleId = user.getRoleId();
         
+        if (roleId != null && roleId != ROLE_ID_FOR_INACTIVE && !validateRoleIdFromDB(roleId)) {
+            throw ApplicationException.createBadRequest(APIErrorCodes.INVALID_ROLE_ID, String.valueOf(roleId));
+        }
+
         if (roleId == ROLE_ID_FOR_INACTIVE) {
             user.setRoleId(null);
-        }
-        
-        if (roleId != null && !validateRoleIdFromDB(roleId)) {
-            throw ApplicationException.createBadRequest(APIErrorCodes.INVALID_ROLE_ID, String.valueOf(roleId));
         }
 
         if (isNew) {

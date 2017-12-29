@@ -1,7 +1,6 @@
 package com.thinkhr.external.api.controllers;
 
 import static com.thinkhr.external.api.ApplicationConstants.BROKER_ID_PARAM;
-import static com.thinkhr.external.api.ApplicationConstants.DEFAULT_BROKER_ID;
 import static com.thinkhr.external.api.ApplicationConstants.DEFAULT_SORT_BY_COMPANY_NAME;
 
 import java.io.File;
@@ -117,11 +116,8 @@ public class CompanyController {
     @RequestMapping(method=RequestMethod.PUT,value="/{companyId}")
     public ResponseEntity <Company> updateCompany(@PathVariable(name="companyId", value = "companyId") Integer companyId, 
             @Valid @RequestBody Company company,
-            @RequestAttribute(name = BROKER_ID_PARAM, required = false) Integer brokerId)
+            @RequestAttribute(name = BROKER_ID_PARAM) Integer brokerId)
             throws ApplicationException {
-        if (brokerId == null) {
-            brokerId = DEFAULT_BROKER_ID;
-        }
         company.setCompanyId(companyId);
         companyService.updateCompany(company, brokerId);
         return new ResponseEntity<Company> (company, HttpStatus.OK);
@@ -136,11 +132,8 @@ public class CompanyController {
      */
     @RequestMapping(method=RequestMethod.POST)
     public ResponseEntity<Company> addCompany(@Valid @RequestBody Company company, 
-            @RequestAttribute(name = BROKER_ID_PARAM, required = false) Integer brokerId)
+            @RequestAttribute(name = BROKER_ID_PARAM) Integer brokerId)
             throws ApplicationException {
-        if (brokerId == null) {
-            brokerId = DEFAULT_BROKER_ID;
-        }
         companyService.addCompany(company, brokerId);
         return new ResponseEntity<Company>(company, HttpStatus.CREATED);
     }
@@ -154,13 +147,10 @@ public class CompanyController {
      */
     @RequestMapping(method=RequestMethod.POST,  value="/bulk")
     public ResponseEntity <InputStreamResource> bulkUploadFile(@RequestParam(value="file", required=false) MultipartFile file, 
-            @RequestAttribute(name = BROKER_ID_PARAM, required = false) Integer brokerId)
+            @RequestAttribute(name = BROKER_ID_PARAM) Integer brokerId)
                     throws ApplicationException, IOException {
 
         logger.info("##### ######### COMPANY IMPORT BEGINS ######### #####");
-        if (brokerId == null) {
-            brokerId = DEFAULT_BROKER_ID;
-        }
         FileImportResult fileImportResult = companyService.bulkUpload(file, brokerId);
         logger.debug("************** COMPANY IMPORT ENDS *****************");
 

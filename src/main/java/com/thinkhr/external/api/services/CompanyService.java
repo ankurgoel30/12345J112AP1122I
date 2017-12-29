@@ -230,14 +230,15 @@ public class CompanyService  extends CommonService {
 
         Integer configurationId = company.getConfigurationId();
 
-        if (configurationId == CONFIGURATION_ID_FOR_INACTIVE) {
-            company.setConfigurationId(null);
-        }
-        
-        if (configurationId != null && brokerId != null
+        if (configurationId != null && configurationId != CONFIGURATION_ID_FOR_INACTIVE
                 && !validateConfigurationIdFromDB(configurationId, brokerId)) {
+
             throw ApplicationException.createBadRequest(APIErrorCodes.INVALID_CONFIGURATION_ID,
                     String.valueOf(configurationId));
+        }
+
+        if (configurationId == CONFIGURATION_ID_FOR_INACTIVE) {
+            company.setConfigurationId(null);
         }
 
         Company throneCompany = companyRepository.save(company);

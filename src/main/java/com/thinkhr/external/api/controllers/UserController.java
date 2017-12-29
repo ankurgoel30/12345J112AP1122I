@@ -1,7 +1,6 @@
 package com.thinkhr.external.api.controllers;
 
 import static com.thinkhr.external.api.ApplicationConstants.BROKER_ID_PARAM;
-import static com.thinkhr.external.api.ApplicationConstants.DEFAULT_BROKER_ID;
 import static com.thinkhr.external.api.ApplicationConstants.DEFAULT_SORT_BY_USER_NAME;
 
 import java.io.File;
@@ -104,11 +103,8 @@ public class UserController {
      */
     @RequestMapping(method=RequestMethod.PUT, value="/{userId}")
     public ResponseEntity <User> updateUser(@PathVariable(name="userId", value = "userId") Integer userId, 
-            @Valid @RequestBody User user, @RequestAttribute(name = BROKER_ID_PARAM, required = false) Integer brokerId)
+            @Valid @RequestBody User user, @RequestAttribute(name = BROKER_ID_PARAM) Integer brokerId)
             throws ApplicationException {
-        if (brokerId == null) {
-            brokerId = DEFAULT_BROKER_ID;
-        }
         user.setUserId(userId);
         userService.updateUser(user, brokerId);
         return new ResponseEntity<User> (user, HttpStatus.OK);
@@ -122,10 +118,7 @@ public class UserController {
      */
     @RequestMapping(method=RequestMethod.POST)
     public ResponseEntity<User> addUser(@Valid @RequestBody User user,
-            @RequestAttribute(name = BROKER_ID_PARAM, required = false) Integer brokerId) throws ApplicationException {
-        if (brokerId == null) {
-            brokerId = DEFAULT_BROKER_ID;
-        }
+            @RequestAttribute(name = BROKER_ID_PARAM) Integer brokerId) throws ApplicationException {
         userService.addUser(user, brokerId);
         return new ResponseEntity<User>(user, HttpStatus.CREATED);
     }
@@ -141,13 +134,10 @@ public class UserController {
      */
     @RequestMapping(method=RequestMethod.POST,  value="/bulk")
     public ResponseEntity <InputStreamResource> bulkUploadFile(@RequestParam(value="file", required=false) MultipartFile file, 
-            @RequestAttribute(name = BROKER_ID_PARAM, required = false) Integer brokerId)
+            @RequestAttribute(name = BROKER_ID_PARAM) Integer brokerId)
                     throws ApplicationException, IOException {
 
         logger.info("##### ######### USER IMPORT BEGINS ######### #####");
-        if (brokerId == null) {
-            brokerId = DEFAULT_BROKER_ID;
-        }
         FileImportResult fileImportResult = userService.bulkUpload(file, brokerId);
         logger.debug("************** USER IMPORT ENDS *****************");
 
