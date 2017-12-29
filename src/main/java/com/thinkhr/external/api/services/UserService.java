@@ -4,13 +4,13 @@ import static com.thinkhr.external.api.ApplicationConstants.COMMA_SEPARATOR;
 import static com.thinkhr.external.api.ApplicationConstants.CONTACT;
 import static com.thinkhr.external.api.ApplicationConstants.DEFAULT_PASSWORD;
 import static com.thinkhr.external.api.ApplicationConstants.DEFAULT_SORT_BY_USER_NAME;
+import static com.thinkhr.external.api.ApplicationConstants.ROLE_ID_FOR_INACTIVE;
 import static com.thinkhr.external.api.ApplicationConstants.SPACE;
 import static com.thinkhr.external.api.ApplicationConstants.TOTAL_RECORDS;
 import static com.thinkhr.external.api.ApplicationConstants.UNDERSCORE;
 import static com.thinkhr.external.api.ApplicationConstants.USER;
 import static com.thinkhr.external.api.ApplicationConstants.USER_COLUMN_CLIENT_ID;
 import static com.thinkhr.external.api.ApplicationConstants.USER_COLUMN_PASSWORD;
-import static com.thinkhr.external.api.ApplicationConstants.ROLE_ID_FOR_INACTIVE;
 import static com.thinkhr.external.api.request.APIRequestHelper.setRequestAttribute;
 import static com.thinkhr.external.api.response.APIMessageUtil.getMessageFromResourceBundle;
 import static com.thinkhr.external.api.services.upload.FileImportValidator.validateAndGetFileContent;
@@ -133,31 +133,15 @@ public class UserService extends CommonService {
      */
 
     @Transactional
-    public User addUser(User user) {
+    public User addUser(User user, Integer brokerId) {
 
-        Integer roleId = user.getRoleId();
-        
-        if (roleId == ROLE_ID_FOR_INACTIVE) {//It is additionally handled.
-            user.setRoleId(null);
-        }
-        
-        if (roleId != null  && !validateRoleIdFromDB(roleId)) {
-            throw ApplicationException.createBadRequest(APIErrorCodes.INVALID_ROLE_ID, String.valueOf(roleId));
-        }
+        //Saving default password
+        user.setPasswordApps(encDecyptor.encrypt(DEFAULT_PASSWORD));
 
-        User throneUser = userRepository.save(user);
+        User throneUser = saveUser(user, brokerId, true);
+
         learnUserService.addLearnUser(throneUser); //THR-3932
         return throneUser;
-    }
-
-    /**
-     * Validates roleId from the Database.
-     * 
-     * @param roleId
-     * @return
-     */
-    public boolean validateRoleIdFromDB(Integer roleId) {
-        return throneRoleRepository.findOne(roleId) == null ? false : true;
     }
 
     /**
@@ -167,7 +151,7 @@ public class UserService extends CommonService {
      * @throws ApplicationException
      */
     @Transactional
-    public User updateUser(User user) throws ApplicationException  {
+    public User updateUser(User user, Integer brokerId) throws ApplicationException {
         Integer userId = user.getUserId();
 
         if (null == userRepository.findOne(userId)) {
@@ -175,19 +159,67 @@ public class UserService extends CommonService {
                     "user", "userId="+userId);
         }
 
+        User throneUser = saveUser(user, brokerId, false);
+        
+        learnUserService.updateLearnUser(throneUser);
+        return throneUser;
+    }
+
+    /**
+     * To save existing users
+     * 
+     * @param user
+     * @param brokerId
+     * @param isNew
+     * @return
+     */
+    private User saveUser(User user, Integer brokerId, boolean isNew) {
+        validateBrokerId(brokerId);
+
+        validateCompanyName(user, brokerId);
+
         Integer roleId = user.getRoleId();
         
-        if (roleId == ROLE_ID_FOR_INACTIVE) {
-            user.setRoleId(null);
-        }
-        if (roleId != null && !validateRoleIdFromDB(roleId)) {
+        if (roleId != null && roleId != ROLE_ID_FOR_INACTIVE && !validateRoleIdFromDB(roleId)) {
             throw ApplicationException.createBadRequest(APIErrorCodes.INVALID_ROLE_ID, String.valueOf(roleId));
         }
 
+        if (roleId == ROLE_ID_FOR_INACTIVE) {
+            user.setRoleId(null);
+        }
+
+        if (isNew) {
+            //Validate duplicate username and generate a new one
+            String userName = generateUserName(user.getUserName(), user.getEmail(), user.getFirstName(),
+                    user.getLastName());
+
+            user.setUserName(userName);
+
+        }
         // If not passed in model, then object will become in-active.
         User throneUser = userRepository.save(user);
-        learnUserService.updateLearnUser(throneUser);
         return throneUser;
+    }
+
+    /**
+     * Validate companyName
+     * 
+     * @param user
+     * @param brokerId
+     * @return
+     */
+    private Company validateCompanyName(User user, Integer brokerId) {
+        Company company = companyRepository.findFirstByCompanyNameAndBroker(user.getCompanyName(),
+                brokerId);
+
+        if (company == null) {
+            throw ApplicationException.createBadRequest(APIErrorCodes.INVALID_CLIENT_NAME, user.getCompanyName(),
+                    String.valueOf(brokerId));
+        }
+        user.setCompanyId(company.getCompanyId());
+        user.setBrokerId(brokerId);
+
+        return company;
     }
 
     /**
@@ -219,7 +251,7 @@ public class UserService extends CommonService {
             throw ApplicationException.createFileImportError(APIErrorCodes.REQUIRED_PARAMETER, "file");
         }
 
-        Company broker = validateAndGetBroker(brokerId);
+        Company broker = validateBrokerId(brokerId);
 
         List<String> fileContents = validateAndGetFileContent(fileToImport, resource);
 
@@ -415,13 +447,15 @@ public class UserService extends CommonService {
     }
 
     /**
-     * Logic to generate username from email, firstName and lastName if it is 
-     * blank or duplicate 
+     * Logic to generate username from email, firstName and lastName if it is
+     * blank or duplicate
      * 
      * JIRA = THR-3927
      * 
-     * @param record
-     * @param headerIndexMap
+     * @param userName
+     * @param email
+     * @param firstName
+     * @param lastName
      * @return
      */
     protected String generateUserName(String userName, String email, String firstName, String lastName) {
@@ -452,5 +486,16 @@ public class UserService extends CommonService {
     public String getDefaultSortField()  {
         return DEFAULT_SORT_BY_USER_NAME;
     }
+
+    /**
+     * Validates roleId from the Database.
+     * 
+     * @param roleId
+     * @return
+     */
+    public boolean validateRoleIdFromDB(Integer roleId) {
+        return throneRoleRepository.findOne(roleId) == null ? false : true;
+    }
+
 
 }

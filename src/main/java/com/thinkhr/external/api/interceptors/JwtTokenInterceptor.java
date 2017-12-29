@@ -1,6 +1,8 @@
 package com.thinkhr.external.api.interceptors;
 
 import static com.thinkhr.external.api.ApplicationConstants.AUTHORIZATION_HEADER;
+import static com.thinkhr.external.api.ApplicationConstants.DEFAULT_BROKER_ID;
+import static com.thinkhr.external.api.ApplicationConstants.DEVELOPMENT_ENV;
 import static com.thinkhr.external.api.ApplicationConstants.BEARER_TOKEN;
 import static com.thinkhr.external.api.ApplicationConstants.APP_AUTH_DATA;
 import static com.thinkhr.external.api.ApplicationConstants.BROKER_ID_PARAM;
@@ -37,11 +39,18 @@ public class JwtTokenInterceptor extends HandlerInterceptorAdapter {
 
     private String iss;
 
-    private AuthorizationManager authorizationManager; 
+    private AuthorizationManager authorizationManager;
+    
+    private String environment;;
     
     @Override
     public boolean preHandle(HttpServletRequest request,
             HttpServletResponse response, Object handler) throws Exception {
+        
+        if (DEVELOPMENT_ENV.equalsIgnoreCase(environment.trim())) {
+            setDefaults(request); 
+            return true;
+        }
 
         final String authHeader = request.getHeader(AUTHORIZATION_HEADER);
 
@@ -77,6 +86,15 @@ public class JwtTokenInterceptor extends HandlerInterceptorAdapter {
             HttpServletResponse response, Object handler, Exception ex)
                     throws Exception {
         //DO Nothing
+    }
+    
+    /**
+     * Setting default attribute in request parameter.
+     * 
+     * @param request
+     */
+    private void setDefaults(HttpServletRequest request) {
+        request.setAttribute(BROKER_ID_PARAM, DEFAULT_BROKER_ID);
     }
 
 }

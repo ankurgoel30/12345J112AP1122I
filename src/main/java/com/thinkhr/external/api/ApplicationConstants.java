@@ -37,7 +37,8 @@ public class ApplicationConstants {
     public static final int MAX_RECORDS_COMPANY_CSV_IMPORT = 3500;
     public static final int MAX_RECORDS_USER_CSV_IMPORT = 500;
     public static final String SPACE = " ";
-    public static final String DEFAULT_BROKERID_FOR_FILE_IMPORT = "187624";
+
+    public static final String DEFAULT_BROKER_ID = "187624";
     public static final String FILE_IMPORT_RESULT_MSG = "FILE_IMPORT_RESULT";
 
     public static final String COMMA_SEPARATOR = ",";
@@ -64,7 +65,7 @@ public class ApplicationConstants {
     public static final String COMPANY_CUSTOM_COLUMN_PREFIX = "custom";
     public static final String USER_CUSTOM_COLUMN_PREFIX = "t1_customfield";
     public static final String USER_COLUMN_CLIENT_ID = "client_id";
-    public static final String USER_COLUMN_PASSWORD = "password_enc";
+    public static final String USER_COLUMN_PASSWORD = "password_apps";
     public static final String DEFAULT_PASSWORD = "";
     
     public static final String JWT_TOKEN_THR_CLIENT_ID =  "thr:clientId";

@@ -16,10 +16,12 @@ import javax.persistence.OneToOne;
 import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
+import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 
 import org.hibernate.annotations.Where;
+import org.hibernate.validator.constraints.NotBlank;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -59,8 +61,7 @@ public class Company implements SearchableEntity {
     @Column(name = "Client_Type") 
     private String companyType;
 
-    @NotNull
-    @Size(min=1)
+    @NotBlank
     @Column(name = "Client_Name") 
     private String companyName;
 
@@ -73,6 +74,7 @@ public class Company implements SearchableEntity {
     @Column(name = "Broker") 
     private Integer broker;
 
+    @NotBlank
     @Column(name = "Client_Phone") 
     private String companyPhone;
 
@@ -106,9 +108,11 @@ public class Company implements SearchableEntity {
     @Column(name = "issue_frequency") 
     private Integer issueFrequency;
 
+    @NotBlank
     @Column(name = "industry") 
     private String industry;
 
+    @NotBlank
     @Column(name = "companySize") 
     private String companySize;
 
@@ -348,7 +352,9 @@ public class Company implements SearchableEntity {
 
     @Column(name = "t1_email_template_id")
     private String emailTemplateId;
-    
+
+    @NotNull
+    @Valid
     @OneToOne(mappedBy = "company",cascade=CascadeType.ALL,fetch=FetchType.LAZY )
     private Location location ;
     

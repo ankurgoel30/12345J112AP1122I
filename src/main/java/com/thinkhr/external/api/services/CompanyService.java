@@ -2,10 +2,10 @@ package com.thinkhr.external.api.services;
 
 import static com.thinkhr.external.api.ApplicationConstants.COMMA_SEPARATOR;
 import static com.thinkhr.external.api.ApplicationConstants.COMPANY;
+import static com.thinkhr.external.api.ApplicationConstants.CONFIGURATION_ID_FOR_INACTIVE;
 import static com.thinkhr.external.api.ApplicationConstants.DEFAULT_SORT_BY_COMPANY_NAME;
 import static com.thinkhr.external.api.ApplicationConstants.LOCATION;
 import static com.thinkhr.external.api.ApplicationConstants.TOTAL_RECORDS;
-import static com.thinkhr.external.api.ApplicationConstants.CONFIGURATION_ID_FOR_INACTIVE;
 import static com.thinkhr.external.api.request.APIRequestHelper.setRequestAttribute;
 import static com.thinkhr.external.api.response.APIMessageUtil.getMessageFromResourceBundle;
 import static com.thinkhr.external.api.services.upload.FileImportValidator.validateAndGetFileContent;
@@ -120,7 +120,8 @@ public class CompanyService  extends CommonService {
         Company company =  companyRepository.findOne(companyId);
 
         if (null == company) {
-            throw ApplicationException.createEntityNotFoundError(APIErrorCodes.ENTITY_NOT_FOUND, "company", "companyId="+ companyId);
+            throw ApplicationException.createEntityNotFoundError(APIErrorCodes.ENTITY_NOT_FOUND,
+                    "company", "companyId="+ companyId);
         }
 
         return company;
@@ -132,18 +133,14 @@ public class CompanyService  extends CommonService {
      * @param company object
      */
     @Transactional
-    public Company addCompany(Company company) {
-
-        // setting tempID for company 
+    public Company addCompany(Company company, Integer brokerId) {
+        // Checking Duplicate company name
         company.setTempID(CommonUtil.getTempId());
 
-        Company throneCompany = saveCompany(company);
+        Company throneCompany = saveCompany(company, brokerId);
         
         // Saving CompanyContract
-        CompanyContract companyContract = this.addCompanyContract(throneCompany);
-
-        // Saving CompanyProduct
-        this.addCompanyProduct(companyContract);
+        addCompanyContractAndProduct(throneCompany);
 
         learnCompanyService.addLearnCompany(throneCompany);// THR-3929 
 
@@ -157,34 +154,24 @@ public class CompanyService  extends CommonService {
      * @return
      */
     public boolean validateConfigurationIdFromDB(Integer configurationId, Integer brokerId) {
-        return configurationRepository.findFirstByConfigurationIdAndCompanyId(configurationId, brokerId) == null ? false
-                : true;
+        return configurationRepository.findFirstByConfigurationIdAndCompanyId(configurationId, brokerId) == null ? 
+                 false : true;
     }
 
     /**
-     * Add a CompanyContract in database
+     * Add a CompanyContract and ContractProduct into database
      * 
      * @param throneCompany
      */
-    public CompanyContract addCompanyContract(Company throneCompany) {
-        if (throneCompany != null && throneCompany.getCompanyId() != null) {
-            CompanyContract companyContract = modelConvertor.convertToCompanyContract(throneCompany);
-            return companyContractRepository.save(companyContract);
+    public void addCompanyContractAndProduct(Company throneCompany) {
+        if (throneCompany == null || throneCompany.getCompanyId() == null) {
+            return;
         }
-        return null;
-    }
+        CompanyContract companyContract = modelConvertor.convertToCompanyContract(throneCompany);
+        companyContract = companyContractRepository.save(companyContract);
 
-    /**
-     * Add a CompanyProduct in database
-     * 
-     * @param companyContract
-     */
-    public CompanyProduct addCompanyProduct(CompanyContract companyContract) {
-        if (companyContract != null && companyContract.getRelId() != null) {
-            CompanyProduct companyProduct = modelConvertor.convertToCompanyProduct(companyContract);
-            return companyProductRepository.save(companyProduct);
-        }
-        return null;
+        CompanyProduct companyProduct = modelConvertor.convertToCompanyProduct(companyContract);
+        companyProductRepository.save(companyProduct);
     }
 
      /**
@@ -209,8 +196,7 @@ public class CompanyService  extends CommonService {
      * @throws ApplicationException 
      */
     @Transactional
-    public Company updateCompany(Company company) throws ApplicationException {
-
+    public Company updateCompany(Company company, Integer brokerId) throws ApplicationException {
         Integer companyId = company.getCompanyId();
 
         if (null == companyRepository.findOne(companyId)) {
@@ -218,38 +204,83 @@ public class CompanyService  extends CommonService {
                     "company", "companyId="+companyId);
         }
         
-        Company throneCompany = saveCompany(company);
+        Company throneCompany = saveCompany(company, brokerId);
+        
         learnCompanyService.updateLearnCompany(throneCompany);
         return throneCompany;
     }
-
 
     /**
      * To save company object
      * 
      * @param company
+     * @param brokerId
      * @return
      */
-    private Company saveCompany(Company company) {
-       
+    private Company saveCompany(Company company, Integer brokerId) {
+        validateBrokerId(brokerId);
+
+        // setting valid brokerId for company. 
+        company.setBroker(brokerId);
+
         associateChildEntities(company);
 
+        // Checking Duplicate company name
+        if (isDuplicateCompany(company.getCompanyName(), 
+                company.getBroker(), company.getCustom1())) {
+            throw ApplicationException.createBadRequest(APIErrorCodes.DUPLICATE_COMPANY_RECORD,
+                    company.getCompanyName());
+        }
+
         Integer configurationId = company.getConfigurationId();
-        Integer brokerId = company.getBroker();
+
+        if (configurationId != null && configurationId != CONFIGURATION_ID_FOR_INACTIVE
+                && !validateConfigurationIdFromDB(configurationId, brokerId)) {
+
+            throw ApplicationException.createBadRequest(APIErrorCodes.INVALID_CONFIGURATION_ID,
+                    String.valueOf(configurationId), String.valueOf(brokerId));
+        }
 
         if (configurationId == CONFIGURATION_ID_FOR_INACTIVE) {
             company.setConfigurationId(null);
-        }
-        
-        if (configurationId != null && brokerId != null
-                && !validateConfigurationIdFromDB(configurationId, brokerId)) {
-            throw ApplicationException.createBadRequest(APIErrorCodes.INVALID_CONFIGURATION_ID,
-                    String.valueOf(configurationId));
         }
 
         Company throneCompany = companyRepository.save(company);
         
         return throneCompany;
+    }
+
+    /**
+     * To check whether company name already exists in DB.
+     * 
+     * @param companyName
+     * @param brokerId
+     * @param custom1
+     * @return
+     */
+    public boolean isDuplicateCompany(String companyName, Integer brokerId, String custom1) {
+
+        boolean isDuplicate = false;
+
+        boolean isSpecial = (brokerId.equals(ApplicationConstants.SPECIAL_CASE_BROKER1) ||
+                brokerId.equals(ApplicationConstants.SPECIAL_CASE_BROKER2)); 
+        
+        //find matching company by given company name and broker id
+        Company companyFromDB = companyRepository.findFirstByCompanyNameAndBroker(companyName,
+                brokerId);
+
+        if (null != companyFromDB) { //A DB query is must here to check duplicates in data
+            if (!isSpecial) {
+                isDuplicate = true;
+            }
+            // handle special case of Paychex
+            // find matching company by given company name, custom1 field and broker id
+            if (isSpecial && companyRepository.findFirstByCompanyNameAndCustom1AndBroker(companyName,
+                    custom1, brokerId) != null) {
+                isDuplicate = true;
+            }
+        }
+        return isDuplicate;
     }
 
     /**
@@ -280,7 +311,7 @@ public class CompanyService  extends CommonService {
      */
     public FileImportResult bulkUpload(MultipartFile fileToImport, int brokerId) throws ApplicationException {
 
-        Company broker = validateAndGetBroker(brokerId);
+        Company broker = validateBrokerId(brokerId);
 
         List<String> fileContents = validateAndGetFileContent(fileToImport, COMPANY);
 
@@ -490,31 +521,17 @@ public class CompanyService  extends CommonService {
             custom1Value = rowColValues[11].trim();
         }
 
-        boolean isDuplicate = false;
+        boolean isDuplicate = isDuplicateCompany(companyName, brokerId, custom1Value);
 
         boolean isSpecial = (brokerId.equals(ApplicationConstants.SPECIAL_CASE_BROKER1) ||
-                             brokerId.equals(ApplicationConstants.SPECIAL_CASE_BROKER2)); 
-        
-        //find matching company by given company name and broker id
-        Company companyFromDB = companyRepository.findFirstByCompanyNameAndBroker(companyName, brokerId);
-
-        if (null != companyFromDB) { //A DB query is must here to check duplicates in data
-            if (!isSpecial) {
-                isDuplicate = true;
-            }
-            //handle special case of Paychex
-          //find matching company by given company name, custom1 field and broker id
-            if (isSpecial && companyRepository.findFirstByCompanyNameAndCustom1AndBroker(companyName, custom1Value, brokerId) != null) {  
-                isDuplicate = true;
-            }
-            if (isDuplicate) {
-                String causeDuplicateName = getMessageFromResourceBundle(resourceHandler, APIErrorCodes.DUPLICATE_RECORD);
-                causeDuplicateName = (!isSpecial ? causeDuplicateName + " - " + companyName : 
-                    causeDuplicateName + " - " + companyName + ", " + custom1Value);
-                fileImportResult.addFailedRecord(record, causeDuplicateName,
-                        getMessageFromResourceBundle(resourceHandler, APIErrorCodes.SKIPPED_RECORD));
-            } 
-        }
+                brokerId.equals(ApplicationConstants.SPECIAL_CASE_BROKER2)); 
+        if (isDuplicate) {
+            String causeDuplicateName = getMessageFromResourceBundle(resourceHandler, APIErrorCodes.DUPLICATE_RECORD);
+            causeDuplicateName = (!isSpecial ? causeDuplicateName + " - " + companyName : 
+                causeDuplicateName + " - " + companyName + ", " + custom1Value);
+            fileImportResult.addFailedRecord(record, causeDuplicateName,
+                    getMessageFromResourceBundle(resourceHandler, APIErrorCodes.SKIPPED_RECORD));
+        } 
 
         return isDuplicate;
     }
