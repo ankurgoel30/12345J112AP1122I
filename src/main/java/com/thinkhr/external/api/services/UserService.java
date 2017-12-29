@@ -136,6 +136,9 @@ public class UserService extends CommonService {
     @Transactional
     public User addUser(User user, Integer brokerId) {
 
+        //Saving default password
+        user.setPasswordApps(encDecyptor.encrypt(DEFAULT_PASSWORD));
+
         User throneUser = saveUser(user, brokerId, true);
 
         learnUserService.addLearnUser(throneUser); //THR-3932
@@ -214,7 +217,8 @@ public class UserService extends CommonService {
                 brokerId);
 
         if (company == null) {
-            throw ApplicationException.createBadRequest(APIErrorCodes.INVALID_CLIENT_NAME, user.getCompanyName());
+            throw ApplicationException.createBadRequest(APIErrorCodes.INVALID_CLIENT_NAME, user.getCompanyName(),
+                    String.valueOf(brokerId));
         }
         user.setCompanyId(company.getCompanyId());
         user.setBrokerId(brokerId);

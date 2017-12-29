@@ -22,6 +22,7 @@ import org.hibernate.annotations.DynamicInsert;
 import org.hibernate.annotations.DynamicUpdate;
 import org.hibernate.annotations.Where;
 import org.hibernate.validator.constraints.Email;
+import org.hibernate.validator.constraints.NotBlank;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -52,24 +53,24 @@ public class User implements SearchableEntity {
     @Column(name="contactID")
     private Integer userId;
 
-    @NotNull
+    @NotBlank
     @Column(name="First_Name", nullable=false)
     private String firstName;
 
-    @NotNull
+    @NotBlank
     @Column(name="Last_Name")
     private String lastName;
 
-    @NotNull
+    @NotBlank
     @Column(name="UserName")
     private String userName;
 
-    @NotNull
+    @NotBlank
     @Email
     @Column(name="Email")
     private String email;
 
-    @NotNull
+    @NotBlank
     @Column(name="client_name")
     private String companyName;
 
