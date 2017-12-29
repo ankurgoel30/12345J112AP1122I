@@ -238,7 +238,7 @@ public class CompanyService  extends CommonService {
                 && !validateConfigurationIdFromDB(configurationId, brokerId)) {
 
             throw ApplicationException.createBadRequest(APIErrorCodes.INVALID_CONFIGURATION_ID,
-                    String.valueOf(configurationId));
+                    String.valueOf(configurationId), String.valueOf(brokerId));
         }
 
         if (configurationId == CONFIGURATION_ID_FOR_INACTIVE) {
