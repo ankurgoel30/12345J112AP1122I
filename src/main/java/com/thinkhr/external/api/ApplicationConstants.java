@@ -65,7 +65,7 @@ public class ApplicationConstants {
     public static final String COMPANY_CUSTOM_COLUMN_PREFIX = "custom";
     public static final String USER_CUSTOM_COLUMN_PREFIX = "t1_customfield";
     public static final String USER_COLUMN_CLIENT_ID = "client_id";
-    public static final String USER_COLUMN_PASSWORD = "password_enc";
+    public static final String USER_COLUMN_PASSWORD = "password_apps";
     public static final String DEFAULT_PASSWORD = "";
     
     public static final String JWT_TOKEN_THR_CLIENT_ID =  "thr:clientId";
