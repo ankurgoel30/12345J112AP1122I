@@ -139,7 +139,7 @@ public class CompanyService  extends CommonService {
         // Checking Duplicate company name
         company.setTempID(CommonUtil.getTempId());
 
-        Company throneCompany = saveCompany(company, brokerId);
+        Company throneCompany = saveCompany(company, brokerId, true);
         
         // Saving CompanyContract
         addCompanyContractAndProduct(throneCompany);
@@ -217,7 +217,7 @@ public class CompanyService  extends CommonService {
         }
         validateObject(updatedCompany);
 
-        Company throneCompany = saveCompany(updatedCompany, brokerId);
+        Company throneCompany = saveCompany(updatedCompany, brokerId, false);
         learnCompanyService.updateLearnCompany(throneCompany);
         return throneCompany;
     }
@@ -227,9 +227,10 @@ public class CompanyService  extends CommonService {
      * 
      * @param company
      * @param brokerId
+     * @param isNew
      * @return
      */
-    private Company saveCompany(Company company, Integer brokerId) {
+    private Company saveCompany(Company company, Integer brokerId, boolean isNew) {
         validateBrokerId(brokerId);
 
         // setting valid brokerId for company. 
@@ -238,8 +239,7 @@ public class CompanyService  extends CommonService {
         associateChildEntities(company);
 
         // Checking Duplicate company name
-        if (isDuplicateCompany(company.getCompanyName(), 
-                company.getBroker(), company.getCustom1())) {
+        if (isNew && isDuplicateCompany(company.getCompanyName(), company.getBroker(), company.getCustom1())) {
             throw ApplicationException.createBadRequest(APIErrorCodes.DUPLICATE_COMPANY_RECORD,
                     company.getCompanyName());
         }
