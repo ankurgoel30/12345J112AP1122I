@@ -3,6 +3,7 @@ package com.thinkhr.external.api.services;
 import static com.thinkhr.external.api.ApplicationConstants.DEFAULT_SORT_BY_USER_NAME;
 import static com.thinkhr.external.api.ApplicationConstants.UNDERSCORE;
 import static com.thinkhr.external.api.services.utils.EntitySearchUtil.getPageable;
+import static com.thinkhr.external.api.utils.ApiTestDataUtil.createCompany;
 import static com.thinkhr.external.api.utils.ApiTestDataUtil.createUser;
 import static com.thinkhr.external.api.utils.ApiTestDataUtil.createUserList;
 import static org.junit.Assert.assertEquals;
@@ -17,6 +18,7 @@ import static org.powermock.api.mockito.PowerMockito.mockStatic;
 
 import java.io.IOException;
 import java.sql.DataTruncation;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
@@ -47,18 +49,18 @@ import com.thinkhr.external.api.ApplicationConstants;
 import com.thinkhr.external.api.db.entities.Company;
 import com.thinkhr.external.api.db.entities.CustomFields;
 import com.thinkhr.external.api.db.entities.StandardFields;
+import com.thinkhr.external.api.db.entities.ThroneRole;
 import com.thinkhr.external.api.db.entities.User;
-import com.thinkhr.external.api.db.learn.entities.LearnRole;
 import com.thinkhr.external.api.db.learn.entities.LearnUser;
 import com.thinkhr.external.api.exception.APIErrorCodes;
 import com.thinkhr.external.api.exception.ApplicationException;
 import com.thinkhr.external.api.exception.MessageResourceHandler;
-import com.thinkhr.external.api.learn.repositories.LearnRoleRepository;
 import com.thinkhr.external.api.model.FileImportResult;
 import com.thinkhr.external.api.repositories.CompanyRepository;
 import com.thinkhr.external.api.repositories.CustomFieldsRepository;
 import com.thinkhr.external.api.repositories.FileDataRepository;
 import com.thinkhr.external.api.repositories.StandardFieldsRepository;
+import com.thinkhr.external.api.repositories.ThroneRoleRepository;
 import com.thinkhr.external.api.repositories.UserRepository;
 import com.thinkhr.external.api.response.APIMessageUtil;
 import com.thinkhr.external.api.services.crypto.AppEncryptorDecryptor;
@@ -83,7 +85,7 @@ public class UserServiceTest {
     private UserRepository userRepository;
     
     @Mock
-    private LearnRoleRepository roleRepository;
+    private ThroneRoleRepository roleRepository;
 
     @Mock
     private CustomFieldsRepository customFieldsRepository;
@@ -185,15 +187,21 @@ public class UserServiceTest {
      */
     @Test
     public void testAddUser(){
+        Integer brokerId = 10;
         User user = createUser();
         LearnUser learnUser = ApiTestDataUtil.createLearnUser(1L, 10, "Ajay", "Jain", "ajain", "",
                 "ajay.jain@pepcus.com", "9009687639");
 
-        when(roleRepository.findOne(user.getRoleId())).thenReturn(new LearnRole());
+        Company company = createCompany(1, "Pepcus", "Software", "345345435", new Date(), "Special",
+                "This is search help", "Other", "10");
+
+        when(roleRepository.findOne(user.getRoleId())).thenReturn(new ThroneRole());
         when(userRepository.save(user)).thenReturn(user);
         when(learnUserService.addLearnUser(user)).thenReturn(learnUser);
+        when(companyRepository.findOne(brokerId)).thenReturn(company);
+        when(companyRepository.findFirstByCompanyNameAndBroker(user.getCompanyName(), brokerId)).thenReturn(company);
 
-        User result = userService.addUser(user,1);
+        User result = userService.addUser(user, brokerId);
         assertEquals(user.getUserId(), result.getUserId());
         assertEquals(user.getFirstName(), result.getFirstName());
         assertEquals(user.getLastName(), result.getLastName());
@@ -209,8 +217,12 @@ public class UserServiceTest {
 
     @Test
     public void testUpdateUser() throws Exception {
-
+        Integer brokerId = 10;
         User user = createUser();
+
+        Company company = createCompany(1, "Pepcus", "Software", "345345435", new Date(), "Special",
+                "This is search help", "Other", "10");
+
         LearnUser learnUser = ApiTestDataUtil.createLearnUser(1L, 10, "Ajay", "Jain", "ajain", "",
                 "ajay.jain@pepcus.com", "9009687639");
 
@@ -219,13 +231,16 @@ public class UserServiceTest {
 
         when(learnUserService.updateLearnUser(user)).thenReturn(learnUser);
 
+        when(companyRepository.findOne(brokerId)).thenReturn(company);
+        when(companyRepository.findFirstByCompanyNameAndBroker(user.getCompanyName(), brokerId)).thenReturn(company);
+
         // Updating first name 
         user.setFirstName("Pepcus - Updated");
 
         String userJson = ApiTestDataUtil.getJsonString(user);
         User updatedUser = null;
         try {
-            updatedUser = userService.updateUser(user.getUserId(), userJson,1);
+            updatedUser = userService.updateUser(user.getUserId(), userJson, brokerId);
         } catch (ApplicationException e) {
             fail("Not expecting application exception for a valid test case");
         }
@@ -240,12 +255,13 @@ public class UserServiceTest {
 
     @Test
     public void testUpdateUserForEntityNotFound() throws Exception {
+        Integer brokerId = 10;
         Integer userId = 1;
         User user = createUser(null, "Jason", "Garner", "jgarner@gmail.com", "jgarner", "Pepcus");
         when(userRepository.findOne(userId)).thenReturn(null);
         String userJson = ApiTestDataUtil.getJsonString(user);
         try {
-            userService.updateUser(user.getUserId(), userJson,1);
+            userService.updateUser(user.getUserId(), userJson, brokerId);
         } catch (ApplicationException e) {
             assertEquals(APIErrorCodes.ENTITY_NOT_FOUND, e.getApiErrorCode());
         }
@@ -873,7 +889,7 @@ public class UserServiceTest {
     @Test
     public void testValidateRoleIdFromDB() {
         Integer roleId = 1;
-        LearnRole role = ApiTestDataUtil.createLearnRole(1, "Agent");
+        ThroneRole role = ApiTestDataUtil.createThroneRole(1, "Agent");
 
         when(roleRepository.findOne(roleId)).thenReturn(role);
 
