@@ -326,12 +326,14 @@ public class CompanyControllerTest {
      */
     @Test
     public void testUpdateCompanyWithNoCompanyIdInPath() throws Exception {
+        Integer brokerId = 10;
         Company company = createCompany(); 
 
         ResponseEntity<Company> responseEntity = createCompanyResponseEntity(company, HttpStatus.OK);
         String companyJson = getJsonString(company);
 
-        given(companyController.updateCompany(company.getCompanyId(), companyJson, 1)).willReturn(responseEntity);
+        given(companyController.updateCompany(company.getCompanyId(), companyJson, brokerId))
+                .willReturn(responseEntity);
 
         mockMvc.perform(put(COMPANY_API_BASE_PATH)
                 .accept(MediaType.APPLICATION_JSON)
@@ -361,138 +363,6 @@ public class CompanyControllerTest {
         .andExpect(status().isOk())
         .andExpect(jsonPath("company.companyName", is(company.getCompanyName())));
     }
-
-    /**
-     * Test to verify put company API (/v1/companies/{companyId}) with a In-valid request
-     * 
-     * @throws Exception
-     */
-    @Test
-    public void testUpdateCompanySearchHelpNullBadRequest() throws Exception {
-        Company company = createCompany(); 
-        company.setSearchHelp(null);
-
-        mockMvc.perform(put(COMPANY_API_BASE_PATH + company.getCompanyId())
-                .accept(MediaType.APPLICATION_JSON)
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(getJsonString(company)))
-        .andExpect(status().isBadRequest())
-        .andExpect(jsonPath("errorCode", is(APIErrorCodes.VALIDATION_FAILED.getCode().toString())))
-        .andExpect(jsonPath("errorDetails[0].field", is("searchHelp")))
-        .andExpect(jsonPath("errorDetails[0].object", is("company")))
-        .andExpect(jsonPath("errorDetails[0].rejectedValue", is(company.getSearchHelp())));
-    }
-
-    /**
-     * Test to verify put company API (/v1/companies/{companyId}) with a In-valid request
-     * 
-     * @throws Exception
-     */
-    @Test
-    public void testUpdateCompanyCompanyTypeNullBadRequest() throws Exception {
-        Company company = createCompany(); 
-        company.setCompanyType(null);
-
-        mockMvc.perform(put(COMPANY_API_BASE_PATH + company.getCompanyId())
-                .accept(MediaType.APPLICATION_JSON)
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(getJsonString(company)))
-        .andExpect(status().isBadRequest())
-        .andExpect(jsonPath("errorCode", is(APIErrorCodes.VALIDATION_FAILED.getCode().toString())))
-        .andExpect(jsonPath("errorDetails[0].field", is("companyType")))
-        .andExpect(jsonPath("errorDetails[0].object", is("company")))
-        .andExpect(jsonPath("errorDetails[0].rejectedValue", is(company.getCompanyType())));
-    }
-
-    /**
-     * Test to verify put company API (/v1/companies/{companyId}) with a In-valid request
-     * 
-     * @throws Exception
-     */
-    @Test
-    public void testUpdateCompanyCompanyNameNullBadRequest() throws Exception {
-        Company company = createCompany(); 
-        company.setCompanyName(null);
-
-        mockMvc.perform(put(COMPANY_API_BASE_PATH + company.getCompanyId())
-                .accept(MediaType.APPLICATION_JSON)
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(getJsonString(company)))
-        .andExpect(status().isBadRequest())
-        .andExpect(jsonPath("errorCode", is(APIErrorCodes.VALIDATION_FAILED.getCode().toString())))
-        .andExpect(jsonPath("errorDetails[0].field", is("companyName")))
-        .andExpect(jsonPath("errorDetails[0].object", is("company")))
-        .andExpect(jsonPath("errorDetails[0].rejectedValue", is(company.getCompanyName())));
-    }
-
-    /**
-     * Test to verify put company API (/v1/companies/{companyId}) with a In-valid request
-     * 
-     * @throws Exception
-     */
-    @Test
-    public void testUpdateCompanyCompanySinceNullBadRequest() throws Exception {
-        Company company = createCompany(); 
-        company.setCompanySince(null);
-
-        mockMvc.perform(put(COMPANY_API_BASE_PATH + company.getCompanyId())
-                .accept(MediaType.APPLICATION_JSON)
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(getJsonString(company)))
-        .andExpect(status().isBadRequest())
-        .andExpect(jsonPath("errorCode", is(APIErrorCodes.VALIDATION_FAILED.getCode().toString())))
-        .andExpect(jsonPath("errorDetails[0].field", is("companySince")))
-        .andExpect(jsonPath("errorDetails[0].object", is("company")))
-        .andExpect(jsonPath("errorDetails[0].rejectedValue", is(company.getCompanySince())));
-    }
-
-    /**
-     * Test to verify put company API (/v1/companies/{companyId}) with a In-valid request
-     * 
-     * @throws Exception
-     */
-    @Test
-    public void testUpdateCompanySpecialNoteNullBadRequest() throws Exception {
-        Company company = createCompany(); 
-        company.setSpecialNote(null);
-
-        mockMvc.perform(put(COMPANY_API_BASE_PATH + company.getCompanyId())
-                .accept(MediaType.APPLICATION_JSON)
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(getJsonString(company)))
-        .andExpect(status().isBadRequest())
-        .andExpect(jsonPath("errorCode", is(APIErrorCodes.VALIDATION_FAILED.getCode().toString())))
-        .andExpect(jsonPath("errorDetails[0].field", is("specialNote")))
-        .andExpect(jsonPath("errorDetails[0].object", is("company")))
-        .andExpect(jsonPath("errorDetails[0].rejectedValue", is(company.getSpecialNote())));
-    }
-
-    /**
-     * Test to verify put company API (/v1/companies/{companyId}) with a In-valid request
-     * 
-     * @throws Exception
-     */
-    @Test
-    public void testUpdateCompanyCompanySinceInvalidBadRequest() throws Exception {
-        Company company = createCompany(); 
-
-        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd");
-        simpleDateFormat.setTimeZone(TimeZone.getTimeZone("UTC"));
-        Date date = simpleDateFormat.parse("2011-07-11");
-
-        company.setCompanySince(date);
-
-        String request = getJsonString(company);
-        request = request.replaceAll("2011-07-11", "08/07/2011"); //As mm/dd/yyyy is not supported date format
-
-        mockMvc.perform(put(COMPANY_API_BASE_PATH + company.getCompanyId())
-                .accept(MediaType.APPLICATION_JSON)
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(request))
-        .andExpect(status().isBadRequest())
-        .andExpect(jsonPath("errorCode", is(APIErrorCodes.MALFORMED_JSON_REQUEST.getCode().toString())));
-    }
-
 
     /**
      * Test to verify delete company API (/v1/companies/{companyId}) . 

@@ -30,7 +30,9 @@ import com.thinkhr.external.api.db.entities.CompanyContract;
 import com.thinkhr.external.api.db.entities.CompanyProduct;
 import com.thinkhr.external.api.db.entities.Configuration;
 import com.thinkhr.external.api.db.entities.CustomFields;
+import com.thinkhr.external.api.db.entities.Location;
 import com.thinkhr.external.api.db.entities.StandardFields;
+import com.thinkhr.external.api.db.entities.ThroneRole;
 import com.thinkhr.external.api.db.entities.User;
 import com.thinkhr.external.api.db.learn.entities.LearnCompany;
 import com.thinkhr.external.api.db.learn.entities.LearnRole;
@@ -116,22 +118,55 @@ public class ApiTestDataUtil {
      * @param specialNotes
      * @return
      */
-    public static Company createCompany(Integer companyId, String companyName, String companyType, String displayName, Date companySince,
-            String specialNotes, String searchHelp) {
+    public static Company createCompany(Integer companyId, String companyName, String companyType, String companyPhone,
+            Date companySince, String specialNotes, String searchHelp, String industry, String companySize) {
         Company company = new Company();
         if (companyId != null) {
             company.setCompanyId(companyId);
         }
         company.setCompanyName(companyName);
         company.setCompanyType(companyType);
-        company.setDisplayName(displayName);
+        company.setCompanyPhone(companyPhone);
         company.setCompanySince(companySince);
         company.setSpecialNote(specialNotes);
         company.setSearchHelp(searchHelp);
+        company.setIndustry(industry);
+        company.setCompanySize(companySize);
+
+        Location location = createLocation();
+        company.setLocation(location);
         company.setIsActive(1);
         return company;
     }
     
+    /**
+     * 
+     * @return
+     */
+    public static Location createLocation() {
+        return createLocation(null, "101 Olson Road", "Tallahesse", "FL", "32432");
+    }
+
+    /**
+     * 
+     * @param address
+     * @param city
+     * @param state
+     * @param zip
+     * @return
+     */
+    public static Location createLocation(Integer locationId, String address, String city, String state, String zip) {
+        Location location = new Location();
+        if (locationId != null) {
+            location.setLocationId(locationId);
+        }
+        location.setAddress(address);
+        location.setCity(city);
+        location.setState(state);
+        location.setZip(zip);
+        return location;
+    }
+
     /**
      * 
      * @param companyId
@@ -262,8 +297,9 @@ public class ApiTestDataUtil {
      * @param custom1
      * @return
      */
-    public static Company createCompanyWithCompanyNameAndBroker(Integer companyId, String companyName, String companyType, Date companySince,
-            String specialNote, String searchHelp, Integer broker,
+    public static Company createCompanyWithCompanyNameAndBroker(Integer companyId, String companyName,
+            String companyType, String companyPhone, Date companySince, String specialNote, String searchHelp,
+            String industry, String companySize, Location location, Integer broker,
             String custom1) {
         Company company = new Company();
         if (companyId != null) {
@@ -271,9 +307,13 @@ public class ApiTestDataUtil {
         }
         company.setCompanyName(companyName);
         company.setCompanyType(companyType);
+        company.setCompanyPhone(companyPhone);
         company.setCompanySince(companySince);
         company.setSpecialNote(specialNote);
         company.setSearchHelp(searchHelp);
+        company.setIndustry(industry);
+        company.setCompanySize(companySize);
+        company.setLocation(location);
         company.setBroker(broker);
         company.setCustom1(custom1);
         company.setIsActive(1);
@@ -388,7 +428,8 @@ public class ApiTestDataUtil {
      * @return
      */
     public static Company createCompany() {
-        return createCompany(1, "Pepcus", "Software", "PEP", new Date(), "Special", "This is search help");
+        return createCompany(1, "Pepcus", "Software", "345345435", new Date(), "Special", "This is search help",
+                "Other", "10");
     }
 
     /**
@@ -445,16 +486,31 @@ public class ApiTestDataUtil {
      */
     public static List<Company> createCompanies() {
         List<Company> companies = new ArrayList<Company>();
-        companies.add(createCompany(1, "Pepcus", "IT", "PEP", new Date(), "IT comp at Indore", "This is search help1"));
-        companies.add(createCompany(2, "Google", "IT", "PEP", new Date(), "IT comp at Indore", "This is search help2"));
-        companies.add(createCompany(3, "Facebook", "IT", "PEP", new Date(), "IT comp at Indore", "This is search help3"));
-        companies.add(createCompany(4, "Suzuki", "IT", "PEP", new Date(), "IT comp at Indore", "This is search help4"));
-        companies.add(createCompany(5, "General Motors", "IT", "PEP", new Date(), "IT comp at Indore", "This is search help5"));
-        companies.add(createCompany(6, "L & T", "IT", "PEP", new Date(), "IT comp at Indore", "This is search help6"));
-        companies.add(createCompany(7, "General Electric", "IT", "PEP", new Date(), "IT comp at Indore", "This is search help7"));
-        companies.add(createCompany(8, "Oracle", "IT", "PEP", new Date(), "IT comp at Indore", "This is search help8"));
-        companies.add(createCompany(9, "Microsoft", "IT", "PEP", new Date(), "IT comp at Indore", "This is search help9"));
-        companies.add(createCompany(10, "Thinkhr", "IT", "PEP", new Date(), "IT comp at Indore", "This is search help10"));
+        companies.add(
+                createCompany(null, "Pepcus", "Software", "345345435", new Date(), "Special", "This is search help",
+                "Other", "10"));
+        companies.add(
+                createCompany(null, "Google", "Software", "345345435", new Date(), "Special", "This is search help",
+                "Other", "10"));
+        companies.add(createCompany(null, "FB", "Software", "345345435", new Date(), "Special", "This is search help",
+                "Other", "10"));
+        companies.add(
+                createCompany(null, "Suzuki", "Software", "345345435", new Date(), "Special", "This is search help",
+                "Other", "10"));
+        companies.add(createCompany(null, "OGM", "Software", "345345435", new Date(), "Special", "This is search help",
+                "Other", "10"));
+        companies.add(createCompany(null, "General Electric", "Software", "345345435", new Date(), "Special",
+                "This is search help",
+                "Other", "10"));
+        companies.add(createCompany(null, "ASI", "Software", "345345435", new Date(), "Special", "This is search help",
+                "Other", "10"));
+        companies.add(
+                createCompany(null, "Oracle", "Software", "345345435", new Date(), "Special", "This is search help",
+                "Other", "10"));
+        companies.add(createCompany(null, "Microsoft", "Software", "345345435", new Date(), "Special",
+                "This is search help", "Other", "10"));
+        companies.add(createCompany(null, "THR", "Software", "345345435", new Date(), "Special", "This is search help",
+                "Other", "10"));
         return companies;
 
     }
@@ -1150,7 +1206,7 @@ public class ApiTestDataUtil {
      * @return
      */
     public static String getFileRecordForCompanyWithCustom1() {
-        return "Pepcus Software Services,pepcus,9213234567,IT,20,Ajay Jain,,,,,,12,,";
+        return "Pepcus Software Services,pepcus,9213234567,IT,20,Ajay Jain,,,,,,,12,,";
     }
 
     /**
@@ -1329,16 +1385,37 @@ public class ApiTestDataUtil {
     
     public static List<Company> createCompaniesWitNameAndBroker() {
         List<Company> companies = new ArrayList<Company>();
-        companies.add(createCompanyWithCompanyNameAndBroker(2, "Twitter", "IT", new Date(), "IT comp at Pune", "This is search help1", 1, null));
-        companies.add(createCompanyWithCompanyNameAndBroker(3, "Google", "IT", new Date(), "IT comp at banglore", "This is search help2", 1, null));
-        companies.add(createCompanyWithCompanyNameAndBroker(4, "Facebook", "IT", new Date(), "IT comp at banglore", "This is search help3", 1, null));
-        companies.add(createCompanyWithCompanyNameAndBroker(5, "General Motors", "Autmobile", new Date(), "Comp at Pune", "This is search help4", 13, null));
-        companies.add(createCompanyWithCompanyNameAndBroker(6, "L & T", "Autmobile", new Date(), "Comp at Pune", "This is search help5", 1, null));
-        companies.add(createCompanyWithCompanyNameAndBroker(7, "Pepcus", "Electric", new Date(), "Comp at Pune", "This is search help6", 1, null));
-        companies.add(createCompanyWithCompanyNameAndBroker(8, "Oracle", "IT", new Date(), "IT Comp at Pune", "This is search help7", 1, null));
-        companies.add(createCompanyWithCompanyNameAndBroker(9, "Pepcus", "IT", new Date(), "IT Comp at Pune", "This is search help8", 15, null));
-        companies.add(createCompanyWithCompanyNameAndBroker(10, "ThinkHR", "IT", new Date(), "IT Comp at Pune", "This is search help9", 1, null));
-        companies.add(createCompanyWithCompanyNameAndBroker(11, "Pepcus", "IT", new Date(), "IT Comp at Pune", "This is search help10", 1, "123213"));
+        companies.add(createCompanyWithCompanyNameAndBroker(null, "Twitter", "IT", "243873895", new Date(),
+                "IT comp at Pune", "This is search help1", "Other", "10",
+                createLocation(null, "101 Olson Road", "Tallahesse", "FL", "32432"), 1, null));
+        companies.add(createCompanyWithCompanyNameAndBroker(null, "Google", "IT", "243873895", new Date(),
+                "IT comp at banglore", "This is search help2", "Other", "10",
+                createLocation(null, "101 Olson Road", "Tallahesse", "FL", "32432"), 1, null));
+        companies.add(createCompanyWithCompanyNameAndBroker(null, "Facebook", "IT", "243873895", new Date(),
+                "IT comp at banglore", "This is search help3", "Other", "10",
+                createLocation(null, "101 Olson Road", "Tallahesse", "FL", "32432"), 1, null));
+        companies
+                .add(createCompanyWithCompanyNameAndBroker(null, "General Motors", "Autmobile", "243873895", new Date(),
+                "Comp at Pune", "This is search help4", "Other", "10",
+                createLocation(null, "101 Olson Road", "Tallahesse", "FL", "32432"), 13, null));
+        companies.add(createCompanyWithCompanyNameAndBroker(null, "L & T", "Autmobile", "243873895", new Date(),
+                "Comp at Pune", "This is search help5", "Other", "10",
+                createLocation(null, "101 Olson Road", "Tallahesse", "FL", "32432"), 1, null));
+        companies.add(createCompanyWithCompanyNameAndBroker(null, "Pepcus", "Electric", "243873895", new Date(),
+                "Comp at Pune", "This is search help6", "Other", "10",
+                createLocation(null, "101 Olson Road", "Tallahesse", "FL", "32432"), 1, null));
+        companies.add(createCompanyWithCompanyNameAndBroker(null, "Oracle", "IT", "243873895", new Date(),
+                "IT Comp at Pune", "This is search help7", "Other", "10",
+                createLocation(null, "101 Olson Road", "Tallahesse", "FL", "32432"), 1, null));
+        companies.add(createCompanyWithCompanyNameAndBroker(null, "Pepcus", "IT", "243873895", new Date(),
+                "IT Comp at Pune", "This is search help8", "Other", "10",
+                createLocation(null, "101 Olson Road", "Tallahesse", "FL", "32432"), 15, null));
+        companies.add(createCompanyWithCompanyNameAndBroker(null, "ThinkHR", "IT", "243873895", new Date(),
+                "IT Comp at Pune", "This is search help9", "Other", "10",
+                createLocation(null, "101 Olson Road", "Tallahesse", "FL", "32432"), 1, null));
+        companies.add(createCompanyWithCompanyNameAndBroker(null, "Pepcus", "IT", "243873895", new Date(),
+                "IT Comp at Pune", "This is search help10", "Other", "10",
+                createLocation(null, "101 Olson Road", "Tallahesse", "FL", "32432"), 1, "123213"));
         return companies;
     }
 
@@ -1382,6 +1459,21 @@ public class ApiTestDataUtil {
         list.add(createCustomField(null, 1, "USER", "5", "CORRLELATION_ID"));
         list.add(createCustomField(null, 4, "USER", "6", "GROUP"));
         return list;
+    }
+
+    /**
+     * 
+     * @param id
+     * @param name
+     * @return
+     */
+    public static ThroneRole createThroneRole(Integer id, String name) {
+        ThroneRole role = new ThroneRole();
+        if (role != null) {
+            role.setId(id);
+        }
+        role.setName(name);
+        return role;
     }
 
 }

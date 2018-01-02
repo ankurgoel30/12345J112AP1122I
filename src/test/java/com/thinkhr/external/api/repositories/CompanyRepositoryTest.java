@@ -48,7 +48,8 @@ public class CompanyRepositoryTest {
      */
     @Test
     public void testSaveForAdd() {
-        Company company = createCompany(null, "Pepcus", "Software", "PEP", new Date(), "Special", "This is search help");
+        Company company = createCompany(null, "Pepcus", "Software", "345345435", new Date(), "Special",
+                "This is search help", "Other", "10");
 
         Company companySaved = companyRepository.save(company);
 
@@ -68,12 +69,14 @@ public class CompanyRepositoryTest {
     @Test
     public void testFindAll() {
 
-        Company company1 = createCompany(null, "Pepcus", "Software", "PEP", new Date(), "PepcusNotes", "PepcusHelp");
+        Company company1 = createCompany(null, "Pepcus", "Software", "345345435", new Date(), "Special",
+                "This is search help", "Other", "10");
 
         //SAVE a Company
         companyRepository.save(company1);
 
-        Company company2 = createCompany(null, "ThinkHR", "Service Provider", "THR", new Date(), "THRNotes", "THRHelp");
+        Company company2 = createCompany(null, "Pepcus", "Software", "345345435", new Date(), "Special",
+                "This is search help", "Other", "10");
 
         //SAVE second Company
         companyRepository.save(company2);
@@ -90,15 +93,16 @@ public class CompanyRepositoryTest {
     @Test
     public void testFindOne() {
 
-        Company company1 = createCompany(null, "Pepcus", "Software", "PEP", new Date(), "PepcusNotes", "PepcusHelp");
+        Company company1 = createCompany(null, "Pepcus", "Software", "345345435", new Date(), "Special",
+                "This is search help", "Other", "10");
 
         //SAVE a Company
         Company savedCompany = companyRepository.save(company1);
 
-        Company findCompany = (Company) companyRepository.findOne(savedCompany.getCompanyId());
+        Company findCompany = companyRepository.findOne(savedCompany.getCompanyId());
 
         assertNotNull(findCompany);
-        assertEquals(findCompany.getSearchHelp(), "PepcusHelp");
+        assertEquals(findCompany.getSearchHelp(), "This is search help");
         assertEquals(findCompany.getCompanyName(), "Pepcus");
     }
 
@@ -107,7 +111,8 @@ public class CompanyRepositoryTest {
      */
     @Test
     public void testDeleteForSuccess() {
-        Company company1 = createCompany(null, "Pepcus", "Software", "PEP", new Date(), "PepcusNotes", "PepcusHelp");
+        Company company1 = createCompany(null, "Pepcus", "Software", "345345435", new Date(), "Special",
+                "This is search help", "Other", "10");
 
         //SAVE a Company
         Company savedCompany = companyRepository.save(company1);
@@ -116,7 +121,7 @@ public class CompanyRepositoryTest {
         companyRepository.delete(savedCompany);
 
         //FIND saved company with find and it should not  return
-        Company findCompany = (Company) companyRepository.findOne(savedCompany.getCompanyId());
+        Company findCompany = companyRepository.findOne(savedCompany.getCompanyId());
         assertEquals(null, findCompany);
     }
 
@@ -137,8 +142,8 @@ public class CompanyRepositoryTest {
 
     @Test
     public void testSaveForUpdate(){
-
-        Company company = companyRepository.save(createCompany(null, "Pepcus", "Software", "PEP", new Date(), "PepcusNotes", "PepcusHelp"));
+        Company company = createCompany(null, "Pepcus", "Software", "345345435", new Date(), "Special",
+                "This is search help", "Other", "10");
 
         // Updating company name
         company.setCompanyName("Pepcus - Updated");
@@ -166,7 +171,7 @@ public class CompanyRepositoryTest {
 
         Pageable pageable = getPageable(0, 5, null, DEFAULT_SORT_BY_COMPANY_NAME);
 
-        Page<Company> companies  = (Page<Company>) companyRepository.findAll(null, pageable);
+        Page<Company> companies  = companyRepository.findAll(null, pageable);
 
         assertNotNull(companies.getContent());
         assertEquals(companies.getContent().size(), 5);
@@ -185,7 +190,7 @@ public class CompanyRepositoryTest {
 
         Pageable pageable = getPageable(5, null, null, DEFAULT_SORT_BY_COMPANY_NAME);
 
-        Page<Company> companies  = (Page<Company>) companyRepository.findAll(null, pageable);
+        Page<Company> companies  = companyRepository.findAll(null, pageable);
 
         assertNotNull(companies.getContent());
         assertEquals(companies.getContent().size(), 5); //As offset = 5, so it will pick records by 5th 
@@ -208,7 +213,7 @@ public class CompanyRepositoryTest {
         EntitySearchSpecification<Company> specification = (EntitySearchSpecification<Company>) EntitySearchUtil.
                 getEntitySearchSpecification("General Electric", null, Company.class, new Company());
 
-        Page<Company> companies  = (Page<Company>) companyRepository.findAll(specification, pageable);
+        Page<Company> companies  = companyRepository.findAll(specification, pageable);
 
         assertNotNull(companies.getContent());
         assertEquals(1, companies.getContent().size()); //As we have only one record have searchKey = "pep"
@@ -230,9 +235,9 @@ public class CompanyRepositoryTest {
             companyRepository.save(company);
         }
         String companyName = "Pepcus";
-        Integer broker = 1;
+        Integer brokerId = 1;
 
-        Company company = companyRepository.findFirstByCompanyNameAndBroker(companyName, broker);
+        Company company = companyRepository.findFirstByCompanyNameAndBroker(companyName, brokerId);
         
         assertNotNull(company.getCompanyId());
         assertEquals("Pepcus", company.getCompanyName()); 
