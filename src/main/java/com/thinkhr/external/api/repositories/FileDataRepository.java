@@ -89,8 +89,8 @@ public class FileDataRepository {
         // Setting company product values
         List<Object> companyProductValues = new ArrayList<Object>();
         companyProductValues.addAll(companyProductFieldValues);
-        companyProductValues.add(String.valueOf(clientId)); 
         companyProductValues.add(String.valueOf(contractId));
+        companyProductValues.add(String.valueOf(clientId)); 
         companyProductValues.add(getAuthorizationKeyFromCompanyId(clientId));
         
         // Saving CompanyProduct Record
