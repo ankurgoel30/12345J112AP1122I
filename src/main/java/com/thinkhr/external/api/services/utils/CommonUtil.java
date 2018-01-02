@@ -4,6 +4,7 @@ import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Calendar;
+import java.util.Date;
 
 import com.thinkhr.external.api.ApplicationConstants;
 
@@ -36,6 +37,15 @@ public class CommonUtil {
         Calendar cal = Calendar.getInstance();
         long currentTime = cal.getTime().getTime();
         return String.valueOf(currentTime);
+    }
+
+    /**
+     * 
+     * @return
+     */
+    public static Long getNowInMiliseconds() {
+        Date now = new Date();
+        return now.getTime();
     }
     	
 	

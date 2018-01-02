@@ -23,6 +23,7 @@ import static com.thinkhr.external.api.services.utils.FileImportUtil.getValueFro
 import static com.thinkhr.external.api.services.utils.FileImportUtil.populateColumnValues;
 import static com.thinkhr.external.api.services.utils.FileImportUtil.validateAndFilterCustomHeaders;
 
+import java.io.IOException;
 import java.sql.DataTruncation;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -149,17 +150,20 @@ public class UserService extends CommonService {
      * 
      * @param User object
      * @throws ApplicationException
+     * @throws IOException 
      */
     @Transactional
-    public User updateUser(User user, Integer brokerId) throws ApplicationException {
-        Integer userId = user.getUserId();
+    public User updateUser(Integer userId, String userJson, Integer brokerId) throws ApplicationException , IOException  {
 
-        if (null == userRepository.findOne(userId)) {
-            throw ApplicationException.createEntityNotFoundError(APIErrorCodes.ENTITY_NOT_FOUND, 
-                    "user", "userId="+userId);
+        User userInDb = userRepository.findOne(userId);
+        if (null == userInDb) {
+            throw ApplicationException.createEntityNotFoundError(APIErrorCodes.ENTITY_NOT_FOUND, "user", "userId="+userId);
         }
 
-        User throneUser = saveUser(user, brokerId, false);
+        User updatedUser = update(userJson, userInDb);
+        validateObject(updatedUser);
+
+        User throneUser = saveUser(updatedUser, brokerId, false);
         
         learnUserService.updateLearnUser(throneUser);
         return throneUser;

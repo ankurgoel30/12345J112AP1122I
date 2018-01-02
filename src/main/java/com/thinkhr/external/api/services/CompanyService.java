@@ -17,6 +17,7 @@ import static com.thinkhr.external.api.services.utils.FileImportUtil.getValueFro
 import static com.thinkhr.external.api.services.utils.FileImportUtil.populateColumnValues;
 import static com.thinkhr.external.api.services.utils.FileImportUtil.validateAndFilterCustomHeaders;
 
+import java.io.IOException;
 import java.sql.DataTruncation;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -36,6 +37,7 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.thinkhr.external.api.ApplicationConstants;
 import com.thinkhr.external.api.db.entities.Company;
 import com.thinkhr.external.api.db.entities.CompanyContract;
@@ -139,7 +141,7 @@ public class CompanyService  extends CommonService {
         // Checking Duplicate company name
         company.setTempID(CommonUtil.getTempId());
 
-        Company throneCompany = saveCompany(company, brokerId);
+        Company throneCompany = saveCompany(company, brokerId, true);
         
         // Saving CompanyContract
         addCompanyContractAndProduct(throneCompany);
@@ -194,20 +196,30 @@ public class CompanyService  extends CommonService {
     /**
      * Update a company in database
      * 
-     * @param company object
-     * @throws ApplicationException 
+     * @param companyId
+     * @param companyJson
+     * @return
+     * @throws ApplicationException
+     * @throws IOException 
+     * @throws JsonProcessingException 
      */
     @Transactional
-    public Company updateCompany(Company company, Integer brokerId) throws ApplicationException {
-        Integer companyId = company.getCompanyId();
+    public Company updateCompany(Integer companyId, String companyJson, Integer brokerId) 
+            throws ApplicationException, JsonProcessingException, IOException {
 
-        if (null == companyRepository.findOne(companyId)) {
-            throw ApplicationException.createEntityNotFoundError(APIErrorCodes.ENTITY_NOT_FOUND,
-                    "company", "companyId="+companyId);
+        Company companyInDb = companyRepository.findOne(companyId);
+        if (null == companyInDb) {
+            throw ApplicationException.createEntityNotFoundError(APIErrorCodes.ENTITY_NOT_FOUND, "company", "companyId="+companyId);
         }
         
-        Company throneCompany = saveCompany(company, brokerId);
-        
+        Company updatedCompany = update(companyJson, companyInDb);
+
+        if (updatedCompany.getLocation() != null) {
+            updatedCompany.getLocation().setCompany(null); // This is required before doing validation otherwise validation is cascaded recursively and gives stackoverflow error
+        }
+        validateObject(updatedCompany);
+
+        Company throneCompany = saveCompany(updatedCompany, brokerId, false);
         learnCompanyService.updateLearnCompany(throneCompany);
         return throneCompany;
     }
@@ -217,9 +229,10 @@ public class CompanyService  extends CommonService {
      * 
      * @param company
      * @param brokerId
+     * @param isNew
      * @return
      */
-    private Company saveCompany(Company company, Integer brokerId) {
+    private Company saveCompany(Company company, Integer brokerId, boolean isNew) {
         validateBrokerId(brokerId);
 
         // setting valid brokerId for company. 
@@ -228,8 +241,7 @@ public class CompanyService  extends CommonService {
         associateChildEntities(company);
 
         // Checking Duplicate company name
-        if (isDuplicateCompany(company.getCompanyName(), 
-                company.getBroker(), company.getCustom1())) {
+        if (isNew && isDuplicateCompany(company.getCompanyName(), company.getBroker(), company.getCustom1())) {
             throw ApplicationException.createBadRequest(APIErrorCodes.DUPLICATE_COMPANY_RECORD,
                     company.getCompanyName());
         }

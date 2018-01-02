@@ -26,6 +26,8 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
+import javax.validation.ConstraintViolationException;
+
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.junit.Before;
@@ -209,11 +211,12 @@ public class CompanyServiceTest {
 
     /**
      * To verify updateCompany method
+     * @throws Exception 
      * 
      */
 
     @Test
-    public void testUpdateCompany(){
+    public void testUpdateCompany() throws Exception {
 
         Integer brokerId = 10;
         Integer companyId = 1;
@@ -232,7 +235,8 @@ public class CompanyServiceTest {
 
         Company companyUpdated = null;
         try {
-            companyUpdated = companyService.updateCompany(company,1);
+            String companyJson = ApiTestDataUtil.getJsonString(company);
+            companyUpdated = companyService.updateCompany(company.getCompanyId(), companyJson,1);
         } catch (ApplicationException e) {
             fail("Not expecting application exception for a valid test case");
         }
@@ -241,21 +245,53 @@ public class CompanyServiceTest {
 
     /**
      * To verify updateCompany method when companyRepository doesn't find a match for given companyId.
+     * @throws Exception 
      * 
      * 
      */
 
     @Test
-    public void testUpdateCompanyForEntityNotFound(){
+    public void testUpdateCompanyForEntityNotFound() throws Exception {
         Integer brokerId = null;
         Integer companyId = 1;
         Company company = createCompany(companyId, "Pepcus", "Software", "PEP", new Date(), "PepcusNotes", "PepcusHelp");
         when(companyRepository.findOne(companyId)).thenReturn(null);
         try {
-            companyService.updateCompany(company,1);
+            String companyJson = ApiTestDataUtil.getJsonString(company);
+            companyService.updateCompany(company.getCompanyId(), companyJson,1);
         } catch (ApplicationException e) {
             assertEquals(APIErrorCodes.ENTITY_NOT_FOUND, e.getApiErrorCode());
         }
+    }
+
+    /**
+     * To verify updateCompany method throws exception when trying to update 
+     * a NotNull field with null value
+     * 
+     */
+
+    @Test
+    public void testUpdateCompany_UpdateNotNullFieldWithNull() {
+        Integer companyId = 1;
+
+        Company company = createCompany(companyId, "Pepcus", "Software", "PEP", new Date(), "PepcusNotes",
+                "PepcusHelp");
+
+        when(companyRepository.findOne(companyId)).thenReturn(company);
+
+        // Updating company name with null
+        String companyJson = "{\"companyName\": null}";
+
+        Company companyUpdated = null;
+        try {
+            companyUpdated = companyService.updateCompany(company.getCompanyId(), companyJson, 1);
+            fail("Expecting Exception");
+        } catch (Exception ex) {
+            assertTrue(ex instanceof ConstraintViolationException);
+            ConstraintViolationException cv = (ConstraintViolationException) ex;
+            assertEquals(1, cv.getConstraintViolations().size());
+        }
+
     }
 
 

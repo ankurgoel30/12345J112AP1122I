@@ -103,11 +103,12 @@ public class UserController {
      */
     @RequestMapping(method=RequestMethod.PUT, value="/{userId}")
     public ResponseEntity <User> updateUser(@PathVariable(name="userId", value = "userId") Integer userId, 
-            @Valid @RequestBody User user, @RequestAttribute(name = BROKER_ID_PARAM) Integer brokerId)
-            throws ApplicationException {
-        user.setUserId(userId);
-        userService.updateUser(user, brokerId);
-        return new ResponseEntity<User> (user, HttpStatus.OK);
+            @RequestBody String userJson, @RequestAttribute(name = BROKER_ID_PARAM) Integer brokerId)
+            throws ApplicationException , IOException {
+        
+        User updatedUser = userService.updateUser(userId, userJson , brokerId);
+        
+        return new ResponseEntity<User> (updatedUser, HttpStatus.OK);
     }
 
 

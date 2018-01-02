@@ -128,10 +128,19 @@ public class LearnCompanyService extends CommonService {
                 throneCompany.getCompanyId(), generateCompanyKey(throneCompany.getCompanyId()));
         
         if (learnCompany == null) {
-            // TODO : what to do ?
+            return null;
         }
 
+        modelConvertor.update(learnCompany, throneCompany);
         learnCompany.setCompanyName(getLearnCompanyNameByConfigurationId(throneCompany));
+
+        // If learn company name is changed so that it becomes inactive from active or vice versa then 
+        // deactivate/activate all learn users corresponding to learn company 
+        if (!learnCompany.getCompanyName().equals(throneCompany.getCompanyName())) { // This means learn company is inactive
+            learnUserService.deactivateAllLearnUsers(throneCompany);
+        } else {
+            learnUserService.activateAllLearnUsers(throneCompany);
+        }
 
         return this.updateLearnCompany(learnCompany);
     }
@@ -188,6 +197,7 @@ public class LearnCompanyService extends CommonService {
     }
 
     /**
+     * This function creates active or inactive company name based on configurationId
      * 
      * @param company
      * @return

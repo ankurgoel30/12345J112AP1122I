@@ -50,6 +50,7 @@ import com.thinkhr.external.api.ApiApplication;
 import com.thinkhr.external.api.db.entities.User;
 import com.thinkhr.external.api.exception.APIErrorCodes;
 import com.thinkhr.external.api.exception.ApplicationException;
+import com.thinkhr.external.api.utils.ApiTestDataUtil;
 
 /**
  * Junit class to test all the methods\APIs written for UserController
@@ -317,10 +318,11 @@ public class UserControllerTest {
     @Test
     public void testUpdateUserWithNoUserIdInPath() throws Exception {
         User user = createUser();
+        String userJson = ApiTestDataUtil.getJsonString(user);
 
         ResponseEntity<User> responseEntity = createUserResponseEntity(user, HttpStatus.OK);
 
-        given(userController.updateUser(user.getUserId(), user, 1)).willReturn(responseEntity);
+        given(userController.updateUser(user.getUserId(), userJson, 1)).willReturn(responseEntity);
 
         mockMvc.perform(put(USER_API_BASE_PATH)
                 .accept(MediaType.APPLICATION_JSON)
@@ -337,10 +339,11 @@ public class UserControllerTest {
     @Test
     public void testUpdateUser() throws Exception {
         User user = createUser();
+        String userJson = ApiTestDataUtil.getJsonString(user);
 
         ResponseEntity<User> responseEntity = createUserResponseEntity(user, HttpStatus.OK);
 
-        given(userController.updateUser(user.getUserId(), user, 1)).willReturn(responseEntity);
+        given(userController.updateUser(user.getUserId(), userJson, 1)).willReturn(responseEntity);
 
         mockMvc.perform(put(USER_API_BASE_PATH + user.getUserId())
                 .accept(MediaType.APPLICATION_JSON)

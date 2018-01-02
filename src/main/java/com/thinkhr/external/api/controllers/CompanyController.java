@@ -30,6 +30,8 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.thinkhr.external.api.ApplicationConstants;
 import com.thinkhr.external.api.db.entities.Company;
 import com.thinkhr.external.api.exception.ApplicationException;
 import com.thinkhr.external.api.exception.MessageResourceHandler;
@@ -112,15 +114,16 @@ public class CompanyController {
      * Update a company in database
      * 
      * @param Company object
+     * @throws IOException 
+     * @throws JsonProcessingException 
      */
     @RequestMapping(method=RequestMethod.PUT,value="/{companyId}")
     public ResponseEntity <Company> updateCompany(@PathVariable(name="companyId", value = "companyId") Integer companyId, 
-            @Valid @RequestBody Company company,
-            @RequestAttribute(name = BROKER_ID_PARAM) Integer brokerId)
-            throws ApplicationException {
-        company.setCompanyId(companyId);
-        companyService.updateCompany(company, brokerId);
-        return new ResponseEntity<Company> (company, HttpStatus.OK);
+            @RequestBody String companyJson , @RequestAttribute(name = BROKER_ID_PARAM) Integer brokerId) 
+			throws ApplicationException, JsonProcessingException, IOException {
+
+        Company updatedCompany = companyService.updateCompany(companyId, companyJson , brokerId);
+        return new ResponseEntity<Company>(updatedCompany, HttpStatus.OK);
 
     }
 
