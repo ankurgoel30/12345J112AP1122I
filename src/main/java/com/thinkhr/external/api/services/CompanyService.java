@@ -2,6 +2,7 @@ package com.thinkhr.external.api.services;
 
 import static com.thinkhr.external.api.ApplicationConstants.COMMA_SEPARATOR;
 import static com.thinkhr.external.api.ApplicationConstants.COMPANY;
+import static com.thinkhr.external.api.ApplicationConstants.COMPANY_CUSTOM_HEADER1;
 import static com.thinkhr.external.api.ApplicationConstants.CONFIGURATION_ID_FOR_INACTIVE;
 import static com.thinkhr.external.api.ApplicationConstants.DEFAULT_SORT_BY_COMPANY_NAME;
 import static com.thinkhr.external.api.ApplicationConstants.LOCATION;
@@ -12,6 +13,7 @@ import static com.thinkhr.external.api.services.upload.FileImportValidator.valid
 import static com.thinkhr.external.api.services.utils.EntitySearchUtil.getEntitySearchSpecification;
 import static com.thinkhr.external.api.services.utils.EntitySearchUtil.getPageable;
 import static com.thinkhr.external.api.services.utils.FileImportUtil.getRequiredHeaders;
+import static com.thinkhr.external.api.services.utils.FileImportUtil.getValueFromRow;
 import static com.thinkhr.external.api.services.utils.FileImportUtil.populateColumnValues;
 import static com.thinkhr.external.api.services.utils.FileImportUtil.validateAndFilterCustomHeaders;
 
@@ -373,7 +375,7 @@ public class CompanyService  extends CommonService {
             }
           
             //Check to validate duplicate record
-            if (checkDuplicate(recCount, record, fileImportResult, broker.getCompanyId())) {
+            if (checkDuplicate(record, fileImportResult, broker.getCompanyId(), headerIndexMap)) {
                 continue;
             }
 
@@ -501,25 +503,18 @@ public class CompanyService  extends CommonService {
     /**
      * TODO: Logic to decide record is duplicate
      * 
-     * @param companyName
-     * @param custom1Value
-     * @param recCount
      * @param record
      * @param fileImportResult
+     * @param brokerId
+     * @param headerIndexMap
      * @return
      */
-    public boolean checkDuplicate(int recCount, String record,
-            FileImportResult fileImportResult, Integer brokerId) {
+    public boolean checkDuplicate(String record,
+            FileImportResult fileImportResult, Integer brokerId, Map<String, Integer> headerIndexMap) {
 
-        String[] rowColValues = record.split(COMMA_SEPARATOR);
+        String companyName = getValueFromRow(record, headerIndexMap.get(FileUploadEnum.COMPANY_NAME.getHeader()));
 
-        String companyName = rowColValues[0].trim(); //TODO Fix this hardcoding.
-
-        String custom1Value = null; 
-
-        if (rowColValues.length > 11) {
-            custom1Value = rowColValues[11].trim();
-        }
+        String custom1Value = getValueFromRow(record, headerIndexMap.get(COMPANY_CUSTOM_HEADER1));
 
         boolean isDuplicate = isDuplicateCompany(companyName, brokerId, custom1Value);
 
