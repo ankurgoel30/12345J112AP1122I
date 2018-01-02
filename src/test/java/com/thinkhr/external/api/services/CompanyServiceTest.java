@@ -59,6 +59,8 @@ import com.thinkhr.external.api.exception.ApplicationException;
 import com.thinkhr.external.api.exception.MessageResourceHandler;
 import com.thinkhr.external.api.helpers.ModelConvertor;
 import com.thinkhr.external.api.model.FileImportResult;
+import com.thinkhr.external.api.repositories.CompanyContractRepository;
+import com.thinkhr.external.api.repositories.CompanyProductRepository;
 import com.thinkhr.external.api.repositories.CompanyRepository;
 import com.thinkhr.external.api.repositories.ConfigurationRepository;
 import com.thinkhr.external.api.repositories.CustomFieldsRepository;
@@ -98,6 +100,12 @@ public class CompanyServiceTest {
     private ModelConvertor modelConvertor;
 
     @Mock
+    private CompanyContractRepository companyContractRepository;
+
+    @Mock
+    private CompanyProductRepository companyProductRepository;
+
+    @Mock
     private ConfigurationRepository configurationRepository;
 
     @Mock
@@ -118,9 +126,12 @@ public class CompanyServiceTest {
     @Test
     public void testGetAllCompany(){
         List<Company> companyList = new ArrayList<Company>();
-        companyList.add(createCompany(1, "Pepcus", "Software", "PEP", new Date(), "PepcusNotes", "PepcusHelp"));
-        companyList.add(createCompany(2, "ThinkHR", "Service Provider", "THR", new Date(), "THRNotes", "THRHelp"));
-        companyList.add(createCompany(3, "ICICI", "Banking", "ICICI", new Date(), "ICICINotes", "ICICIHelp"));
+        companyList.add(createCompany(1, "Pepcus", "Software", "345345435", new Date(), "Special",
+                "This is search help", "Other", "10"));
+        companyList.add(createCompany(2, "ASI", "Software", "345345435", new Date(), "Special", "This is search help",
+                "Other", "10"));
+        companyList.add(createCompany(3, "ThinkHR", "Software", "345345435", new Date(), "Special",
+                "This is search help", "Other", "10"));
         Pageable pageable = getPageable(null, null, null, DEFAULT_SORT_BY_COMPANY_NAME);
 
         when(companyRepository.findAll(null, pageable)).thenReturn(new PageImpl<Company>(companyList, pageable, companyList.size()));
@@ -142,9 +153,12 @@ public class CompanyServiceTest {
     public void testGetAllToVerifyPageable(){
 
         List<Company> companyList = new ArrayList<Company>();
-        companyList.add(createCompany(1, "Pepcus", "Software", "PEP", new Date(), "PepcusNotes", "PepcusHelp"));
-        companyList.add(createCompany(2, "ThinkHR", "Service Provider", "THR", new Date(), "THRNotes", "THRHelp"));
-        companyList.add(createCompany(3, "ICICI", "Banking", "ICICI", new Date(), "ICICINotes", "ICICIHelp"));
+        companyList.add(createCompany(1, "Pepcus", "Software", "345345435", new Date(), "Special",
+                "This is search help", "Other", "10"));
+        companyList.add(createCompany(2, "ASI", "Software", "345345435", new Date(), "Special", "This is search help",
+                "Other", "10"));
+        companyList.add(createCompany(3, "ThinkHR", "Software", "345345435", new Date(), "Special",
+                "This is search help", "Other", "10"));
 
         companyService.getAllCompany(null, null, null, null, null);
 
@@ -161,13 +175,14 @@ public class CompanyServiceTest {
     @Test
     public void testGetCompany() {
         Integer companyId = 1;
-        Company company = createCompany(companyId, "Pepcus", "Software", "PEP", new Date(), "PepcusNotes", "PepcusHelp");
+        Company company = createCompany(1, "Pepcus", "Software", "345345435", new Date(), "Special",
+                "This is search help", "Other", "10");
         when(companyRepository.findOne(companyId)).thenReturn(company);
         Company result = companyService.getCompany(companyId);
         assertEquals(companyId, result.getCompanyId());
         assertEquals("Pepcus", result.getCompanyName());
         assertEquals("Software", result.getCompanyType());
-        assertEquals("PEP", result.getDisplayName());
+        assertEquals("345345435", result.getCompanyPhone());
     }
 
     /**
@@ -190,20 +205,21 @@ public class CompanyServiceTest {
         //When all data is correct, it should assert true 
         Integer brokerId = 10;
         Integer companyId = 1;
-        Company company = createCompany(companyId, "Pepcus", "Software", "PEP", new Date(), "PepcusNotes",
-                "PepcusHelp");
+        Company company = createCompany(1, "Pepcus", "Software", "345345435", new Date(), "Special",
+                "This is search help", "Other", "10");
 
         LearnCompany learnCompany = ApiTestDataUtil.createLearnCompany(1L, companyId, company.getCompanyName(),
                 company.getCompanyType());
 
+        when(companyRepository.findOne(brokerId)).thenReturn(company);
         when(companyRepository.save(company)).thenReturn(company);
         when(learnCompanyService.addLearnCompany(company)).thenReturn(learnCompany);
 
-        Company result = companyService.addCompany(company,1);
+        Company result = companyService.addCompany(company, brokerId);
         assertEquals(companyId, result.getCompanyId());
         assertEquals("Pepcus", result.getCompanyName());
         assertEquals("Software", result.getCompanyType());
-        assertEquals("PEP", result.getDisplayName());
+        assertEquals("345345435", result.getCompanyPhone());
         assertEquals(result.getCompanyName(), learnCompany.getCompanyName());
         assertEquals(result.getCompanyId(), learnCompany.getCompanyId());
         assertEquals(result.getCompanyType(), learnCompany.getCompanyType());
@@ -217,16 +233,17 @@ public class CompanyServiceTest {
 
     @Test
     public void testUpdateCompany() throws Exception {
-
         Integer brokerId = 10;
         Integer companyId = 1;
-
-        Company company = createCompany(companyId, "Pepcus", "Software", "PEP", new Date(), "PepcusNotes", "PepcusHelp");
+        Company company = createCompany(1, "Pepcus", "Software", "345345435", new Date(), "Special",
+                "This is search help", "Other", "10");
 
         LearnCompany learnCompany = ApiTestDataUtil.createLearnCompany(1L, 10, "Pepcus", "IT");
 
         when(companyRepository.save(company)).thenReturn(company);
         when(companyRepository.findOne(companyId)).thenReturn(company);
+        when(companyRepository.findOne(brokerId)).thenReturn(company);
+        when(companyRepository.findFirstByCompanyNameAndBroker(company.getCompanyName(), brokerId)).thenReturn(company);
 
         when(learnCompanyService.updateLearnCompany(company)).thenReturn(learnCompany);
 
@@ -254,11 +271,12 @@ public class CompanyServiceTest {
     public void testUpdateCompanyForEntityNotFound() throws Exception {
         Integer brokerId = null;
         Integer companyId = 1;
-        Company company = createCompany(companyId, "Pepcus", "Software", "PEP", new Date(), "PepcusNotes", "PepcusHelp");
+        Company company = createCompany(1, "Pepcus", "Software", "345345435", new Date(), "Special",
+                "This is search help", "Other", "10");
         when(companyRepository.findOne(companyId)).thenReturn(null);
         try {
             String companyJson = ApiTestDataUtil.getJsonString(company);
-            companyService.updateCompany(company.getCompanyId(), companyJson,1);
+            companyService.updateCompany(company.getCompanyId(), companyJson, brokerId);
         } catch (ApplicationException e) {
             assertEquals(APIErrorCodes.ENTITY_NOT_FOUND, e.getApiErrorCode());
         }
@@ -274,8 +292,8 @@ public class CompanyServiceTest {
     public void testUpdateCompany_UpdateNotNullFieldWithNull() {
         Integer companyId = 1;
 
-        Company company = createCompany(companyId, "Pepcus", "Software", "PEP", new Date(), "PepcusNotes",
-                "PepcusHelp");
+        Company company = createCompany(1, "Pepcus", "Software", "345345435", new Date(), "Special",
+                "This is search help", "Other", "10");
 
         when(companyRepository.findOne(companyId)).thenReturn(company);
 
@@ -495,7 +513,7 @@ public class CompanyServiceTest {
      */
     @Test
     public void testCheckDuplicateForNoDuplicates() {
-        int recCount = 1;
+        Map<String, Integer> headerIndexMap = ApiTestDataUtil.getHeaderIndexMapForCompany();
         String record = getFileRecordForCompanyWithCustom1();
         FileImportResult result = new FileImportResult();
         Integer brokerId = 1;
@@ -504,7 +522,7 @@ public class CompanyServiceTest {
         when(companyRepository.findFirstByCompanyNameAndBroker(companyName, brokerId)).thenReturn(null);
 
         // when no duplicate record exists in DB.
-        boolean isDuplicate = companyService.checkDuplicate(recCount, record, result, brokerId);
+        boolean isDuplicate = companyService.checkDuplicate(record, result, brokerId, headerIndexMap);
         assertTrue(!isDuplicate);
     }
 
@@ -515,7 +533,7 @@ public class CompanyServiceTest {
      */
     @Test
     public void testCheckDuplicateForExistsAndNoSpecialCase() {
-        int recCount = 1;
+        Map<String, Integer> headerIndexMap = ApiTestDataUtil.getHeaderIndexMapForCompany();
         String record = getFileRecordForCompanyWithCustom1();
         FileImportResult result = new FileImportResult();
         int failedRecords = result.getNumFailedRecords();
@@ -526,7 +544,7 @@ public class CompanyServiceTest {
         when(companyRepository.findFirstByCompanyNameAndBroker(companyName, brokerId)).thenReturn(company);
 
         // when some duplicate record exists in DB.
-        boolean isDuplicate = companyService.checkDuplicate(recCount, record, result, brokerId);
+        boolean isDuplicate = companyService.checkDuplicate(record, result, brokerId, headerIndexMap);
         assertTrue(isDuplicate);
         assertEquals(failedRecords + 1, result.getNumFailedRecords());
     }
@@ -538,7 +556,8 @@ public class CompanyServiceTest {
      */
     @Test
     public void testCheckDuplicateForExistsAndSpecialCaseWithCustom1() {
-        int recCount = 1;
+        Map<String, Integer> headerIndexMap = ApiTestDataUtil.getHeaderIndexMapForCompany();
+        headerIndexMap.put("BUSINESS_ID", 12);
         String record = getFileRecordForCompanyWithCustom1();
         FileImportResult result = new FileImportResult();
         int failedRecords = result.getNumFailedRecords();
@@ -552,7 +571,7 @@ public class CompanyServiceTest {
         when(companyRepository.findFirstByCompanyNameAndCustom1AndBroker(companyName, custom1Value, brokerId)).thenReturn(company);
 
         // when some duplicate record exists in DB.
-        boolean isDuplicate = companyService.checkDuplicate(recCount, record, result, brokerId);
+        boolean isDuplicate = companyService.checkDuplicate(record, result, brokerId, headerIndexMap);
         assertTrue(isDuplicate);
         assertEquals(failedRecords + 1, result.getNumFailedRecords());
     }
@@ -564,7 +583,7 @@ public class CompanyServiceTest {
      */
     @Test
     public void testCheckDuplicateForExistsAndSpecialCaseWithNoCustom1() {
-        int recCount = 1;
+        Map<String, Integer> headerIndexMap = ApiTestDataUtil.getHeaderIndexMapForCompany();
         String record = getFileRecordForCompanyWithCustom1();
         FileImportResult result = new FileImportResult();
         Integer brokerId = ApplicationConstants.SPECIAL_CASE_BROKER2;
@@ -577,7 +596,7 @@ public class CompanyServiceTest {
         when(companyRepository.findFirstByCompanyNameAndCustom1AndBroker(companyName, custom1Value, brokerId)).thenReturn(null);
 
         // when no duplicate record exists in DB.
-        boolean isDuplicate = companyService.checkDuplicate(recCount, record, result, brokerId);
+        boolean isDuplicate = companyService.checkDuplicate(record, result, brokerId, headerIndexMap);
         assertTrue(!isDuplicate);
     }
 
@@ -619,7 +638,8 @@ public class CompanyServiceTest {
         Mockito.doReturn(1).when(fileDataRepository).saveCompanyRecord(Mockito.anyListOf(String.class), Mockito.anyListOf(Object.class),
                 Mockito.anyListOf(String.class), Mockito.anyListOf(Object.class));
 
-        Company company = createCompany(1, "Pepcus", "Software", "PEP", new Date(), "PepcusNotes", "PepcusHelp");
+        Company company = createCompany(1, "Pepcus", "Software", "345345435", new Date(), "Special",
+                "This is search help", "Other", "10");
         when(companyRepository.findOne(1)).thenReturn(company);
 
         //Mock call to  add LearnCompany for bulk

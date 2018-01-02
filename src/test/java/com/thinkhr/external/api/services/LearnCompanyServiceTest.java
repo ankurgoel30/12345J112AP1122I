@@ -180,8 +180,8 @@ public class LearnCompanyServiceTest {
     @Test
     public void testDeactivateLearnCompany() {
         Integer companyId = 1;
-        Company company = createCompany(companyId, "Pepcus", "Software", "PEP", new Date(), "PepcusNotes",
-                "PepcusHelp");
+        Company company = createCompany(companyId, "Pepcus", "Software", "345345435", new Date(), "Special",
+                "This is search help", "Other", "10");
         String companyKey = "ABC";
 
         LearnCompany learnCompany = ApiTestDataUtil.createLearnCompany(1L, companyId, "Pepcus", "Software");
@@ -202,8 +202,8 @@ public class LearnCompanyServiceTest {
     @Test
     public void testActivateLearnCompany() {
         Integer companyId = 1;
-        Company company = createCompany(companyId, "Pepcus", "Software", "PEP", new Date(), "PepcusNotes",
-                "PepcusHelp");
+        Company company = createCompany(companyId, "Pepcus", "Software", "345345435", new Date(), "Special",
+                "This is search help", "Other", "10");
         String companyKey = "ABC";
 
         LearnCompany learnCompany = ApiTestDataUtil.createLearnCompany(1L, companyId, "Pepcus", "Software");
