@@ -329,8 +329,9 @@ public class CompanyControllerTest {
         Company company = createCompany(); 
 
         ResponseEntity<Company> responseEntity = createCompanyResponseEntity(company, HttpStatus.OK);
+        String companyJson = getJsonString(company);
 
-        given(companyController.updateCompany(company.getCompanyId(), company, 1)).willReturn(responseEntity);
+        given(companyController.updateCompany(company.getCompanyId(), companyJson, 1)).willReturn(responseEntity);
 
         mockMvc.perform(put(COMPANY_API_BASE_PATH)
                 .accept(MediaType.APPLICATION_JSON)
@@ -351,7 +352,7 @@ public class CompanyControllerTest {
 
         ResponseEntity<Company> responseEntity = createCompanyResponseEntity(company, HttpStatus.OK);
 
-        given(companyController.updateCompany(Mockito.any(Integer.class), Mockito.any(Company.class), Mockito.anyInt())).willReturn(responseEntity);
+        given(companyController.updateCompany(Mockito.any(Integer.class), Mockito.any(String.class), Mockito.anyInt())).willReturn(responseEntity);
 
         mockMvc.perform(put(COMPANY_API_BASE_PATH + company.getCompanyId())
                 .accept(MediaType.APPLICATION_JSON)

@@ -20,6 +20,8 @@ import java.sql.DataTruncation;
 import java.util.List;
 import java.util.Map;
 
+import javax.validation.ConstraintViolationException;
+
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -206,7 +208,7 @@ public class UserServiceTest {
      */
 
     @Test
-    public void testUpdateUser(){
+    public void testUpdateUser() throws Exception {
 
         User user = createUser();
         LearnUser learnUser = ApiTestDataUtil.createLearnUser(1L, 10, "Ajay", "Jain", "ajain", "",
@@ -219,9 +221,11 @@ public class UserServiceTest {
 
         // Updating first name 
         user.setFirstName("Pepcus - Updated");
+
+        String userJson = ApiTestDataUtil.getJsonString(user);
         User updatedUser = null;
         try {
-            updatedUser = userService.updateUser(user,1);
+            updatedUser = userService.updateUser(user.getUserId(), userJson,1);
         } catch (ApplicationException e) {
             fail("Not expecting application exception for a valid test case");
         }
@@ -230,18 +234,47 @@ public class UserServiceTest {
 
     /**
      * To verify updateUser method when userRepository doesn't find a match for given userId.
+     * @throws Exception 
      * 
      */
 
     @Test
-    public void testUpdateUserForEntityNotFound(){
+    public void testUpdateUserForEntityNotFound() throws Exception {
         Integer userId = 1;
         User user = createUser(null, "Jason", "Garner", "jgarner@gmail.com", "jgarner", "Pepcus");
         when(userRepository.findOne(userId)).thenReturn(null);
+        String userJson = ApiTestDataUtil.getJsonString(user);
         try {
-            userService.updateUser(user,1);
+            userService.updateUser(user.getUserId(), userJson,1);
         } catch (ApplicationException e) {
             assertEquals(APIErrorCodes.ENTITY_NOT_FOUND, e.getApiErrorCode());
+        }
+    }
+
+    /**
+     * To verify updateUser method throws exception when trying to update 
+     * a NotNull field with null value
+     * 
+     */
+
+    @Test
+    public void testUpdateUser_UpdateNotNullFieldWithNull() throws Exception {
+
+        User user = createUser();
+
+        when(userRepository.findOne(user.getUserId())).thenReturn(user);
+
+        // Updating notNull field firstName with null
+        String userJson = "{\"firstName\": null}";
+
+        User updatedUser = null;
+        try {
+            updatedUser = userService.updateUser(user.getUserId(), userJson, 1);
+            fail("Expecting Exception");
+        } catch (Exception ex) {
+            assertTrue(ex instanceof ConstraintViolationException);
+            ConstraintViolationException cv = (ConstraintViolationException) ex;
+            assertEquals(1, cv.getConstraintViolations().size());
         }
     }
 
