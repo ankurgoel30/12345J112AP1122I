@@ -15,6 +15,7 @@ import static com.thinkhr.external.api.repositories.QueryBuilder.defaultCompReqF
 import static com.thinkhr.external.api.repositories.QueryBuilder.defaultUserReqFieldValues;
 import static com.thinkhr.external.api.services.CompanyService.getAuthorizationKeyFromCompanyId;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -74,20 +75,26 @@ public class FileDataRepository {
         jdbcTemplate.update(buildPreparedStatementCreator(insertLocationSql, locationColumnValues));
         
         keyHolder = new GeneratedKeyHolder();
-        
-        companyContractFieldValues.add(String.valueOf(clientId)); 
+
+        // Setting company contract values
+        List<Object> companyContractValues = new ArrayList<Object>();
+        companyContractValues.addAll(companyContractFieldValues);
+        companyContractValues.add(String.valueOf(clientId)); 
         
         // Saving CompanyContract Record
-        jdbcTemplate.update(buildPreparedStatementCreator(insertContractSql, companyContractFieldValues), keyHolder);
+        jdbcTemplate.update(buildPreparedStatementCreator(insertContractSql, companyContractValues), keyHolder);
         
         int contractId = keyHolder.getKey().intValue();
         
-        companyProductFieldValues.add(String.valueOf(contractId));
-        companyProductFieldValues.add(String.valueOf(clientId));
-        companyProductFieldValues.add(getAuthorizationKeyFromCompanyId(clientId));
-
+        // Setting company product values
+        List<Object> companyProductValues = new ArrayList<Object>();
+        companyProductValues.addAll(companyProductFieldValues);
+        companyProductValues.add(String.valueOf(clientId)); 
+        companyProductValues.add(String.valueOf(contractId));
+        companyProductValues.add(getAuthorizationKeyFromCompanyId(clientId));
+        
         // Saving CompanyProduct Record
-        jdbcTemplate.update(buildPreparedStatementCreator(insertProductSql, companyProductFieldValues));
+        jdbcTemplate.update(buildPreparedStatementCreator(insertProductSql, companyProductValues));
         
         return clientId;
     }
