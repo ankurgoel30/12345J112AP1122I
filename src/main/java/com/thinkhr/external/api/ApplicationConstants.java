@@ -100,4 +100,12 @@ public class ApplicationConstants {
 
     public static final Integer DEFAULT_NUMBER_LICENSES = 1000;
 
+    public static final String WELCOME_EMAIL_TYPE = "welcome";
+    public static final String HASH_KEY = "thinkHRLandI";
+    
+    //EMAIL PROPERTIES
+    public static final String DEFAULT_WELCOME_SUBJECT= "";
+    public static final String DEFAULT_WELCOME_BODY = "";
+    public static final String FROM_EMAIL_ADDRESS = "";
+    
 }

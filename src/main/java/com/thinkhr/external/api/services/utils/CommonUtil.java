@@ -6,6 +6,8 @@ import java.time.format.DateTimeFormatter;
 import java.util.Calendar;
 import java.util.Date;
 
+import org.hashids.Hashids;
+
 import com.thinkhr.external.api.ApplicationConstants;
 
 /**
@@ -48,5 +50,13 @@ public class CommonUtil {
         return now.getTime();
     }
     	
+    
+    /**
+     * @param value
+     */
+    public static String getHashedValue(Integer value) {
+        Hashids hashids = new Hashids("thinkHRLandI");
+        return hashids.encode(value);
+    }
 	
 }
