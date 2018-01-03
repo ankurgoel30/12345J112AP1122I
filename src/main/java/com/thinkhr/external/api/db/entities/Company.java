@@ -1,7 +1,5 @@
 package com.thinkhr.external.api.db.entities;
 
-import static com.thinkhr.external.api.ApplicationConstants.DEFAULT_COLUMN_VALUE;
-
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Date;
@@ -59,10 +57,10 @@ public class Company implements SearchableEntity {
     private Integer companyId;
 
     @Column(name = "search_help") 
-    private String searchHelp = DEFAULT_COLUMN_VALUE;
+    private String searchHelp = "";
 
     @Column(name = "Client_Type") 
-    private String companyType = DEFAULT_COLUMN_VALUE;
+    private String companyType = "";
 
     @NotBlank
     @Column(name = "Client_Name") 
@@ -323,7 +321,7 @@ public class Company implements SearchableEntity {
     private String salesforceID;
 
     @Column(name = "special_note", nullable=false) 
-    private String specialNote = DEFAULT_COLUMN_VALUE; 
+    private String specialNote = ""; 
 
     @Column(name = "sourceID") 
     private Integer sourceId;
