@@ -13,6 +13,7 @@ import javax.persistence.JoinColumn;
 import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
 import javax.persistence.Table;
+import javax.validation.constraints.Size;
 
 import org.hibernate.annotations.DynamicInsert;
 import org.hibernate.annotations.DynamicUpdate;
@@ -70,6 +71,7 @@ public class LearnCompany {
     private String zip;
 
     @Column(name = "phone")
+    @Size(max = 12)
     private String phone;
 
     @Column(name = "company_type")
