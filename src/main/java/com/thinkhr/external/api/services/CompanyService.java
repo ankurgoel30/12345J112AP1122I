@@ -143,10 +143,10 @@ public class CompanyService  extends CommonService {
 
         Company throneCompany = saveCompany(company, brokerId, true);
         
+        learnCompanyService.addLearnCompany(throneCompany);// THR-3929 
+
         // Saving CompanyContract
         addCompanyContractAndProduct(throneCompany);
-
-        learnCompanyService.addLearnCompany(throneCompany);// THR-3929 
 
         return throneCompany;
     }
@@ -167,6 +167,7 @@ public class CompanyService  extends CommonService {
      * 
      * @param throneCompany
      */
+    @Transactional
     public void addCompanyContractAndProduct(Company throneCompany) {
         if (throneCompany == null || throneCompany.getCompanyId() == null) {
             return;
@@ -507,6 +508,8 @@ public class CompanyService  extends CommonService {
             // TODO: FIXME - Ideally this should handled by transaction roll-back; some-reason transaction is not working with combination of jdbcTemplate and spring
             // data. Need some research on it. To manage records properly, explicitly roll-back record. 
             companyRepository.delete(companyId);
+            companyContractRepository.deleteByCompanyId(companyId);
+            companyProductRepository.deleteByCompanyId(companyId);
             throw ex;
         }
 
