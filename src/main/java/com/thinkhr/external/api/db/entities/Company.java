@@ -56,14 +56,11 @@ public class Company implements SearchableEntity {
     @Column(name = "clientID") 
     private Integer companyId;
 
-    @NotNull
     @Column(name = "search_help") 
-    private String searchHelp;
+    private String searchHelp = "";
 
-    @NotNull
-    @Size(min=1)
     @Column(name = "Client_Type") 
-    private String companyType;
+    private String companyType = "";
 
     @NotBlank
     @Column(name = "Client_Name") 
@@ -79,6 +76,7 @@ public class Company implements SearchableEntity {
     private Integer broker;
 
     @NotBlank
+    @Size(max = 12)
     @Column(name = "Client_Phone") 
     private String companyPhone;
 
@@ -89,7 +87,7 @@ public class Company implements SearchableEntity {
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")  
     @Temporal(TemporalType.TIMESTAMP)
     @Column(name = "Client_Since", nullable=false) 
-    private Date companySince;
+    private Date companySince = new Date();
 
     @Column(name = "tempID") 
     private String tempID;
@@ -322,9 +320,8 @@ public class Company implements SearchableEntity {
     @Column(name = "salesforceID") 
     private String salesforceID;
 
-    @NotNull
     @Column(name = "special_note", nullable=false) 
-    private String specialNote; 
+    private String specialNote = ""; 
 
     @Column(name = "sourceID") 
     private Integer sourceId;
