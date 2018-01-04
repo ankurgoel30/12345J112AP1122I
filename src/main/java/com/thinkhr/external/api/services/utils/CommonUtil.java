@@ -55,7 +55,7 @@ public class CommonUtil {
      * @param value
      */
     public static String getHashedValue(Integer value) {
-        Hashids hashids = new Hashids("thinkHRLandI");
+        Hashids hashids = new Hashids(ApplicationConstants.HASH_KEY);
         return hashids.encode(value);
     }
 	

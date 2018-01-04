@@ -108,4 +108,6 @@ public class ApplicationConstants {
     public static final String DEFAULT_WELCOME_BODY = "";
     public static final String FROM_EMAIL_ADDRESS = "";
     
+    // For email feature 
+    public static final String EMAIL_BODY = "body";
 }
