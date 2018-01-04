@@ -110,4 +110,5 @@ public class ApplicationConstants {
     
     // For email feature 
     public static final String EMAIL_BODY = "body";
+    public static final String RESET_PASSWORD_LINK = "/reset-password/";
 }

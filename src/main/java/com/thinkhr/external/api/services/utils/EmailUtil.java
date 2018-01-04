@@ -1,7 +1,7 @@
 package com.thinkhr.external.api.services.utils;
 
 import static com.thinkhr.external.api.services.utils.CommonUtil.getHashedValue;
-
+import static com.thinkhr.external.api.ApplicationConstants.RESET_PASSWORD_LINK;
 import java.util.List;
 
 import com.sendgrid.Content;
@@ -11,7 +11,6 @@ import com.sendgrid.Personalization;
 import com.thinkhr.external.api.db.entities.User;
 import com.thinkhr.external.api.model.EmailRequest;
 import com.thinkhr.external.api.model.KeyValuePair;
-import com.thinkhr.external.api.request.APIRequestHelper;
 
 /**
  * Email utility
@@ -28,12 +27,10 @@ public class EmailUtil {
      * @param user
      * @return
      */
-    public static String prepareResetPasswordlink(User user) {
-        
-        String appUrl = APIRequestHelper.getApplicationUrl();
+    public static String prepareResetPasswordlink(User user, String appUrl) {
         
         return new StringBuffer().append(appUrl)
-                .append("/reset-password/").append("C").append(getHashedValue(user.getUserId())).toString();
+                .append(RESET_PASSWORD_LINK).append("C").append(getHashedValue(user.getUserId())).toString();
         
     }
     
@@ -47,7 +44,6 @@ public class EmailUtil {
 
         Email emailFrom = new Email(emailRequest.getFromEmail());
 
-        //TODO: identify a way to send email to multiple recipients
         Email emailTo = new Email(emailRequest.getToEmail().get(0));
 
         Mail mail = new Mail();

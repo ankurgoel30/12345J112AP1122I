@@ -100,7 +100,7 @@ public class EmailService {
      * @return
      */
     public EmailTemplate getDefaultEmailTemplate() {
-        return getEmailTemplate(Integer.parseInt(ApplicationConstants.DEFAULT_BROKER_ID),
+        return getEmailTemplate(8148,
                 ApplicationConstants.WELCOME_EMAIL_TYPE);
     }
     
@@ -121,12 +121,15 @@ public class EmailService {
         if (brokerId != null) {
             broker = companyRepository.findOne(brokerId);
         }
-        if (broker == null) {
-            throw ApplicationException.createEntityNotFoundError(APIErrorCodes.ENTITY_NOT_FOUND, "brokerId",
-                    String.valueOf(brokerId));
-        }
 
         EmailTemplate emailTemplate = getEmailTemplate(brokerId, ApplicationConstants.WELCOME_EMAIL_TYPE);
+        if (emailTemplate == null) {
+            emailTemplate = getDefaultEmailTemplate();
+        }
+        
+        if (emailTemplate == null) {
+            throw ApplicationException.createBadRequest(APIErrorCodes.ENTITY_NOT_FOUND, "template", String.valueOf(brokerId));
+        }
         
         //String sendgridTemplateId = emailTemplate.getSendgridTemplateId();
         String mailBody = null;
@@ -136,7 +139,7 @@ public class EmailService {
             }
         }
         
-        String resetPasswordLink = EmailUtil.prepareResetPasswordlink(user);
+        String resetPasswordLink = EmailUtil.prepareResetPasswordlink(user, loginUrl);
         
         // Saving SetPasswordRequest record for reset password request.
         saveSetPasswordRequest(user);
