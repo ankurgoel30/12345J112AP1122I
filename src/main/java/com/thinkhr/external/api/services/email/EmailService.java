@@ -2,6 +2,7 @@ package com.thinkhr.external.api.services.email;
 
 import static com.thinkhr.external.api.ApplicationConstants.EMAIL_BODY;
 import static com.thinkhr.external.api.services.utils.CommonUtil.getHashedValue;
+import static com.thinkhr.external.api.services.utils.EmailUtil.prepareResetPasswordlink;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -74,12 +75,6 @@ public class EmailService {
     @Value("${default_support_phone}")
     private String defaultSupportPhone;
     
-    @Value("${default_subject}")
-    private String defaultSubject;
-    
-    @Value("${from_email}")
-    private String fromEmail;
-    
     @Value("${login_url}")
     private String loginUrl;
     
@@ -132,14 +127,8 @@ public class EmailService {
         }
         
         //String sendgridTemplateId = emailTemplate.getSendgridTemplateId();
-        String mailBody = null;
-        for(EmailConfiguration emailConfiguration : emailTemplate.getEmailConfigurations()) {
-            if (emailConfiguration.getEmailField().getName().equalsIgnoreCase(EMAIL_BODY)) {
-                mailBody = emailConfiguration.getValue();
-            }
-        }
         
-        String resetPasswordLink = EmailUtil.prepareResetPasswordlink(user, loginUrl);
+        String resetPasswordLink = prepareResetPasswordlink(user, loginUrl);
         
         // Saving SetPasswordRequest record for reset password request.
         saveSetPasswordRequest(user);
@@ -153,7 +142,7 @@ public class EmailService {
         parameters.add(createKeyValue("%SUPPORT_EMAIL%", defaultSupportEmail));
         parameters.add(createKeyValue("%SET_PW_LINK%", resetPasswordLink));
         
-        return createEmailRequest(user, broker, parameters, mailBody); 
+        return createEmailRequest(user, broker, parameters, emailTemplate); 
     }
     
     /**
@@ -165,7 +154,7 @@ public class EmailService {
      * @param body
      * @return
      */
-    public EmailRequest createEmailRequest(User user, Company broker, List<KeyValuePair> parameters, String body) {
+    public EmailRequest createEmailRequest(User user, Company broker, List<KeyValuePair> parameters, EmailTemplate emailTemplate) {
         EmailRequest emailRequest = new EmailRequest();
         
         List<String> toEmail = new ArrayList<String>();
@@ -173,9 +162,17 @@ public class EmailService {
         // TODO : For now, it is only for one user.
         toEmail.add(user.getEmail());
         
-        emailRequest.setBody(body);
-        emailRequest.setFromEmail(fromEmail);
-        emailRequest.setSubject(broker.getCompanyName() + ", " + defaultSubject);
+        for(EmailConfiguration emailConfiguration : emailTemplate.getEmailConfigurations()) {
+            if (emailConfiguration.getEmailField().getName().equalsIgnoreCase(EMAIL_BODY)) {
+                emailRequest.setBody(emailConfiguration.getValue());
+            }
+            if (emailConfiguration.getEmailField().getName().equalsIgnoreCase(ApplicationConstants.FROM_EMAIL)) {
+                emailRequest.setFromEmail(emailConfiguration.getValue());
+            }
+            if (emailConfiguration.getEmailField().getName().equalsIgnoreCase(ApplicationConstants.EMAIL_SUBJECT)) {
+                emailRequest.setSubject(broker.getCompanyName() + ", " + emailConfiguration.getValue());
+            }
+        }
         emailRequest.setParameters(parameters);
         emailRequest.setToEmail(toEmail);
         return emailRequest;
