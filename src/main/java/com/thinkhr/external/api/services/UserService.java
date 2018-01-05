@@ -160,8 +160,14 @@ public class UserService extends CommonService {
             throw ApplicationException.createEntityNotFoundError(APIErrorCodes.ENTITY_NOT_FOUND, "user", "userId="+userId);
         }
 
+        User userBeforeUpdate = new User();
+        userBeforeUpdate.setCompanyName(userInDb.getCompanyName());
+        userBeforeUpdate.setCompanyId(userInDb.getCompanyId());
+        userBeforeUpdate.setBrokerId(userInDb.getBrokerId());
+
         User updatedUser = update(userJson, userInDb);
         validateObject(updatedUser);
+        validateNotUpdatableFields(userBeforeUpdate, updatedUser);
 
         User throneUser = saveUser(updatedUser, brokerId, false);
         

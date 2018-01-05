@@ -27,7 +27,7 @@ public class ApplicationConstants {
             "CITY", "STATE", "ZIP", "INDUSTRY", "COMPANY_SIZE", "PRODUCER" };
     
     public static final String[] REQUIRED_HEADERS_USER_CSV_IMPORT = { "FIRST_NAME", "LAST_NAME", "USER_NAME", "EMAIL", "CLIENT_NAME",
-            "PHONE", "BUSINESS_ID" };
+            "PHONE" };
     
     public static final String COMPANY = "COMPANY";
     public static final String USER = "USER";
