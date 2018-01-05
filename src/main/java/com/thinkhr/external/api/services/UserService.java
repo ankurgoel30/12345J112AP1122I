@@ -151,9 +151,12 @@ public class UserService extends CommonService {
      * @param User object
      * @throws ApplicationException
      * @throws IOException 
+     * @throws IllegalAccessException 
+     * @throws IllegalArgumentException 
      */
     @Transactional
-    public User updateUser(Integer userId, String userJson, Integer brokerId) throws ApplicationException , IOException  {
+    public User updateUser(Integer userId, String userJson, Integer brokerId)
+            throws ApplicationException, IOException, IllegalArgumentException, IllegalAccessException {
 
         User userInDb = userRepository.findOne(userId);
         if (null == userInDb) {
@@ -167,7 +170,7 @@ public class UserService extends CommonService {
 
         User updatedUser = update(userJson, userInDb);
         validateObject(updatedUser);
-        validateNotUpdatableFields(userBeforeUpdate, updatedUser);
+        validateNotUpdatableFields(userBeforeUpdate, updatedUser, User.notUpdatableFields);
 
         User throneUser = saveUser(updatedUser, brokerId, false);
         
