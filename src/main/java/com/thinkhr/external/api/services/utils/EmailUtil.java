@@ -1,7 +1,8 @@
 package com.thinkhr.external.api.services.utils;
 
-import static com.thinkhr.external.api.services.utils.CommonUtil.getHashedValue;
 import static com.thinkhr.external.api.ApplicationConstants.RESET_PASSWORD_LINK;
+import static com.thinkhr.external.api.services.utils.CommonUtil.generateHashedValue;
+
 import java.util.List;
 
 import com.sendgrid.Content;
@@ -28,10 +29,8 @@ public class EmailUtil {
      * @return
      */
     public static String prepareResetPasswordlink(User user, String appUrl) {
-        
-        return new StringBuffer().append(appUrl)
-                .append(RESET_PASSWORD_LINK).append("C").append(getHashedValue(user.getUserId())).toString();
-        
+        return new StringBuffer().append(appUrl).append(RESET_PASSWORD_LINK).append("C")
+                .append(generateHashedValue(user.getUserId())).toString();
     }
     
     /**

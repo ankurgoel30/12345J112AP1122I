@@ -1,7 +1,7 @@
 package com.thinkhr.external.api.services.email;
 
 import static com.thinkhr.external.api.ApplicationConstants.EMAIL_BODY;
-import static com.thinkhr.external.api.services.utils.CommonUtil.getHashedValue;
+import static com.thinkhr.external.api.services.utils.CommonUtil.generateHashedValue;
 import static com.thinkhr.external.api.services.utils.EmailUtil.prepareResetPasswordlink;
 
 import java.util.ArrayList;
@@ -231,7 +231,7 @@ public class EmailService {
     public SetPasswordRequest saveSetPasswordRequest(User user) {
         SetPasswordRequest passwordRequest = new SetPasswordRequest();
         passwordRequest.setContactId(user.getUserId());
-        passwordRequest.setId("C" + getHashedValue(user.getUserId()));
+        passwordRequest.setId("C" + generateHashedValue(user.getUserId()));
         return setPasswordRepository.save(passwordRequest);
     }
 

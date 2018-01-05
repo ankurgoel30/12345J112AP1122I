@@ -55,7 +55,7 @@ public class UserController {
     UserService userService;
     
     @Autowired
-    EmailService emmailService;
+    EmailService emailService;
 
     @Autowired
     MessageResourceHandler resourceHandler;
@@ -128,8 +128,8 @@ public class UserController {
         userService.addUser(user, brokerId);
 
         // Sending welcome email to user 
-        EmailRequest emailRequest = emmailService.createEmailRequest(brokerId, user.getUserName());
-        emmailService.sendEmail(emailRequest);
+        EmailRequest emailRequest = emailService.createEmailRequest(brokerId, user.getUserName());
+        emailService.sendEmail(emailRequest);
         return new ResponseEntity<User>(user, HttpStatus.CREATED);
     }
     
