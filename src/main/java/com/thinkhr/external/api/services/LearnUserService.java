@@ -21,6 +21,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.thinkhr.external.api.db.entities.Company;
 import com.thinkhr.external.api.db.entities.User;
+import com.thinkhr.external.api.db.learn.entities.LearnCompany;
 import com.thinkhr.external.api.db.learn.entities.LearnRole;
 import com.thinkhr.external.api.db.learn.entities.LearnUser;
 import com.thinkhr.external.api.db.learn.entities.LearnUserRoleAssignment;
@@ -56,6 +57,8 @@ public class LearnUserService extends CommonService {
     public LearnUser addLearnUser(User throneUser) {
 
         LearnUser learnUser = modelConvertor.convert(throneUser);
+
+        learnUser.setCompanyId(getLearnCompanyId(throneUser));
 
         learnUser.setUserName(getLearnUserNameByRoleId(throneUser));
 
@@ -163,7 +166,7 @@ public class LearnUserService extends CommonService {
                 throneUser.getLastName(),
                 throneUser.getEmail(),
                 throneUser.getPhone(),
-                throneUser.getCompanyId()
+                getLearnCompanyId(throneUser)
         ));
 
         String roleName = getRoleName(throneUser);
@@ -331,6 +334,17 @@ public class LearnUserService extends CommonService {
                     throneUser.getBrokerId()); // Inactive User
         }
         return learnUserName;
+    }
+
+    /**
+     * This  funtion returns the companyId of learnCompany for the given throneUser instance
+     * @param throneUser
+     * @return
+     */
+    public Integer getLearnCompanyId(User throneUser) {
+        LearnCompany learnCompany = learnCompanyRepository.findFirstByCompanyId(throneUser.getCompanyId());
+
+        return learnCompany != null ? learnCompany.getCompanyId() : null;
     }
 }
 
