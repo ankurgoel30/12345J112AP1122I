@@ -231,12 +231,14 @@ public class CommonService {
     }
     
     /**
-     * Validates if any non updatable field in userWithOrignalValues  is different in updatedUser
+     * Validates if any non updatable field in objWithUpdVal  is different in objWithUpdVal
+     * 
      * Throws ApplicationException if any value is updated
-     * @param userBeforeUpdate
-     * @param updatedUser
-     * @throws IllegalAccessException 
-     * @throws IllegalArgumentException 
+     * @param objWithOrigVal
+     * @param objWithUpdVal
+     * @param notUpdatableFields
+     * @throws IllegalArgumentException
+     * @throws IllegalAccessException
      */
     public <T> void validateNotUpdatableFields(T objWithOrigVal, T objWithUpdVal, List<String> notUpdatableFields) throws IllegalArgumentException, IllegalAccessException {
         List<String> nonUpdatableFields = new ArrayList<String>();
