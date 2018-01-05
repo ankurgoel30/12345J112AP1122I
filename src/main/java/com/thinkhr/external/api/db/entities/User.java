@@ -60,7 +60,6 @@ public class User implements SearchableEntity {
     @Column(name="Last_Name")
     private String lastName;
 
-    @NotBlank
     @Column(name="UserName")
     private String userName;
 

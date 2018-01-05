@@ -1,5 +1,6 @@
 package com.thinkhr.external.api.services;
 
+import static com.thinkhr.external.api.ApplicationConstants.CLIENT;
 import static com.thinkhr.external.api.ApplicationConstants.COMMA_SEPARATOR;
 import static com.thinkhr.external.api.ApplicationConstants.COMPANY;
 import static com.thinkhr.external.api.ApplicationConstants.COMPANY_CUSTOM_HEADER1;
@@ -10,6 +11,7 @@ import static com.thinkhr.external.api.ApplicationConstants.TOTAL_RECORDS;
 import static com.thinkhr.external.api.request.APIRequestHelper.setRequestAttribute;
 import static com.thinkhr.external.api.response.APIMessageUtil.getMessageFromResourceBundle;
 import static com.thinkhr.external.api.services.upload.FileImportValidator.validateAndGetFileContent;
+import static com.thinkhr.external.api.services.upload.FileImportValidator.validateRequired;
 import static com.thinkhr.external.api.services.utils.EntitySearchUtil.getEntitySearchSpecification;
 import static com.thinkhr.external.api.services.utils.EntitySearchUtil.getPageable;
 import static com.thinkhr.external.api.services.utils.FileImportUtil.getRequiredHeaders;
@@ -143,10 +145,10 @@ public class CompanyService  extends CommonService {
 
         Company throneCompany = saveCompany(company, brokerId, true);
         
+        learnCompanyService.addLearnCompany(throneCompany);// THR-3929 
+
         // Saving CompanyContract
         addCompanyContractAndProduct(throneCompany);
-
-        learnCompanyService.addLearnCompany(throneCompany);// THR-3929 
 
         return throneCompany;
     }
@@ -167,6 +169,7 @@ public class CompanyService  extends CommonService {
      * 
      * @param throneCompany
      */
+    @Transactional
     public void addCompanyContractAndProduct(Company throneCompany) {
         if (throneCompany == null || throneCompany.getCompanyId() == null) {
             return;
@@ -385,6 +388,12 @@ public class CompanyService  extends CommonService {
                 fileImportResult.increamentBlankRecords();
                 continue; //skip any fully blank line 
             }
+
+            List<String> requiredFields = getRequiredHeadersFromStdFields(CLIENT);
+
+            if (!validateRequired(record, requiredFields, headerIndexMap, fileImportResult, resourceHandler)) {
+                continue;
+            }
           
             //Check to validate duplicate record
             if (checkDuplicate(record, fileImportResult, broker.getCompanyId(), headerIndexMap)) {
@@ -507,6 +516,8 @@ public class CompanyService  extends CommonService {
             // TODO: FIXME - Ideally this should handled by transaction roll-back; some-reason transaction is not working with combination of jdbcTemplate and spring
             // data. Need some research on it. To manage records properly, explicitly roll-back record. 
             companyRepository.delete(companyId);
+            companyContractRepository.deleteByCompanyId(companyId);
+            companyProductRepository.deleteByCompanyId(companyId);
             throw ex;
         }
 
