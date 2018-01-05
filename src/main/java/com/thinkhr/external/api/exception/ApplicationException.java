@@ -129,17 +129,5 @@ public class ApplicationException extends RuntimeException {
         appException.setHttpStatus(HttpStatus.NOT_ACCEPTABLE);
         return appException;
     }
-    
-    /**
-     * TODO
-     * @param errorCode
-     * @param params
-     * @return
-     */
-    public static ApplicationException createSendEmailFailed(APIErrorCodes errorCode, String...params) {
-        ApplicationException appException = new ApplicationException(errorCode, params);
-        appException.setHttpStatus(HttpStatus.INTERNAL_SERVER_ERROR);
-        return appException;
-    }
 
 }

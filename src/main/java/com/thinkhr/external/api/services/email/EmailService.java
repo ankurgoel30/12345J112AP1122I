@@ -46,7 +46,7 @@ import com.thinkhr.external.api.services.utils.EmailUtil;
 import lombok.Data;
 
 /**
- * Send email functionality
+ * Service class to work with email entities, repositories and SendGrid APIs.
  * 
  * @author Surabhi Bhawsar
  * @since 2018-01-03

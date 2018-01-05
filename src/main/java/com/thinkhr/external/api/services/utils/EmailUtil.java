@@ -14,7 +14,7 @@ import com.thinkhr.external.api.model.EmailRequest;
 import com.thinkhr.external.api.model.KeyValuePair;
 
 /**
- * Email utility
+ * Class contains utility methods used for Email feature
  * 
  * @author Surabhi Bhawsar
  * @since 2018-01-03
