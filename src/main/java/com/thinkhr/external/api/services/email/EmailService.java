@@ -7,6 +7,8 @@ import static com.thinkhr.external.api.services.utils.EmailUtil.prepareResetPass
 import java.util.ArrayList;
 import java.util.List;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -44,6 +46,8 @@ import lombok.Data;
 @Service
 @Data
 public class EmailService {
+    
+    private Logger logger = LoggerFactory.getLogger(EmailService.class);
  
     @Autowired
     private EmailTemplateRepository emailRepository;
@@ -159,7 +163,6 @@ public class EmailService {
         
         List<String> toEmail = new ArrayList<String>();
         
-        // TODO : For now, it is only for one user.
         toEmail.add(user.getEmail());
         
         for(EmailConfiguration emailConfiguration : emailTemplate.getEmailConfigurations()) {
@@ -210,15 +213,18 @@ public class EmailService {
     public void sendEmail(Mail mail) throws Exception {
         SendGrid sg = new SendGrid(this.apiKey);
         Request request = new Request();
+        Response response = null;
         try {
             mail.setTemplateId(authTemplateId);
             request.setMethod(Method.POST);
             request.setEndpoint("mail/send");
             request.setBody(mail.build());
-            Response response = sg.api(request);
-            System.out.println(response.getStatusCode());
+            response = sg.api(request);
+            logger.debug("**************Email Status Code: " + response.getStatusCode());
         } catch (Exception ex) {
-            throw ex;
+            // TODO : Need to decide what to do if failed to send email.
+            logger.debug("**************Email Status Code: " + response.getStatusCode());
+            // throw ApplicationException.createSendEmailFailed(APIErrorCodes.SEND_EMAIL_FAILED); 
         }
     }
     

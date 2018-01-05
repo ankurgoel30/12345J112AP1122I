@@ -50,10 +50,9 @@ public class EmailUtil {
         Personalization personalization = new Personalization();
 
         List<KeyValuePair> parameters = emailRequest.getParameters();
-        for (int i = 0; i < parameters.size(); i++) {
-            KeyValuePair keyValuePair = parameters.get(i);
+        parameters.stream().forEach(keyValuePair -> {
             personalization.addSubstitution(keyValuePair.getKey(), keyValuePair.getValue());
-        }
+        });
 
         personalization.addTo(emailTo);
         mail.addPersonalization(personalization);

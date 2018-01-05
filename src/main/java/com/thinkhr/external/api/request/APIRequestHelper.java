@@ -55,14 +55,4 @@ public class APIRequestHelper {
         return attrVal;
     }
     
-    /**
-     * @return
-     */
-    public static String getApplicationUrl() {
-        HttpServletRequest request = getRequest();
-        
-        return request.getServletContext().getContextPath(); //TODO : fixme
-    }
-
 }
-
