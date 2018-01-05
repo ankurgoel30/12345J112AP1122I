@@ -53,7 +53,7 @@ public class LearnUser {
     private String phone1;
     
     @Column(name="companyid")
-    private Integer companyId ;
+    private Long companyId ;
     
     @Column(name="jobtitle")
     private String jobTitle;

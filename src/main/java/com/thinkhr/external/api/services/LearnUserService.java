@@ -341,10 +341,10 @@ public class LearnUserService extends CommonService {
      * @param throneUser
      * @return
      */
-    public Integer getLearnCompanyId(User throneUser) {
+    public Long getLearnCompanyId(User throneUser) {
         LearnCompany learnCompany = learnCompanyRepository.findFirstByCompanyId(throneUser.getCompanyId());
 
-        return learnCompany != null ? learnCompany.getCompanyId() : null;
+        return learnCompany != null ? learnCompany.getId() : null;
     }
 }
 
