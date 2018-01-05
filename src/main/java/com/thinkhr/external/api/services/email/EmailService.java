@@ -2,6 +2,15 @@ package com.thinkhr.external.api.services.email;
 
 import static com.thinkhr.external.api.ApplicationConstants.EMAIL_BODY;
 import static com.thinkhr.external.api.services.utils.CommonUtil.generateHashedValue;
+import static com.thinkhr.external.api.services.utils.EmailUtil.BROKER_NAME;
+import static com.thinkhr.external.api.services.utils.EmailUtil.DEFAULT_EMAIL_TEMPLATE_BROKERID;
+import static com.thinkhr.external.api.services.utils.EmailUtil.FIRST_NAME;
+import static com.thinkhr.external.api.services.utils.EmailUtil.SENDGRID_END_POINT;
+import static com.thinkhr.external.api.services.utils.EmailUtil.SET_LOGIN_LINK;
+import static com.thinkhr.external.api.services.utils.EmailUtil.SET_PASSWORD_LINK;
+import static com.thinkhr.external.api.services.utils.EmailUtil.SUPPORT_EMAIL;
+import static com.thinkhr.external.api.services.utils.EmailUtil.SUPPORT_PHONE;
+import static com.thinkhr.external.api.services.utils.EmailUtil.USER_NAME;
 import static com.thinkhr.external.api.services.utils.EmailUtil.prepareResetPasswordlink;
 
 import java.util.ArrayList;
@@ -99,7 +108,7 @@ public class EmailService {
      * @return
      */
     public EmailTemplate getDefaultEmailTemplate() {
-        return getEmailTemplate(8148,
+        return getEmailTemplate(DEFAULT_EMAIL_TEMPLATE_BROKERID,
                 ApplicationConstants.WELCOME_EMAIL_TYPE);
     }
     
@@ -138,13 +147,13 @@ public class EmailService {
         saveSetPasswordRequest(user);
         
         List<KeyValuePair> parameters = new ArrayList<KeyValuePair>();
-        parameters.add(createKeyValue("%SET_LOGIN_LINK%", loginUrl));
-        parameters.add(createKeyValue("%FIRSTNAME%", user.getFirstName()));
-        parameters.add(createKeyValue("%BROKER_NAME%", broker.getCompanyName()));
-        parameters.add(createKeyValue("%USERNAME%", user.getUserName()));
-        parameters.add(createKeyValue("%SUPPORT_PHONE%", defaultSupportPhone));
-        parameters.add(createKeyValue("%SUPPORT_EMAIL%", defaultSupportEmail));
-        parameters.add(createKeyValue("%SET_PW_LINK%", resetPasswordLink));
+        parameters.add(createKeyValue(SET_LOGIN_LINK, loginUrl));
+        parameters.add(createKeyValue(FIRST_NAME, user.getFirstName()));
+        parameters.add(createKeyValue(BROKER_NAME, broker.getCompanyName()));
+        parameters.add(createKeyValue(USER_NAME, user.getUserName()));
+        parameters.add(createKeyValue(SUPPORT_PHONE, defaultSupportPhone));
+        parameters.add(createKeyValue(SUPPORT_EMAIL, defaultSupportEmail));
+        parameters.add(createKeyValue(SET_PASSWORD_LINK, resetPasswordLink));
         
         return createEmailRequest(user, broker, parameters, emailTemplate); 
     }
@@ -214,18 +223,12 @@ public class EmailService {
         SendGrid sg = new SendGrid(this.apiKey);
         Request request = new Request();
         Response response = null;
-        try {
-            mail.setTemplateId(authTemplateId);
-            request.setMethod(Method.POST);
-            request.setEndpoint("mail/send");
-            request.setBody(mail.build());
-            response = sg.api(request);
-            logger.debug("**************Email Status Code: " + response.getStatusCode());
-        } catch (Exception ex) {
-            // TODO : Need to decide what to do if failed to send email.
-            logger.debug("**************Email Status Code: " + response.getStatusCode());
-            // throw ApplicationException.createSendEmailFailed(APIErrorCodes.SEND_EMAIL_FAILED); 
-        }
+        mail.setTemplateId(authTemplateId);
+        request.setMethod(Method.POST);
+        request.setEndpoint(SENDGRID_END_POINT);
+        request.setBody(mail.build());
+        response = sg.api(request);
+        logger.debug("**************Email Status Code: " + response.getStatusCode());
     }
     
     /**

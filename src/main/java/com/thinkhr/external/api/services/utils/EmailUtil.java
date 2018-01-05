@@ -22,6 +22,19 @@ import com.thinkhr.external.api.model.KeyValuePair;
  */
 public class EmailUtil {
 
+    public static final Integer DEFAULT_EMAIL_TEMPLATE_BROKERID = 8148;
+
+    // Adding constants for setting key value pairs in personalization
+    public static final String SET_LOGIN_LINK = "%SET_LOGIN_LINK%";
+    public static final String FIRST_NAME = "%FIRSTNAME%";
+    public static final String BROKER_NAME = "%BROKER_NAME%";
+    public static final String USER_NAME = "%USERNAME%";
+    public static final String SUPPORT_PHONE = "%SUPPORT_PHONE%";
+    public static final String SUPPORT_EMAIL = "%SUPPORT_EMAIL%";
+    public static final String SET_PASSWORD_LINK = "%SET_PW_LINK%";
+
+    public static final String SENDGRID_END_POINT = "mail/send";
+
     /**
      * Set reset password link for user
      * 

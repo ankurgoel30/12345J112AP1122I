@@ -33,10 +33,8 @@ import org.springframework.web.multipart.MultipartFile;
 import com.thinkhr.external.api.db.entities.User;
 import com.thinkhr.external.api.exception.ApplicationException;
 import com.thinkhr.external.api.exception.MessageResourceHandler;
-import com.thinkhr.external.api.model.EmailRequest;
 import com.thinkhr.external.api.model.FileImportResult;
 import com.thinkhr.external.api.services.UserService;
-import com.thinkhr.external.api.services.email.EmailService;
 import com.thinkhr.external.api.services.utils.FileImportUtil;
 
 /**
@@ -54,9 +52,6 @@ public class UserController {
     @Autowired
     UserService userService;
     
-    @Autowired
-    EmailService emailService;
-
     @Autowired
     MessageResourceHandler resourceHandler;
 
@@ -124,12 +119,8 @@ public class UserController {
      */
     @RequestMapping(method=RequestMethod.POST)
     public ResponseEntity<User> addUser(@Valid @RequestBody User user,
-            @RequestAttribute(name = BROKER_ID_PARAM) Integer brokerId) throws ApplicationException, Exception {
+            @RequestAttribute(name = BROKER_ID_PARAM) Integer brokerId) throws ApplicationException {
         userService.addUser(user, brokerId);
-
-        // Sending welcome email to user 
-        EmailRequest emailRequest = emailService.createEmailRequest(brokerId, user.getUserName());
-        emailService.sendEmail(emailRequest);
         return new ResponseEntity<User>(user, HttpStatus.CREATED);
     }
     
