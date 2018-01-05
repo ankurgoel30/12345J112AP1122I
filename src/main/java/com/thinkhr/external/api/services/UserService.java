@@ -232,12 +232,15 @@ public class UserService extends CommonService {
      * @param userId
      */
     public int deleteUser(int userId) throws ApplicationException {
+        User throneUser = userRepository.findOne(userId);
 
-        if (null == userRepository.findOne(userId)) {
+        if (null == throneUser) {
             throw ApplicationException.createEntityNotFoundError(APIErrorCodes.ENTITY_NOT_FOUND, "user", "userId="+userId);
         }
 
         userRepository.softDelete(userId);
+
+        learnUserService.deactivateLearnUser(throneUser);
 
         return userId;
     }    
