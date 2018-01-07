@@ -1,5 +1,6 @@
 package com.thinkhr.external.api.services;
 
+import static com.thinkhr.external.api.ApplicationConstants.APP_AUTH_DATA;
 import static com.thinkhr.external.api.ApplicationConstants.COMMA_SEPARATOR;
 import static com.thinkhr.external.api.ApplicationConstants.CONTACT;
 import static com.thinkhr.external.api.ApplicationConstants.DEFAULT_PASSWORD;
@@ -9,6 +10,8 @@ import static com.thinkhr.external.api.ApplicationConstants.SPACE;
 import static com.thinkhr.external.api.ApplicationConstants.TOTAL_RECORDS;
 import static com.thinkhr.external.api.ApplicationConstants.UNDERSCORE;
 import static com.thinkhr.external.api.ApplicationConstants.USER;
+import static com.thinkhr.external.api.ApplicationConstants.USER_COLUMN_ACTIVATION_DATE;
+import static com.thinkhr.external.api.ApplicationConstants.USER_COLUMN_ADDEDBY;
 import static com.thinkhr.external.api.ApplicationConstants.USER_COLUMN_CLIENT_ID;
 import static com.thinkhr.external.api.ApplicationConstants.USER_COLUMN_PASSWORD;
 import static com.thinkhr.external.api.request.APIRequestHelper.setRequestAttribute;
@@ -16,6 +19,7 @@ import static com.thinkhr.external.api.response.APIMessageUtil.getMessageFromRes
 import static com.thinkhr.external.api.services.upload.FileImportValidator.validateAndGetFileContent;
 import static com.thinkhr.external.api.services.upload.FileImportValidator.validateEmail;
 import static com.thinkhr.external.api.services.upload.FileImportValidator.validateRequired;
+import static com.thinkhr.external.api.services.utils.CommonUtil.getCurrentDateInUTC;
 import static com.thinkhr.external.api.services.utils.EntitySearchUtil.getEntitySearchSpecification;
 import static com.thinkhr.external.api.services.utils.EntitySearchUtil.getPageable;
 import static com.thinkhr.external.api.services.utils.FileImportUtil.getRequiredHeaders;
@@ -41,12 +45,15 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
+import com.thinkhr.external.api.ApplicationConstants;
 import com.thinkhr.external.api.db.entities.Company;
 import com.thinkhr.external.api.db.entities.User;
 import com.thinkhr.external.api.exception.APIErrorCodes;
 import com.thinkhr.external.api.exception.ApplicationException;
+import com.thinkhr.external.api.model.AppAuthData;
 import com.thinkhr.external.api.model.FileImportResult;
 import com.thinkhr.external.api.repositories.ThroneRoleRepository;
+import com.thinkhr.external.api.request.APIRequestHelper;
 import com.thinkhr.external.api.services.crypto.AppEncryptorDecryptor;
 import com.thinkhr.external.api.services.upload.FileUploadEnum;
 
@@ -151,17 +158,26 @@ public class UserService extends CommonService {
      * @param User object
      * @throws ApplicationException
      * @throws IOException 
+     * @throws IllegalAccessException 
+     * @throws IllegalArgumentException 
      */
     @Transactional
-    public User updateUser(Integer userId, String userJson, Integer brokerId) throws ApplicationException , IOException  {
+    public User updateUser(Integer userId, String userJson, Integer brokerId)
+            throws ApplicationException, IOException, IllegalArgumentException, IllegalAccessException {
 
         User userInDb = userRepository.findOne(userId);
         if (null == userInDb) {
             throw ApplicationException.createEntityNotFoundError(APIErrorCodes.ENTITY_NOT_FOUND, "user", "userId="+userId);
         }
 
+        User userBeforeUpdate = new User();
+        userBeforeUpdate.setCompanyName(userInDb.getCompanyName());
+        userBeforeUpdate.setCompanyId(userInDb.getCompanyId());
+        userBeforeUpdate.setBrokerId(userInDb.getBrokerId());
+
         User updatedUser = update(userJson, userInDb);
         validateObject(updatedUser);
+        validateNotUpdatableFields(userBeforeUpdate, updatedUser, User.notUpdatableFields);
 
         User throneUser = saveUser(updatedUser, brokerId, false);
         
@@ -199,10 +215,31 @@ public class UserService extends CommonService {
 
             user.setUserName(userName);
 
+            user.setActivationDate(getCurrentDateInUTC());
+
+            user.setAddedBy(getAddedBy(brokerId));
         }
         // If not passed in model, then object will become in-active.
         User throneUser = userRepository.save(user);
         return throneUser;
+    }
+
+    /**
+     * 
+     * @param user
+     * @param brokerId
+     */
+    private String getAddedBy(Integer brokerId) {
+        String addedBy = null;
+        AppAuthData authData = (AppAuthData) APIRequestHelper.getRequestAttribute(APP_AUTH_DATA);
+        if (authData != null) {
+            User authUser = userRepository.findByUserName(authData.getUser());
+            addedBy = "" + authUser.getUserId();
+        } else {
+            addedBy = "" + brokerId;
+        }
+
+        return addedBy;
     }
 
     /**
@@ -232,12 +269,15 @@ public class UserService extends CommonService {
      * @param userId
      */
     public int deleteUser(int userId) throws ApplicationException {
+        User throneUser = userRepository.findOne(userId);
 
-        if (null == userRepository.findOne(userId)) {
+        if (null == throneUser) {
             throw ApplicationException.createEntityNotFoundError(APIErrorCodes.ENTITY_NOT_FOUND, "user", "userId="+userId);
         }
 
         userRepository.softDelete(userId);
+
+        learnUserService.deactivateLearnUser(throneUser);
 
         return userId;
     }    
@@ -381,9 +421,13 @@ public class UserService extends CommonService {
             List<String> userColumnsToInsert = new ArrayList<String>(userHeaderColumnMap.keySet());
             userColumnValues.add(companyId);
             userColumnValues.add(encDecyptor.encrypt(DEFAULT_PASSWORD));
+            userColumnValues.add(getCurrentDateInUTC());
+            userColumnValues.add(getAddedBy(companyId)); // TODO: Fix : Instead of companyId brokerId should go here
             
             userColumnsToInsert.add(USER_COLUMN_CLIENT_ID);
             userColumnsToInsert.add(USER_COLUMN_PASSWORD);
+            userColumnsToInsert.add(USER_COLUMN_ACTIVATION_DATE);
+            userColumnsToInsert.add(USER_COLUMN_ADDEDBY);
 
             // THR-3927 [Start]
             String userName = getValueFromRow(record, headerIndexMap.get(FileUploadEnum.USER_USER_NAME.getHeader()));

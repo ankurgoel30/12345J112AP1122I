@@ -48,5 +48,14 @@ public class CommonUtil {
         return now.getTime();
     }
     	
+    /**
+     * This will return current date in UTC
+     * TODO: Need to implement so that returned date instance is for UTC time
+     * @return
+     */
+    public static Date getCurrentDateInUTC() {
+        Date dateInUTC = new Date();
+        return dateInUTC;
+    }
 	
 }

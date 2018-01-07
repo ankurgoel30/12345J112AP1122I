@@ -10,6 +10,7 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
+import javax.validation.constraints.Size;
 
 import org.hibernate.annotations.DynamicInsert;
 import org.hibernate.annotations.DynamicUpdate;
@@ -48,10 +49,11 @@ public class LearnUser {
     private String email;
     
     @Column(name="phone1")
+    @Size(max = 20)
     private String phone1;
     
     @Column(name="companyid")
-    private Integer companyId ;
+    private Long companyId ;
     
     @Column(name="jobtitle")
     private String jobTitle;

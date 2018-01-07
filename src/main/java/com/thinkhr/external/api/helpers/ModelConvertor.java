@@ -105,7 +105,6 @@ public class ModelConvertor {
         LearnUser learnUser = new LearnUser();
         learnUser.setBlockedAccount(throneUser.getBlockedAccount());
         learnUser.setBounced(throneUser.getBounced());
-        learnUser.setCompanyId(throneUser.getCompanyId());
         learnUser.setDeleted(throneUser.getDeleted());
         learnUser.setEmail(throneUser.getEmail());
         learnUser.setFirstName(throneUser.getFirstName());
