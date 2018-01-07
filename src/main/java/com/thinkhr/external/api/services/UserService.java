@@ -155,7 +155,7 @@ public class UserService extends CommonService {
 
         } catch (Exception ex) {
             // TODO: Need to understand exact behavior
-            logger.error("Failed to send email due to " + ex);
+            logger.error("Error occured while sending email.", ex);
         }
 
         return throneUser;
