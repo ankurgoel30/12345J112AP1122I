@@ -110,7 +110,7 @@ public class ModelConvertor {
         learnUser.setFirstName(throneUser.getFirstName());
         learnUser.setJobTitle(throneUser.getTitle());
         learnUser.setLastName(throneUser.getLastName());
-        learnUser.setPassword(throneUser.getPassword());
+        learnUser.setPassword(throneUser.getPasswordApps());
         learnUser.setPhone1(throneUser.getPhone());
         learnUser.setThrUserId(throneUser.getUserId());
         learnUser.setUserName(throneUser.getUserName());
@@ -204,7 +204,7 @@ public class ModelConvertor {
         learnUser.setFirstName(throneUser.getFirstName());
         learnUser.setJobTitle(throneUser.getTitle());
         learnUser.setLastName(throneUser.getLastName());
-        learnUser.setPassword(throneUser.getPassword());
+        learnUser.setPassword(throneUser.getPasswordApps());
         learnUser.setPhone1(throneUser.getPhone());
         learnUser.setThrUserId(throneUser.getUserId());
         learnUser.setUserName(throneUser.getUserName());
