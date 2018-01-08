@@ -39,6 +39,7 @@ import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
@@ -83,6 +84,9 @@ public class UserService extends CommonService {
     
     @Autowired
     protected ThroneRoleRepository throneRoleRepository;
+
+    @Value("${com.thinkhr.external.api.user.default.password}")
+    private String defaultPassword;
 
     private static final String resource = USER;
     
@@ -148,7 +152,7 @@ public class UserService extends CommonService {
     public User addUser(User user, Integer brokerId) {
 
         //Saving default password
-        user.setPasswordApps(encDecyptor.encrypt(DEFAULT_PASSWORD));
+        user.setPasswordApps(encDecyptor.encrypt(defaultPassword));
 
         User throneUser = saveUser(user, brokerId, true);
 
@@ -432,7 +436,7 @@ public class UserService extends CommonService {
             //Finally save users one by one
             List<String> userColumnsToInsert = new ArrayList<String>(userHeaderColumnMap.keySet());
             userColumnValues.add(companyId);
-            userColumnValues.add(encDecyptor.encrypt(DEFAULT_PASSWORD));
+            userColumnValues.add(encDecyptor.encrypt(defaultPassword));
             userColumnValues.add(getCurrentDateInUTC());
             userColumnValues.add(getAddedBy(companyId)); // TODO: Fix : Instead of companyId brokerId should go here
             userColumnValues.add(fileImportResult.getBrokerId());
