@@ -367,7 +367,7 @@ public class Company implements SearchableEntity {
      */
     @JsonIgnore
     public boolean isBrokerCompany() {
-        return this.getBroker() == this.getCompanyId();
+        return this.getBroker().equals(this.getCompanyId());
     }
 
     /**

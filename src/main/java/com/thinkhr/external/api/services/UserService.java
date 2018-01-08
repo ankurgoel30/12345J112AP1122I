@@ -12,6 +12,7 @@ import static com.thinkhr.external.api.ApplicationConstants.UNDERSCORE;
 import static com.thinkhr.external.api.ApplicationConstants.USER;
 import static com.thinkhr.external.api.ApplicationConstants.USER_COLUMN_ACTIVATION_DATE;
 import static com.thinkhr.external.api.ApplicationConstants.USER_COLUMN_ADDEDBY;
+import static com.thinkhr.external.api.ApplicationConstants.USER_COLUMN_BROKERID;
 import static com.thinkhr.external.api.ApplicationConstants.USER_COLUMN_CLIENT_ID;
 import static com.thinkhr.external.api.ApplicationConstants.USER_COLUMN_PASSWORD;
 import static com.thinkhr.external.api.request.APIRequestHelper.setRequestAttribute;
@@ -186,11 +187,12 @@ public class UserService extends CommonService {
 
         User throneUser = saveUser(updatedUser, brokerId, false);
 
-        // This is required otherwise values for updatable=false fields is not synced with 
-        // database when these fileds are passed in payload .
-        entityManager.refresh(throneUser);
-
         learnUserService.updateLearnUser(throneUser);
+
+        // This is required otherwise values for updatable=false fields is not synced with 
+        // database when these fields are passed in payload .
+        entityManager.flush();
+        entityManager.refresh(throneUser);
         return throneUser;
     }
 
@@ -330,6 +332,7 @@ public class UserService extends CommonService {
 
         fileImportResult.setTotalRecords(records.size());
         fileImportResult.setHeaderLine(headerLine);
+        fileImportResult.setBrokerId(broker.getCompanyId());
 
         String[] headersInCSV = headerLine.split(COMMA_SEPARATOR);
 
@@ -432,11 +435,13 @@ public class UserService extends CommonService {
             userColumnValues.add(encDecyptor.encrypt(DEFAULT_PASSWORD));
             userColumnValues.add(getCurrentDateInUTC());
             userColumnValues.add(getAddedBy(companyId)); // TODO: Fix : Instead of companyId brokerId should go here
+            userColumnValues.add(fileImportResult.getBrokerId());
             
             userColumnsToInsert.add(USER_COLUMN_CLIENT_ID);
             userColumnsToInsert.add(USER_COLUMN_PASSWORD);
             userColumnsToInsert.add(USER_COLUMN_ACTIVATION_DATE);
             userColumnsToInsert.add(USER_COLUMN_ADDEDBY);
+            userColumnsToInsert.add(USER_COLUMN_BROKERID);
 
             // THR-3927 [Start]
             String userName = getValueFromRow(record, headerIndexMap.get(FileUploadEnum.USER_USER_NAME.getHeader()));
