@@ -1,7 +1,6 @@
 package com.thinkhr.external.api.services.utils;
 
 import static com.thinkhr.external.api.ApplicationConstants.RESET_PASSWORD_LINK;
-import static com.thinkhr.external.api.services.utils.CommonUtil.generateHashedValue;
 
 import java.util.List;
 
@@ -9,7 +8,6 @@ import com.sendgrid.Content;
 import com.sendgrid.Email;
 import com.sendgrid.Mail;
 import com.sendgrid.Personalization;
-import com.thinkhr.external.api.db.entities.User;
 import com.thinkhr.external.api.model.EmailRequest;
 import com.thinkhr.external.api.model.KeyValuePair;
 
@@ -38,12 +36,12 @@ public class EmailUtil {
     /**
      * Set reset password link for user
      * 
-     * @param user
+     * @param appUrl
+     * @param generatedHashCode
      * @return
      */
-    public static String prepareResetPasswordlink(User user, String appUrl) {
-        return new StringBuffer().append(appUrl).append(RESET_PASSWORD_LINK).append("C")
-                .append(generateHashedValue(user.getUserId())).toString();
+    public static String prepareResetPasswordlink(String appUrl, String generatedHashCode) {
+        return new StringBuffer().append(appUrl).append(RESET_PASSWORD_LINK).append(generatedHashCode).toString();
     }
     
     /**

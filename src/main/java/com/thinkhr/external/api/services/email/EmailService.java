@@ -1,6 +1,7 @@
 package com.thinkhr.external.api.services.email;
 
 import static com.thinkhr.external.api.ApplicationConstants.EMAIL_BODY;
+import static com.thinkhr.external.api.ApplicationConstants.RESET_PASSWORD_PREFIX;
 import static com.thinkhr.external.api.services.utils.CommonUtil.generateHashedValue;
 import static com.thinkhr.external.api.services.utils.EmailUtil.BROKER_NAME;
 import static com.thinkhr.external.api.services.utils.EmailUtil.DEFAULT_EMAIL_TEMPLATE_BROKERID;
@@ -140,11 +141,11 @@ public class EmailService {
         }
         
         //String sendgridTemplateId = emailTemplate.getSendgridTemplateId();
-        
-        String resetPasswordLink = prepareResetPasswordlink(user, loginUrl);
+        String generatedHashedCode = RESET_PASSWORD_PREFIX + generateHashedValue(user.getUserId());
+        String resetPasswordLink = prepareResetPasswordlink(loginUrl, generatedHashedCode);
         
         // Saving SetPasswordRequest record for reset password request.
-        saveSetPasswordRequest(user);
+        saveSetPasswordRequest(user.getUserId(),generatedHashedCode);
         
         List<KeyValuePair> parameters = new ArrayList<KeyValuePair>();
         parameters.add(createKeyValue(SET_LOGIN_LINK, loginUrl));
@@ -234,13 +235,14 @@ public class EmailService {
     /**
      * Saving set_passwrod_request object in DB
      * 
-     * @param user
+     * @param userId
+     * @param generatedHashCode
      * @return
      */
-    public SetPasswordRequest saveSetPasswordRequest(User user) {
+    public SetPasswordRequest saveSetPasswordRequest(Integer userId, String generatedHashCode) {
         SetPasswordRequest passwordRequest = new SetPasswordRequest();
-        passwordRequest.setContactId(user.getUserId());
-        passwordRequest.setId("C" + generateHashedValue(user.getUserId()));
+        passwordRequest.setContactId(userId);
+        passwordRequest.setId(generatedHashCode);
         return setPasswordRepository.save(passwordRequest);
     }
 
