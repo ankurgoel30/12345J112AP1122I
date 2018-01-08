@@ -27,7 +27,7 @@ public class ApplicationConstants {
             "CITY", "STATE", "ZIP", "INDUSTRY", "COMPANY_SIZE", "PRODUCER" };
     
     public static final String[] REQUIRED_HEADERS_USER_CSV_IMPORT = { "FIRST_NAME", "LAST_NAME", "USER_NAME", "EMAIL", "CLIENT_NAME",
-            "PHONE", "BUSINESS_ID" };
+            "PHONE" };
     
     public static final String COMPANY = "COMPANY";
     public static final String USER = "USER";
@@ -68,6 +68,9 @@ public class ApplicationConstants {
     public static final String USER_CUSTOM_COLUMN_PREFIX = "t1_customfield";
     public static final String USER_COLUMN_CLIENT_ID = "client_id";
     public static final String USER_COLUMN_PASSWORD = "password_apps";
+    public static final String USER_COLUMN_ACTIVATION_DATE = "activationDate";
+    public static final String USER_COLUMN_ADDEDBY = "addedBy";
+    public static final String USER_COLUMN_BROKERID = "brokerId";
     public static final String DEFAULT_PASSWORD = "";
     
     public static final String JWT_TOKEN_THR_CLIENT_ID =  "thr:clientId";

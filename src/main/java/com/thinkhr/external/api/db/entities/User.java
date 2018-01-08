@@ -70,13 +70,13 @@ public class User implements SearchableEntity {
     private String email;
 
     @NotBlank
-    @Column(name="client_name")
+    @Column(name = "client_name", updatable = false)
     private String companyName;
 
-    @Column(name = "brokerID")
+    @Column(name = "brokerID" , updatable = false)
     private Integer brokerId;
 
-    @Column(name="client_id")
+    @Column(name="client_id" , updatable = false)
     private Integer companyId;
 
     @Column(name="t1_roleId")

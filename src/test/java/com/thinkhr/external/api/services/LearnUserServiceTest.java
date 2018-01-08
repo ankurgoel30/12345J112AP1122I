@@ -25,6 +25,7 @@ import com.thinkhr.external.api.db.learn.entities.LearnUser;
 import com.thinkhr.external.api.db.learn.entities.LearnUserRoleAssignment;
 import com.thinkhr.external.api.exception.ApplicationException;
 import com.thinkhr.external.api.helpers.ModelConvertor;
+import com.thinkhr.external.api.learn.repositories.LearnCompanyRepository;
 import com.thinkhr.external.api.learn.repositories.LearnFileDataRepository;
 import com.thinkhr.external.api.learn.repositories.LearnRoleRepository;
 import com.thinkhr.external.api.learn.repositories.LearnUserRepository;
@@ -54,6 +55,9 @@ public class LearnUserServiceTest {
 
     @Mock
     private LearnFileDataRepository learnFileDataRepository;
+
+    @Mock
+    private LearnCompanyRepository learnCompanyRepository;
 
     @InjectMocks
     private LearnUserService learnService;
@@ -167,6 +171,7 @@ public class LearnUserServiceTest {
     public void testAddLearnUserForBulk() {
         Integer roleId = 1;
         Company company = ApiTestDataUtil.createCompany();
+
         String roleName = "Test Agaent";
         User user = ApiTestDataUtil.createUser(1, "Ajay", "Jain", "ajay.jain@pepcus.com", "ajain", "Pepcus");
         List<String> learnUserColumnList = ApiTestDataUtil.getLearnUserColumnList();
@@ -190,6 +195,8 @@ public class LearnUserServiceTest {
     public void testGetRoleName_ForBroker() {
         User user = ApiTestDataUtil.createUser();
         Company company = ApiTestDataUtil.createCompany();
+        company.setCompanyId(10);
+        company.setBroker(10);
 
         when(companyRepository.findOne(user.getCompanyId())).thenReturn(company);
 
@@ -206,7 +213,8 @@ public class LearnUserServiceTest {
     public void testGetRoleName_ForStudent() {
         User user = ApiTestDataUtil.createUser();
         Company company = ApiTestDataUtil.createCompany();
-        company.setBroker(1);
+        company.setCompanyId(1);
+        company.setBroker(10);
 
         when(companyRepository.findOne(user.getCompanyId())).thenReturn(company);
 
