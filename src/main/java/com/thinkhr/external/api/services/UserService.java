@@ -51,10 +51,12 @@ import com.thinkhr.external.api.db.entities.User;
 import com.thinkhr.external.api.exception.APIErrorCodes;
 import com.thinkhr.external.api.exception.ApplicationException;
 import com.thinkhr.external.api.model.AppAuthData;
+import com.thinkhr.external.api.model.EmailRequest;
 import com.thinkhr.external.api.model.FileImportResult;
 import com.thinkhr.external.api.repositories.ThroneRoleRepository;
 import com.thinkhr.external.api.request.APIRequestHelper;
 import com.thinkhr.external.api.services.crypto.AppEncryptorDecryptor;
+import com.thinkhr.external.api.services.email.EmailService;
 import com.thinkhr.external.api.services.upload.FileUploadEnum;
 
 /**
@@ -69,6 +71,9 @@ import com.thinkhr.external.api.services.upload.FileUploadEnum;
 public class UserService extends CommonService {
 
     private Logger logger = LoggerFactory.getLogger(UserService.class);
+
+    @Autowired
+    private EmailService emailService;
 
     @Autowired
     private AppEncryptorDecryptor encDecyptor;
@@ -149,6 +154,17 @@ public class UserService extends CommonService {
         User throneUser = saveUser(user, brokerId, true);
 
         learnUserService.addLearnUser(throneUser); //THR-3932
+
+        try {
+            // Sending welcome email to user 
+            EmailRequest emailRequest = emailService.createEmailRequest(brokerId, throneUser.getUserName());
+            emailService.sendEmail(emailRequest);
+
+        } catch (Exception ex) {
+            // TODO: Need to understand exact behavior
+            logger.error("Error occured while sending email.", ex);
+        }
+
         return throneUser;
     }
 
@@ -158,26 +174,17 @@ public class UserService extends CommonService {
      * @param User object
      * @throws ApplicationException
      * @throws IOException 
-     * @throws IllegalAccessException 
-     * @throws IllegalArgumentException 
      */
     @Transactional
-    public User updateUser(Integer userId, String userJson, Integer brokerId)
-            throws ApplicationException, IOException, IllegalArgumentException, IllegalAccessException {
+    public User updateUser(Integer userId, String userJson, Integer brokerId) throws ApplicationException , IOException  {
 
         User userInDb = userRepository.findOne(userId);
         if (null == userInDb) {
             throw ApplicationException.createEntityNotFoundError(APIErrorCodes.ENTITY_NOT_FOUND, "user", "userId="+userId);
         }
 
-        User userBeforeUpdate = new User();
-        userBeforeUpdate.setCompanyName(userInDb.getCompanyName());
-        userBeforeUpdate.setCompanyId(userInDb.getCompanyId());
-        userBeforeUpdate.setBrokerId(userInDb.getBrokerId());
-
         User updatedUser = update(userJson, userInDb);
         validateObject(updatedUser);
-        validateNotUpdatableFields(userBeforeUpdate, updatedUser, User.notUpdatableFields);
 
         User throneUser = saveUser(updatedUser, brokerId, false);
         
