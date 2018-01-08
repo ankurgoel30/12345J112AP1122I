@@ -3,8 +3,11 @@ package com.thinkhr.external.api.services.utils;
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.Base64;
 import java.util.Calendar;
 import java.util.Date;
+
+import org.apache.commons.lang.StringUtils;
 
 import com.thinkhr.external.api.ApplicationConstants;
 
@@ -48,5 +51,19 @@ public class CommonUtil {
         return now.getTime();
     }
     	
+    
+    /**
+     * Generates and returns a hash.
+     * 
+     * @param value
+     * @return
+     */
+    public static String generateHashedValue(Integer value) {
+        long microTime = System.currentTimeMillis();
+        String companyIdWithMicroTime = String.valueOf(microTime + value).replace(" ", "");
+        String encodedString = Base64.getEncoder().encodeToString(companyIdWithMicroTime.getBytes());
+        String reversedString = StringUtils.reverse(encodedString.replace("=", ""));
+        return reversedString.toUpperCase();
+    }
 	
 }
