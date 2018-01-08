@@ -22,6 +22,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
+import javax.persistence.EntityManager;
 import javax.validation.ConstraintViolationException;
 
 import org.junit.Before;
@@ -107,6 +108,9 @@ public class UserServiceTest {
 
     @Mock
     private LearnUserService learnUserService;
+
+    @Mock
+    private EntityManager entityManager;
 
     @InjectMocks
     private UserService userService;

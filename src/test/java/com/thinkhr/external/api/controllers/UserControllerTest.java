@@ -270,27 +270,6 @@ public class UserControllerTest {
      * @throws Exception
      */
     @Test
-    public void testAddUserUserNameNullBadRequest() throws Exception {
-        User user = createUser();
-        user.setUserName(null);
-
-        mockMvc.perform(post(USER_API_BASE_PATH)
-                .accept(MediaType.APPLICATION_JSON)
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(getJsonString(user)))
-        .andExpect(status().isBadRequest())
-        .andExpect(jsonPath("errorCode", is(APIErrorCodes.VALIDATION_FAILED.getCode().toString())))
-        .andExpect(jsonPath("errorDetails[0].field", is("userName")))
-        .andExpect(jsonPath("errorDetails[0].object", is("user")))
-        .andExpect(jsonPath("errorDetails[0].rejectedValue", is(user.getUserName())));
-    }
-
-    /**
-     * Test to verify post user API (/v1/users) with a In-valid request
-     * 
-     * @throws Exception
-     */
-    @Test
     public void testAddUserCompanyNameNullBadRequest() throws Exception {
 
         User user = createUser();

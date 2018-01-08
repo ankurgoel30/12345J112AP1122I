@@ -191,48 +191,6 @@ public class CompanyControllerTest {
      * @throws Exception
      */
     @Test
-    public void testAddCompanySearchHelpNullBadRequest() throws Exception {
-        Company company = createCompany(); 
-        company.setSearchHelp(null);
-
-        mockMvc.perform(post(COMPANY_API_BASE_PATH)
-                .accept(MediaType.APPLICATION_JSON)
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(getJsonString(company)))
-        .andExpect(status().isBadRequest())
-        .andExpect(jsonPath("errorCode", is(APIErrorCodes.VALIDATION_FAILED.getCode().toString())))
-        .andExpect(jsonPath("errorDetails[0].field", is("searchHelp")))
-        .andExpect(jsonPath("errorDetails[0].object", is("company")))
-        .andExpect(jsonPath("errorDetails[0].rejectedValue", is(company.getSearchHelp())));
-    }
-
-    /**
-     * Test to verify post company API (/v1/companies) with a In-valid request
-     * 
-     * @throws Exception
-     */
-    @Test
-    public void testAddCompanyCompanyTypeNullBadRequest() throws Exception {
-        Company company = createCompany(); 
-        company.setCompanyType(null);
-
-        mockMvc.perform(post(COMPANY_API_BASE_PATH)
-                .accept(MediaType.APPLICATION_JSON)
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(getJsonString(company)))
-        .andExpect(status().isBadRequest())
-        .andExpect(jsonPath("errorCode", is(APIErrorCodes.VALIDATION_FAILED.getCode().toString())))
-        .andExpect(jsonPath("errorDetails[0].field", is("companyType")))
-        .andExpect(jsonPath("errorDetails[0].object", is("company")))
-        .andExpect(jsonPath("errorDetails[0].rejectedValue", is(company.getCompanyType())));
-    }
-
-    /**
-     * Test to verify post company API (/v1/companies) with a In-valid request
-     * 
-     * @throws Exception
-     */
-    @Test
     public void testAddCompanyCompanyNameNullBadRequest() throws Exception {
         Company company = createCompany(); 
         company.setCompanyName(null);
@@ -246,48 +204,6 @@ public class CompanyControllerTest {
         .andExpect(jsonPath("errorDetails[0].field", is("companyName")))
         .andExpect(jsonPath("errorDetails[0].object", is("company")))
         .andExpect(jsonPath("errorDetails[0].rejectedValue", is(company.getCompanyName())));
-    }
-
-    /**
-     * Test to verify post company API (/v1/companies) with a In-valid request
-     * 
-     * @throws Exception
-     */
-    @Test
-    public void testAddCompanyCompanySinceNullBadRequest() throws Exception {
-        Company company = createCompany(); 
-        company.setCompanySince(null);
-
-        mockMvc.perform(post(COMPANY_API_BASE_PATH)
-                .accept(MediaType.APPLICATION_JSON)
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(getJsonString(company)))
-        .andExpect(status().isBadRequest())
-        .andExpect(jsonPath("errorCode", is(APIErrorCodes.VALIDATION_FAILED.getCode().toString())))
-        .andExpect(jsonPath("errorDetails[0].field", is("companySince")))
-        .andExpect(jsonPath("errorDetails[0].object", is("company")))
-        .andExpect(jsonPath("errorDetails[0].rejectedValue", is(company.getCompanySince())));
-    }
-
-    /**
-     * Test to verify post company API (/v1/companies) with a In-valid request
-     * 
-     * @throws Exception
-     */
-    @Test
-    public void testAddCompanySpecialNoteNullBadRequest() throws Exception {
-        Company company = createCompany(); 
-        company.setSpecialNote(null);
-
-        mockMvc.perform(post(COMPANY_API_BASE_PATH)
-                .accept(MediaType.APPLICATION_JSON)
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(getJsonString(company)))
-        .andExpect(status().isBadRequest())
-        .andExpect(jsonPath("errorCode", is(APIErrorCodes.VALIDATION_FAILED.getCode().toString())))
-        .andExpect(jsonPath("errorDetails[0].field", is("specialNote")))
-        .andExpect(jsonPath("errorDetails[0].object", is("company")))
-        .andExpect(jsonPath("errorDetails[0].rejectedValue", is(company.getSpecialNote())));
     }
 
     /**
