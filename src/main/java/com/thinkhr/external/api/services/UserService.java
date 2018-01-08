@@ -34,6 +34,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import javax.persistence.EntityManager;
+import javax.persistence.PersistenceContext;
+
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -45,7 +48,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
-import com.thinkhr.external.api.ApplicationConstants;
 import com.thinkhr.external.api.db.entities.Company;
 import com.thinkhr.external.api.db.entities.User;
 import com.thinkhr.external.api.exception.APIErrorCodes;
@@ -83,7 +85,6 @@ public class UserService extends CommonService {
     
     @Autowired
     protected ThroneRoleRepository throneRoleRepository;
-
 
     private static final String resource = USER;
     
@@ -187,7 +188,11 @@ public class UserService extends CommonService {
         validateObject(updatedUser);
 
         User throneUser = saveUser(updatedUser, brokerId, false);
-        
+
+        // This is required otherwise values for updatable=false fields is not synced with 
+        // database when these fileds are passed in payload .
+        entityManager.refresh(throneUser);
+
         learnUserService.updateLearnUser(throneUser);
         return throneUser;
     }
@@ -203,8 +208,6 @@ public class UserService extends CommonService {
     private User saveUser(User user, Integer brokerId, boolean isNew) {
         validateBrokerId(brokerId);
 
-        validateCompanyName(user, brokerId);
-
         Integer roleId = user.getRoleId();
         
         if (roleId != null && roleId != ROLE_ID_FOR_INACTIVE && !validateRoleIdFromDB(roleId)) {
@@ -216,6 +219,8 @@ public class UserService extends CommonService {
         }
 
         if (isNew) {
+            validateCompanyName(user, brokerId);
+
             //Validate duplicate username and generate a new one
             String userName = generateUserName(user.getUserName(), user.getEmail(), user.getFirstName(),
                     user.getLastName());
