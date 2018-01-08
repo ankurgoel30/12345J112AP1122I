@@ -9,6 +9,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import javax.persistence.EntityManager;
+import javax.persistence.PersistenceContext;
 import javax.validation.ConstraintViolation;
 import javax.validation.ConstraintViolationException;
 import javax.validation.Validation;
@@ -98,6 +100,9 @@ public class CommonService {
     
     @Autowired
     PackageRepository packageRepository;
+    
+    @PersistenceContext
+    protected EntityManager entityManager;
     
     /**
      * @return
