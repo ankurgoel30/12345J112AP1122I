@@ -1,5 +1,13 @@
 package com.thinkhr.external.api.utils;
 
+import static com.thinkhr.external.api.services.utils.EmailUtil.BROKER_NAME;
+import static com.thinkhr.external.api.services.utils.EmailUtil.FIRST_NAME;
+import static com.thinkhr.external.api.services.utils.EmailUtil.SET_LOGIN_LINK;
+import static com.thinkhr.external.api.services.utils.EmailUtil.SET_PASSWORD_LINK;
+import static com.thinkhr.external.api.services.utils.EmailUtil.SUPPORT_EMAIL;
+import static com.thinkhr.external.api.services.utils.EmailUtil.SUPPORT_PHONE;
+import static com.thinkhr.external.api.services.utils.EmailUtil.USER_NAME;
+
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -25,11 +33,18 @@ import org.springframework.mock.web.MockMultipartFile;
 
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.sendgrid.Content;
+import com.sendgrid.Email;
+import com.sendgrid.Mail;
+import com.sendgrid.Personalization;
 import com.thinkhr.external.api.db.entities.Company;
 import com.thinkhr.external.api.db.entities.CompanyContract;
 import com.thinkhr.external.api.db.entities.CompanyProduct;
 import com.thinkhr.external.api.db.entities.Configuration;
 import com.thinkhr.external.api.db.entities.CustomFields;
+import com.thinkhr.external.api.db.entities.EmailConfiguration;
+import com.thinkhr.external.api.db.entities.EmailField;
+import com.thinkhr.external.api.db.entities.EmailTemplate;
 import com.thinkhr.external.api.db.entities.Location;
 import com.thinkhr.external.api.db.entities.StandardFields;
 import com.thinkhr.external.api.db.entities.ThroneRole;
@@ -38,6 +53,7 @@ import com.thinkhr.external.api.db.learn.entities.LearnCompany;
 import com.thinkhr.external.api.db.learn.entities.LearnRole;
 import com.thinkhr.external.api.db.learn.entities.LearnUser;
 import com.thinkhr.external.api.model.FileImportResult;
+import com.thinkhr.external.api.model.KeyValuePair;
 
 /**
  * Utility class to keep all utilities required for Junits
@@ -1474,6 +1490,105 @@ public class ApiTestDataUtil {
         }
         role.setName(name);
         return role;
+    }
+
+    /**
+     * Method to build Mail object for sending email.
+     * 
+     * @return
+     */
+    public static Mail buildMail() {
+
+        Email emailFrom = new Email("welcome@myhrworkplace.com");
+
+        Email emailTo = new Email("shubham.solanki@pepcus.com");
+
+        Mail mail = new Mail();
+
+        Personalization personalization = new Personalization();
+
+        List<KeyValuePair> parameters = createKeyValueListForEmail();
+        parameters.stream().forEach(keyValuePair -> {
+            personalization.addSubstitution(keyValuePair.getKey(), keyValuePair.getValue());
+        });
+
+        personalization.addTo(emailTo);
+        mail.addPersonalization(personalization);
+
+        Content content = new Content("text/html", "<HTML> Hello </HTML>");
+        mail.addContent(content);
+        mail.setFrom(emailFrom);
+        mail.setSubject("Welcome to ThinkHR");
+
+        return mail;
+    }
+
+    /**
+     * 
+     * @return
+     */
+    public static List<KeyValuePair> createKeyValueListForEmail() {
+        List<KeyValuePair> parameters = new ArrayList<KeyValuePair>();
+        parameters.add(createKeyValue(SET_LOGIN_LINK, "https://apps.thinkhr-dev.com"));
+        parameters.add(createKeyValue(FIRST_NAME, "ajay"));
+        parameters.add(createKeyValue(BROKER_NAME, "THR"));
+        parameters.add(createKeyValue(USER_NAME, "ajay.jain"));
+        parameters.add(createKeyValue(SUPPORT_PHONE, "877.225.1101"));
+        parameters.add(createKeyValue(SUPPORT_EMAIL, "customersuccess@thinkhr.com"));
+        parameters.add(createKeyValue(SET_PASSWORD_LINK, "https://apps.thinkhr-dev.com/reset-password"));
+        return parameters;
+    }
+
+    /**
+     * 
+     * @param key
+     * @param value
+     * @return
+     */
+    public static KeyValuePair createKeyValue(String key, String value) {
+        KeyValuePair keyValue = new KeyValuePair(key, value);
+        return keyValue;
+    }
+
+    /**
+     * 
+     * @param name
+     * @param value
+     * @return
+     */
+    public static EmailConfiguration createEmailConfiguration(String name, String value) {
+        EmailConfiguration emailConfiguration = new EmailConfiguration();
+        emailConfiguration.setEmailField(createEmailField(name));
+        emailConfiguration.setValue(value);
+        return emailConfiguration;
+    }
+
+    /**
+     * 
+     * @param name
+     * @return
+     */
+    public static EmailField createEmailField(String name) {
+        EmailField emailField = new EmailField();
+        emailField.setName(name);
+        return emailField;
+    }
+
+    /**
+     * 
+     * @param id
+     * @param brokerId
+     * @param type
+     * @return
+     */
+    public static EmailTemplate createEmailTemplate(Integer id, Integer brokerId, String type) {
+        EmailTemplate emailTemplate = new EmailTemplate();
+        if (id != null) {
+            emailTemplate.setId(id);
+        }
+        emailTemplate.setBrokerId(brokerId);
+        emailTemplate.setType(type);
+        return emailTemplate;
     }
 
 }

@@ -54,16 +54,22 @@ public class EmailUtil {
 
         Email emailFrom = new Email(emailRequest.getFromEmail());
 
-        Email emailTo = new Email(emailRequest.getToEmail().get(0));
+        Email emailTo = null;
+        if (emailRequest.getToEmail() != null && !emailRequest.getToEmail().isEmpty()) {
+            emailTo = new Email(emailRequest.getToEmail().get(0));
+        }
 
         Mail mail = new Mail();
 
         Personalization personalization = new Personalization();
 
-        List<KeyValuePair> parameters = emailRequest.getParameters();
-        parameters.stream().forEach(keyValuePair -> {
-            personalization.addSubstitution(keyValuePair.getKey(), keyValuePair.getValue());
-        });
+        List<KeyValuePair> parameters = null;
+        if (emailRequest.getParameters() != null && !emailRequest.getParameters().isEmpty()) {
+            parameters = emailRequest.getParameters();
+            parameters.stream().forEach(keyValuePair -> {
+                personalization.addSubstitution(keyValuePair.getKey(), keyValuePair.getValue());
+            });
+        }
 
         personalization.addTo(emailTo);
         mail.addPersonalization(personalization);

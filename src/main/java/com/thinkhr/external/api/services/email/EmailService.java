@@ -175,15 +175,17 @@ public class EmailService {
         
         toEmail.add(user.getEmail());
         
-        for(EmailConfiguration emailConfiguration : emailTemplate.getEmailConfigurations()) {
-            if (emailConfiguration.getEmailField().getName().equalsIgnoreCase(EMAIL_BODY)) {
-                emailRequest.setBody(emailConfiguration.getValue());
-            }
-            if (emailConfiguration.getEmailField().getName().equalsIgnoreCase(ApplicationConstants.FROM_EMAIL)) {
-                emailRequest.setFromEmail(emailConfiguration.getValue());
-            }
-            if (emailConfiguration.getEmailField().getName().equalsIgnoreCase(ApplicationConstants.EMAIL_SUBJECT)) {
-                emailRequest.setSubject(broker.getCompanyName() + ", " + emailConfiguration.getValue());
+        if (emailTemplate != null && emailTemplate.getEmailConfigurations() != null && !emailTemplate.getEmailConfigurations().isEmpty()) {
+            for(EmailConfiguration emailConfiguration : emailTemplate.getEmailConfigurations()) {
+                if (emailConfiguration.getEmailField().getName().equalsIgnoreCase(EMAIL_BODY)) {
+                    emailRequest.setBody(emailConfiguration.getValue());
+                }
+                if (emailConfiguration.getEmailField().getName().equalsIgnoreCase(ApplicationConstants.FROM_EMAIL)) {
+                    emailRequest.setFromEmail(emailConfiguration.getValue());
+                }
+                if (emailConfiguration.getEmailField().getName().equalsIgnoreCase(ApplicationConstants.EMAIL_SUBJECT)) {
+                    emailRequest.setSubject(broker.getCompanyName() + ", " + emailConfiguration.getValue());
+                }
             }
         }
         emailRequest.setParameters(parameters);
