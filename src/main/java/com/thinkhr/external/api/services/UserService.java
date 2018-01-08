@@ -187,11 +187,12 @@ public class UserService extends CommonService {
 
         User throneUser = saveUser(updatedUser, brokerId, false);
 
-        // This is required otherwise values for updatable=false fields is not synced with 
-        // database when these fileds are passed in payload .
-        entityManager.refresh(throneUser);
-
         learnUserService.updateLearnUser(throneUser);
+
+        // This is required otherwise values for updatable=false fields is not synced with 
+        // database when these fields are passed in payload .
+        entityManager.flush();
+        entityManager.refresh(throneUser);
         return throneUser;
     }
 
