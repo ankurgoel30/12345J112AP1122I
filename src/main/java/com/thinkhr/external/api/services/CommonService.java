@@ -1,22 +1,21 @@
 package com.thinkhr.external.api.services;
 
-import static com.thinkhr.external.api.ApplicationConstants.COMMA_SEPARATOR;
 import static com.thinkhr.external.api.services.utils.FileImportUtil.getCustomFieldPrefix;
 
 import java.io.IOException;
-import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import javax.persistence.EntityManager;
+import javax.persistence.PersistenceContext;
 import javax.validation.ConstraintViolation;
 import javax.validation.ConstraintViolationException;
 import javax.validation.Validation;
 import javax.validation.Validator;
 
-import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -25,7 +24,6 @@ import com.fasterxml.jackson.databind.ObjectReader;
 import com.thinkhr.external.api.db.entities.Company;
 import com.thinkhr.external.api.db.entities.CustomFields;
 import com.thinkhr.external.api.db.entities.StandardFields;
-import com.thinkhr.external.api.db.entities.User;
 import com.thinkhr.external.api.exception.APIErrorCodes;
 import com.thinkhr.external.api.exception.ApplicationException;
 import com.thinkhr.external.api.exception.MessageResourceHandler;
@@ -102,6 +100,9 @@ public class CommonService {
     
     @Autowired
     PackageRepository packageRepository;
+    
+    @PersistenceContext
+    protected EntityManager entityManager;
     
     /**
      * @return
@@ -227,52 +228,6 @@ public class CommonService {
         if(constraintViolations!=null && !constraintViolations.isEmpty()) {
             ConstraintViolationException ex = new ConstraintViolationException(constraintViolations);
             throw ex;
-        }
-    }
-    
-    /**
-     * Validates if any non updatable field in objWithUpdVal  is different in objWithUpdVal
-     * 
-     * Throws ApplicationException if any value is updated
-     * @param objWithOrigVal
-     * @param objWithUpdVal
-     * @param notUpdatableFields
-     * @throws IllegalArgumentException
-     * @throws IllegalAccessException
-     */
-    public <T> void validateNotUpdatableFields(T objWithOrigVal, T objWithUpdVal, List<String> notUpdatableFields) throws IllegalArgumentException, IllegalAccessException {
-        List<String> nonUpdatableFields = new ArrayList<String>();
-        
-        for(String fieldName :  notUpdatableFields) {
-            Field orgFieldObj = null;
-            Field updFieldObj = null;
-            
-            Object orgFieldValue = null;
-            Object updFieldValue = null;
-            
-            try {
-                orgFieldObj = objWithOrigVal.getClass().getDeclaredField(fieldName);
-                updFieldObj = objWithUpdVal.getClass().getDeclaredField(fieldName);
-            } catch(NoSuchFieldException | SecurityException ex) {
-                continue;
-            }
-            
-            if (orgFieldObj != null && updFieldObj != null) {
-                orgFieldObj.setAccessible(true);
-                updFieldObj.setAccessible(true);
-                
-                orgFieldValue = orgFieldObj.get(objWithOrigVal);
-                updFieldValue = updFieldObj.get(objWithUpdVal);
-                
-                if(!orgFieldValue.equals(updFieldValue)) {
-                    nonUpdatableFields.add(fieldName);
-                }
-            }
-        }
-        
-        if (!nonUpdatableFields.isEmpty()) {
-            throw ApplicationException.createBadRequest(APIErrorCodes.UPDATE_NOT_ALLOWED,
-                    StringUtils.join(nonUpdatableFields.toArray(), COMMA_SEPARATOR));
         }
     }
 }

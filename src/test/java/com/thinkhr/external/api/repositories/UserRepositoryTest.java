@@ -101,19 +101,6 @@ public class UserRepositoryTest {
      * To test userRepository.save method when adding user if exception is thrown.
      */
     @Test(expected = ConstraintViolationException.class)
-    public void testSaveForAddUserNameNull() {
-
-        // user name is null
-        String userName = null;
-        User user = createUser(null, "Jason", "Garner", "jgarner@gmail.com", userName, "Pepcus");
-
-        userRepository.save(user);
-    }
-
-    /**
-     * To test userRepository.save method when adding user if exception is thrown.
-     */
-    @Test(expected = ConstraintViolationException.class)
     public void testSaveForAddCompanyNameNull() {
 
         // company name is null
@@ -237,7 +224,7 @@ public class UserRepositoryTest {
 
         Pageable pageable = getPageable(0, 5, null, DEFAULT_SORT_BY_USER_NAME);
 
-        Page<User> users  = (Page<User>) userRepository.findAll(null, pageable);
+        Page<User> users  = userRepository.findAll(null, pageable);
 
         assertNotNull(users.getContent());
         assertEquals(users.getContent().size(), 5);
@@ -256,7 +243,7 @@ public class UserRepositoryTest {
 
         Pageable pageable = getPageable(5, null, null, DEFAULT_SORT_BY_USER_NAME);
 
-        Page<User> users  = (Page<User>) userRepository.findAll(null, pageable);
+        Page<User> users  = userRepository.findAll(null, pageable);
 
         assertNotNull(users.getContent());
         assertEquals(5, users.getContent().size()); //As offset = 5, so it will pick records by 5th 
@@ -279,7 +266,7 @@ public class UserRepositoryTest {
         EntitySearchSpecification<User> specification = (EntitySearchSpecification<User>) EntitySearchUtil.
                 getEntitySearchSpecification("Sandeep", null, User.class, new User());
 
-        Page<User> users  = (Page<User>) userRepository.findAll(specification, pageable);
+        Page<User> users  = userRepository.findAll(specification, pageable);
 
         assertNotNull(users.getContent());
         assertEquals(1, users.getContent().size()); //As we have only one record have searchKey = "Sandeep"

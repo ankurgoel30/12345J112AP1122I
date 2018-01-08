@@ -12,6 +12,7 @@ import static com.thinkhr.external.api.ApplicationConstants.UNDERSCORE;
 import static com.thinkhr.external.api.ApplicationConstants.USER;
 import static com.thinkhr.external.api.ApplicationConstants.USER_COLUMN_ACTIVATION_DATE;
 import static com.thinkhr.external.api.ApplicationConstants.USER_COLUMN_ADDEDBY;
+import static com.thinkhr.external.api.ApplicationConstants.USER_COLUMN_BROKERID;
 import static com.thinkhr.external.api.ApplicationConstants.USER_COLUMN_CLIENT_ID;
 import static com.thinkhr.external.api.ApplicationConstants.USER_COLUMN_PASSWORD;
 import static com.thinkhr.external.api.request.APIRequestHelper.setRequestAttribute;
@@ -38,6 +39,7 @@ import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
@@ -45,16 +47,17 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
-import com.thinkhr.external.api.ApplicationConstants;
 import com.thinkhr.external.api.db.entities.Company;
 import com.thinkhr.external.api.db.entities.User;
 import com.thinkhr.external.api.exception.APIErrorCodes;
 import com.thinkhr.external.api.exception.ApplicationException;
 import com.thinkhr.external.api.model.AppAuthData;
+import com.thinkhr.external.api.model.EmailRequest;
 import com.thinkhr.external.api.model.FileImportResult;
 import com.thinkhr.external.api.repositories.ThroneRoleRepository;
 import com.thinkhr.external.api.request.APIRequestHelper;
 import com.thinkhr.external.api.services.crypto.AppEncryptorDecryptor;
+import com.thinkhr.external.api.services.email.EmailService;
 import com.thinkhr.external.api.services.upload.FileUploadEnum;
 
 /**
@@ -71,6 +74,9 @@ public class UserService extends CommonService {
     private Logger logger = LoggerFactory.getLogger(UserService.class);
 
     @Autowired
+    private EmailService emailService;
+
+    @Autowired
     private AppEncryptorDecryptor encDecyptor;
     
     @Autowired
@@ -79,6 +85,8 @@ public class UserService extends CommonService {
     @Autowired
     protected ThroneRoleRepository throneRoleRepository;
 
+    @Value("${com.thinkhr.external.api.user.default.password}")
+    private String defaultPassword;
 
     private static final String resource = USER;
     
@@ -144,11 +152,22 @@ public class UserService extends CommonService {
     public User addUser(User user, Integer brokerId) {
 
         //Saving default password
-        user.setPasswordApps(encDecyptor.encrypt(DEFAULT_PASSWORD));
+        user.setPasswordApps(encDecyptor.encrypt(defaultPassword));
 
         User throneUser = saveUser(user, brokerId, true);
 
         learnUserService.addLearnUser(throneUser); //THR-3932
+
+        try {
+            // Sending welcome email to user 
+            EmailRequest emailRequest = emailService.createEmailRequest(brokerId, throneUser.getUserName());
+            emailService.sendEmail(emailRequest);
+
+        } catch (Exception ex) {
+            // TODO: Need to understand exact behavior
+            logger.error("Error occured while sending email.", ex);
+        }
+
         return throneUser;
     }
 
@@ -158,30 +177,26 @@ public class UserService extends CommonService {
      * @param User object
      * @throws ApplicationException
      * @throws IOException 
-     * @throws IllegalAccessException 
-     * @throws IllegalArgumentException 
      */
     @Transactional
-    public User updateUser(Integer userId, String userJson, Integer brokerId)
-            throws ApplicationException, IOException, IllegalArgumentException, IllegalAccessException {
+    public User updateUser(Integer userId, String userJson, Integer brokerId) throws ApplicationException , IOException  {
 
         User userInDb = userRepository.findOne(userId);
         if (null == userInDb) {
             throw ApplicationException.createEntityNotFoundError(APIErrorCodes.ENTITY_NOT_FOUND, "user", "userId="+userId);
         }
 
-        User userBeforeUpdate = new User();
-        userBeforeUpdate.setCompanyName(userInDb.getCompanyName());
-        userBeforeUpdate.setCompanyId(userInDb.getCompanyId());
-        userBeforeUpdate.setBrokerId(userInDb.getBrokerId());
-
         User updatedUser = update(userJson, userInDb);
         validateObject(updatedUser);
-        validateNotUpdatableFields(userBeforeUpdate, updatedUser, User.notUpdatableFields);
 
         User throneUser = saveUser(updatedUser, brokerId, false);
-        
+
         learnUserService.updateLearnUser(throneUser);
+
+        // This is required otherwise values for updatable=false fields is not synced with 
+        // database when these fields are passed in payload .
+        entityManager.flush();
+        entityManager.refresh(throneUser);
         return throneUser;
     }
 
@@ -196,8 +211,6 @@ public class UserService extends CommonService {
     private User saveUser(User user, Integer brokerId, boolean isNew) {
         validateBrokerId(brokerId);
 
-        validateCompanyName(user, brokerId);
-
         Integer roleId = user.getRoleId();
         
         if (roleId != null && roleId != ROLE_ID_FOR_INACTIVE && !validateRoleIdFromDB(roleId)) {
@@ -209,6 +222,8 @@ public class UserService extends CommonService {
         }
 
         if (isNew) {
+            validateCompanyName(user, brokerId);
+
             //Validate duplicate username and generate a new one
             String userName = generateUserName(user.getUserName(), user.getEmail(), user.getFirstName(),
                     user.getLastName());
@@ -321,6 +336,7 @@ public class UserService extends CommonService {
 
         fileImportResult.setTotalRecords(records.size());
         fileImportResult.setHeaderLine(headerLine);
+        fileImportResult.setBrokerId(broker.getCompanyId());
 
         String[] headersInCSV = headerLine.split(COMMA_SEPARATOR);
 
@@ -420,14 +436,16 @@ public class UserService extends CommonService {
             //Finally save users one by one
             List<String> userColumnsToInsert = new ArrayList<String>(userHeaderColumnMap.keySet());
             userColumnValues.add(companyId);
-            userColumnValues.add(encDecyptor.encrypt(DEFAULT_PASSWORD));
+            userColumnValues.add(encDecyptor.encrypt(defaultPassword));
             userColumnValues.add(getCurrentDateInUTC());
             userColumnValues.add(getAddedBy(companyId)); // TODO: Fix : Instead of companyId brokerId should go here
+            userColumnValues.add(fileImportResult.getBrokerId());
             
             userColumnsToInsert.add(USER_COLUMN_CLIENT_ID);
             userColumnsToInsert.add(USER_COLUMN_PASSWORD);
             userColumnsToInsert.add(USER_COLUMN_ACTIVATION_DATE);
             userColumnsToInsert.add(USER_COLUMN_ADDEDBY);
+            userColumnsToInsert.add(USER_COLUMN_BROKERID);
 
             // THR-3927 [Start]
             String userName = getValueFromRow(record, headerIndexMap.get(FileUploadEnum.USER_USER_NAME.getHeader()));

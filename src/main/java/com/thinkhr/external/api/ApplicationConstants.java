@@ -70,6 +70,7 @@ public class ApplicationConstants {
     public static final String USER_COLUMN_PASSWORD = "password_apps";
     public static final String USER_COLUMN_ACTIVATION_DATE = "activationDate";
     public static final String USER_COLUMN_ADDEDBY = "addedBy";
+    public static final String USER_COLUMN_BROKERID = "brokerId";
     public static final String DEFAULT_PASSWORD = "";
     
     public static final String JWT_TOKEN_THR_CLIENT_ID =  "thr:clientId";
@@ -103,4 +104,17 @@ public class ApplicationConstants {
 
     public static final Integer DEFAULT_NUMBER_LICENSES = 1000;
 
+    public static final String WELCOME_EMAIL_TYPE = "welcome";
+    public static final String HASH_KEY = "thinkHRLandI";
+    
+    //EMAIL PROPERTIES
+    public static final String DEFAULT_WELCOME_SUBJECT= "";
+    public static final String DEFAULT_WELCOME_BODY = "";
+    public static final String FROM_EMAIL_ADDRESS = "";
+    
+    // For email feature 
+    public static final String EMAIL_BODY = "body";
+    public static final String RESET_PASSWORD_LINK = "/reset-password/";
+    public static final String EMAIL_SUBJECT = "subject";
+    public static final String FROM_EMAIL = "from_email";
 }

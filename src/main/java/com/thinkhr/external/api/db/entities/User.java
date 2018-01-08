@@ -3,7 +3,6 @@ package com.thinkhr.external.api.db.entities;
 import static com.thinkhr.external.api.ApplicationConstants.VALID_FORMAT_YYYY_MM_DD;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 
@@ -48,7 +47,6 @@ import lombok.Data;
 @DynamicInsert
 @JsonInclude(Include.NON_EMPTY) 
 public class User implements SearchableEntity {
-    public static final List<String> notUpdatableFields = new ArrayList(Arrays.asList("companyId" , "companyName" , "brokerId" ));
 
     @Id
     @GeneratedValue(strategy=GenerationType.AUTO)
@@ -72,13 +70,13 @@ public class User implements SearchableEntity {
     private String email;
 
     @NotBlank
-    @Column(name="client_name")
+    @Column(name = "client_name", updatable = false)
     private String companyName;
 
-    @Column(name = "brokerID")
+    @Column(name = "brokerID" , updatable = false)
     private Integer brokerId;
 
-    @Column(name="client_id")
+    @Column(name="client_id" , updatable = false)
     private Integer companyId;
 
     @Column(name="t1_roleId")

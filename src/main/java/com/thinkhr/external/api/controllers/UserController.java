@@ -100,13 +100,11 @@ public class UserController {
      * Update a user in database
      * 
      * @param User object
-     * @throws IllegalAccessException 
-     * @throws IllegalArgumentException 
      */
     @RequestMapping(method=RequestMethod.PUT, value="/{userId}")
     public ResponseEntity <User> updateUser(@PathVariable(name="userId", value = "userId") Integer userId, 
             @RequestBody String userJson, @RequestAttribute(name = BROKER_ID_PARAM) Integer brokerId)
-            throws ApplicationException, IOException, IllegalArgumentException, IllegalAccessException {
+            throws ApplicationException , IOException {
         
         User updatedUser = userService.updateUser(userId, userJson , brokerId);
         
