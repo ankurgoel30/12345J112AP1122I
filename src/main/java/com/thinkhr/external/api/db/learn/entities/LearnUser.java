@@ -36,7 +36,7 @@ public class LearnUser {
     @Column(name="deleted")
     private Integer deleted;
     
-    @Column(name="mnetHostId")
+    @Column(name="mnethostid")
     private Integer mnetHostId = 1;
     
     @Column(name="username")

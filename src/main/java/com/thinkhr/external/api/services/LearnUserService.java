@@ -167,8 +167,8 @@ public class LearnUserService extends CommonService {
                 throneUser.getEmail(),
                 throneUser.getPhone(),
                 getLearnCompanyId(throneUser),
-                "1",
-                "1"
+                1,
+                1
         ));
 
         String roleName = getRoleName(throneUser);
