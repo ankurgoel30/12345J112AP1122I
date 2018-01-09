@@ -6,6 +6,7 @@ import static com.thinkhr.external.api.ApplicationConstants.COMPANY;
 import static com.thinkhr.external.api.ApplicationConstants.COMPANY_CUSTOM_HEADER1;
 import static com.thinkhr.external.api.ApplicationConstants.CONFIGURATION_ID_FOR_INACTIVE;
 import static com.thinkhr.external.api.ApplicationConstants.DEFAULT_SORT_BY_COMPANY_NAME;
+import static com.thinkhr.external.api.ApplicationConstants.HASH_KEY;
 import static com.thinkhr.external.api.ApplicationConstants.LOCATION;
 import static com.thinkhr.external.api.ApplicationConstants.TOTAL_RECORDS;
 import static com.thinkhr.external.api.request.APIRequestHelper.setRequestAttribute;
@@ -495,7 +496,7 @@ public class CompanyService  extends CommonService {
      * @return
      */
     public static String getAuthorizationKeyFromCompanyId(Integer companyId) {
-        Hashids hashids = new Hashids("thinkHRLandI");
+        Hashids hashids = new Hashids(HASH_KEY);
         String authorizationKey = hashids.encode(companyId);
         return authorizationKey;
     }
