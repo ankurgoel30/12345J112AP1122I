@@ -27,11 +27,17 @@ public class LearnUser {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
     
+    @Column(name="confirmed")
+    private Integer confirmed;
+    
     @Column(name="thrcontactid")
     private Integer thrUserId;
     
     @Column(name="deleted")
     private Integer deleted;
+    
+    @Column(name="mnetHostId")
+    private Integer mnetHostId;
     
     @Column(name="username")
     private String userName;

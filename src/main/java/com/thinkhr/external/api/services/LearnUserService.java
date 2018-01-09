@@ -57,6 +57,8 @@ public class LearnUserService extends CommonService {
     public LearnUser addLearnUser(User throneUser) {
 
         LearnUser learnUser = modelConvertor.convert(throneUser);
+        learnUser.setConfirmed(1);
+        learnUser.setMnetHostId(1);
 
         learnUser.setCompanyId(getLearnCompanyId(throneUser));
 
