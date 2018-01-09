@@ -40,6 +40,7 @@ import com.thinkhr.external.api.repositories.ConfigurationRepository;
 import com.thinkhr.external.api.repositories.CustomFieldsRepository;
 import com.thinkhr.external.api.repositories.FileDataRepository;
 import com.thinkhr.external.api.repositories.StandardFieldsRepository;
+import com.thinkhr.external.api.repositories.ThronePermissionsRepository;
 import com.thinkhr.external.api.repositories.UserRepository;
 import com.thinkhr.external.api.services.upload.FileUploadEnum;
 
@@ -100,6 +101,9 @@ public class CommonService {
     
     @Autowired
     PackageRepository packageRepository;
+    
+    @Autowired
+    protected ThronePermissionsRepository thrPermissionsRepository;
     
     @PersistenceContext
     protected EntityManager entityManager;

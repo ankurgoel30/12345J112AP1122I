@@ -359,6 +359,10 @@ public class Company implements SearchableEntity {
     @OneToOne(mappedBy = "company",cascade=CascadeType.ALL,fetch=FetchType.LAZY )
     private Location location ;
     
+    @JsonIgnore
+    @OneToOne(mappedBy = "company",cascade=CascadeType.ALL,fetch=FetchType.LAZY)
+    private ThroneRole throneRole;
+    
     
     /**
      * Determines whether this company is broker/partner company

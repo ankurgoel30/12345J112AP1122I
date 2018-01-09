@@ -23,6 +23,7 @@ import static com.thinkhr.external.api.services.utils.FileImportUtil.validateAnd
 import java.io.IOException;
 import java.sql.DataTruncation;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -32,6 +33,7 @@ import org.hashids.Hashids;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
@@ -46,6 +48,8 @@ import com.thinkhr.external.api.db.entities.Company;
 import com.thinkhr.external.api.db.entities.CompanyContract;
 import com.thinkhr.external.api.db.entities.CompanyProduct;
 import com.thinkhr.external.api.db.entities.Location;
+import com.thinkhr.external.api.db.entities.ThronePermissionsMaster;
+import com.thinkhr.external.api.db.entities.ThroneRole;
 import com.thinkhr.external.api.exception.APIErrorCodes;
 import com.thinkhr.external.api.exception.ApplicationException;
 import com.thinkhr.external.api.model.FileImportResult;
@@ -68,6 +72,9 @@ public class CompanyService  extends CommonService {
 
     @Autowired
     protected LearnCompanyService learnCompanyService;
+
+    @Value("${com.thinkhr.external.api.company.default.permissions}")
+    private String defaultPermissions;
 
     private Logger logger = LoggerFactory.getLogger(CompanyService.class);
     private static final String resource = COMPANY;
@@ -198,6 +205,11 @@ public class CompanyService  extends CommonService {
             // setting tempID for location
             location.setTempID(CommonUtil.getTempId());
         }
+
+        ThroneRole role = company.getThroneRole();
+        if (role != null && role.getCompany() == null) {
+            role.setCompany(company);
+        }
     }
 
     /**
@@ -245,12 +257,15 @@ public class CompanyService  extends CommonService {
         // setting valid brokerId for company. 
         company.setBroker(brokerId);
 
-        associateChildEntities(company);
-
         // Checking Duplicate company name
         if (isNew && isDuplicateCompany(company.getCompanyName(), company.getBroker(), company.getCustom1())) {
             throw ApplicationException.createBadRequest(APIErrorCodes.DUPLICATE_COMPANY_RECORD,
                     company.getCompanyName());
+        }
+
+        if (isNew) {
+            ThroneRole role = createRoleAndSetDefaultPermissions();
+            company.setThroneRole(role);
         }
 
         Integer configurationId = company.getConfigurationId();
@@ -266,9 +281,26 @@ public class CompanyService  extends CommonService {
             company.setConfigurationId(null);
         }
 
+        associateChildEntities(company);
         Company throneCompany = companyRepository.save(company);
         
         return throneCompany;
+    }
+
+    /**
+     * 
+     * @return
+     */
+    private ThroneRole createRoleAndSetDefaultPermissions() {
+        ThroneRole role = new ThroneRole();
+        role.setName("Administrator");
+        role.setAdministrator(1);
+
+        List<String> displayLabels = Arrays.asList(StringUtils.split(defaultPermissions, ","));
+
+        List<ThronePermissionsMaster> permissions = thrPermissionsRepository.findByDisplayLabelIn(displayLabels);
+        role.setPermissions(permissions);
+        return role;
     }
 
     /**
