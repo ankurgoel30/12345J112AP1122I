@@ -52,6 +52,7 @@ import com.thinkhr.external.api.db.entities.User;
 import com.thinkhr.external.api.db.learn.entities.LearnCompany;
 import com.thinkhr.external.api.db.learn.entities.LearnRole;
 import com.thinkhr.external.api.db.learn.entities.LearnUser;
+import com.thinkhr.external.api.model.EmailRequest;
 import com.thinkhr.external.api.model.FileImportResult;
 import com.thinkhr.external.api.model.KeyValuePair;
 
@@ -1501,7 +1502,7 @@ public class ApiTestDataUtil {
 
         Email emailFrom = new Email("welcome@myhrworkplace.com");
 
-        Email emailTo = new Email("shubham.solanki@pepcus.com");
+        Email emailTo = new Email("test123@pepcus.com");
 
         Mail mail = new Mail();
 
@@ -1589,6 +1590,61 @@ public class ApiTestDataUtil {
         emailTemplate.setBrokerId(brokerId);
         emailTemplate.setType(type);
         return emailTemplate;
+    }
+
+    /**
+     * 
+     * @param id
+     * @param brokerId
+     * @param type
+     * @param templateId
+     * @return
+     */
+    public static EmailTemplate createEmailTemplate(Integer id, Integer brokerId, String type, String templateId) {
+        EmailTemplate emailTemplate = new EmailTemplate();
+        if (id != null) {
+            emailTemplate.setId(id);
+        }
+        emailTemplate.setBrokerId(brokerId);
+        emailTemplate.setType(type);
+        emailTemplate.setSendgridTemplateId(templateId);
+        return emailTemplate;
+    }
+
+    /**
+     * Get list of emailTemplate object
+     * 
+     * @return
+     */
+    public static List<EmailTemplate> getEmailTemplateList() {
+
+        List<EmailTemplate> list = new ArrayList<EmailTemplate>();
+        list.add(createEmailTemplate(null, 8148, "welcome", "52d96d96-a8bd-40d7-85c3-65d9272bdf8b"));
+        list.add(createEmailTemplate(null, 187624, "welcome", "52d96d96-a8bd-40d7-85c3-65d9272bdf8b"));
+        list.add(createEmailTemplate(null, 8148, "issue", "52d96d96-a8bd-40d7-85c3-65d9272bdf8b"));
+        list.add(createEmailTemplate(null, 23434, "welcome", "52d96d96-a8bd-40d7-85c3-65d9272bdf8b"));
+        list.add(createEmailTemplate(null, 187624, "issue", "52d96d96-a8bd-40d7-85c3-65d9272bdf8b"));
+        return list;
+    }
+
+    /**
+     * Create EmailRequest object for EmailUtil
+     * 
+     * @return
+     */
+    public static EmailRequest createEmailRequest() {
+
+        EmailRequest request = new EmailRequest();
+
+        List<String> toEmail = new ArrayList<String>();
+        toEmail.add("test123@pepcus.com");
+
+        request.setFromEmail("welcome@myhrworkplace.com");
+        request.setParameters(createKeyValueListForEmail());
+        request.setSubject("welcome to thinkHR");
+        request.setToEmail(toEmail);
+        request.setBody("Hello, you now have access to thinkHR");
+        return request;
     }
 
 }

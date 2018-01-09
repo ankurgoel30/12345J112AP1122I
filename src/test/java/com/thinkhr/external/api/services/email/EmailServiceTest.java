@@ -40,6 +40,11 @@ import com.thinkhr.external.api.repositories.SetPasswordRequestRepository;
 import com.thinkhr.external.api.repositories.UserRepository;
 import com.thinkhr.external.api.utils.ApiTestDataUtil;
 
+/**
+ * Junits to test the methods of EmailService.
+ * 
+ * 
+ */
 @RunWith(SpringRunner.class)
 @ContextConfiguration(classes = ApiApplication.class)
 @SpringBootTest
@@ -87,7 +92,7 @@ public class EmailServiceTest {
             emailService.setAuthTemplateId(authTemplateId);
             emailService.sendEmail(mail);
         } catch (Exception e) {
-            fail("Exception not thrown");
+            fail("Exeption not expected");
         }
     }
 
@@ -153,7 +158,7 @@ public class EmailServiceTest {
     }
 
     /**
-     * Test to verify createEmailRequest
+     * Test to verify createEmailRequest for brokerId and userName
      */
     @Test
     public void testCreateEmailRequest_ForBrokerIdAndUserName() {
