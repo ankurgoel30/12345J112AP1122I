@@ -58,7 +58,7 @@ public class ApplicationConstants {
     
     public static final String AES_PKC_PADDING = "AES/CBC/PKCS5PADDING";
     public static final String AES_ALGO = "AES";
-    
+    public static final String BCRYPT_ALGO = "BCrypt";
     public static final String BLOWFISH_ALGO = "Blowfish";
     public static final String BLOWFISH_PKC_PADDING = "Blowfish/CBC/PKCS5PADDING";
     
