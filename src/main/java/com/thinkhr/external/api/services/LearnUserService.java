@@ -156,7 +156,7 @@ public class LearnUserService extends CommonService {
 
         List<String> learnUserColumns = new ArrayList<String>(Arrays.asList(
                 "thrcontactid", "username", "password",
-                "firstname", "lastname", "email", "phone1", "companyid"));
+                "firstname", "lastname", "email", "phone1", "companyid", "confirmed", "mnethostid"));
 
         List<Object> learnUserColumnValues = new ArrayList<Object>(Arrays.asList(
                 throneUser.getUserId(),
@@ -166,7 +166,9 @@ public class LearnUserService extends CommonService {
                 throneUser.getLastName(),
                 throneUser.getEmail(),
                 throneUser.getPhone(),
-                getLearnCompanyId(throneUser)
+                getLearnCompanyId(throneUser),
+                "1",
+                "1"
         ));
 
         String roleName = getRoleName(throneUser);
