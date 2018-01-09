@@ -28,7 +28,7 @@ public class LearnUser {
     private Long id;
     
     @Column(name="confirmed")
-    private Integer confirmed;
+    private Integer confirmed = 1;
     
     @Column(name="thrcontactid")
     private Integer thrUserId;
@@ -37,7 +37,7 @@ public class LearnUser {
     private Integer deleted;
     
     @Column(name="mnetHostId")
-    private Integer mnetHostId;
+    private Integer mnetHostId = 1;
     
     @Column(name="username")
     private String userName;

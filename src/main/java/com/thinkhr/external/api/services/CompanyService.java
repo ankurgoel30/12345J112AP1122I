@@ -467,6 +467,12 @@ public class CompanyService  extends CommonService {
             companyColumnsToInsert.add("broker");
             companyColumnsValues.add(fileImportResult.getBrokerId());
 
+            //t1_display_name
+            companyColumnsToInsert.add("t1_display_name");
+            String displayName = getValueFromRow(record,
+                    headerIndexMap.get(FileUploadEnum.COMPANY_DISPLAY_NAME.getHeader()));
+            companyColumnsValues.add(displayName);
+
             saveCompanyRecord(companyColumnsValues, locationColumnsValues,
                     companyColumnsToInsert, locationColumnsToInsert);
 
