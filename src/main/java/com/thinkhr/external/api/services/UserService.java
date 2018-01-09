@@ -438,7 +438,7 @@ public class UserService extends CommonService {
             userColumnValues.add(companyId);
             userColumnValues.add(encDecyptor.encrypt(defaultPassword));
             userColumnValues.add(getCurrentDateInUTC());
-            userColumnValues.add(getAddedBy(companyId)); // TODO: Fix : Instead of companyId brokerId should go here
+            userColumnValues.add(getAddedBy(fileImportResult.getBrokerId()));
             userColumnValues.add(fileImportResult.getBrokerId());
             
             userColumnsToInsert.add(USER_COLUMN_CLIENT_ID);
