@@ -12,6 +12,7 @@ import static com.thinkhr.external.api.request.APIRequestHelper.setRequestAttrib
 import static com.thinkhr.external.api.response.APIMessageUtil.getMessageFromResourceBundle;
 import static com.thinkhr.external.api.services.upload.FileImportValidator.validateAndGetFileContent;
 import static com.thinkhr.external.api.services.upload.FileImportValidator.validateRequired;
+import static com.thinkhr.external.api.services.utils.CommonUtil.getTempId;
 import static com.thinkhr.external.api.services.utils.EntitySearchUtil.getEntitySearchSpecification;
 import static com.thinkhr.external.api.services.utils.EntitySearchUtil.getPageable;
 import static com.thinkhr.external.api.services.utils.FileImportUtil.getRequiredHeaders;
@@ -140,8 +141,11 @@ public class CompanyService  extends CommonService {
      */
     @Transactional
     public Company addCompany(Company company, Integer brokerId) {
-        // Checking Duplicate company name
-        company.setTempID(CommonUtil.getTempId());
+        company.setTempID(getTempId());
+
+        if (company.getCustomField5() == null) {
+            company.setCustomField5(company.getDisplayName());
+        }
 
         Company throneCompany = saveCompany(company, brokerId, true);
         
@@ -462,6 +466,12 @@ public class CompanyService  extends CommonService {
             List<String> locationColumnsToInsert = new ArrayList<String>(locationFileHeaderColumnMap.keySet());
             companyColumnsToInsert.add("broker");
             companyColumnsValues.add(fileImportResult.getBrokerId());
+
+            //t1_display_name
+            companyColumnsToInsert.add("t1_display_name");
+            String displayName = getValueFromRow(record,
+                    headerIndexMap.get(FileUploadEnum.COMPANY_DISPLAY_NAME.getHeader()));
+            companyColumnsValues.add(displayName);
 
             saveCompanyRecord(companyColumnsValues, locationColumnsValues,
                     companyColumnsToInsert, locationColumnsToInsert);
