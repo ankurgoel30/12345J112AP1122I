@@ -32,7 +32,7 @@ public class APIResponse {
     private String sort;
     private String totalRecords;
     private String message;
-    private String jobId;
+    private String requestReferenceId;
 
 
     /*

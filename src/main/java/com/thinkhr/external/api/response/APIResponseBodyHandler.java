@@ -83,6 +83,7 @@ public class APIResponseBodyHandler implements ResponseBodyAdvice<Object> {
         int statusCode = httpResponse.getServletResponse().getStatus();
         apiResponse.setCode(String.valueOf(statusCode));
         apiResponse.setStatus(HttpStatus.valueOf(statusCode).name());
+        apiResponse.setRequestReferenceId((String) httpRequest.getServletRequest().getAttribute("jobId"));
         /*
          * TODO: Currently there are references those are Company specific, we need to make them generic so 
          * the same code reference will be used by all APIs for different entities as well.
@@ -96,8 +97,6 @@ public class APIResponseBodyHandler implements ResponseBodyAdvice<Object> {
             }
         } else if (body instanceof FileImportResult) {
             apiResponse.setFileImportResult((FileImportResult) body);
-            String jobId = (String) httpRequest.getServletRequest().getAttribute("jobId");
-            apiResponse.setJobId(jobId);
         } else {
             if (statusCode == HttpStatus.ACCEPTED.value()) {
                 apiResponse.setMessage(getMessageFromResourceBundle(resourceHandler, SUCCESS_DELETED, "id", body.toString()));
