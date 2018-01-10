@@ -59,8 +59,6 @@ import com.thinkhr.external.api.exception.ApplicationException;
 import com.thinkhr.external.api.exception.MessageResourceHandler;
 import com.thinkhr.external.api.helpers.ModelConvertor;
 import com.thinkhr.external.api.model.FileImportResult;
-import com.thinkhr.external.api.repositories.CompanyContractRepository;
-import com.thinkhr.external.api.repositories.CompanyProductRepository;
 import com.thinkhr.external.api.repositories.CompanyRepository;
 import com.thinkhr.external.api.repositories.ConfigurationRepository;
 import com.thinkhr.external.api.repositories.CustomFieldsRepository;
@@ -98,12 +96,6 @@ public class CompanyServiceTest {
 
     @Mock
     private ModelConvertor modelConvertor;
-
-    @Mock
-    private CompanyContractRepository companyContractRepository;
-
-    @Mock
-    private CompanyProductRepository companyProductRepository;
 
     @Mock
     private ConfigurationRepository configurationRepository;
