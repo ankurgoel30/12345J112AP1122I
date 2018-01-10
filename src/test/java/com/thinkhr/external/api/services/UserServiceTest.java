@@ -112,7 +112,7 @@ public class UserServiceTest {
 
     @Mock
     private EntityManager entityManager;
-    
+
     @Mock
     private EmailService emailService;
 

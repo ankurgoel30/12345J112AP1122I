@@ -115,4 +115,5 @@ public class ApplicationConstants {
     public static final String RESET_PASSWORD_LINK = "/reset-password/";
     public static final String EMAIL_SUBJECT = "subject";
     public static final String FROM_EMAIL = "from_email";
+    public static final String RESET_PASSWORD_PREFIX = "C";
 }
