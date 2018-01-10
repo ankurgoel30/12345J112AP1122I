@@ -1,25 +1,19 @@
 package com.thinkhr.external.api.helpers;
 
-import static com.thinkhr.external.api.services.CompanyService.getAuthorizationKeyFromCompanyId;
-import static com.thinkhr.external.api.services.utils.CommonUtil.*;
+import static com.thinkhr.external.api.services.utils.CommonUtil.getNowInMiliseconds;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Date;
 import java.util.List;
 
 import org.springframework.stereotype.Service;
 
-import com.thinkhr.external.api.ApplicationConstants;
 import com.thinkhr.external.api.db.entities.Company;
-import com.thinkhr.external.api.db.entities.CompanyContract;
-import com.thinkhr.external.api.db.entities.CompanyProduct;
 import com.thinkhr.external.api.db.entities.Location;
 import com.thinkhr.external.api.db.entities.User;
 import com.thinkhr.external.api.db.learn.entities.LearnCompany;
 import com.thinkhr.external.api.db.learn.entities.LearnUser;
 import com.thinkhr.external.api.services.LearnCompanyService;
-import com.thinkhr.external.api.services.utils.CommonUtil;
 
 /**
  * Model convertor
