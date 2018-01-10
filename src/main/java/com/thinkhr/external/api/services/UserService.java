@@ -121,7 +121,7 @@ public class UserService extends CommonService {
         }
 
         //Get and set the total number of records
-        setRequestAttribute(TOTAL_RECORDS, userRepository.count());
+        setRequestAttribute(TOTAL_RECORDS, userRepository.count(spec));
 
         return users;
     }

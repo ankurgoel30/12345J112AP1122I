@@ -66,7 +66,7 @@ public class Company implements SearchableEntity {
     @Column(name = "Client_Name") 
     private String companyName;
 
-    @Column(name = "display_name") 
+    @Column(name = "t1_display_name") 
     private String displayName;
 
     @Column(name = "aspect") 
@@ -347,9 +347,6 @@ public class Company implements SearchableEntity {
 
     @Column(name = "t1_customfield4")
     private String customField4;
-
-    @Column(name = "t1_display_name")
-    private String customField5;
 
     @Column(name = "t1_email_template_id")
     private String emailTemplateId;

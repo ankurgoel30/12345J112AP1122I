@@ -17,7 +17,7 @@ public enum FileUploadEnum {
     USER("user"),
     //COMPANY TABLE COLUMNS/HEADERS
     COMPANY_NAME("client_name", "CLIENT_NAME", "company"),
-    COMPANY_DISPLAY_NAME("display_name", "DISPLAY_NAME", "company"),
+    COMPANY_DISPLAY_NAME("t1_display_name", "DISPLAY_NAME", "company"),
     COMPANY_PHONE("client_phone", "PHONE", "company"),
     COMPANY_INDUSTRY("industry", "INDUSTRY", "company"),
     COMPANY_SIZE("companysize", "COMPANY_SIZE", "company"),
