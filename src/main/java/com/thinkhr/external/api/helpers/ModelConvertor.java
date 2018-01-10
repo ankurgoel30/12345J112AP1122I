@@ -118,40 +118,6 @@ public class ModelConvertor {
         return learnUser;
     }
 
-    /**
-     * method to convert Company to CompanyContract
-     * 
-     * @param company
-     * @return
-     */
-    public CompanyContract convertToCompanyContract(Company company) {
-        CompanyContract companyContract = new CompanyContract();
-        companyContract.setCompanyId(company.getCompanyId());
-
-        companyContract.setProductId(ApplicationConstants.DEFAULT_PRODUCT_ID);
-        companyContract.setStartDate(company.getCompanySince());
-        companyContract.setEndDate(company.getCompanySince());
-        companyContract.setTempID(CommonUtil.getTempId());
-        return companyContract;
-    }
-
-    /**
-     * method to convert CompanyContract to CompanyProduct
-     * 
-     * @param company
-     * @return
-     */
-    public CompanyProduct convertToCompanyProduct(CompanyContract companyContract) {
-        CompanyProduct companyProduct = new CompanyProduct();
-        companyProduct.setContractId(companyContract.getRelId());
-        companyProduct.setCompanyId(companyContract.getCompanyId());
-        companyProduct.setStartDate(companyContract.getStartDate());
-        companyProduct.setAuthorizationKey(getAuthorizationKeyFromCompanyId(companyContract.getCompanyId()));
-
-        companyProduct.setNumberLicenses(ApplicationConstants.DEFAULT_NUMBER_LICENSES);
-        companyProduct.setTempID(CommonUtil.getTempId());
-        return companyProduct;
-    }
 
     /**
      * This funcion updates desired fields in given learnCompany instance from throneCompany instance

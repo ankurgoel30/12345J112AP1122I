@@ -3,8 +3,6 @@ package com.thinkhr.external.api.repositories;
 import static com.thinkhr.external.api.ApplicationConstants.COMMA_SEPARATOR;
 import static com.thinkhr.external.api.ApplicationConstants.DEFAULT_ACTIVE_STATUS;
 import static com.thinkhr.external.api.ApplicationConstants.DEFAULT_COLUMN_VALUE;
-import static com.thinkhr.external.api.ApplicationConstants.DEFAULT_NUMBER_LICENSES;
-import static com.thinkhr.external.api.ApplicationConstants.DEFAULT_PRODUCT_ID;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -98,28 +96,6 @@ public class QueryBuilder {
                                                                  "createdby", 
                                                                  "timecreated", 
                                                                  "timemodified"));
-
-        companyContractFields = new ArrayList<String>(Arrays.asList("Product_ID", 
-                                                                    "Start_Date", 
-                                                                    "End_Date", 
-                                                                    "tempID", 
-                                                                    "Client_ID"));
-
-        companyContractFieldValues = new ArrayList<Object>(Arrays.asList(DEFAULT_PRODUCT_ID, 
-                                                                         CommonUtil.getTodayInUTC(), 
-                                                                         CommonUtil.getTodayInUTC(), 
-                                                                         CommonUtil.getTempId()));
-        
-        companyProductFields = new ArrayList<String>(Arrays.asList("Start_Date", 
-                                                                   "numberLicenses", 
-                                                                   "tempID", 
-                                                                   "contractID", 
-                                                                   "Client_ID", 
-                                                                   "authorizationKey"));
-        
-        companyProductFieldValues = new ArrayList<Object>(Arrays.asList(CommonUtil.getTodayInUTC(), 
-                                                                        DEFAULT_NUMBER_LICENSES, 
-                                                                        CommonUtil.getTempId()));
     
     }
     /**
