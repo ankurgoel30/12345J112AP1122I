@@ -38,8 +38,6 @@ import com.sendgrid.Email;
 import com.sendgrid.Mail;
 import com.sendgrid.Personalization;
 import com.thinkhr.external.api.db.entities.Company;
-import com.thinkhr.external.api.db.entities.CompanyContract;
-import com.thinkhr.external.api.db.entities.CompanyProduct;
 import com.thinkhr.external.api.db.entities.Configuration;
 import com.thinkhr.external.api.db.entities.CustomFields;
 import com.thinkhr.external.api.db.entities.EmailConfiguration;
@@ -447,53 +445,6 @@ public class ApiTestDataUtil {
     public static Company createCompany() {
         return createCompany(1, "Pepcus", "Software", "345345435", new Date(), "Special", "This is search help",
                 "Other", "10");
-    }
-
-    /**
-     * Create object for CompanyContract
-     * 
-     * @param relId
-     * @param companyId
-     * @param startDate
-     * @param tempID
-     * @return
-     */
-    public static CompanyContract createCompanyContract(Integer relId, Integer companyId, Integer productId,
-            Date startDate, String tempID) {
-        CompanyContract contract = new CompanyContract();
-        if (relId != null) {
-            contract.setRelId(relId);
-        }
-        contract.setCompanyId(companyId);
-        contract.setProductId(productId);
-        contract.setStartDate(startDate);
-        contract.setTempID(tempID);
-        return contract;
-    }
-
-    /**
-     * Create object for CompanyProduct
-     * 
-     * @param relId
-     * @param companyId
-     * @param startDate
-     * @param authorizationKey
-     * @param numberLicenses
-     * @param tempID
-     * @return
-     */
-    public static CompanyProduct createCompanyProduct(Integer relId, Integer companyId, Date startDate,
-            String authorizationKey, Integer numberLicenses, String tempID) {
-        CompanyProduct product = new CompanyProduct();
-        if (relId != null) {
-            product.setRelId(relId);
-        }
-        product.setCompanyId(companyId);
-        product.setStartDate(startDate);
-        product.setAuthorizationKey(authorizationKey);
-        product.setNumberLicenses(numberLicenses);
-        product.setTempID(tempID);
-        return product;
     }
 
     /**
@@ -1490,6 +1441,23 @@ public class ApiTestDataUtil {
             role.setId(id);
         }
         role.setName(name);
+        return role;
+    }
+
+    /**
+     * 
+     * @param id
+     * @param name
+     * @param companyId
+     * @return
+     */
+    public static ThroneRole createThroneRole(Integer id, String name, Integer companyId) {
+        ThroneRole role = new ThroneRole();
+        if (role != null) {
+            role.setId(id);
+        }
+        role.setName(name);
+        role.setCompanyId(companyId);
         return role;
     }
 

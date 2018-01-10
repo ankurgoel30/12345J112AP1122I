@@ -6,12 +6,14 @@ import static com.thinkhr.external.api.ApplicationConstants.COMPANY;
 import static com.thinkhr.external.api.ApplicationConstants.COMPANY_CUSTOM_HEADER1;
 import static com.thinkhr.external.api.ApplicationConstants.CONFIGURATION_ID_FOR_INACTIVE;
 import static com.thinkhr.external.api.ApplicationConstants.DEFAULT_SORT_BY_COMPANY_NAME;
+import static com.thinkhr.external.api.ApplicationConstants.HASH_KEY;
 import static com.thinkhr.external.api.ApplicationConstants.LOCATION;
 import static com.thinkhr.external.api.ApplicationConstants.TOTAL_RECORDS;
 import static com.thinkhr.external.api.request.APIRequestHelper.setRequestAttribute;
 import static com.thinkhr.external.api.response.APIMessageUtil.getMessageFromResourceBundle;
 import static com.thinkhr.external.api.services.upload.FileImportValidator.validateAndGetFileContent;
 import static com.thinkhr.external.api.services.upload.FileImportValidator.validateRequired;
+import static com.thinkhr.external.api.services.utils.CommonUtil.getTempId;
 import static com.thinkhr.external.api.services.utils.EntitySearchUtil.getEntitySearchSpecification;
 import static com.thinkhr.external.api.services.utils.EntitySearchUtil.getPageable;
 import static com.thinkhr.external.api.services.utils.FileImportUtil.getRequiredHeaders;
@@ -42,8 +44,6 @@ import org.springframework.web.multipart.MultipartFile;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.thinkhr.external.api.ApplicationConstants;
 import com.thinkhr.external.api.db.entities.Company;
-import com.thinkhr.external.api.db.entities.CompanyContract;
-import com.thinkhr.external.api.db.entities.CompanyProduct;
 import com.thinkhr.external.api.db.entities.Location;
 import com.thinkhr.external.api.exception.APIErrorCodes;
 import com.thinkhr.external.api.exception.ApplicationException;
@@ -140,15 +140,15 @@ public class CompanyService  extends CommonService {
      */
     @Transactional
     public Company addCompany(Company company, Integer brokerId) {
-        // Checking Duplicate company name
-        company.setTempID(CommonUtil.getTempId());
+        company.setTempID(getTempId());
+
+        if (company.getCustomField5() == null) {
+            company.setCustomField5(company.getDisplayName());
+        }
 
         Company throneCompany = saveCompany(company, brokerId, true);
         
         learnCompanyService.addLearnCompany(throneCompany);// THR-3929 
-
-        // Saving CompanyContract
-        addCompanyContractAndProduct(throneCompany);
 
         return throneCompany;
     }
@@ -162,23 +162,6 @@ public class CompanyService  extends CommonService {
     public boolean validateConfigurationIdFromDB(Integer configurationId, Integer brokerId) {
         return configurationRepository.findFirstByConfigurationIdAndCompanyId(configurationId, brokerId) == null ? 
                  false : true;
-    }
-
-    /**
-     * Add a CompanyContract and ContractProduct into database
-     * 
-     * @param throneCompany
-     */
-    @Transactional
-    public void addCompanyContractAndProduct(Company throneCompany) {
-        if (throneCompany == null || throneCompany.getCompanyId() == null) {
-            return;
-        }
-        CompanyContract companyContract = modelConvertor.convertToCompanyContract(throneCompany);
-        companyContract = companyContractRepository.save(companyContract);
-
-        CompanyProduct companyProduct = modelConvertor.convertToCompanyProduct(companyContract);
-        companyProductRepository.save(companyProduct);
     }
 
      /**
@@ -463,6 +446,12 @@ public class CompanyService  extends CommonService {
             companyColumnsToInsert.add("broker");
             companyColumnsValues.add(fileImportResult.getBrokerId());
 
+            //t1_display_name
+            companyColumnsToInsert.add("t1_display_name");
+            String displayName = getValueFromRow(record,
+                    headerIndexMap.get(FileUploadEnum.COMPANY_DISPLAY_NAME.getHeader()));
+            companyColumnsValues.add(displayName);
+
             saveCompanyRecord(companyColumnsValues, locationColumnsValues,
                     companyColumnsToInsert, locationColumnsToInsert);
 
@@ -485,7 +474,7 @@ public class CompanyService  extends CommonService {
      * @return
      */
     public static String getAuthorizationKeyFromCompanyId(Integer companyId) {
-        Hashids hashids = new Hashids("thinkHRLandI");
+        Hashids hashids = new Hashids(HASH_KEY);
         String authorizationKey = hashids.encode(companyId);
         return authorizationKey;
     }
@@ -516,8 +505,6 @@ public class CompanyService  extends CommonService {
             // TODO: FIXME - Ideally this should handled by transaction roll-back; some-reason transaction is not working with combination of jdbcTemplate and spring
             // data. Need some research on it. To manage records properly, explicitly roll-back record. 
             companyRepository.delete(companyId);
-            companyContractRepository.deleteByCompanyId(companyId);
-            companyProductRepository.deleteByCompanyId(companyId);
             throw ex;
         }
 

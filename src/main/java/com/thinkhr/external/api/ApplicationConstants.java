@@ -58,7 +58,7 @@ public class ApplicationConstants {
     
     public static final String AES_PKC_PADDING = "AES/CBC/PKCS5PADDING";
     public static final String AES_ALGO = "AES";
-    
+    public static final String BCRYPT_ALGO = "BCrypt";
     public static final String BLOWFISH_ALGO = "Blowfish";
     public static final String BLOWFISH_PKC_PADDING = "Blowfish/CBC/PKCS5PADDING";
     
@@ -100,8 +100,6 @@ public class ApplicationConstants {
     public static final Integer CONFIGURATION_ID_FOR_INACTIVE = -1;
 
     // TODO : Decide where to get productId
-    public static final Integer DEFAULT_PRODUCT_ID = 26;
-
     public static final Integer DEFAULT_NUMBER_LICENSES = 1000;
 
     public static final String WELCOME_EMAIL_TYPE = "welcome";

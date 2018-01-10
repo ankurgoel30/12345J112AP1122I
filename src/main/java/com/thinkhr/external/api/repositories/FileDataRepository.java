@@ -55,10 +55,6 @@ public class FileDataRepository {
 
         String insertLocationSql = buildLocationInsertQuery(locationColumns);
         
-        String insertContractSql = buildQuery(INSERT_PORTAL_COMPANY_CONTRACT, companyContractFields);
-        
-        String insertProductSql = buildQuery(INSERT_PORTAL_COMPANY_PRODUCT, companyProductFields);
-
         KeyHolder keyHolder = new GeneratedKeyHolder();
 
         companyColumnsValues.addAll(defaultCompReqFieldValues);
@@ -73,28 +69,6 @@ public class FileDataRepository {
         
         // Saving Location Record
         jdbcTemplate.update(buildPreparedStatementCreator(insertLocationSql, locationColumnValues));
-        
-        keyHolder = new GeneratedKeyHolder();
-
-        // Setting company contract values
-        List<Object> companyContractValues = new ArrayList<Object>();
-        companyContractValues.addAll(companyContractFieldValues);
-        companyContractValues.add(String.valueOf(clientId)); 
-        
-        // Saving CompanyContract Record
-        jdbcTemplate.update(buildPreparedStatementCreator(insertContractSql, companyContractValues), keyHolder);
-        
-        int contractId = keyHolder.getKey().intValue();
-        
-        // Setting company product values
-        List<Object> companyProductValues = new ArrayList<Object>();
-        companyProductValues.addAll(companyProductFieldValues);
-        companyProductValues.add(String.valueOf(contractId));
-        companyProductValues.add(String.valueOf(clientId)); 
-        companyProductValues.add(getAuthorizationKeyFromCompanyId(clientId));
-        
-        // Saving CompanyProduct Record
-        jdbcTemplate.update(buildPreparedStatementCreator(insertProductSql, companyProductValues));
         
         return clientId;
     }
