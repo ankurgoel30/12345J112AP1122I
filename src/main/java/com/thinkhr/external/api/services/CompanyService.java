@@ -112,7 +112,7 @@ public class CompanyService  extends CommonService {
         }
 
         //Get and set the total number of records
-        setRequestAttribute(TOTAL_RECORDS, companyRepository.count());
+        setRequestAttribute(TOTAL_RECORDS, companyRepository.count(spec));
 
         return companies;
     }
@@ -143,10 +143,6 @@ public class CompanyService  extends CommonService {
     @Transactional
     public Company addCompany(Company company, Integer brokerId) {
         company.setTempID(getTempId());
-
-        if (company.getCustomField5() == null) {
-            company.setCustomField5(company.getDisplayName());
-        }
 
         Company throneCompany = saveCompany(company, brokerId, true);
         
@@ -467,12 +463,6 @@ public class CompanyService  extends CommonService {
             List<String> locationColumnsToInsert = new ArrayList<String>(locationFileHeaderColumnMap.keySet());
             companyColumnsToInsert.add("broker");
             companyColumnsValues.add(fileImportResult.getBrokerId());
-
-            //t1_display_name
-            companyColumnsToInsert.add("t1_display_name");
-            String displayName = getValueFromRow(record,
-                    headerIndexMap.get(FileUploadEnum.COMPANY_DISPLAY_NAME.getHeader()));
-            companyColumnsValues.add(displayName);
 
             saveCompanyRecord(companyColumnsValues, locationColumnsValues,
                     companyColumnsToInsert, locationColumnsToInsert);
