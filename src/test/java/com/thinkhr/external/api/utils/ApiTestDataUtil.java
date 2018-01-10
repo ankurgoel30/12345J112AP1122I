@@ -465,12 +465,13 @@ public class ApiTestDataUtil {
      * @param tempID
      * @return
      */
-    public static CompanyProduct createCompanyProduct(Integer relId, Integer companyId, Date startDate,
-            String authorizationKey, Integer numberLicenses, String tempID) {
+    public static CompanyProduct createCompanyProduct(Integer relId, Integer contractId, Integer companyId,
+            Date startDate, String authorizationKey, Integer numberLicenses, String tempID) {
         CompanyProduct product = new CompanyProduct();
         if (relId != null) {
             product.setRelId(relId);
         }
+        product.setContractId(contractId);
         product.setCompanyId(companyId);
         product.setStartDate(startDate);
         product.setAuthorizationKey(authorizationKey);
@@ -1473,6 +1474,23 @@ public class ApiTestDataUtil {
             role.setId(id);
         }
         role.setName(name);
+        return role;
+    }
+
+    /**
+     * 
+     * @param id
+     * @param name
+     * @param companyId
+     * @return
+     */
+    public static ThroneRole createThroneRole(Integer id, String name, Integer companyId) {
+        ThroneRole role = new ThroneRole();
+        if (role != null) {
+            role.setId(id);
+        }
+        role.setName(name);
+        role.setCompanyId(companyId);
         return role;
     }
 

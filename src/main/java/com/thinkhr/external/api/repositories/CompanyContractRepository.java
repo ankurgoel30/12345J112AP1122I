@@ -10,6 +10,7 @@ public interface CompanyContractRepository extends CrudRepository<CompanyContrac
     /**
      * 
      * @param companyId
+     * @return
      */
     @Transactional
     public Integer deleteByCompanyId(Integer companyId);

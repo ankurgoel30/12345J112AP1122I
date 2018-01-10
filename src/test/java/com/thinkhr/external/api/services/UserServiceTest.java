@@ -65,6 +65,7 @@ import com.thinkhr.external.api.repositories.ThroneRoleRepository;
 import com.thinkhr.external.api.repositories.UserRepository;
 import com.thinkhr.external.api.response.APIMessageUtil;
 import com.thinkhr.external.api.services.crypto.AppEncryptorDecryptor;
+import com.thinkhr.external.api.services.email.EmailService;
 import com.thinkhr.external.api.services.upload.FileImportValidator;
 import com.thinkhr.external.api.services.utils.FileImportUtil;
 import com.thinkhr.external.api.utils.ApiTestDataUtil;
@@ -111,6 +112,9 @@ public class UserServiceTest {
 
     @Mock
     private EntityManager entityManager;
+    
+    @Mock
+    private EmailService emailService;
 
     @InjectMocks
     private UserService userService;

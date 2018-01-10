@@ -11,6 +11,7 @@ import org.springframework.context.support.ResourceBundleMessageSource;
 
 import com.thinkhr.external.api.services.crypto.AESEncryptorDecryptor;
 import com.thinkhr.external.api.services.crypto.AppEncryptorDecryptor;
+import com.thinkhr.external.api.services.crypto.BCryptPasswordEncryptor;
 import com.thinkhr.external.api.services.crypto.BlowfishEncryptorDecryptor;
 
 /**
@@ -66,7 +67,9 @@ public class ApiApplication {
     public AppEncryptorDecryptor getEncryptor() {
         if (ApplicationConstants.BLOWFISH_ALGO.equalsIgnoreCase(cryptoAlgo)) {
             return new BlowfishEncryptorDecryptor(key, initVector);
-        } 
+        } else if (ApplicationConstants.BCRYPT_ALGO.equalsIgnoreCase(cryptoAlgo)) {
+            return new BCryptPasswordEncryptor();
+        }
         
         return new AESEncryptorDecryptor(key, initVector);
         

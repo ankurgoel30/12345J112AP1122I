@@ -26,7 +26,7 @@ public class QueryBuilder {
 
     private static final String INSERT_COMPANY = "INSERT INTO clients";
     private static final String INSERT_LOCATION = "INSERT INTO locations";
-    private static final String INSERT_USER = "INSERT INTO CONTACTS";
+    private static final String INSERT_USER = "INSERT INTO contacts";
     private static final String VALUES = "VALUES";
     private static final String START_BRACES = "(";
     private static final String END_BRACES = ") ";
@@ -35,13 +35,13 @@ public class QueryBuilder {
     public static final String SELECT_PORTAL_USER_QUERY = "SELECT * FROM contacts";
     public static final String SELECT_LEARN_USER_QUERY = "SELECT * FROM mdl_user";
     public static final String SELECT_LEARN_COMPANY_QUERY = "SELECT * FROM mdl_company";
-    public static final String INSERT_PORTAL_COMPANY_CONTRACT = "INSERT INTO CLIENTS_CONTRACTS ";
-    public static final String INSERT_PORTAL_COMPANY_PRODUCT = "INSERT INTO CLIENTS_PRODUCTS ";
-    public static final String INSERT_LEARN_COMPANY = "INSERT INTO MDL_COMPANY ";
-    public static final String INSERT_LEARN_PKG_COMPANY = "INSERT INTO MDL_PACKAGE_COMPANY(packageid, companyid) VALUES (?, ?)";
-    public static final String SELECT_LEARN_PACAKGE_COMPANY_QUERY = "SELECT * FROM MDL_PACKAGE_COMPANY";
-    private static final String INSERT_LEARN_USER = "INSERT INTO MDL_USER";
-    public static final String INSERT_LEARN_USER_ROLE = "INSERT INTO MDL_ROLE_ASSIGNMENTS(roleid,timemodified,contextid,component,modifierid,itemid,sortorder,userid) Values (?,?,?,?,?,?,?,?)";
+    public static final String INSERT_PORTAL_COMPANY_CONTRACT = "INSERT INTO clients_contracts ";
+    public static final String INSERT_PORTAL_COMPANY_PRODUCT = "INSERT INTO clients_products ";
+    public static final String INSERT_LEARN_COMPANY = "INSERT INTO mdl_company ";
+    public static final String INSERT_LEARN_PKG_COMPANY = "INSERT INTO mdl_package_company(packageid, companyid) VALUES (?, ?)";
+    public static final String SELECT_LEARN_PACAKGE_COMPANY_QUERY = "SELECT * FROM mdl_package_company";
+    private static final String INSERT_LEARN_USER = "INSERT INTO mdl_user";
+    public static final String INSERT_LEARN_USER_ROLE = "INSERT INTO mdl_role_assignments(roleid,timemodified,contextid,component,modifierid,itemid,sortorder,userid) Values (?,?,?,?,?,?,?,?)";
 
     public static List<String> companyRequiredFields;
     public static List<Object> defaultCompReqFieldValues;
