@@ -38,7 +38,7 @@ public class APIProcessingTimeInterceptor extends HandlerInterceptorAdapter {
 
         String jobId = UUID.randomUUID().toString();
 
-        logger.info("Request JobID: " + jobId);
+        logger.info("Request JobId/RequestReferenceId: " + jobId);
         logger.info(" Request URL::" + request.getRequestURL().toString());
         logger.info("API execution Start Time " + CommonUtil.getTodayInUTC());
 

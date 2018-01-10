@@ -37,6 +37,8 @@ public class APIResponseSerializer extends JsonSerializer<APIResponse> {
 
             jGen.writeStartObject();
 
+            serializeRequestRefernceId(apiResponse, jGen);
+
             serializeResponseStatus(apiResponse, jGen);
 
             serializeListData(apiResponse, jGen);
@@ -49,6 +51,17 @@ public class APIResponseSerializer extends JsonSerializer<APIResponse> {
         } catch (Exception ex) {
             throw ApplicationException.createInternalError(APIErrorCodes.ERROR_WRITING_JSON_OUTPUT, apiResponse.toString());
         }
+    }
+
+    /**
+     * To serialize requestReferenceId
+     * 
+     * @param apiResponse
+     * @param jGen
+     * @throws IOException
+     */
+    private void serializeRequestRefernceId(APIResponse apiResponse, JsonGenerator jGen) throws IOException {
+        jGen.writeStringField("requestReferenceId", apiResponse.getRequestReferenceId());
     }
 
     /**
