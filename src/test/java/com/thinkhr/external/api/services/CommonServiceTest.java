@@ -78,10 +78,10 @@ public class CommonServiceTest {
         
         Map<String, String> customFieldMap = commonService.getCustomFieldsMap(companyId, customFieldType);
         assertEquals(2, customFieldMap.size());
-        assertTrue(customFieldMap.containsKey("custom1"));
-        assertTrue(customFieldMap.containsKey("custom2"));
-        assertEquals("CORRELATION_ID", customFieldMap.get("custom1"));
-        assertEquals("GROUP_ID", customFieldMap.get("custom2"));
+        assertTrue(customFieldMap.containsKey("t1_customfield1"));
+        assertTrue(customFieldMap.containsKey("t1_customfield2"));
+        assertEquals("CORRELATION_ID", customFieldMap.get("t1_customfield1"));
+        assertEquals("GROUP_ID", customFieldMap.get("t1_customfield2"));
     }
 
     /**
