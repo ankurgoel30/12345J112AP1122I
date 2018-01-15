@@ -63,7 +63,7 @@ public class EmailServiceTest {
     private CompanyRepository companyRepository;
 
     @InjectMocks
-    private EmailService emailService;
+    private SendGridEmailService emailService;
 
     @Value("${sendgrid_api_key}")
     private String apiKey;

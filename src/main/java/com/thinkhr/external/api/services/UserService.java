@@ -51,6 +51,7 @@ import com.thinkhr.external.api.db.entities.User;
 import com.thinkhr.external.api.exception.APIErrorCodes;
 import com.thinkhr.external.api.exception.ApplicationException;
 import com.thinkhr.external.api.model.AppAuthData;
+import com.thinkhr.external.api.model.BulkEmailRequest;
 import com.thinkhr.external.api.model.EmailRequest;
 import com.thinkhr.external.api.model.FileImportResult;
 import com.thinkhr.external.api.repositories.ThroneRoleRepository;
@@ -86,6 +87,9 @@ public class UserService extends CommonService {
 
     @Value("${com.thinkhr.external.api.user.default.password}")
     private String defaultPassword;
+
+    @Value("${com.thinkhr.external.api.emailService.enabled}")
+    private boolean isSendEmailEnabled;
 
     private static final String resource = USER;
     
@@ -157,11 +161,12 @@ public class UserService extends CommonService {
 
         learnUserService.addLearnUser(throneUser); //THR-3932
 
+        EmailRequest emailRequest = emailService.createEmailRequest(brokerId, throneUser.getUserName());
         try {
-            // Sending welcome email to user 
-            EmailRequest emailRequest = emailService.createEmailRequest(brokerId, throneUser.getUserName());
-            emailService.sendEmail(emailRequest);
-
+            if (isSendEmailEnabled) {
+                // Sending welcome email to user 
+                emailService.sendEmail(emailRequest);
+            }
         } catch (Exception ex) {
             // TODO: Need to understand exact behavior
             logger.error("Error occured while sending email.", ex);
@@ -396,6 +401,17 @@ public class UserService extends CommonService {
             logger.debug(fileImportResult.toString());
         }
 
+        BulkEmailRequest emailRequest = emailService.createBulkEmailRequest(broker.getCompanyId(),
+                fileImportResult.getUsersCreated());
+        try {
+            if (isSendEmailEnabled) {
+                emailService.sendEmail(emailRequest);
+            }
+        } catch (Exception e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+
         return fileImportResult;
     }
 
@@ -465,6 +481,7 @@ public class UserService extends CommonService {
             saveUserRecord(userColumnValues, userColumnsToInsert);
 
             fileImportResult.increamentSuccessRecords();
+            fileImportResult.getUsersCreated().add(userName);
         } catch (Exception ex) {
             String cause = ex.getCause() instanceof DataTruncation ? 
                     getMessageFromResourceBundle(resourceHandler, APIErrorCodes.DATA_TRUNCTATION) :
