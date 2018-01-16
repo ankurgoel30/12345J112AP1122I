@@ -30,6 +30,7 @@ import static com.thinkhr.external.api.services.utils.FileImportUtil.validateAnd
 import java.io.IOException;
 import java.sql.DataTruncation;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -51,7 +52,6 @@ import com.thinkhr.external.api.db.entities.User;
 import com.thinkhr.external.api.exception.APIErrorCodes;
 import com.thinkhr.external.api.exception.ApplicationException;
 import com.thinkhr.external.api.model.AppAuthData;
-import com.thinkhr.external.api.model.BulkEmailRequest;
 import com.thinkhr.external.api.model.EmailRequest;
 import com.thinkhr.external.api.model.FileImportResult;
 import com.thinkhr.external.api.repositories.ThroneRoleRepository;
@@ -161,7 +161,9 @@ public class UserService extends CommonService {
 
         learnUserService.addLearnUser(throneUser); //THR-3932
 
-        EmailRequest emailRequest = emailService.createEmailRequest(brokerId, throneUser.getUserName());
+        List<String> userNames = new ArrayList<String>(Arrays.asList(throneUser.getUserName()));
+
+        EmailRequest emailRequest = emailService.createEmailRequest(brokerId, userNames);
         try {
             if (isSendEmailEnabled) {
                 // Sending welcome email to user 
@@ -401,7 +403,7 @@ public class UserService extends CommonService {
             logger.debug(fileImportResult.toString());
         }
 
-        BulkEmailRequest emailRequest = emailService.createBulkEmailRequest(broker.getCompanyId(),
+        EmailRequest emailRequest = emailService.createEmailRequest(broker.getCompanyId(),
                 fileImportResult.getUsersCreated());
         try {
             if (isSendEmailEnabled) {

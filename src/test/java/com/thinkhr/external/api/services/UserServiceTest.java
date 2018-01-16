@@ -515,7 +515,7 @@ public class UserServiceTest {
 
         Map<String, String> columnToHeaderMap = ApiTestDataUtil
                 .getColumnsToHeadersMapForUser();
-        UserService userServiceSpy = Mockito.spy(new UserService());
+        UserService userServiceSpy = Mockito.spy(userService);
         Mockito.doReturn(columnToHeaderMap).when(userServiceSpy)
                 .appendRequiredAndCustomHeaderMap(companyId, resource);
 

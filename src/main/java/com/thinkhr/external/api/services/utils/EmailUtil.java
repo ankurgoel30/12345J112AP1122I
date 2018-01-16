@@ -9,7 +9,6 @@ import com.sendgrid.Email;
 import com.sendgrid.Mail;
 import com.sendgrid.Personalization;
 import com.thinkhr.external.api.db.entities.User;
-import com.thinkhr.external.api.model.BulkEmailRequest;
 import com.thinkhr.external.api.model.EmailRequest;
 import com.thinkhr.external.api.model.KeyValuePair;
 
@@ -53,43 +52,6 @@ public class EmailUtil {
      * @return
      */
     public static Mail build(EmailRequest emailRequest) {
-
-        Email emailFrom = new Email(emailRequest.getFromEmail());
-
-        Email emailTo = null;
-        if (emailRequest.getToEmail() != null && !emailRequest.getToEmail().isEmpty()) {
-            emailTo = new Email(emailRequest.getToEmail().get(0));
-        }
-
-        Mail mail = new Mail();
-
-        Personalization personalization = new Personalization();
-
-        List<KeyValuePair> parameters = null;
-        if (emailRequest.getParameters() != null && !emailRequest.getParameters().isEmpty()) {
-            parameters = emailRequest.getParameters();
-            parameters.stream().forEach(keyValuePair -> {
-                personalization.addSubstitution(keyValuePair.getKey(), keyValuePair.getValue());
-            });
-        }
-
-        personalization.addTo(emailTo);
-        mail.addPersonalization(personalization);
-
-        Content content = new Content("text/html", "<HTML>" + emailRequest.getBody() + "</HTML>");
-        mail.addContent(content);
-        mail.setFrom(emailFrom);
-        mail.setSubject(emailRequest.getSubject());
-
-        return mail;
-    }
-
-    /**
-     * 
-     * @param emailRequest
-     * @return
-     */
-    public static Mail build(BulkEmailRequest emailRequest) {
         Mail mail = new Mail();
 
         for (User userToSendEmail : emailRequest.getRecipientToSubstitutionMap().keySet()) {

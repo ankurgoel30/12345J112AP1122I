@@ -35,7 +35,6 @@ import com.thinkhr.external.api.db.entities.SetPasswordRequest;
 import com.thinkhr.external.api.db.entities.User;
 import com.thinkhr.external.api.exception.APIErrorCodes;
 import com.thinkhr.external.api.exception.ApplicationException;
-import com.thinkhr.external.api.model.BulkEmailRequest;
 import com.thinkhr.external.api.model.EmailRequest;
 import com.thinkhr.external.api.model.KeyValuePair;
 import com.thinkhr.external.api.repositories.CompanyRepository;
@@ -113,87 +112,6 @@ public class SendGridEmailService implements EmailService {
     }
     
     /**
-     * Create EmailRequest 
-     * 
-     * @param brokerId
-     * @param username
-     */
-    @Override
-    public EmailRequest createEmailRequest(Integer brokerId, String username) {
-        
-        User user = userRepository.findByUserName(username);
-        if (user == null) {
-            throw ApplicationException.createEntityNotFoundError(APIErrorCodes.ENTITY_NOT_FOUND, "username", username);
-        }
-
-        Company broker = null;
-        if (brokerId != null) {
-            broker = companyRepository.findOne(brokerId);
-        }
-
-        EmailTemplate emailTemplate = getEmailTemplate(brokerId, ApplicationConstants.WELCOME_EMAIL_TYPE);
-        if (emailTemplate == null) {
-            emailTemplate = getDefaultEmailTemplate();
-        }
-        
-        if (emailTemplate == null) {
-            throw ApplicationException.createBadRequest(APIErrorCodes.ENTITY_NOT_FOUND, "template", String.valueOf(brokerId));
-        }
-        
-        //String sendgridTemplateId = emailTemplate.getSendgridTemplateId();
-        String generatedHashedCode = RESET_PASSWORD_PREFIX + generateHashedValue(user.getUserId());
-        String resetPasswordLink = prepareResetPasswordlink(loginUrl, generatedHashedCode);
-        
-        // Saving SetPasswordRequest record for reset password request.
-        saveSetPasswordRequest(user.getUserId(),generatedHashedCode);
-        
-        List<KeyValuePair> parameters = new ArrayList<KeyValuePair>();
-        parameters.add(createKeyValue(SET_LOGIN_LINK, loginUrl));
-        parameters.add(createKeyValue(FIRST_NAME, user.getFirstName()));
-        parameters.add(createKeyValue(BROKER_NAME, broker.getCompanyName()));
-        parameters.add(createKeyValue(USER_NAME, user.getUserName()));
-        parameters.add(createKeyValue(SUPPORT_PHONE, defaultSupportPhone));
-        parameters.add(createKeyValue(SUPPORT_EMAIL, defaultSupportEmail));
-        parameters.add(createKeyValue(SET_PASSWORD_LINK, resetPasswordLink));
-        
-        return createEmailRequest(user, broker, parameters, emailTemplate); 
-    }
-    
-    /**
-     * Create EmailRequest
-     * 
-     * @param user
-     * @param broker
-     * @param parameters
-     * @param body
-     * @return
-     */
-    public EmailRequest createEmailRequest(User user, Company broker, List<KeyValuePair> parameters, EmailTemplate emailTemplate) {
-        EmailRequest emailRequest = new EmailRequest();
-        
-        List<String> toEmail = new ArrayList<String>();
-        
-        toEmail.add(user.getEmail());
-        
-        if (emailTemplate != null && emailTemplate.getEmailConfigurations() != null && !emailTemplate.getEmailConfigurations().isEmpty()) {
-            for(EmailConfiguration emailConfiguration : emailTemplate.getEmailConfigurations()) {
-                if (emailConfiguration.getEmailField().getName().equalsIgnoreCase(EMAIL_BODY)) {
-                    emailRequest.setBody(emailConfiguration.getValue());
-                }
-                if (emailConfiguration.getEmailField().getName().equalsIgnoreCase(ApplicationConstants.FROM_EMAIL)) {
-                    emailRequest.setFromEmail(emailConfiguration.getValue());
-                }
-                if (emailConfiguration.getEmailField().getName().equalsIgnoreCase(ApplicationConstants.EMAIL_SUBJECT)) {
-                    emailRequest.setSubject(broker.getCompanyName() + ", " + emailConfiguration.getValue());
-                }
-            }
-        }
-        emailRequest.setParameters(parameters);
-        emailRequest.setToEmail(toEmail);
-        return emailRequest;
-    }
-
-    /**
      * Create KeyValue pair
      * 
      * @param key
@@ -259,8 +177,8 @@ public class SendGridEmailService implements EmailService {
      * @param username
      */
     @Override
-    public BulkEmailRequest createBulkEmailRequest(Integer brokerId, List<String> usernames) {
-        BulkEmailRequest emailRequest = new BulkEmailRequest();
+    public EmailRequest createEmailRequest(Integer brokerId, List<String> usernames) {
+        EmailRequest emailRequest = new EmailRequest();
         Company broker = null;
         if (brokerId != null) {
             broker = companyRepository.findOne(brokerId);
@@ -317,17 +235,4 @@ public class SendGridEmailService implements EmailService {
         return emailRequest;
     }
     
-    /**
-     * Sending emilRequest to sendgrid.
-     * 
-     * @param emailRequest
-     * @throws Exception
-     */
-    @Override
-    public void sendEmail(BulkEmailRequest emailRequest) throws Exception {
-        Mail mail = EmailUtil.build(emailRequest);
-        sendEmail(mail);
-    }
 }
-
-

@@ -1601,17 +1601,14 @@ public class ApiTestDataUtil {
      * @return
      */
     public static EmailRequest createEmailRequest() {
-
+        User user = createUser();
         EmailRequest request = new EmailRequest();
 
-        List<String> toEmail = new ArrayList<String>();
-        toEmail.add("test123@pepcus.com");
-
         request.setFromEmail("welcome@myhrworkplace.com");
-        request.setParameters(createKeyValueListForEmail());
         request.setSubject("welcome to thinkHR");
-        request.setToEmail(toEmail);
         request.setBody("Hello, you now have access to thinkHR");
+        request.getRecipientToSubstitutionMap().put(user, createKeyValueListForEmail());
+
         return request;
     }
 
