@@ -14,14 +14,13 @@ import javax.net.ssl.HttpsURLConnection;
 
 import com.eclipsesource.json.JsonArray;
 import com.eclipsesource.json.JsonObject;
-import com.springml.marketo.rest.client.LeadDatabaseClient;
 
 public class RequestCampaign {
     private String endpoint;
     public List<Integer> leads = new ArrayList<Integer>();
     public List<JsonObject> tokens = new ArrayList<JsonObject>();
 
-    public RequestCampaign(String baseUri, int campaignId) {
+    public RequestCampaign(String baseUri, String campaignId) {
         this.endpoint = baseUri + "/rest/v1/campaigns/" + campaignId + "/trigger.json";
     }
 

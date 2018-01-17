@@ -60,17 +60,17 @@ public class MarketoEmailService implements EmailService {
     @Autowired
     private CompanyRepository companyRepository;
 
-    @Value("${sendgrid_api_key}")
-    private String apiKey;
+    @Value("${com.thinkhr.external.api.marketo.clientId}")
+    private String clientId;
 
-    @Value("${sendgrid_key_name}")
-    private String keyName;
+    @Value("${com.thinkhr.external.api.marketo.clientSecret}")
+    private String clientSecret;
 
-    @Value("${sendgrid_auth_template_id}")
-    private String authTemplateId;
+    @Value("${com.thinkhr.external.api.marketo.baseUri}")
+    private String baseUri;
     
-    @Value("${sendgrid_channel_template_id}")
-    private String channelTemplateId;
+    @Value("${com.thinkhr.external.api.marketo.welcomeemail.campaignId}")
+    private String campaignId;
     
     @Value("${default_support_email}")
     private String defaultSupportEmail;
@@ -118,10 +118,6 @@ public class MarketoEmailService implements EmailService {
 
     @Override
     public void sendEmail(EmailRequest emailRequest) throws Exception {
-        String clientId = null;
-        String clientSecret = null;
-        String baseUri = null;
-        Integer campaignId = null;
      
         LeadDatabaseClient leadClient = MarketoClientFactory.getLeadDatabaseClient(clientId, clientSecret, baseUri);
         String accessToken = "token"; //TODO write code to get this
@@ -152,8 +148,7 @@ public class MarketoEmailService implements EmailService {
      * @param value
      * @return
      */
-    private KeyValuePair createKeyValue(String key,
-            String value) {
+    private KeyValuePair createKeyValue(String key, String value) {
         return new KeyValuePair(key, value);
     }
 
