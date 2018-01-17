@@ -125,6 +125,9 @@ public class MarketoEmailService implements EmailService {
         for (User userToSendEmail : emailRequest.getRecipientToSubstitutionMap().keySet()) {
             RequestCampaign requestCampaign = new RequestCampaign(baseUri, campaignId);
             
+            // Create lead in marketo using lead API
+            // TODO 
+            
             QueryResult result = leadClient.query("leads", "email", userToSendEmail.getEmail());
             Integer leadId = Integer.valueOf(result.getResult().get(0).get("id"));
 
