@@ -6,6 +6,8 @@ import static com.thinkhr.external.api.ApplicationConstants.NEW_LINE;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.springframework.http.HttpStatus;
+
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 
@@ -109,4 +111,36 @@ public class FileImportResult {
         return stb.toString();
     }
 
+    /**
+     * @return
+     */
+    public boolean hasFailures() {
+        return numSuccessRecords < totalRecords ? true : false;
+    }
+    
+    /**
+     * @return
+     */
+    public boolean allFailures() {
+       return totalRecords > 0 && numSuccessRecords == 0 ? true : false;
+    }
+    
+    /**
+     * @return
+     */
+    public boolean allSuccess() {
+        return totalRecords == numSuccessRecords ? true : false;
+    }
+    
+    /**
+     * @return
+     */
+    public HttpStatus getHttpStatus () {
+        if (allSuccess()) {
+            return HttpStatus.OK;
+        } else if (allFailures()) {
+            return HttpStatus.BAD_REQUEST;
+        } else 
+            return HttpStatus.MULTI_STATUS;
+    }
 }
