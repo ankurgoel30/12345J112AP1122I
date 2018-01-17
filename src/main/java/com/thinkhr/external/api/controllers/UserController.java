@@ -149,7 +149,7 @@ public class UserController {
 
         File responseFile = FileImportUtil.createReponseFile(fileImportResult, resourceHandler);
 
-        return ResponseEntity.ok().headers(headers).contentLength(responseFile.length()).contentType(MediaType.parseMediaType("text/csv"))
+        return ResponseEntity.status(fileImportResult.getHttpStatus()).headers(headers).contentLength(responseFile.length()).contentType(MediaType.parseMediaType("text/csv"))
                 .body(new InputStreamResource(new FileInputStream(responseFile)));
     }
 
