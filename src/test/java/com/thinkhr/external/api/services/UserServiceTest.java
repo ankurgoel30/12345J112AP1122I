@@ -780,11 +780,32 @@ public class UserServiceTest {
 
         String expectedUserName = "AjayJain1";
 
-        UserService userServiceSpy = Mockito.spy(new UserService());
+        UserService userServiceSpy = Mockito.spy(userService);
         Mockito.doReturn(false).when(userServiceSpy).checkDuplicate(userName);
         String generatedUserName = userServiceSpy.generateUserName(userName, email, firstName, lastName);
 
         assertEquals(expectedUserName, generatedUserName);
+    }
+
+    /**
+     * Test to verify generateUserName if userName is not blank and duplicate
+     * 
+     */
+    @Test(expected = ApplicationException.class)
+    public void testGenerateUserName_UsernameNotBlankAndDuplicate() {
+        String userName = "AjayJain1";
+        String email = "ajay.jain@pepcus.com";
+        String firstName = "Ajay";
+        String lastName = "Jain";
+
+        UserService userServiceSpy = Mockito.spy(userService);
+        Mockito.doReturn(true).when(userServiceSpy).checkDuplicate(userName);
+        try {
+            userServiceSpy.generateUserName(userName, email, firstName, lastName);
+        } catch (ApplicationException e) {
+            assertEquals(APIErrorCodes.DUPLICATE_USER_RECORD, e.getApiErrorCode());
+            throw e;
+        }
     }
 
     /**
@@ -800,7 +821,7 @@ public class UserServiceTest {
 
         String expectedUserName = "ajay.jain@pepcus.com";
 
-        UserService userServiceSpy = Mockito.spy(new UserService());
+        UserService userServiceSpy = Mockito.spy(userService);
         Mockito.doReturn(false).when(userServiceSpy).checkDuplicate(email);
         String generatedUserName = userServiceSpy.generateUserName(userName, email, firstName, lastName);
 
@@ -808,21 +829,21 @@ public class UserServiceTest {
     }
 
     /**
-     * Test to verify generateUserName if userName is duplicate
-     * and name generated from firstName and lastName is not duplicate
+     * Test to verify generateUserName if userName is blank/null
+     * and email is duplicate and name generated from firstName and lastName is not duplicate
      * 
      */
     @Test
-    public void testGenerateUserName_DuplicateUsernameFound() {
-        String userName = "AjayJain1";
+    public void testGenerateUserName_BlankUsername_EmailDuplicate() {
+        String userName = null;
         String email = "ajay.jain@pepcus.com";
         String firstName = "Ajay";
         String lastName = "Jain";
 
         String expectedUserName = "Ajay_Jain_1";
 
-        UserService userServiceSpy = Mockito.spy(new UserService());
-        Mockito.doReturn(true).when(userServiceSpy).checkDuplicate(userName);
+        UserService userServiceSpy = Mockito.spy(userService);
+        Mockito.doReturn(true).when(userServiceSpy).checkDuplicate(email);
 
         // Mock checkDuplicate so that name generated from firstName and lastName is not duplicate
         String nameFromFirstNameLastName = firstName + UNDERSCORE + lastName + UNDERSCORE + 1;
@@ -834,22 +855,22 @@ public class UserServiceTest {
     }
 
     /**
-     * Test to verify generateUserName if userName is duplicate
+     * Test to verify generateUserName if userName is blank
      * and name generated from firstName and lastName is duplicate
      * in first iteration and not in second iteration
      * 
      */
     @Test
     public void testGenerateUserName_DuplicateUsernameFound_AgainInFirstIteration() {
-        String userName = "AjayJain1";
+        String userName = null;
         String email = "ajay.jain@pepcus.com";
         String firstName = "Ajay";
         String lastName = "Jain";
 
         String expectedUserName = "Ajay_Jain_2";
 
-        UserService userServiceSpy = Mockito.spy(new UserService());
-        Mockito.doReturn(true).when(userServiceSpy).checkDuplicate(userName);
+        UserService userServiceSpy = Mockito.spy(userService);
+        Mockito.doReturn(true).when(userServiceSpy).checkDuplicate(email);
 
         // Mock checkDuplicate so that name generated from firstName and lastName is duplicate in first iteration
         String nameFromFirstNameLastName = firstName + UNDERSCORE + lastName + UNDERSCORE + 1;
@@ -865,21 +886,21 @@ public class UserServiceTest {
     }
 
     /**
-     * Test to verify generateUserName if userName is duplicate
-     * and name firstName and lastName is null/blank
+     * Test to verify generateUserName if userName is blank
+     * and firstName and lastName is null/blank
      * 
      */
     @Test
     public void testGenerateUserName_DuplicateUsernameFound_FirstNameLastNameNull() {
-        String userName = "AjayJain1";
+        String userName = null;
         String email = "ajay.jain@pepcus.com";
         String firstName = null;
         String lastName = null;
 
         String expectedUserName = "null_null_1";
 
-        UserService userServiceSpy = Mockito.spy(new UserService());
-        Mockito.doReturn(true).when(userServiceSpy).checkDuplicate(userName);
+        UserService userServiceSpy = Mockito.spy(userService);
+        Mockito.doReturn(true).when(userServiceSpy).checkDuplicate(email);
 
         // Mock checkDuplicate so that name generated from firstName and lastName is not duplicate
         String nameFromFirstNameLastName = firstName + UNDERSCORE + lastName + UNDERSCORE + 1;
