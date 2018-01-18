@@ -1,10 +1,8 @@
 package com.thinkhr.external.api.services.email;
 
-import static com.thinkhr.external.api.ApplicationConstants.EMAIL_BODY;
 import static com.thinkhr.external.api.ApplicationConstants.RESET_PASSWORD_PREFIX;
 import static com.thinkhr.external.api.services.utils.CommonUtil.generateHashedValue;
 import static com.thinkhr.external.api.services.utils.EmailUtil.BROKER_NAME;
-import static com.thinkhr.external.api.services.utils.EmailUtil.DEFAULT_EMAIL_TEMPLATE_BROKERID;
 import static com.thinkhr.external.api.services.utils.EmailUtil.FIRST_NAME;
 import static com.thinkhr.external.api.services.utils.EmailUtil.SENDGRID_END_POINT;
 import static com.thinkhr.external.api.services.utils.EmailUtil.SET_LOGIN_LINK;
@@ -19,7 +17,6 @@ import java.util.List;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 
 import com.sendgrid.Mail;
@@ -27,20 +24,10 @@ import com.sendgrid.Method;
 import com.sendgrid.Request;
 import com.sendgrid.Response;
 import com.sendgrid.SendGrid;
-import com.thinkhr.external.api.ApplicationConstants;
 import com.thinkhr.external.api.db.entities.Company;
-import com.thinkhr.external.api.db.entities.EmailConfiguration;
-import com.thinkhr.external.api.db.entities.EmailTemplate;
-import com.thinkhr.external.api.db.entities.SetPasswordRequest;
 import com.thinkhr.external.api.db.entities.User;
-import com.thinkhr.external.api.exception.APIErrorCodes;
-import com.thinkhr.external.api.exception.ApplicationException;
 import com.thinkhr.external.api.model.EmailRequest;
 import com.thinkhr.external.api.model.KeyValuePair;
-import com.thinkhr.external.api.repositories.CompanyRepository;
-import com.thinkhr.external.api.repositories.EmailTemplateRepository;
-import com.thinkhr.external.api.repositories.SetPasswordRequestRepository;
-import com.thinkhr.external.api.repositories.UserRepository;
 import com.thinkhr.external.api.services.utils.EmailUtil;
 
 import lombok.Data;
@@ -53,22 +40,10 @@ import lombok.Data;
  *
  */
 @Data
-public class SendGridEmailService implements EmailService {
+public class SendGridEmailService extends EmailService {
     
     private Logger logger = LoggerFactory.getLogger(SendGridEmailService.class);
  
-    @Autowired
-    private EmailTemplateRepository emailRepository;
-    
-    @Autowired
-    private SetPasswordRequestRepository setPasswordRepository;
-    
-    @Autowired
-    private UserRepository userRepository;
-    
-    @Autowired
-    private CompanyRepository companyRepository;
-
     @Value("${sendgrid_api_key}")
     private String apiKey;
 
@@ -90,39 +65,6 @@ public class SendGridEmailService implements EmailService {
     @Value("${login_url}")
     private String loginUrl;
     
-    /**
-     * To get email template for given parameters
-     * 
-     * @param brokerId
-     * @param type
-     * @return
-     */
-    public EmailTemplate getEmailTemplate(Integer brokerId, String type) {
-        return emailRepository.findFirstByBrokerIdAndType(brokerId, type); 
-    }
-    
-    /**
-     * Fetch email template for default configurations
-     * 
-     * @return
-     */
-    public EmailTemplate getDefaultEmailTemplate() {
-        return getEmailTemplate(DEFAULT_EMAIL_TEMPLATE_BROKERID,
-                ApplicationConstants.WELCOME_EMAIL_TYPE);
-    }
-    
-    /**
-     * Create KeyValue pair
-     * 
-     * @param key
-     * @param value
-     * @return
-     */
-    private KeyValuePair createKeyValue(String key,
-            String value) {
-        return new KeyValuePair(key, value);
-    }
-
     /**
      * Setting emilRequest to sendgrid.
      * 
@@ -154,85 +96,31 @@ public class SendGridEmailService implements EmailService {
         logger.debug("**************Email Status Code: " + response.getStatusCode());
     }
     
+  
     /**
-     * Saving set_passwrod_request object in DB
-     * 
-     * @param userId
-     * @param generatedHashCode
+     * @param broker
+     * @param user
      * @return
      */
-    public SetPasswordRequest saveSetPasswordRequest(Integer userId, String generatedHashCode) {
-        SetPasswordRequest passwordRequest = new SetPasswordRequest();
-        passwordRequest.setContactId(userId);
-        passwordRequest.setId(generatedHashCode);
-        return setPasswordRepository.save(passwordRequest);
-    }
-
-    
-
-    /**
-     * Create EmailRequest  for bulk upload
-     * 
-     * @param brokerId
-     * @param username
-     */
     @Override
-    public EmailRequest createEmailRequest(Integer brokerId, List<String> usernames) {
-        EmailRequest emailRequest = new EmailRequest();
-        Company broker = null;
-        if (brokerId != null) {
-            broker = companyRepository.findOne(brokerId);
-        }
+    protected List<KeyValuePair> getEmailSubstituions(Company broker, User user) {
+        List<KeyValuePair> substitutions = new ArrayList<KeyValuePair>();
         
-        EmailTemplate emailTemplate = getEmailTemplate(brokerId, ApplicationConstants.WELCOME_EMAIL_TYPE);
-        if (emailTemplate == null) {
-            emailTemplate = getDefaultEmailTemplate();
-        }
-        
-        if (emailTemplate == null) {
-            throw ApplicationException.createBadRequest(APIErrorCodes.ENTITY_NOT_FOUND, "template", String.valueOf(brokerId));
-        }
-        
-        if (emailTemplate != null && emailTemplate.getEmailConfigurations() != null && !emailTemplate.getEmailConfigurations().isEmpty()) {
-            for(EmailConfiguration emailConfiguration : emailTemplate.getEmailConfigurations()) {
-                if (emailConfiguration.getEmailField().getName().equalsIgnoreCase(EMAIL_BODY)) {
-                    emailRequest.setBody(emailConfiguration.getValue());
-                }
-                if (emailConfiguration.getEmailField().getName().equalsIgnoreCase(ApplicationConstants.FROM_EMAIL)) {
-                    emailRequest.setFromEmail(emailConfiguration.getValue());
-                }
-                if (emailConfiguration.getEmailField().getName().equalsIgnoreCase(ApplicationConstants.EMAIL_SUBJECT)) {
-                    emailRequest.setSubject(broker.getCompanyName() + ", " + emailConfiguration.getValue());
-                }
-            }
-        }
-        
-        for(String username : usernames ) {
-            User user = userRepository.findByUserName(username);
-            if (user == null) {
-                throw ApplicationException.createEntityNotFoundError(APIErrorCodes.ENTITY_NOT_FOUND, "username", username);
-            }
+        //String sendgridTemplateId = emailTemplate.getSendgridTemplateId();
+        String generatedHashedCode = RESET_PASSWORD_PREFIX + generateHashedValue(user.getUserId());
+        String resetPasswordLink = prepareResetPasswordlink(loginUrl, generatedHashedCode);
 
-            //String sendgridTemplateId = emailTemplate.getSendgridTemplateId();
-            String generatedHashedCode = RESET_PASSWORD_PREFIX + generateHashedValue(user.getUserId());
-            String resetPasswordLink = prepareResetPasswordlink(loginUrl, generatedHashedCode);
+        // Saving SetPasswordRequest record for reset password request.
+        saveSetPasswordRequest(user.getUserId(),generatedHashedCode);
 
-            // Saving SetPasswordRequest record for reset password request.
-            saveSetPasswordRequest(user.getUserId(),generatedHashedCode);
-
-            List<KeyValuePair> substitutions = new ArrayList<KeyValuePair>();
-            substitutions.add(createKeyValue(SET_LOGIN_LINK, loginUrl));
-            substitutions.add(createKeyValue(FIRST_NAME, user.getFirstName()));
-            substitutions.add(createKeyValue(BROKER_NAME, broker.getCompanyName()));
-            substitutions.add(createKeyValue(USER_NAME, user.getUserName()));
-            substitutions.add(createKeyValue(SUPPORT_PHONE, defaultSupportPhone));
-            substitutions.add(createKeyValue(SUPPORT_EMAIL, defaultSupportEmail));
-            substitutions.add(createKeyValue(SET_PASSWORD_LINK, resetPasswordLink));
-            
-            emailRequest.getRecipientToSubstitutionMap().put(user, substitutions);
-        }
-        
-        return emailRequest;
+        substitutions.add(createKeyValue(SET_LOGIN_LINK, loginUrl));
+        substitutions.add(createKeyValue(FIRST_NAME, user.getFirstName()));
+        substitutions.add(createKeyValue(BROKER_NAME, broker.getCompanyName()));
+        substitutions.add(createKeyValue(USER_NAME, user.getUserName()));
+        substitutions.add(createKeyValue(SUPPORT_PHONE, defaultSupportPhone));
+        substitutions.add(createKeyValue(SUPPORT_EMAIL, defaultSupportEmail));
+        substitutions.add(createKeyValue(SET_PASSWORD_LINK, resetPasswordLink));
+        return substitutions;
     }
     
 }

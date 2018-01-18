@@ -44,22 +44,10 @@ import lombok.Data;
  *
  */
 @Data
-public class MarketoEmailService implements EmailService {
+public class MarketoEmailService extends EmailService {
     
     private Logger logger = LoggerFactory.getLogger(MarketoEmailService.class);
     
-    @Autowired
-    private EmailTemplateRepository emailRepository;
-    
-    @Autowired
-    private SetPasswordRequestRepository setPasswordRepository;
-    
-    @Autowired
-    private UserRepository userRepository;
-    
-    @Autowired
-    private CompanyRepository companyRepository;
-
     @Value("${com.thinkhr.external.api.marketo.clientId}")
     private String clientId;
 
@@ -81,40 +69,6 @@ public class MarketoEmailService implements EmailService {
     @Value("${login_url}")
     private String loginUrl;
     
-    @Override
-    public EmailRequest createEmailRequest(Integer brokerId, List<String> userNames) {
-        EmailRequest emailRequest = new EmailRequest();
-        Company broker = null;
-        if (brokerId != null) {
-            broker = companyRepository.findOne(brokerId);
-        }
-        
-        
-        for(String username : userNames ) {
-            User user = userRepository.findByUserName(username);
-            if (user == null) {
-                throw ApplicationException.createEntityNotFoundError(APIErrorCodes.ENTITY_NOT_FOUND, "username", username);
-            }
-
-            //String sendgridTemplateId = emailTemplate.getSendgridTemplateId();
-            String generatedHashedCode = RESET_PASSWORD_PREFIX + generateHashedValue(user.getUserId());
-            String resetPasswordLink = prepareResetPasswordlink(loginUrl, generatedHashedCode);
-
-
-            List<KeyValuePair> substitutions = new ArrayList<KeyValuePair>();
-            substitutions.add(createKeyValue(SET_LOGIN_LINK, loginUrl));
-            substitutions.add(createKeyValue(FIRST_NAME, user.getFirstName()));
-            substitutions.add(createKeyValue(BROKER_NAME, broker.getCompanyName()));
-            substitutions.add(createKeyValue(USER_NAME, user.getUserName()));
-            substitutions.add(createKeyValue(SUPPORT_PHONE, defaultSupportPhone));
-            substitutions.add(createKeyValue(SUPPORT_EMAIL, defaultSupportEmail));
-            substitutions.add(createKeyValue(SET_PASSWORD_LINK, resetPasswordLink));
-            
-            emailRequest.getRecipientToSubstitutionMap().put(user, substitutions);
-        }
-        
-        return emailRequest;
-    }
 
     @Override
     public void sendEmail(EmailRequest emailRequest) throws Exception {
@@ -144,15 +98,31 @@ public class MarketoEmailService implements EmailService {
         }
     }
     
+
     /**
-     * Create KeyValue pair
-     * 
-     * @param key
-     * @param value
+     * @param broker
+     * @param user
      * @return
      */
-    private KeyValuePair createKeyValue(String key, String value) {
-        return new KeyValuePair(key, value);
+    @Override
+    protected List<KeyValuePair> getEmailSubstituions(Company broker, User user) {
+        List<KeyValuePair> substitutions = new ArrayList<KeyValuePair>();
+        
+        //String sendgridTemplateId = emailTemplate.getSendgridTemplateId();
+        String generatedHashedCode = RESET_PASSWORD_PREFIX + generateHashedValue(user.getUserId());
+        String resetPasswordLink = prepareResetPasswordlink(loginUrl, generatedHashedCode);
+
+        // Saving SetPasswordRequest record for reset password request.
+        saveSetPasswordRequest(user.getUserId(),generatedHashedCode);
+
+        substitutions.add(createKeyValue(SET_LOGIN_LINK, loginUrl));
+        substitutions.add(createKeyValue(FIRST_NAME, user.getFirstName()));
+        substitutions.add(createKeyValue(BROKER_NAME, broker.getCompanyName()));
+        substitutions.add(createKeyValue(USER_NAME, user.getUserName()));
+        substitutions.add(createKeyValue(SUPPORT_PHONE, defaultSupportPhone));
+        substitutions.add(createKeyValue(SUPPORT_EMAIL, defaultSupportEmail));
+        substitutions.add(createKeyValue(SET_PASSWORD_LINK, resetPasswordLink));
+        return substitutions;
     }
 
 }
