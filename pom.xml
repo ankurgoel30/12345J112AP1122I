@@ -172,18 +172,6 @@
 		    <version>3.1.0.RELEASE</version>
 		</dependency>
 		
-		<dependency>
-		    <groupId>com.eclipsesource.minimal-json</groupId>
-		    <artifactId>minimal-json</artifactId>
-		    <version>0.9.5</version>
-		</dependency>
-		
-		<dependency>
-		    <groupId>com.springml</groupId>
-		    <artifactId>marketo-rest-client</artifactId>
-		    <version>1.0.0</version>
-		</dependency>
-		
 	</dependencies>
 
 	<build>

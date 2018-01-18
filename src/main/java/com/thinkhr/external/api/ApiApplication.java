@@ -14,7 +14,6 @@ import com.thinkhr.external.api.services.crypto.AppEncryptorDecryptor;
 import com.thinkhr.external.api.services.crypto.BCryptPasswordEncryptor;
 import com.thinkhr.external.api.services.crypto.BlowfishEncryptorDecryptor;
 import com.thinkhr.external.api.services.email.EmailService;
-import com.thinkhr.external.api.services.email.MarketoEmailService;
 import com.thinkhr.external.api.services.email.SendGridEmailService;
 
 /**
@@ -89,9 +88,6 @@ public class ApiApplication {
     @Bean
     @Lazy(value = true)
     public EmailService getEmailService() {
-        if (ApplicationConstants.MARKETO_EMAIL_SERVICE.equalsIgnoreCase(emailService)) {
-            return new MarketoEmailService();
-        }
         return new SendGridEmailService();
     }
 
