@@ -63,7 +63,7 @@ public class ApplicationConstants {
     public static final String BLOWFISH_PKC_PADDING = "Blowfish/CBC/PKCS5PADDING";
     
     public static final String UTF8 = "UTF-8";
-    public static final String COMPANY_CUSTOM_COLUMN_PREFIX = "custom";
+    public static final String COMPANY_CUSTOM_COLUMN_PREFIX = "t1_customfield";
     public static final String COMPANY_CUSTOM_HEADER1 = "BUSINESS_ID";
     public static final String USER_CUSTOM_COLUMN_PREFIX = "t1_customfield";
     public static final String USER_COLUMN_CLIENT_ID = "client_id";

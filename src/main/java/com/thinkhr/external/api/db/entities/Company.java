@@ -212,16 +212,16 @@ public class Company implements SearchableEntity {
     @Column(name = "avoidTerms") 
     private Integer avoidTerms;
 
-    @Column(name = "custom1") 
+    @Column(name = "t1_customfield1") 
     private String custom1;
 
-    @Column(name = "custom2") 
+    @Column(name = "t1_customfield2") 
     private String custom2;
 
-    @Column(name = "custom3") 
+    @Column(name = "t1_customfield3") 
     private String custom3;
 
-    @Column(name = "custom4") 
+    @Column(name = "t1_customfield4") 
     private String custom4;
 
     @Column(name = "custom5") 
@@ -335,18 +335,6 @@ public class Company implements SearchableEntity {
 
     @Column(name = "t1_configuration_id")
     private Integer configurationId;
-
-    @Column(name = "t1_customfield1")
-    private String customfield1;
-
-    @Column(name = "t1_customfield2")
-    private String customField2;
-
-    @Column(name = "t1_customfield3")
-    private String customField3;
-
-    @Column(name = "t1_customfield4")
-    private String customField4;
 
     @Column(name = "t1_email_template_id")
     private String emailTemplateId;

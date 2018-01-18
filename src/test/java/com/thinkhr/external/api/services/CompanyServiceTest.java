@@ -348,10 +348,10 @@ public class CompanyServiceTest {
         Mockito.when(customFieldRepository.findByCompanyIdAndCustomFieldType(companyId, customFieldType)).thenReturn(customFieldTestData);
 
         Map<String, String> columnsToHeaderMap = companyService.appendRequiredAndCustomHeaderMap(companyId, customFieldType);
-        assertTrue(columnsToHeaderMap.containsKey("custom1"));
-        assertTrue(columnsToHeaderMap.containsKey("custom2"));
-        assertEquals("CORRELATION_ID", columnsToHeaderMap.get("custom1"));
-        assertEquals("GROUP_ID", columnsToHeaderMap.get("custom2"));
+        assertTrue(columnsToHeaderMap.containsKey("t1_customfield1"));
+        assertTrue(columnsToHeaderMap.containsKey("t1_customfield2"));
+        assertEquals("CORRELATION_ID", columnsToHeaderMap.get("t1_customfield1"));
+        assertEquals("GROUP_ID", columnsToHeaderMap.get("t1_customfield2"));
     }
 
     /**

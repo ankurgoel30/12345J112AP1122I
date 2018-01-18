@@ -485,10 +485,18 @@ public class UserService extends CommonService {
             fileImportResult.increamentSuccessRecords();
             fileImportResult.getUsersCreated().add(userName);
         } catch (Exception ex) {
-            String cause = ex.getCause() instanceof DataTruncation ? 
-                    getMessageFromResourceBundle(resourceHandler, APIErrorCodes.DATA_TRUNCTATION) :
-                        ex.getMessage();
-                    fileImportResult.addFailedRecord(record, cause,
+            String cause = null;
+
+            if (ex instanceof ApplicationException) {
+                ApplicationException appExp = (ApplicationException) ex;
+                cause = getMessageFromResourceBundle(resourceHandler, appExp.getApiErrorCode(),appExp.getErrorMessageParameters());
+            } else if (ex.getCause() instanceof DataTruncation) {
+                cause = getMessageFromResourceBundle(resourceHandler, APIErrorCodes.DATA_TRUNCTATION);
+            } else {
+                cause = ex.getMessage();
+            }
+
+            fileImportResult.addFailedRecord(record, cause,
                             getMessageFromResourceBundle(resourceHandler, APIErrorCodes.RECORD_NOT_ADDED));
         }
 
@@ -531,10 +539,10 @@ public class UserService extends CommonService {
     }
 
     /**
-     * Logic to generate username from email, firstName and lastName if it is
-     * blank or duplicate
+     * Logic to generate username from email, firstName and lastName if it is blank
+     * If it is not blank and duplicate then throws exception for duplicate user
      * 
-     * JIRA = THR-3927
+     * JIRA = THR-3927,4202
      * 
      * @param userName
      * @param email
@@ -543,9 +551,16 @@ public class UserService extends CommonService {
      * @return
      */
     protected String generateUserName(String userName, String email, String firstName, String lastName) {
-        if (StringUtils.isBlank(userName)) {
-            userName = email;
+        if (!StringUtils.isBlank(userName)) {
+            if (!checkDuplicate(userName)) {
+                return userName;
+            } else {
+                throw ApplicationException.createBadRequest(APIErrorCodes.DUPLICATE_USER_RECORD, userName);
+            }
         }
+
+        // Make email as userName if userName is Blank
+        userName = email;
 
         int i = 1;
         while (true) {
