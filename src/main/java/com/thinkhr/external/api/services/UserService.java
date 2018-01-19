@@ -30,6 +30,7 @@ import static com.thinkhr.external.api.services.utils.FileImportUtil.validateAnd
 import java.io.IOException;
 import java.sql.DataTruncation;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -86,6 +87,9 @@ public class UserService extends CommonService {
 
     @Value("${com.thinkhr.external.api.user.default.password}")
     private String defaultPassword;
+
+    @Value("${com.thinkhr.external.api.emailService.enabled}")
+    private boolean isSendEmailEnabled;
 
     private static final String resource = USER;
     
@@ -157,11 +161,15 @@ public class UserService extends CommonService {
 
         learnUserService.addLearnUser(throneUser); //THR-3932
 
-        try {
-            // Sending welcome email to user 
-            EmailRequest emailRequest = emailService.createEmailRequest(brokerId, throneUser.getUserName());
-            emailService.sendEmail(emailRequest);
+        List<User> users = new ArrayList<User>(Arrays.asList(throneUser));
 
+        try {
+            if (isSendEmailEnabled) {
+                EmailRequest emailRequest = emailService.createEmailRequest(brokerId, users);
+
+                // Sending welcome email to user 
+                emailService.sendEmail(emailRequest);
+            }
         } catch (Exception ex) {
             // TODO: Need to understand exact behavior
             logger.error("Error occured while sending email.", ex);
@@ -231,7 +239,7 @@ public class UserService extends CommonService {
 
             user.setActivationDate(getCurrentDateInUTC());
 
-            user.setAddedBy(getAddedBy(brokerId));
+            user.setAddedBy((String) APIRequestHelper.getRequestAttribute("jobId"));
         }
         // If not passed in model, then object will become in-active.
         User throneUser = userRepository.save(user);
@@ -396,6 +404,9 @@ public class UserService extends CommonService {
             logger.debug(fileImportResult.toString());
         }
 
+        // Send Mail after all users in csv are added
+        sendMail(broker, (String) APIRequestHelper.getRequestAttribute("jobId"));
+
         return fileImportResult;
     }
 
@@ -431,13 +442,14 @@ public class UserService extends CommonService {
         }
 
         try {
+            String jobId = (String) APIRequestHelper.getRequestAttribute("jobId");
 
             //Finally save users one by one
             List<String> userColumnsToInsert = new ArrayList<String>(userHeaderColumnMap.keySet());
             userColumnValues.add(companyId);
             userColumnValues.add(encDecyptor.encrypt(defaultPassword));
             userColumnValues.add(getCurrentDateInUTC());
-            userColumnValues.add(getAddedBy(fileImportResult.getBrokerId()));
+            userColumnValues.add(jobId);
             userColumnValues.add(fileImportResult.getBrokerId());
             
             userColumnsToInsert.add(USER_COLUMN_CLIENT_ID);
@@ -557,6 +569,33 @@ public class UserService extends CommonService {
         return userName;
     }
     
+    /**
+     * 
+     * @param broker
+     */
+    private void sendMail(Company broker, String jobId) {
+        try {
+            if (jobId == null || broker == null) {
+                return;
+            }
+
+            if (isSendEmailEnabled) {
+                List<User> usersByJobId = userRepository
+                        .findByAddedBy((String) APIRequestHelper.getRequestAttribute("jobId"));
+
+                if (usersByJobId == null || usersByJobId.isEmpty()) {
+                    return;
+                }
+
+                EmailRequest emailRequest = emailService.createEmailRequest(broker.getCompanyId(), usersByJobId);
+                emailService.sendEmail(emailRequest);
+            }
+        } catch (Exception e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+    }
+
     /**
      * Return default sort field for user service
      * 
