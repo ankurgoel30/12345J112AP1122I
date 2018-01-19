@@ -109,7 +109,8 @@ public class SendGridEmailServiceTest {
     public void testCreateEmailRequest() {
         Integer brokerId = 8148;
         User user = ApiTestDataUtil.createUser();
-        List<String> userNames = new ArrayList<String>(Arrays.asList(user.getUserName()));
+        List<User> users = new ArrayList<User>(Arrays.asList(user));
+
         Company broker = ApiTestDataUtil.createCompany();
         EmailTemplate emailTemplate = ApiTestDataUtil.createEmailTemplate(1, brokerId,
                 WELCOME_EMAIL_TYPE);
@@ -145,7 +146,7 @@ public class SendGridEmailServiceTest {
         emailService.setDefaultSupportEmail(defaultSupportEmail);
         emailService.setDefaultSupportPhone(defaultSupportPhone);
 
-        EmailRequest emailRequest = emailService.createEmailRequest(brokerId, userNames);
+        EmailRequest emailRequest = emailService.createEmailRequest(brokerId, users);
 
         assertFalse(emailRequest.getRecipientToSubstitutionMap().isEmpty());
         assertEquals("welcome@myhrworkplace.com", emailRequest.getFromEmail());

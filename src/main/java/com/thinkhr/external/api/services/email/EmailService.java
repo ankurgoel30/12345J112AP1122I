@@ -7,8 +7,6 @@ import static com.thinkhr.external.api.services.utils.EmailUtil.DEFAULT_EMAIL_TE
 
 import java.util.List;
 
-import org.springframework.beans.factory.annotation.Autowired;
-
 import com.thinkhr.external.api.ApplicationConstants;
 import com.thinkhr.external.api.db.entities.Company;
 import com.thinkhr.external.api.db.entities.EmailConfiguration;
@@ -19,34 +17,25 @@ import com.thinkhr.external.api.exception.APIErrorCodes;
 import com.thinkhr.external.api.exception.ApplicationException;
 import com.thinkhr.external.api.model.EmailRequest;
 import com.thinkhr.external.api.model.KeyValuePair;
-import com.thinkhr.external.api.repositories.CompanyRepository;
-import com.thinkhr.external.api.repositories.EmailTemplateRepository;
-import com.thinkhr.external.api.repositories.SetPasswordRequestRepository;
-import com.thinkhr.external.api.repositories.UserRepository;
+import com.thinkhr.external.api.services.CommonService;
 
 /**
- * Generic Interface for sending welcome email.
+ * Abstract classs for sending email.
  * 
  * @author Surabhi Bhawsar
  * @since 2018-01-15
  *
  */
-public abstract class EmailService {
-
-    @Autowired
-    private UserRepository userRepository;
-
-    @Autowired
-    private CompanyRepository companyRepository;
-
-    @Autowired
-    private EmailTemplateRepository emailRepository;
-
-    @Autowired
-    private SetPasswordRequestRepository setPasswordRepository;
+public abstract class EmailService extends CommonService {
 
     public abstract void sendEmail(EmailRequest emailRequest) throws Exception;
 
+    /**
+     * 
+     * @param brokerId
+     * @param users
+     * @return
+     */
     public EmailRequest createEmailRequest(Integer brokerId, List<User> users) {
         if (users == null) {
             return null;
@@ -142,6 +131,12 @@ public abstract class EmailService {
         return new KeyValuePair(key, value);
     }
 
+    /**
+     * 
+     * @param broker
+     * @param user
+     * @return
+     */
     protected abstract List<KeyValuePair> getEmailSubstituions(Company broker, User user);
 
 }

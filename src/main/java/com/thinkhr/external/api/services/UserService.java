@@ -13,7 +13,6 @@ import static com.thinkhr.external.api.ApplicationConstants.USER_COLUMN_ACTIVATI
 import static com.thinkhr.external.api.ApplicationConstants.USER_COLUMN_ADDEDBY;
 import static com.thinkhr.external.api.ApplicationConstants.USER_COLUMN_BROKERID;
 import static com.thinkhr.external.api.ApplicationConstants.USER_COLUMN_CLIENT_ID;
-import static com.thinkhr.external.api.ApplicationConstants.USER_COLUMN_JOBID;
 import static com.thinkhr.external.api.ApplicationConstants.USER_COLUMN_PASSWORD;
 import static com.thinkhr.external.api.request.APIRequestHelper.setRequestAttribute;
 import static com.thinkhr.external.api.response.APIMessageUtil.getMessageFromResourceBundle;
@@ -157,7 +156,6 @@ public class UserService extends CommonService {
 
         //Saving default password
         user.setPasswordApps(encDecyptor.encrypt(defaultPassword));
-        user.setJobId((String) APIRequestHelper.getRequestAttribute("jobId"));
 
         User throneUser = saveUser(user, brokerId, true);
 
@@ -241,7 +239,7 @@ public class UserService extends CommonService {
 
             user.setActivationDate(getCurrentDateInUTC());
 
-            user.setAddedBy(getAddedBy(brokerId));
+            user.setAddedBy((String) APIRequestHelper.getRequestAttribute("jobId"));
         }
         // If not passed in model, then object will become in-active.
         User throneUser = userRepository.save(user);
@@ -451,16 +449,14 @@ public class UserService extends CommonService {
             userColumnValues.add(companyId);
             userColumnValues.add(encDecyptor.encrypt(defaultPassword));
             userColumnValues.add(getCurrentDateInUTC());
-            userColumnValues.add(getAddedBy(fileImportResult.getBrokerId()));
-            userColumnValues.add(fileImportResult.getBrokerId());
             userColumnValues.add(jobId);
+            userColumnValues.add(fileImportResult.getBrokerId());
             
             userColumnsToInsert.add(USER_COLUMN_CLIENT_ID);
             userColumnsToInsert.add(USER_COLUMN_PASSWORD);
             userColumnsToInsert.add(USER_COLUMN_ACTIVATION_DATE);
             userColumnsToInsert.add(USER_COLUMN_ADDEDBY);
             userColumnsToInsert.add(USER_COLUMN_BROKERID);
-            userColumnsToInsert.add(USER_COLUMN_JOBID);
 
             // THR-3927 [Start]
             String userName = getValueFromRow(record, headerIndexMap.get(FileUploadEnum.USER_USER_NAME.getHeader()));
@@ -585,7 +581,7 @@ public class UserService extends CommonService {
 
             if (isSendEmailEnabled) {
                 List<User> usersByJobId = userRepository
-                        .findByJobId((String) APIRequestHelper.getRequestAttribute("jobId"));
+                        .findByAddedBy((String) APIRequestHelper.getRequestAttribute("jobId"));
 
                 if (usersByJobId == null || usersByJobId.isEmpty()) {
                     return;

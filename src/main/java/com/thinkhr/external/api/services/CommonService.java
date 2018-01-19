@@ -36,7 +36,9 @@ import com.thinkhr.external.api.learn.repositories.PackageRepository;
 import com.thinkhr.external.api.repositories.CompanyRepository;
 import com.thinkhr.external.api.repositories.ConfigurationRepository;
 import com.thinkhr.external.api.repositories.CustomFieldsRepository;
+import com.thinkhr.external.api.repositories.EmailTemplateRepository;
 import com.thinkhr.external.api.repositories.FileDataRepository;
+import com.thinkhr.external.api.repositories.SetPasswordRequestRepository;
 import com.thinkhr.external.api.repositories.StandardFieldsRepository;
 import com.thinkhr.external.api.repositories.UserRepository;
 import com.thinkhr.external.api.services.upload.FileUploadEnum;
@@ -92,6 +94,12 @@ public class CommonService {
     
     @Autowired
     PackageRepository packageRepository;
+    
+    @Autowired
+    protected EmailTemplateRepository emailRepository;
+
+    @Autowired
+    protected SetPasswordRequestRepository setPasswordRepository;
     
     @PersistenceContext
     protected EntityManager entityManager;
