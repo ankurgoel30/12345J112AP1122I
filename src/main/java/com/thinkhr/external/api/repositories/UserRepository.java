@@ -30,4 +30,6 @@ public interface UserRepository extends PagingAndSortingRepository<User, Integer
 
     public List<User> findByCompanyId(Integer companyId);
 
+    public List<User> findByJobId(String jobId);
+
 }

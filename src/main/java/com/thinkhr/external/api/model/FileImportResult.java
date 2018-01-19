@@ -33,9 +33,6 @@ public class FileImportResult {
 
     private String headerLine; // For storing header to be used for creating responseFile
     
-    @JsonIgnore
-    private List<String> usersCreated = new ArrayList<String>(); // For Storing usernames successfully created in bulk upload.
-
     @JsonInclude(JsonInclude.Include.NON_EMPTY)
     private List<FailedRecord> failedRecords = new ArrayList<FailedRecord>();
 

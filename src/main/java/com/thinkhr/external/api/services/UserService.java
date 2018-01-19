@@ -13,6 +13,7 @@ import static com.thinkhr.external.api.ApplicationConstants.USER_COLUMN_ACTIVATI
 import static com.thinkhr.external.api.ApplicationConstants.USER_COLUMN_ADDEDBY;
 import static com.thinkhr.external.api.ApplicationConstants.USER_COLUMN_BROKERID;
 import static com.thinkhr.external.api.ApplicationConstants.USER_COLUMN_CLIENT_ID;
+import static com.thinkhr.external.api.ApplicationConstants.USER_COLUMN_JOBID;
 import static com.thinkhr.external.api.ApplicationConstants.USER_COLUMN_PASSWORD;
 import static com.thinkhr.external.api.request.APIRequestHelper.setRequestAttribute;
 import static com.thinkhr.external.api.response.APIMessageUtil.getMessageFromResourceBundle;
@@ -156,16 +157,18 @@ public class UserService extends CommonService {
 
         //Saving default password
         user.setPasswordApps(encDecyptor.encrypt(defaultPassword));
+        user.setJobId((String) APIRequestHelper.getRequestAttribute("jobId"));
 
         User throneUser = saveUser(user, brokerId, true);
 
         learnUserService.addLearnUser(throneUser); //THR-3932
 
-        List<String> userNames = new ArrayList<String>(Arrays.asList(throneUser.getUserName()));
+        List<User> users = new ArrayList<User>(Arrays.asList(throneUser));
 
-        EmailRequest emailRequest = emailService.createEmailRequest(brokerId, userNames);
         try {
             if (isSendEmailEnabled) {
+                EmailRequest emailRequest = emailService.createEmailRequest(brokerId, users);
+
                 // Sending welcome email to user 
                 emailService.sendEmail(emailRequest);
             }
@@ -403,16 +406,8 @@ public class UserService extends CommonService {
             logger.debug(fileImportResult.toString());
         }
 
-        EmailRequest emailRequest = emailService.createEmailRequest(broker.getCompanyId(),
-                fileImportResult.getUsersCreated());
-        try {
-            if (isSendEmailEnabled) {
-                emailService.sendEmail(emailRequest);
-            }
-        } catch (Exception e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        }
+        // Send Mail after all users in csv are added
+        sendMail(broker, (String) APIRequestHelper.getRequestAttribute("jobId"));
 
         return fileImportResult;
     }
@@ -449,6 +444,7 @@ public class UserService extends CommonService {
         }
 
         try {
+            String jobId = (String) APIRequestHelper.getRequestAttribute("jobId");
 
             //Finally save users one by one
             List<String> userColumnsToInsert = new ArrayList<String>(userHeaderColumnMap.keySet());
@@ -457,12 +453,14 @@ public class UserService extends CommonService {
             userColumnValues.add(getCurrentDateInUTC());
             userColumnValues.add(getAddedBy(fileImportResult.getBrokerId()));
             userColumnValues.add(fileImportResult.getBrokerId());
+            userColumnValues.add(jobId);
             
             userColumnsToInsert.add(USER_COLUMN_CLIENT_ID);
             userColumnsToInsert.add(USER_COLUMN_PASSWORD);
             userColumnsToInsert.add(USER_COLUMN_ACTIVATION_DATE);
             userColumnsToInsert.add(USER_COLUMN_ADDEDBY);
             userColumnsToInsert.add(USER_COLUMN_BROKERID);
+            userColumnsToInsert.add(USER_COLUMN_JOBID);
 
             // THR-3927 [Start]
             String userName = getValueFromRow(record, headerIndexMap.get(FileUploadEnum.USER_USER_NAME.getHeader()));
@@ -483,7 +481,6 @@ public class UserService extends CommonService {
             saveUserRecord(userColumnValues, userColumnsToInsert);
 
             fileImportResult.increamentSuccessRecords();
-            fileImportResult.getUsersCreated().add(userName);
         } catch (Exception ex) {
             String cause = null;
 
@@ -576,6 +573,33 @@ public class UserService extends CommonService {
         return userName;
     }
     
+    /**
+     * 
+     * @param broker
+     */
+    private void sendMail(Company broker, String jobId) {
+        try {
+            if (jobId == null || broker == null) {
+                return;
+            }
+
+            if (isSendEmailEnabled) {
+                List<User> usersByJobId = userRepository
+                        .findByJobId((String) APIRequestHelper.getRequestAttribute("jobId"));
+
+                if (usersByJobId == null || usersByJobId.isEmpty()) {
+                    return;
+                }
+
+                EmailRequest emailRequest = emailService.createEmailRequest(broker.getCompanyId(), usersByJobId);
+                emailService.sendEmail(emailRequest);
+            }
+        } catch (Exception e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+    }
+
     /**
      * Return default sort field for user service
      * 

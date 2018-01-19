@@ -47,7 +47,11 @@ public abstract class EmailService {
 
     public abstract void sendEmail(EmailRequest emailRequest) throws Exception;
 
-    public EmailRequest createEmailRequest(Integer brokerId, List<String> userNames) {
+    public EmailRequest createEmailRequest(Integer brokerId, List<User> users) {
+        if (users == null) {
+            return null;
+        }
+
         EmailRequest emailRequest = new EmailRequest();
         Company broker = null;
         if (brokerId != null) {
@@ -79,11 +83,9 @@ public abstract class EmailService {
             }
         }
 
-        for (String username : userNames) {
-            User user = userRepository.findByUserName(username);
+        for (User user : users) {
             if (user == null) {
-                throw ApplicationException.createEntityNotFoundError(APIErrorCodes.ENTITY_NOT_FOUND, "username",
-                        username);
+                continue;
             }
 
             List<KeyValuePair> substitutions = getEmailSubstituions(broker, user);

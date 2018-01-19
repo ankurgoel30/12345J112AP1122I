@@ -229,9 +229,9 @@ public class User implements SearchableEntity {
     @Column(name="reminder")
     private Date reminder;
 
-    @Column(name="salesforceID")
     @JsonIgnore
-    private String salesforceID;
+    @Column(name="salesforceID")
+    private String jobId;
 
     @Column(name="specialBlast")
     private String specialBlast;
