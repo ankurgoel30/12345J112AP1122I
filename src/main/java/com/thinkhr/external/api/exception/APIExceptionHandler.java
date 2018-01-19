@@ -3,6 +3,8 @@ package com.thinkhr.external.api.exception;
 import static com.thinkhr.external.api.response.APIMessageUtil.getMessageFromResourceBundle;
 import static org.springframework.http.HttpStatus.BAD_REQUEST;
 
+import java.sql.DataTruncation;
+
 import org.apache.commons.lang.StringUtils;
 import org.hibernate.JDBCException;
 import org.hibernate.exception.ConstraintViolationException;
@@ -22,6 +24,9 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
+
+import com.mysql.jdbc.exceptions.jdbc4.MySQLIntegrityConstraintViolationException;
+import com.mysql.jdbc.exceptions.jdbc4.MySQLSyntaxErrorException;
 
 /**
  * This class is a single global exception handler component wrapping for all 
@@ -216,7 +221,8 @@ public class APIExceptionHandler extends ResponseEntityExceptionHandler {
         logger.error(ex);
         APIError apiError = null;
         if (ex.getCause() instanceof ConstraintViolationException) {
-            apiError = new APIError(HttpStatus.CONFLICT, APIErrorCodes.DATABASE_ERROR, ex);
+            apiError = new APIError(HttpStatus.CONFLICT, APIErrorCodes.DATABASE_ERROR,
+                    extractMessageFromJDBCException(ex, resourceHandler));
             apiError.setMessage(resourceHandler.get(APIErrorCodes.DATABASE_ERROR.name()));
         } else {
             apiError = new APIError(HttpStatus.INTERNAL_SERVER_ERROR, ex);
@@ -234,7 +240,8 @@ public class APIExceptionHandler extends ResponseEntityExceptionHandler {
     protected ResponseEntity<Object> handleDatabaseException(JDBCException ex,
             WebRequest request) {
         logger.error(ex);
-        APIError apiError = new APIError(HttpStatus.INTERNAL_SERVER_ERROR, APIErrorCodes.DATABASE_ERROR, ex);
+        APIError apiError = new APIError(HttpStatus.INTERNAL_SERVER_ERROR, APIErrorCodes.DATABASE_ERROR,
+                extractMessageFromJDBCException(ex, resourceHandler));
         apiError.setMessage(resourceHandler.get(APIErrorCodes.DATABASE_ERROR.name()));
         return buildResponseEntity(apiError);
     }
@@ -251,6 +258,63 @@ public class APIExceptionHandler extends ResponseEntityExceptionHandler {
         return new ResponseEntity<Object>(apiError, HttpStatus.valueOf(apiError.getCode()));
     }
 
+    /**
+     * To extract message based on Exception type.
+     * @param ex
+     * @param resourceHandler
+     * @return
+     */
+    public static String extractMessageFromJDBCException(Throwable ex, MessageResourceHandler resourceHandler) {
+      
+        Throwable innerExp1 = ex.getCause();
+        Throwable innerExp2 = innerExp1 != null ? innerExp1.getCause() : null;
 
+        if (ex instanceof ApplicationException) {
+            ApplicationException appExp = (ApplicationException) ex;
+            return getMessageFromResourceBundle(resourceHandler, appExp.getApiErrorCode(),
+                    appExp.getErrorMessageParameters());
 
+        }
+
+        boolean isDatatrunExp = (ex instanceof DataTruncation)
+                || (innerExp1 instanceof DataTruncation)
+                || (innerExp2 instanceof DataTruncation);
+        if (isDatatrunExp ) {
+            return getMessageFromResourceBundle(resourceHandler, APIErrorCodes.DATA_TRUNCTATION);
+        }
+
+        boolean isMySqlSyntaxException = ex instanceof MySQLSyntaxErrorException
+                || innerExp1 instanceof MySQLSyntaxErrorException 
+                || innerExp2 instanceof MySQLSyntaxErrorException;
+        if (isMySqlSyntaxException) {
+            MySQLSyntaxErrorException tempExp = null;
+            if (ex instanceof MySQLSyntaxErrorException) {
+                tempExp = ((MySQLSyntaxErrorException) ex);
+            } else if (innerExp1 instanceof MySQLSyntaxErrorException) {
+                tempExp = ((MySQLSyntaxErrorException) innerExp1);
+            } else if (innerExp2 instanceof MySQLSyntaxErrorException) {
+                tempExp = ((MySQLSyntaxErrorException) innerExp2);
+            }
+
+            return tempExp.getLocalizedMessage();
+        }
+
+        boolean isMySqlConstVoilation = ex instanceof MySQLIntegrityConstraintViolationException
+                || innerExp1 instanceof MySQLIntegrityConstraintViolationException
+                || innerExp2 instanceof MySQLIntegrityConstraintViolationException;
+        if (isMySqlConstVoilation) {
+            MySQLIntegrityConstraintViolationException tempExp = null;
+            if (ex instanceof MySQLIntegrityConstraintViolationException) {
+                tempExp = ((MySQLIntegrityConstraintViolationException) ex);
+            } else if (innerExp1 instanceof MySQLIntegrityConstraintViolationException) {
+                tempExp = ((MySQLIntegrityConstraintViolationException) innerExp1);
+            } else if (innerExp2 instanceof MySQLIntegrityConstraintViolationException) {
+                tempExp = ((MySQLIntegrityConstraintViolationException) innerExp2);
+            }
+
+            return tempExp.getLocalizedMessage();
+        }
+
+        return ex.getLocalizedMessage();
+    }
 }
