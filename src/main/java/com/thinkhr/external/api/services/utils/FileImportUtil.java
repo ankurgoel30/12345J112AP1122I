@@ -8,9 +8,11 @@ import static com.thinkhr.external.api.ApplicationConstants.MAX_RECORDS_COMPANY_
 import static com.thinkhr.external.api.ApplicationConstants.MAX_RECORDS_USER_CSV_IMPORT;
 import static com.thinkhr.external.api.ApplicationConstants.REQUIRED_HEADERS_COMPANY_CSV_IMPORT;
 import static com.thinkhr.external.api.ApplicationConstants.REQUIRED_HEADERS_USER_CSV_IMPORT;
+import static com.thinkhr.external.api.ApplicationConstants.SEMI_COLON_SEPARATOR;
 import static com.thinkhr.external.api.ApplicationConstants.USER;
 import static com.thinkhr.external.api.ApplicationConstants.USER_CUSTOM_COLUMN_PREFIX;
 import static com.thinkhr.external.api.response.APIMessageUtil.getMessageFromResourceBundle;
+import static com.thinkhr.external.api.services.upload.FileImportValidator.validateFileContents;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -32,6 +34,7 @@ import org.springframework.web.multipart.MultipartFile;
 import com.thinkhr.external.api.exception.APIErrorCodes;
 import com.thinkhr.external.api.exception.ApplicationException;
 import com.thinkhr.external.api.exception.MessageResourceHandler;
+import com.thinkhr.external.api.model.CompanyJsonBulk;
 import com.thinkhr.external.api.model.FileImportResult;
 import com.thinkhr.external.api.request.APIRequestHelper;
 import com.thinkhr.external.api.response.APIMessageUtil;
@@ -284,7 +287,29 @@ public class FileImportUtil {
         return null;
     }
 
-    
+    /**
+     * This function converts company Model to File Model and does basic validations on the same
+     * 
+     * @param companies
+     * @return
+     */
+    public static List<String> validateAndGetFileModel(List<CompanyJsonBulk> companies) {
+    	
+    	List<String> fileContents = new ArrayList<String>();
+    	
+    	for (CompanyJsonBulk companyModelJson : companies) {
+
+    		String[] companyModel = companyModelJson.toString().split(SEMI_COLON_SEPARATOR);
+    		if(fileContents.isEmpty()){
+				fileContents.add(companyModel[0]);
+			}
+    		fileContents.add(companyModel[1]);
+		}
+    	
+    	validateFileContents(fileContents, null, COMPANY);
+    	
+    	return fileContents;
+	}
 
 
 }

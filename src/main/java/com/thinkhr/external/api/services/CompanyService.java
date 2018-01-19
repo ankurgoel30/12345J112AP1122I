@@ -20,6 +20,7 @@ import static com.thinkhr.external.api.services.utils.FileImportUtil.getRequired
 import static com.thinkhr.external.api.services.utils.FileImportUtil.getValueFromRow;
 import static com.thinkhr.external.api.services.utils.FileImportUtil.populateColumnValues;
 import static com.thinkhr.external.api.services.utils.FileImportUtil.validateAndFilterCustomHeaders;
+import static com.thinkhr.external.api.services.utils.FileImportUtil.validateAndGetFileModel;
 
 import java.io.IOException;
 import java.sql.DataTruncation;
@@ -47,6 +48,7 @@ import com.thinkhr.external.api.db.entities.Company;
 import com.thinkhr.external.api.db.entities.Location;
 import com.thinkhr.external.api.exception.APIErrorCodes;
 import com.thinkhr.external.api.exception.ApplicationException;
+import com.thinkhr.external.api.model.CompanyJsonBulk;
 import com.thinkhr.external.api.model.FileImportResult;
 import com.thinkhr.external.api.services.upload.FileUploadEnum;
 import com.thinkhr.external.api.services.utils.CommonUtil;
@@ -299,18 +301,25 @@ public class CompanyService  extends CommonService {
     }     
 
     /**
-     * Imports a CSV file for companies record
+     * Imports a CSV file with companies record or a CompanyModelJson objects
      * 
      * @param fileToImport
+     * @param companies 
      * @param brokerId
      * @throws ApplicationException
      */
-    public FileImportResult bulkUpload(MultipartFile fileToImport, int brokerId) throws ApplicationException {
+    public FileImportResult bulkUpload(MultipartFile fileToImport, List<CompanyJsonBulk> companies, int brokerId) throws ApplicationException {
 
         Company broker = validateBrokerId(brokerId);
+        
+        List<String> fileContents = null;
 
-        List<String> fileContents = validateAndGetFileContent(fileToImport, COMPANY);
-
+        if (null != fileToImport) {
+        	fileContents = validateAndGetFileContent(fileToImport, COMPANY);
+        } else {
+        	fileContents = validateAndGetFileModel(companies);
+        }
+        
         return processRecords (fileContents, broker);
 
     }

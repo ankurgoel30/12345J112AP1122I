@@ -35,6 +35,7 @@ import com.thinkhr.external.api.ApplicationConstants;
 import com.thinkhr.external.api.db.entities.Company;
 import com.thinkhr.external.api.exception.ApplicationException;
 import com.thinkhr.external.api.exception.MessageResourceHandler;
+import com.thinkhr.external.api.model.CompanyJsonBulk;
 import com.thinkhr.external.api.model.FileImportResult;
 import com.thinkhr.external.api.services.CompanyService;
 import com.thinkhr.external.api.services.utils.FileImportUtil;
@@ -153,8 +154,35 @@ public class CompanyController {
             @RequestAttribute(name = BROKER_ID_PARAM) Integer brokerId)
                     throws ApplicationException, IOException {
 
+    	logger.info("##### ######### COMPANY IMPORT BEGINS ######### #####");
+        FileImportResult fileImportResult = companyService.bulkUpload(file, null, brokerId);
+        logger.debug("************** COMPANY IMPORT ENDS *****************");
+    	
+        // Set the attachment header & set up response to return a CSV file with result and erroneous records
+        // This response CSV file can be used by users to resubmit records after fixing them.
+        HttpHeaders headers = new HttpHeaders();
+        headers.add("Content-disposition", "attachment;filename=companiesImportResult.csv");
+
+        File responseFile = FileImportUtil.createReponseFile(fileImportResult, resourceHandler);
+
+        return ResponseEntity.status(fileImportResult.getHttpStatus()).headers(headers).contentLength(responseFile.length()).contentType(MediaType.parseMediaType("text/csv"))
+                .body(new InputStreamResource(new FileInputStream(responseFile)));
+    }
+    
+    /**
+     * Bulk import company records from given JSON data.
+     * 
+     * @param CompanyModelJson Object
+     * @param brokerId - brokerId from request. Originally retrieved as part of JWT token
+     * 
+     */
+    @RequestMapping(method=RequestMethod.POST,  value="/bulk/json")
+    public ResponseEntity <InputStreamResource> bulkUploadJson(@RequestBody List<CompanyJsonBulk> companies,
+            @RequestAttribute(name = BROKER_ID_PARAM) Integer brokerId)
+                    throws ApplicationException, IOException {
+    	
         logger.info("##### ######### COMPANY IMPORT BEGINS ######### #####");
-        FileImportResult fileImportResult = companyService.bulkUpload(file, brokerId);
+        FileImportResult fileImportResult = companyService.bulkUpload(null, companies, brokerId);
         logger.debug("************** COMPANY IMPORT ENDS *****************");
 
         // Set the attachment header & set up response to return a CSV file with result and erroneous records
