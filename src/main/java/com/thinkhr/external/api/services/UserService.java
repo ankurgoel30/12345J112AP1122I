@@ -1,6 +1,5 @@
 package com.thinkhr.external.api.services;
 
-import static com.thinkhr.external.api.ApplicationConstants.APP_AUTH_DATA;
 import static com.thinkhr.external.api.ApplicationConstants.COMMA_SEPARATOR;
 import static com.thinkhr.external.api.ApplicationConstants.CONTACT;
 import static com.thinkhr.external.api.ApplicationConstants.DEFAULT_SORT_BY_USER_NAME;
@@ -45,13 +44,13 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.CollectionUtils;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.thinkhr.external.api.db.entities.Company;
 import com.thinkhr.external.api.db.entities.User;
 import com.thinkhr.external.api.exception.APIErrorCodes;
 import com.thinkhr.external.api.exception.ApplicationException;
-import com.thinkhr.external.api.model.AppAuthData;
 import com.thinkhr.external.api.model.EmailRequest;
 import com.thinkhr.external.api.model.FileImportResult;
 import com.thinkhr.external.api.repositories.ThroneRoleRepository;
@@ -303,7 +302,18 @@ public class UserService extends CommonService {
 
         List<String> fileContents = validateAndGetFileContent(fileToImport, resource);
 
-        return processRecords (fileContents, broker, resource);
+        FileImportResult result = processRecords (fileContents, broker, resource);
+        
+        if (isSendEmailEnabled && result.getNumSuccessRecords() > 0) {
+            try {
+                sendMail(broker.getCompanyId(), null  ); //TODO: add jobId
+            } catch (ApplicationException ex) {
+                //TODO: Bypassing exception. 
+                logger.error("Failed to send email ", ex);
+            }
+        }
+        
+        return result;
 
     }
 
@@ -385,9 +395,6 @@ public class UserService extends CommonService {
         if (logger.isDebugEnabled()) {
             logger.debug(fileImportResult.toString());
         }
-
-        // Send Mail after all users in csv are added
-        sendMail(broker, (String) APIRequestHelper.getRequestAttribute("jobId"));
 
         return fileImportResult;
     }
@@ -556,26 +563,15 @@ public class UserService extends CommonService {
      * @param broker
      * @param jobId
      */
-    private void sendMail(Company broker, String jobId) {
-        try {
-            if (jobId == null || broker == null) {
-                return;
-            }
+    private void sendMail(Integer companyId, String jobId) throws ApplicationException {
+        
+        List<User> userList = userRepository.findByAddedBy(jobId);
 
-            if (isSendEmailEnabled) {
-                List<User> usersByJobId = userRepository.findByAddedBy(jobId);
-
-                if (usersByJobId == null || usersByJobId.isEmpty()) {
-                    return;
-                }
-
-                EmailRequest emailRequest = emailService.createEmailRequest(broker.getCompanyId(), usersByJobId);
-                emailService.sendEmail(emailRequest);
-            }
-        } catch (Exception e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
+        if (CollectionUtils.isEmpty(userList)) {
+            return;
         }
+
+        emailService.createAndSendEmail(companyId, userList);
     }
 
     /**

@@ -3,9 +3,23 @@ package com.thinkhr.external.api.services.email;
 import static com.thinkhr.external.api.ApplicationConstants.EMAIL_BODY;
 import static com.thinkhr.external.api.ApplicationConstants.EMAIL_SUBJECT;
 import static com.thinkhr.external.api.ApplicationConstants.FROM_EMAIL;
+import static com.thinkhr.external.api.ApplicationConstants.RESET_PASSWORD_PREFIX;
+import static com.thinkhr.external.api.services.utils.CommonUtil.generateHashedValue;
+import static com.thinkhr.external.api.services.utils.EmailUtil.BROKER_NAME;
 import static com.thinkhr.external.api.services.utils.EmailUtil.DEFAULT_EMAIL_TEMPLATE_BROKERID;
+import static com.thinkhr.external.api.services.utils.EmailUtil.FIRST_NAME;
+import static com.thinkhr.external.api.services.utils.EmailUtil.SET_LOGIN_LINK;
+import static com.thinkhr.external.api.services.utils.EmailUtil.SET_PASSWORD_LINK;
+import static com.thinkhr.external.api.services.utils.EmailUtil.SUPPORT_EMAIL;
+import static com.thinkhr.external.api.services.utils.EmailUtil.SUPPORT_PHONE;
+import static com.thinkhr.external.api.services.utils.EmailUtil.USER_NAME;
+import static com.thinkhr.external.api.services.utils.EmailUtil.prepareResetPasswordlink;
 
+import java.util.ArrayList;
 import java.util.List;
+
+import org.slf4j.Logger;
+import org.springframework.beans.factory.annotation.Value;
 
 import com.thinkhr.external.api.ApplicationConstants;
 import com.thinkhr.external.api.db.entities.Company;
@@ -19,6 +33,8 @@ import com.thinkhr.external.api.model.EmailRequest;
 import com.thinkhr.external.api.model.KeyValuePair;
 import com.thinkhr.external.api.services.CommonService;
 
+import lombok.Data;
+
 /**
  * Abstract classs for sending email.
  * 
@@ -26,9 +42,28 @@ import com.thinkhr.external.api.services.CommonService;
  * @since 2018-01-15
  *
  */
+@Data
 public abstract class EmailService extends CommonService {
 
-    public abstract void sendEmail(EmailRequest emailRequest) throws Exception;
+    public abstract void sendEmail(EmailRequest emailRequest) throws ApplicationException;
+    
+    @Value("${default_support_email}")
+    protected String defaultSupportEmail;
+    
+    @Value("${default_support_phone}")
+    protected String defaultSupportPhone;
+    
+    @Value("${login_url}")
+    protected String loginUrl;
+
+    /**
+     * @param brokerId
+     * @param users
+     */
+    public void createAndSendEmail(Integer brokerId, List<User> users) { 
+        EmailRequest emailRequest = createEmailRequest(brokerId, users);
+        sendEmail(emailRequest);
+    }
 
     /**
      * 
@@ -37,20 +72,16 @@ public abstract class EmailService extends CommonService {
      * @return
      */
     public EmailRequest createEmailRequest(Integer brokerId, List<User> users) {
-        if (users == null) {
+        
+        if (users == null || brokerId == null) {
             return null;
         }
 
         EmailRequest emailRequest = new EmailRequest();
-        Company broker = null;
-        if (brokerId != null) {
-            broker = companyRepository.findOne(brokerId);
-        }
+        
+        Company broker = companyRepository.findOne(brokerId);
 
         EmailTemplate emailTemplate = getEmailTemplate(brokerId, ApplicationConstants.WELCOME_EMAIL_TYPE);
-        if (emailTemplate == null) {
-            emailTemplate = getDefaultEmailTemplate();
-        }
 
         if (emailTemplate == null) {
             throw ApplicationException.createBadRequest(APIErrorCodes.ENTITY_NOT_FOUND, "template",
@@ -59,6 +90,7 @@ public abstract class EmailService extends CommonService {
 
         if (emailTemplate != null && emailTemplate.getEmailConfigurations() != null
                 && !emailTemplate.getEmailConfigurations().isEmpty()) {
+         
             for (EmailConfiguration emailConfiguration : emailTemplate.getEmailConfigurations()) {
                 if (emailConfiguration.getEmailField().getName().equalsIgnoreCase(EMAIL_BODY)) {
                     emailRequest.setBody(emailConfiguration.getValue());
@@ -73,9 +105,6 @@ public abstract class EmailService extends CommonService {
         }
 
         for (User user : users) {
-            if (user == null) {
-                continue;
-            }
 
             List<KeyValuePair> substitutions = getEmailSubstituions(broker, user);
 
@@ -93,7 +122,14 @@ public abstract class EmailService extends CommonService {
      * @return
      */
     public EmailTemplate getEmailTemplate(Integer brokerId, String type) {
-        return emailRepository.findFirstByBrokerIdAndType(brokerId, type);
+        EmailTemplate emailTemplate = emailRepository.findFirstByBrokerIdAndType(brokerId, type);
+
+        if (emailTemplate == null) {
+            return getDefaultEmailTemplate();
+        }
+        
+        return emailTemplate;
+
     }
 
     /**
@@ -132,11 +168,29 @@ public abstract class EmailService extends CommonService {
     }
 
     /**
-     * 
      * @param broker
      * @param user
      * @return
      */
-    protected abstract List<KeyValuePair> getEmailSubstituions(Company broker, User user);
+    protected List<KeyValuePair> getEmailSubstituions(Company broker, User user) {
+        List<KeyValuePair> substitutions = new ArrayList<KeyValuePair>();
+        
+        //String sendgridTemplateId = emailTemplate.getSendgridTemplateId();
+        String generatedHashedCode = RESET_PASSWORD_PREFIX + generateHashedValue(user.getUserId());
+        String resetPasswordLink = prepareResetPasswordlink(loginUrl, generatedHashedCode);
 
+        // Saving SetPasswordRequest record for reset password request.
+        saveSetPasswordRequest(user.getUserId(), generatedHashedCode);
+
+        substitutions.add(createKeyValue(SET_LOGIN_LINK, loginUrl));
+        substitutions.add(createKeyValue(FIRST_NAME, user.getFirstName()));
+        substitutions.add(createKeyValue(BROKER_NAME, broker.getCompanyName()));
+        substitutions.add(createKeyValue(USER_NAME, user.getUserName()));
+        substitutions.add(createKeyValue(SUPPORT_PHONE, defaultSupportPhone));
+        substitutions.add(createKeyValue(SUPPORT_EMAIL, defaultSupportEmail));
+        substitutions.add(createKeyValue(SET_PASSWORD_LINK, resetPasswordLink));
+        return substitutions;
+    }
+
+    
 }

@@ -52,6 +52,7 @@ public class EmailUtil {
      * @return
      */
     public static Mail build(EmailRequest emailRequest) {
+        
         Mail mail = new Mail();
 
         for (User userToSendEmail : emailRequest.getRecipientToSubstitutionMap().keySet()) {
