@@ -222,7 +222,7 @@ public class APIExceptionHandler extends ResponseEntityExceptionHandler {
         APIError apiError = null;
         if (ex.getCause() instanceof ConstraintViolationException) {
             apiError = new APIError(HttpStatus.CONFLICT, APIErrorCodes.DATABASE_ERROR,
-                    extractMessageFromJDBCException(ex, resourceHandler));
+                    extractMessageFromException(ex, resourceHandler));
             apiError.setMessage(resourceHandler.get(APIErrorCodes.DATABASE_ERROR.name()));
         } else {
             apiError = new APIError(HttpStatus.INTERNAL_SERVER_ERROR, ex);
@@ -241,7 +241,7 @@ public class APIExceptionHandler extends ResponseEntityExceptionHandler {
             WebRequest request) {
         logger.error(ex);
         APIError apiError = new APIError(HttpStatus.INTERNAL_SERVER_ERROR, APIErrorCodes.DATABASE_ERROR,
-                extractMessageFromJDBCException(ex, resourceHandler));
+                extractMessageFromException(ex, resourceHandler));
         apiError.setMessage(resourceHandler.get(APIErrorCodes.DATABASE_ERROR.name()));
         return buildResponseEntity(apiError);
     }
@@ -264,7 +264,7 @@ public class APIExceptionHandler extends ResponseEntityExceptionHandler {
      * @param resourceHandler
      * @return
      */
-    public static String extractMessageFromJDBCException(Throwable ex, MessageResourceHandler resourceHandler) {
+    public static String extractMessageFromException(Throwable ex, MessageResourceHandler resourceHandler) {
       
         Throwable innerExp1 = ex.getCause();
         Throwable innerExp2 = innerExp1 != null ? innerExp1.getCause() : null;
