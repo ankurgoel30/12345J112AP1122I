@@ -1,5 +1,6 @@
 package com.thinkhr.external.api.services;
 
+import static com.thinkhr.external.api.ApplicationConstants.APP_AUTH_DATA;
 import static com.thinkhr.external.api.services.utils.FileImportUtil.getCustomFieldPrefix;
 
 import java.io.IOException;
@@ -24,6 +25,7 @@ import com.fasterxml.jackson.databind.ObjectReader;
 import com.thinkhr.external.api.db.entities.Company;
 import com.thinkhr.external.api.db.entities.CustomFields;
 import com.thinkhr.external.api.db.entities.StandardFields;
+import com.thinkhr.external.api.db.entities.User;
 import com.thinkhr.external.api.exception.APIErrorCodes;
 import com.thinkhr.external.api.exception.ApplicationException;
 import com.thinkhr.external.api.exception.MessageResourceHandler;
@@ -33,6 +35,7 @@ import com.thinkhr.external.api.learn.repositories.LearnFileDataRepository;
 import com.thinkhr.external.api.learn.repositories.LearnRoleRepository;
 import com.thinkhr.external.api.learn.repositories.LearnUserRepository;
 import com.thinkhr.external.api.learn.repositories.PackageRepository;
+import com.thinkhr.external.api.model.AppAuthData;
 import com.thinkhr.external.api.repositories.CompanyRepository;
 import com.thinkhr.external.api.repositories.ConfigurationRepository;
 import com.thinkhr.external.api.repositories.CustomFieldsRepository;
@@ -41,6 +44,7 @@ import com.thinkhr.external.api.repositories.FileDataRepository;
 import com.thinkhr.external.api.repositories.SetPasswordRequestRepository;
 import com.thinkhr.external.api.repositories.StandardFieldsRepository;
 import com.thinkhr.external.api.repositories.UserRepository;
+import com.thinkhr.external.api.request.APIRequestHelper;
 import com.thinkhr.external.api.services.upload.FileUploadEnum;
 
 import lombok.Data;
@@ -229,5 +233,23 @@ public class CommonService {
             ConstraintViolationException ex = new ConstraintViolationException(constraintViolations);
             throw ex;
         }
+    }
+    
+    /**
+     * 
+     * @param user
+     * @param brokerId
+     */
+    protected String getAddedBy(Integer brokerId) {
+        String addedBy = null;
+        AppAuthData authData = (AppAuthData) APIRequestHelper.getRequestAttribute(APP_AUTH_DATA);
+        if (authData != null) {
+            User authUser = userRepository.findByUserName(authData.getUser());
+            addedBy = "" + authUser.getUserId();
+        } else {
+            addedBy = "" + brokerId;
+        }
+
+        return addedBy;
     }
 }

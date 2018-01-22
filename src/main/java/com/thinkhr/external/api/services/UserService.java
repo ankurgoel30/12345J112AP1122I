@@ -239,29 +239,11 @@ public class UserService extends CommonService {
 
             user.setActivationDate(getCurrentDateInUTC());
 
-            user.setAddedBy((String) APIRequestHelper.getRequestAttribute("jobId"));
+            user.setAddedBy(getAddedBy(brokerId));
         }
         // If not passed in model, then object will become in-active.
         User throneUser = userRepository.save(user);
         return throneUser;
-    }
-
-    /**
-     * 
-     * @param user
-     * @param brokerId
-     */
-    private String getAddedBy(Integer brokerId) {
-        String addedBy = null;
-        AppAuthData authData = (AppAuthData) APIRequestHelper.getRequestAttribute(APP_AUTH_DATA);
-        if (authData != null) {
-            User authUser = userRepository.findByUserName(authData.getUser());
-            addedBy = "" + authUser.getUserId();
-        } else {
-            addedBy = "" + brokerId;
-        }
-
-        return addedBy;
     }
 
     /**
@@ -570,8 +552,9 @@ public class UserService extends CommonService {
     }
     
     /**
-     * 
+     * This function send mails to all the users added for given jobId
      * @param broker
+     * @param jobId
      */
     private void sendMail(Company broker, String jobId) {
         try {
@@ -580,8 +563,7 @@ public class UserService extends CommonService {
             }
 
             if (isSendEmailEnabled) {
-                List<User> usersByJobId = userRepository
-                        .findByAddedBy((String) APIRequestHelper.getRequestAttribute("jobId"));
+                List<User> usersByJobId = userRepository.findByAddedBy(jobId);
 
                 if (usersByJobId == null || usersByJobId.isEmpty()) {
                     return;

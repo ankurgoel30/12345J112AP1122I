@@ -1,8 +1,11 @@
 package com.thinkhr.external.api.services;
 
+import static com.thinkhr.external.api.ApplicationConstants.APP_AUTH_DATA;
 import static com.thinkhr.external.api.ApplicationConstants.CLIENT;
 import static com.thinkhr.external.api.ApplicationConstants.COMMA_SEPARATOR;
 import static com.thinkhr.external.api.ApplicationConstants.COMPANY;
+import static com.thinkhr.external.api.ApplicationConstants.COMPANY_COLUMN_ADDEDBY;
+import static com.thinkhr.external.api.ApplicationConstants.COMPANY_COLUMN_BROKER;
 import static com.thinkhr.external.api.ApplicationConstants.COMPANY_CUSTOM_HEADER1;
 import static com.thinkhr.external.api.ApplicationConstants.CONFIGURATION_ID_FOR_INACTIVE;
 import static com.thinkhr.external.api.ApplicationConstants.DEFAULT_SORT_BY_COMPANY_NAME;
@@ -47,7 +50,9 @@ import com.thinkhr.external.api.db.entities.Company;
 import com.thinkhr.external.api.db.entities.Location;
 import com.thinkhr.external.api.exception.APIErrorCodes;
 import com.thinkhr.external.api.exception.ApplicationException;
+import com.thinkhr.external.api.model.AppAuthData;
 import com.thinkhr.external.api.model.FileImportResult;
+import com.thinkhr.external.api.request.APIRequestHelper;
 import com.thinkhr.external.api.services.upload.FileUploadEnum;
 import com.thinkhr.external.api.services.utils.CommonUtil;
 
@@ -223,9 +228,13 @@ public class CompanyService  extends CommonService {
         associateChildEntities(company);
 
         // Checking Duplicate company name
-        if (isNew && isDuplicateCompany(company.getCompanyName(), company.getBroker(), company.getCustom1())) {
-            throw ApplicationException.createBadRequest(APIErrorCodes.DUPLICATE_COMPANY_RECORD,
-                    company.getCompanyName());
+        if (isNew) {
+            if (isDuplicateCompany(company.getCompanyName(), company.getBroker(), company.getCustom1())) {
+                throw ApplicationException.createBadRequest(APIErrorCodes.DUPLICATE_COMPANY_RECORD,
+                        company.getCompanyName());
+            }
+
+            company.setAddedBy(getAddedBy(brokerId));
         }
 
         Integer configurationId = company.getConfigurationId();
@@ -435,12 +444,16 @@ public class CompanyService  extends CommonService {
         }
 
         try {
+            String jobId = (String) APIRequestHelper.getRequestAttribute("jobId");
 
             //Finally save companies one by one
             List<String> companyColumnsToInsert = new ArrayList<String>(companyFileHeaderColumnMap.keySet());
             List<String> locationColumnsToInsert = new ArrayList<String>(locationFileHeaderColumnMap.keySet());
-            companyColumnsToInsert.add("broker");
+            companyColumnsToInsert.add(COMPANY_COLUMN_BROKER);
+            companyColumnsToInsert.add(COMPANY_COLUMN_ADDEDBY);
+
             companyColumnsValues.add(fileImportResult.getBrokerId());
+            companyColumnsValues.add(jobId);
 
             saveCompanyRecord(companyColumnsValues, locationColumnsValues,
                     companyColumnsToInsert, locationColumnsToInsert);

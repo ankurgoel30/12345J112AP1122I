@@ -71,6 +71,8 @@ public class ApplicationConstants {
     public static final String USER_COLUMN_ACTIVATION_DATE = "activationDate";
     public static final String USER_COLUMN_ADDEDBY = "addedBy";
     public static final String USER_COLUMN_BROKERID = "brokerId";
+    public static final String COMPANY_COLUMN_ADDEDBY = "addedBy";
+    public static final String COMPANY_COLUMN_BROKER = "broker";
     public static final String DEFAULT_PASSWORD = "";
     
     public static final String JWT_TOKEN_THR_CLIENT_ID =  "thr:clientId";
