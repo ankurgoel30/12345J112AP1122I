@@ -143,7 +143,9 @@ public class CompanyService  extends CommonService {
         company.setTempID(getTempId());
 
         Company throneCompany = saveCompany(company, brokerId, true);
-        
+        if (brokerId == null) { //i.e. this is to create a brokern
+            throneCompany.setBroker(throneCompany.getCompanyId());
+        }
         learnCompanyService.addLearnCompany(throneCompany);// THR-3929 
 
         return throneCompany;
