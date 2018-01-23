@@ -351,6 +351,7 @@ public class CompanyService  extends CommonService {
         fileImportResult.setTotalRecords(records.size());
         fileImportResult.setHeaderLine(headerLine);
         fileImportResult.setBrokerId(broker.getCompanyId());
+        fileImportResult.setJobId((String) APIRequestHelper.getRequestAttribute("jobId"));
 
         String[] headersInCSV = headerLine.split(COMMA_SEPARATOR);
 
@@ -453,7 +454,7 @@ public class CompanyService  extends CommonService {
             companyColumnsToInsert.add(COMPANY_COLUMN_ADDEDBY);
 
             companyColumnsValues.add(fileImportResult.getBrokerId());
-            companyColumnsValues.add(jobId);
+            companyColumnsValues.add(fileImportResult.getJobId());
 
             saveCompanyRecord(companyColumnsValues, locationColumnsValues,
                     companyColumnsToInsert, locationColumnsToInsert);

@@ -30,6 +30,9 @@ public class FileImportResult {
     private int numFailedRecords;
     private int numBlankRecords;
     private int recCount = 0;
+    
+    @JsonIgnore
+    private String jobId;
 
     private String headerLine; // For storing header to be used for creating responseFile
 

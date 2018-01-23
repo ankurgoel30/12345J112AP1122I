@@ -306,7 +306,7 @@ public class UserService extends CommonService {
         
         if (isSendEmailEnabled && result.getNumSuccessRecords() > 0) {
             try {
-                sendMail(broker.getCompanyId(), null  ); //TODO: add jobId
+                sendMail(broker.getCompanyId(), result.getJobId());
             } catch (ApplicationException ex) {
                 //TODO: Bypassing exception. 
                 logger.error("Failed to send email ", ex);
@@ -314,7 +314,6 @@ public class UserService extends CommonService {
         }
         
         return result;
-
     }
 
     /**
@@ -336,6 +335,7 @@ public class UserService extends CommonService {
         fileImportResult.setTotalRecords(records.size());
         fileImportResult.setHeaderLine(headerLine);
         fileImportResult.setBrokerId(broker.getCompanyId());
+        fileImportResult.setJobId((String) APIRequestHelper.getRequestAttribute("jobId"));
 
         String[] headersInCSV = headerLine.split(COMMA_SEPARATOR);
 
@@ -431,14 +431,13 @@ public class UserService extends CommonService {
         }
 
         try {
-            String jobId = (String) APIRequestHelper.getRequestAttribute("jobId");
 
             //Finally save users one by one
             List<String> userColumnsToInsert = new ArrayList<String>(userHeaderColumnMap.keySet());
             userColumnValues.add(companyId);
             userColumnValues.add(encDecyptor.encrypt(defaultPassword));
             userColumnValues.add(getCurrentDateInUTC());
-            userColumnValues.add(jobId);
+            userColumnValues.add(fileImportResult.getJobId());
             userColumnValues.add(fileImportResult.getBrokerId());
             
             userColumnsToInsert.add(USER_COLUMN_CLIENT_ID);

@@ -1,19 +1,6 @@
 package com.thinkhr.external.api.services.email;
 
-import static com.thinkhr.external.api.ApplicationConstants.RESET_PASSWORD_PREFIX;
-import static com.thinkhr.external.api.services.utils.CommonUtil.generateHashedValue;
-import static com.thinkhr.external.api.services.utils.EmailUtil.BROKER_NAME;
-import static com.thinkhr.external.api.services.utils.EmailUtil.FIRST_NAME;
 import static com.thinkhr.external.api.services.utils.EmailUtil.SENDGRID_END_POINT;
-import static com.thinkhr.external.api.services.utils.EmailUtil.SET_LOGIN_LINK;
-import static com.thinkhr.external.api.services.utils.EmailUtil.SET_PASSWORD_LINK;
-import static com.thinkhr.external.api.services.utils.EmailUtil.SUPPORT_EMAIL;
-import static com.thinkhr.external.api.services.utils.EmailUtil.SUPPORT_PHONE;
-import static com.thinkhr.external.api.services.utils.EmailUtil.USER_NAME;
-import static com.thinkhr.external.api.services.utils.EmailUtil.prepareResetPasswordlink;
-
-import java.util.ArrayList;
-import java.util.List;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -24,14 +11,10 @@ import com.sendgrid.Method;
 import com.sendgrid.Request;
 import com.sendgrid.Response;
 import com.sendgrid.SendGrid;
-import com.thinkhr.external.api.db.entities.Company;
-import com.thinkhr.external.api.db.entities.User;
+import com.thinkhr.external.api.exception.APIErrorCodes;
 import com.thinkhr.external.api.exception.ApplicationException;
 import com.thinkhr.external.api.model.EmailRequest;
-import com.thinkhr.external.api.model.KeyValuePair;
 import com.thinkhr.external.api.services.utils.EmailUtil;
-
-import lombok.Data;
 
 /**
  * EmailService class to work with email entities, repositories and SendGrid APIs.
@@ -68,7 +51,7 @@ public class SendGridEmailService extends EmailService {
         try {
             sendEmail(mail);
         } catch(Exception ex) {
-           // TODO: throw ApplicationException.createException(APIErrorCodes.SEND_EMAIL, ex);
+            throw ApplicationException.createException(APIErrorCodes.SG_MAIL_FAILED, ex);
         }
     }
 
