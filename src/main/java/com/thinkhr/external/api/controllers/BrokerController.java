@@ -126,7 +126,7 @@ public class BrokerController {
     public ResponseEntity<Company> addCompany(@Valid @RequestBody Company company, 
             @RequestAttribute(name = BROKER_ID_PARAM) Integer brokerId)
             throws ApplicationException {
-        brokerService.addBroker(company, brokerId);
+        brokerService.addCompany(company, brokerId);
         return new ResponseEntity<Company>(company, HttpStatus.CREATED);
     }
 
