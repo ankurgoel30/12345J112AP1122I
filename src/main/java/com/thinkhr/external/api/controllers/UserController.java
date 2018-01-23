@@ -127,7 +127,7 @@ public class UserController {
     
 
     /**
-     * Bulk import company records from a given CSV file.
+     * Bulk import user records from a given CSV file.
      * 
      * @param Multipart file CSV files with records
      * @param brokerId - brokerId from request. Originally retrieved as part of JWT token
@@ -145,7 +145,7 @@ public class UserController {
         // Set the attachment header & set up response to return a CSV file with result and erroneous records
         // This response CSV file can be used by users to resubmit records after fixing them.
         HttpHeaders headers = new HttpHeaders();
-        headers.add("Content-disposition", "attachment;filename=companiesImportResult.csv");
+        headers.add("Content-disposition", "attachment;filename=usersImportResult.csv");
 
         File responseFile = FileImportUtil.createReponseFile(fileImportResult, resourceHandler);
 
