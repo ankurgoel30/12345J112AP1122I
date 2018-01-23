@@ -84,7 +84,7 @@ public class BrokerController {
      * @param companyId
      */
     @RequestMapping(method=RequestMethod.DELETE,value="/{brokerId}")
-    public ResponseEntity<Integer> deleteCompany(@PathVariable(name="brokerId", value = "brokerId") Integer brokerId) 
+    public ResponseEntity<Integer> deleteBroker(@PathVariable(name = "brokerId", value = "brokerId") Integer brokerId)
             throws ApplicationException {
         brokerService.deleteBroker(brokerId);
         return new ResponseEntity <Integer>(brokerId, HttpStatus.ACCEPTED);
@@ -99,7 +99,7 @@ public class BrokerController {
      * @throws JsonProcessingException 
      */
     @RequestMapping(method=RequestMethod.PUT,value="/{brokerId}")
-    public ResponseEntity <Company> updateCompany(@PathVariable(name="brokerId", value = "brokerId") Integer brokerId, 
+    public ResponseEntity<Company> updateBroker(@PathVariable(name = "brokerId", value = "brokerId") Integer brokerId,
             @RequestBody String companyJson) 
             throws ApplicationException, JsonProcessingException, IOException {
 
@@ -114,10 +114,8 @@ public class BrokerController {
      * @param Company object
      */
     @RequestMapping(method=RequestMethod.POST)
-    public ResponseEntity<Company> addCompany(@Valid @RequestBody Company company, 
-            @RequestAttribute(name = BROKER_ID_PARAM) Integer brokerId)
-            throws ApplicationException {
-        brokerService.addBroker(company, brokerId);
+    public ResponseEntity<Company> addBroker(@Valid @RequestBody Company company) throws ApplicationException {
+        brokerService.addBroker(company);
         return new ResponseEntity<Company>(company, HttpStatus.CREATED);
     }
 

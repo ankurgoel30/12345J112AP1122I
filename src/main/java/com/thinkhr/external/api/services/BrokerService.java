@@ -3,6 +3,7 @@ package com.thinkhr.external.api.services;
 import static com.thinkhr.external.api.ApplicationConstants.COMPANY_TYPE_BROKER;
 
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -47,9 +48,12 @@ public class BrokerService extends CompanyService {
            String sortField, 
            String searchSpec, 
            Map<String, String> requestParameters) throws ApplicationException {
-       
-       requestParameters.put("companyType", COMPANY_TYPE_BROKER); //To always filter broker records;
-       return super.getAllCompany(offset, limit, sortField, searchSpec, requestParameters);
+
+        if (requestParameters == null) {
+            requestParameters = new HashMap<String, String>();
+        }
+        requestParameters.put("companyType", COMPANY_TYPE_BROKER); //To always filter broker records;
+        return getAllCompany(offset, limit, sortField, searchSpec, requestParameters);
    }
 
    /**
@@ -58,7 +62,7 @@ public class BrokerService extends CompanyService {
     * @param brokerId
     */
    public int deleteBroker(int brokerId) throws ApplicationException {
-       Company company = companyRepository.findOne(brokerId);
+        Company company = companyRepository.findByCompanyIdAndCompanyType(brokerId, COMPANY_TYPE_BROKER);
 
        if (null == company) {
            throw ApplicationException.createEntityNotFoundError(APIErrorCodes.ENTITY_NOT_FOUND, "broker", "brokerId="+brokerId);
@@ -74,7 +78,7 @@ public class BrokerService extends CompanyService {
      * @param company object
      */
     @Transactional
-    public Company addBroker(Company company, Integer brokerId) {
+    public Company addBroker(Company company) {
         
         company.setCompanyType(COMPANY_TYPE_BROKER);
         
@@ -127,7 +131,7 @@ public class BrokerService extends CompanyService {
             throw ApplicationException.createEntityNotFoundError(APIErrorCodes.ENTITY_NOT_FOUND, "broker", "brokerId="+brokerId);
         }
         
-        return super.updateCompany(companyJson, brokerId, companyInDb);
+        return updateCompany(companyJson, brokerId, companyInDb);
     }
 
     
