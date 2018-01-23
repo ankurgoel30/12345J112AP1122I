@@ -245,9 +245,9 @@ public class CommonService {
         AppAuthData authData = (AppAuthData) APIRequestHelper.getRequestAttribute(APP_AUTH_DATA);
         if (authData != null) {
             User authUser = userRepository.findByUserName(authData.getUser());
-            addedBy = "" + authUser.getUserId();
+            addedBy = String.valueOf(authUser.getUserId());
         } else {
-            addedBy = "" + brokerId;
+            addedBy = String.valueOf(brokerId); 
         }
 
         return addedBy;
