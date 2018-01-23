@@ -11,7 +11,7 @@ import static com.thinkhr.external.api.ApplicationConstants.UNDERSCORE;
 import lombok.Data;
 
 /**
- * Model class to support JSON bulk company upload
+ * Model class to support JSON bulk user upload
  * 
  * @author Surabhi Bhawsar
  * @since 2017-12-12
@@ -19,23 +19,15 @@ import lombok.Data;
  */
 
 @Data
-public class CompanyJsonBulk {
+public class UserJsonBulk {
 
+    private String firstName;
+    private String lastName;
     private String clientName;
-    private String displayName;
+    private String email;
+    private String userName;
     private String phone;
-    private String address;
-    private String address2;
-    private String city;
-    private String state;
-    private String zip;
-    private String industry;
-    private int companySize;
-    private String producer;
-    private int businessId;
-    private int branchId;
-    private int clientId;
-    private String clientType;
+    private String businessId;
 
     /**
      * To get the header List from the attribute fields

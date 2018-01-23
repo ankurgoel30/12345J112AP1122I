@@ -172,12 +172,12 @@ public class CompanyController {
     /**
      * Bulk import company records from given JSON data.
      * 
-     * @param CompanyModelJson Object
+     * @param CompanyJsonBulk Object
      * @param brokerId - brokerId from request. Originally retrieved as part of JWT token
      * 
      */
     @RequestMapping(method=RequestMethod.POST,  value="/bulk/json")
-    public ResponseEntity <InputStreamResource> bulkUploadJson(@RequestBody List<CompanyJsonBulk> companies,
+    public ResponseEntity <List<CompanyJsonBulk>> bulkUploadJson(@RequestBody List<CompanyJsonBulk> companies,
             @RequestAttribute(name = BROKER_ID_PARAM) Integer brokerId)
                     throws ApplicationException, IOException {
     	
@@ -185,15 +185,7 @@ public class CompanyController {
         FileImportResult fileImportResult = companyService.bulkUpload(null, companies, brokerId);
         logger.debug("************** COMPANY IMPORT ENDS *****************");
 
-        // Set the attachment header & set up response to return a CSV file with result and erroneous records
-        // This response CSV file can be used by users to resubmit records after fixing them.
-        HttpHeaders headers = new HttpHeaders();
-        headers.add("Content-disposition", "attachment;filename=companiesImportResult.csv");
-
-        File responseFile = FileImportUtil.createReponseFile(fileImportResult, resourceHandler);
-
-        return ResponseEntity.status(fileImportResult.getHttpStatus()).headers(headers).contentLength(responseFile.length()).contentType(MediaType.parseMediaType("text/csv"))
-                .body(new InputStreamResource(new FileInputStream(responseFile)));
+        return new ResponseEntity<List<CompanyJsonBulk>>(companies,fileImportResult.getHttpStatus());
     }
 
 }

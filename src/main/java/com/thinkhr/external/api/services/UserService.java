@@ -26,6 +26,8 @@ import static com.thinkhr.external.api.services.utils.FileImportUtil.getRequired
 import static com.thinkhr.external.api.services.utils.FileImportUtil.getValueFromRow;
 import static com.thinkhr.external.api.services.utils.FileImportUtil.populateColumnValues;
 import static com.thinkhr.external.api.services.utils.FileImportUtil.validateAndFilterCustomHeaders;
+import static com.thinkhr.external.api.services.utils.FileImportUtil.validateAndGetFileModel;
+import static com.thinkhr.external.api.services.utils.FileImportUtil.setRequestParamsForBulkJsonResponse;
 
 import java.io.IOException;
 import java.sql.DataTruncation;
@@ -44,6 +46,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.CollectionUtils;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.thinkhr.external.api.db.entities.Company;
@@ -53,6 +56,7 @@ import com.thinkhr.external.api.exception.ApplicationException;
 import com.thinkhr.external.api.model.AppAuthData;
 import com.thinkhr.external.api.model.EmailRequest;
 import com.thinkhr.external.api.model.FileImportResult;
+import com.thinkhr.external.api.model.UserJsonBulk;
 import com.thinkhr.external.api.repositories.ThroneRoleRepository;
 import com.thinkhr.external.api.request.APIRequestHelper;
 import com.thinkhr.external.api.services.crypto.AppEncryptorDecryptor;
@@ -300,18 +304,26 @@ public class UserService extends CommonService {
      * Imports a CSV file for companies record
      * 
      * @param fileToImport
+     * @param users 
      * @param brokerId
      * @throws ApplicationException
      */
-    public FileImportResult bulkUpload(MultipartFile fileToImport, int brokerId) throws ApplicationException {
+    public FileImportResult bulkUpload(MultipartFile fileToImport, List<UserJsonBulk> users, int brokerId) throws ApplicationException {
         
-        if (fileToImport == null) {
-            throw ApplicationException.createFileImportError(APIErrorCodes.REQUIRED_PARAMETER, "file");
+        if (fileToImport == null && CollectionUtils.isEmpty(users)) {
+            throw ApplicationException.createFileImportError(APIErrorCodes.REQUIRED_PARAMETER, "file Or UserJsonBody");
         }
 
         Company broker = validateBrokerId(brokerId);
 
-        List<String> fileContents = validateAndGetFileContent(fileToImport, resource);
+        List<String> fileContents = null;
+        
+        //Retrieving file contents on basis of input parameter
+        if(fileToImport!=null){
+            fileContents = validateAndGetFileContent(fileToImport, resource);
+        }else{
+            fileContents = validateAndGetFileModel(users, resource);
+        }
 
         return processRecords (fileContents, broker, resource);
 
@@ -395,6 +407,8 @@ public class UserService extends CommonService {
         if (logger.isDebugEnabled()) {
             logger.debug(fileImportResult.toString());
         }
+        
+        setRequestParamsForBulkJsonResponse(fileImportResult);
 
         return fileImportResult;
     }

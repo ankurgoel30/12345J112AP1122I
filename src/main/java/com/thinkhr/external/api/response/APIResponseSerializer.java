@@ -135,6 +135,19 @@ public class APIResponseSerializer extends JsonSerializer<APIResponse> {
                     jGen.writeObject(obj);
                 }
                 jGen.writeEndArray();
+            }else{
+               
+                jGen.writeStringField("totalRecords",apiResponse.getTotalRecords());
+                jGen.writeStringField("successfulRecords",apiResponse.getSuccessRecords());
+                jGen.writeStringField("failedRecords",apiResponse.getFailedRecords());
+                if(apiResponse.getFailedList().size() > 0){
+                    jGen.writeFieldName("failedRecordsList");
+                    jGen.writeStartArray();
+                    for (Object obj : apiResponse.getFailedList()) {
+                        jGen.writeObject(obj);
+                    }
+                    jGen.writeEndArray();
+                }
             }
         }
     }

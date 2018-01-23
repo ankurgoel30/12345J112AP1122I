@@ -19,6 +19,7 @@ import static com.thinkhr.external.api.services.utils.EntitySearchUtil.getPageab
 import static com.thinkhr.external.api.services.utils.FileImportUtil.getRequiredHeaders;
 import static com.thinkhr.external.api.services.utils.FileImportUtil.getValueFromRow;
 import static com.thinkhr.external.api.services.utils.FileImportUtil.populateColumnValues;
+import static com.thinkhr.external.api.services.utils.FileImportUtil.setRequestParamsForBulkJsonResponse;
 import static com.thinkhr.external.api.services.utils.FileImportUtil.validateAndFilterCustomHeaders;
 import static com.thinkhr.external.api.services.utils.FileImportUtil.validateAndGetFileModel;
 
@@ -315,9 +316,9 @@ public class CompanyService  extends CommonService {
         List<String> fileContents = null;
 
         if (null != fileToImport) {
-        	fileContents = validateAndGetFileContent(fileToImport, COMPANY);
+        	fileContents = validateAndGetFileContent(fileToImport, resource);
         } else {
-        	fileContents = validateAndGetFileModel(companies);
+        	fileContents = validateAndGetFileModel(companies, resource);
         }
         
         return processRecords (fileContents, broker);
@@ -398,6 +399,8 @@ public class CompanyService  extends CommonService {
         if (logger.isDebugEnabled()) {
             logger.debug(fileImportResult.toString());
         }
+        
+        setRequestParamsForBulkJsonResponse(fileImportResult);
 
         return fileImportResult;
     }

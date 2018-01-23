@@ -8,9 +8,9 @@ import static com.thinkhr.external.api.ApplicationConstants.MAX_RECORDS_COMPANY_
 import static com.thinkhr.external.api.ApplicationConstants.MAX_RECORDS_USER_CSV_IMPORT;
 import static com.thinkhr.external.api.ApplicationConstants.REQUIRED_HEADERS_COMPANY_CSV_IMPORT;
 import static com.thinkhr.external.api.ApplicationConstants.REQUIRED_HEADERS_USER_CSV_IMPORT;
-import static com.thinkhr.external.api.ApplicationConstants.SEMI_COLON_SEPARATOR;
 import static com.thinkhr.external.api.ApplicationConstants.USER;
 import static com.thinkhr.external.api.ApplicationConstants.USER_CUSTOM_COLUMN_PREFIX;
+import static com.thinkhr.external.api.request.APIRequestHelper.setRequestAttribute;
 import static com.thinkhr.external.api.response.APIMessageUtil.getMessageFromResourceBundle;
 import static com.thinkhr.external.api.services.upload.FileImportValidator.validateFileContents;
 
@@ -36,6 +36,7 @@ import com.thinkhr.external.api.exception.ApplicationException;
 import com.thinkhr.external.api.exception.MessageResourceHandler;
 import com.thinkhr.external.api.model.CompanyJsonBulk;
 import com.thinkhr.external.api.model.FileImportResult;
+import com.thinkhr.external.api.model.UserJsonBulk;
 import com.thinkhr.external.api.request.APIRequestHelper;
 import com.thinkhr.external.api.response.APIMessageUtil;
 
@@ -288,28 +289,59 @@ public class FileImportUtil {
     }
 
     /**
-     * This function converts company Model to File Model and does basic validations on the same
+     * This function converts company Model to File Model and does basic
+     * validations on the same
      * 
      * @param companies
      * @return
      */
-    public static List<String> validateAndGetFileModel(List<CompanyJsonBulk> companies) {
-    	
-    	List<String> fileContents = new ArrayList<String>();
-    	
-    	for (CompanyJsonBulk companyModelJson : companies) {
+    public static List<String> validateAndGetFileModel(List<?> objects,
+            String resource) {
 
-    		String[] companyModel = companyModelJson.toString().split(SEMI_COLON_SEPARATOR);
-    		if(fileContents.isEmpty()){
-				fileContents.add(companyModel[0]);
-			}
-    		fileContents.add(companyModel[1]);
-		}
-    	
-    	validateFileContents(fileContents, null, COMPANY);
-    	
-    	return fileContents;
-	}
+        List<String> fileContents = new ArrayList<String>();
+        int count = 0;
+
+        //Creating a list of file by adding each object returned
+        for (Object obj : objects) {
+            if (obj instanceof CompanyJsonBulk) {
+                CompanyJsonBulk companyBulk = (CompanyJsonBulk) obj;
+                if (count == 0) {
+                    fileContents.add(companyBulk.toHeadersFromField());
+                    count++;
+                }
+                fileContents.add(companyBulk.toValuesFromFields());
+            } else {
+                UserJsonBulk userBulk = (UserJsonBulk) obj;
+                if (count == 0) {
+                    fileContents.add(userBulk.toHeadersFromField());
+                    count++;
+                }
+                fileContents.add(userBulk.toValuesFromFields());
+            }
+        }
+
+        validateFileContents(fileContents, null, resource);
+
+        return fileContents;
+    }
+    
+    /**
+     * To Set Request Params for creating JSON bulk response from
+     * FileImportResult
+     * 
+     * @param fileImportResult
+     */
+    public static void setRequestParamsForBulkJsonResponse(
+            FileImportResult fileImportResult) {
+
+        setRequestAttribute("totalRecords", fileImportResult.getTotalRecords());
+        setRequestAttribute("failedRecords",
+                fileImportResult.getNumFailedRecords());
+        setRequestAttribute("successRecords",
+                fileImportResult.getNumSuccessRecords());
+        setRequestAttribute("failedList", fileImportResult.getFailedRecords());
+
+    }
 
 
 }
