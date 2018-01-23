@@ -85,6 +85,18 @@ public class APIError {
         this.errorCode = String.valueOf(errorCode.getCode());
         this.exceptionDetail = ex.getLocalizedMessage();
     }
+    
+    /**
+     * 
+     * @param status
+     * @param errorCode
+     * @param exDetail
+     */
+    APIError(HttpStatus status, APIErrorCodes errorCode, String exDetail) {
+        this(status);
+        this.errorCode = String.valueOf(errorCode.getCode());
+        this.exceptionDetail = exDetail;
+    }
 
     /**
      * @param status

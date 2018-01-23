@@ -12,6 +12,7 @@ import static com.thinkhr.external.api.ApplicationConstants.DEFAULT_SORT_BY_COMP
 import static com.thinkhr.external.api.ApplicationConstants.HASH_KEY;
 import static com.thinkhr.external.api.ApplicationConstants.LOCATION;
 import static com.thinkhr.external.api.ApplicationConstants.TOTAL_RECORDS;
+import static com.thinkhr.external.api.exception.APIExceptionHandler.extractMessageFromException;
 import static com.thinkhr.external.api.request.APIRequestHelper.setRequestAttribute;
 import static com.thinkhr.external.api.response.APIMessageUtil.getMessageFromResourceBundle;
 import static com.thinkhr.external.api.services.upload.FileImportValidator.validateAndGetFileContent;
@@ -459,11 +460,10 @@ public class CompanyService  extends CommonService {
 
             fileImportResult.increamentSuccessRecords();
         } catch (Exception ex) {
-            String cause = ex.getCause() instanceof DataTruncation ? 
-                    getMessageFromResourceBundle(resourceHandler, APIErrorCodes.DATA_TRUNCTATION) :
-                        ex.getMessage();
-                    fileImportResult.addFailedRecord(record, cause,
-                            getMessageFromResourceBundle(resourceHandler, APIErrorCodes.RECORD_NOT_ADDED));
+            String cause = extractMessageFromException(ex, resourceHandler);
+
+            fileImportResult.addFailedRecord(record, cause,
+                    getMessageFromResourceBundle(resourceHandler, APIErrorCodes.RECORD_NOT_ADDED));
         }
 
     }
