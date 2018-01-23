@@ -35,6 +35,22 @@ public interface CompanyRepository extends PagingAndSortingRepository<Company, I
     /**
      * Repository method
      * @param companyName
+     * @param companyType
+     * @return
+     */
+    public Company findFirstByCompanyNameAndCompanyType(String companyName, String companyType);
+
+    /**
+     * Repository method
+     * @param companyId
+     * @param companyType
+     * @return
+     */
+    public Company findByCompanyIdAndCompanyType(Integer companyId, String companyType);
+
+    /**
+     * Repository method
+     * @param companyName
      * @param customField1
      * @param brokerId
      * @return

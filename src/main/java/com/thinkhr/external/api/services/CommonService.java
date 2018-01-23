@@ -1,6 +1,7 @@
 package com.thinkhr.external.api.services;
 
 import static com.thinkhr.external.api.services.utils.FileImportUtil.getCustomFieldPrefix;
+import static com.thinkhr.external.api.ApplicationConstants.*;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -22,6 +23,7 @@ import org.springframework.stereotype.Service;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectReader;
 import com.thinkhr.external.api.db.entities.Company;
+import com.thinkhr.external.api.db.entities.Configuration;
 import com.thinkhr.external.api.db.entities.CustomFields;
 import com.thinkhr.external.api.db.entities.StandardFields;
 import com.thinkhr.external.api.exception.APIErrorCodes;
@@ -133,7 +135,7 @@ public class CommonService {
      * @param brokerId
      * @return
      */
-    public Company validateBrokerId(int brokerId) {
+    public Company validateBrokerId(Integer brokerId) {
         // Process files if submitted by a valid broker else throw an exception
         Company broker = companyRepository.findOne(brokerId);
         if (null == broker) {
@@ -221,5 +223,21 @@ public class CommonService {
             ConstraintViolationException ex = new ConstraintViolationException(constraintViolations);
             throw ex;
         }
+    }
+    
+    /**
+     * To create a Configuration for given companyId
+     * 
+     * @param companyId
+     * @return
+     */
+    public Configuration createMasterConfiguration(Integer companyId) {
+        Configuration configuration = new Configuration();
+        configuration.setCompanyId(companyId);
+        configuration.setIsMasterConfiguration(1);
+        configuration.setConfigurationKey(MASTER_CONFIG_KEY);
+        configuration.setName(MASTER_CONFIG_NAME);
+        configuration.setDescription(MASTER_CONFIG_NAME);
+        return configuration;
     }
 }

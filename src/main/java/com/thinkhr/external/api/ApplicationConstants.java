@@ -34,6 +34,8 @@ public class ApplicationConstants {
     public static final String CONTACT = "CONTACT";
     public static final String LOCATION = "LOCATION";
     public static final String CLIENT = "CLIENT";
+    public static final String COMPANY_TYPE_BROKER = "broker_partner";
+    
     
     public static final int MAX_RECORDS_COMPANY_CSV_IMPORT = 3500;
     public static final int MAX_RECORDS_USER_CSV_IMPORT = 500;
@@ -116,4 +118,6 @@ public class ApplicationConstants {
     public static final String EMAIL_SUBJECT = "subject";
     public static final String FROM_EMAIL = "from_email";
     public static final String RESET_PASSWORD_PREFIX = "C";
+    public static final String MASTER_CONFIG_KEY = "master";
+    public static final String MASTER_CONFIG_NAME = "Master Configuration";
 }
