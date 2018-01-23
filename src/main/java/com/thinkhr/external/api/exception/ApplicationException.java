@@ -136,7 +136,7 @@ public class ApplicationException extends RuntimeException {
      * @param ex
      * @return
      */
-    public static ApplicationException createException(APIErrorCodes errorCode, Exception ex) {
+    public static ApplicationException createSendEmailError(APIErrorCodes errorCode, Exception ex) {
         ApplicationException appException = new ApplicationException(errorCode, ex.getMessage());
         appException.initCause(ex);
         return appException;

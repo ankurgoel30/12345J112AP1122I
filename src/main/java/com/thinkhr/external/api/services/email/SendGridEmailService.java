@@ -51,7 +51,7 @@ public class SendGridEmailService extends EmailService {
         try {
             sendEmail(mail);
         } catch(Exception ex) {
-            throw ApplicationException.createException(APIErrorCodes.SG_MAIL_FAILED, ex);
+            throw ApplicationException.createSendEmailError(APIErrorCodes.SG_MAIL_FAILED, ex);
         }
     }
 
