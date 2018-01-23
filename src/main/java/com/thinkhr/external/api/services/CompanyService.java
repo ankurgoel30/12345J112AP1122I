@@ -445,8 +445,6 @@ public class CompanyService  extends CommonService {
         }
 
         try {
-            String jobId = (String) APIRequestHelper.getRequestAttribute("jobId");
-
             //Finally save companies one by one
             List<String> companyColumnsToInsert = new ArrayList<String>(companyFileHeaderColumnMap.keySet());
             List<String> locationColumnsToInsert = new ArrayList<String>(locationFileHeaderColumnMap.keySet());

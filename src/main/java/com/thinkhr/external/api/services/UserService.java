@@ -162,16 +162,12 @@ public class UserService extends CommonService {
 
         List<User> users = new ArrayList<User>(Arrays.asList(throneUser));
 
-        try {
-            if (isSendEmailEnabled) {
-                EmailRequest emailRequest = emailService.createEmailRequest(brokerId, users);
-
-                // Sending welcome email to user 
-                emailService.sendEmail(emailRequest);
+        if (isSendEmailEnabled) {
+            try {
+                emailService.createAndSendEmail(brokerId, users);
+            } catch (ApplicationException ex) {
+                logger.error("Failed to send email ", ex);
             }
-        } catch (Exception ex) {
-            // TODO: Need to understand exact behavior
-            logger.error("Error occured while sending email.", ex);
         }
 
         return throneUser;
