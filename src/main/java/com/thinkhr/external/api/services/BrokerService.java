@@ -2,14 +2,17 @@ package com.thinkhr.external.api.services;
 
 import static com.thinkhr.external.api.ApplicationConstants.COMPANY_TYPE_BROKER;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.thinkhr.external.api.db.entities.Company;
 import com.thinkhr.external.api.db.entities.Configuration;
+import com.thinkhr.external.api.exception.APIErrorCodes;
 import com.thinkhr.external.api.exception.ApplicationException;
 
 
@@ -39,7 +42,7 @@ public class BrokerService extends CompanyService {
     * @throws ApplicationException 
     * 
     */
-   public List<Company> getAllCompany(Integer offset, 
+   public List<Company> getAllBroker(Integer offset, 
            Integer limit,
            String sortField, 
            String searchSpec, 
@@ -49,6 +52,20 @@ public class BrokerService extends CompanyService {
        return super.getAllCompany(offset, limit, sortField, searchSpec, requestParameters);
    }
 
+   /**
+    * Delete specific company from database
+    * 
+    * @param brokerId
+    */
+   public int deleteBroker(int brokerId) throws ApplicationException {
+       Company company = companyRepository.findOne(brokerId);
+
+       if (null == company) {
+           throw ApplicationException.createEntityNotFoundError(APIErrorCodes.ENTITY_NOT_FOUND, "broker", "brokerId="+brokerId);
+       }
+
+       return super.deleteCompany(brokerId, company);
+   }
 
 
     /**
@@ -57,7 +74,7 @@ public class BrokerService extends CompanyService {
      * @param company object
      */
     @Transactional
-    public Company addCompany(Company company, Integer brokerId) {
+    public Company addBroker(Company company, Integer brokerId) {
         
         company.setCompanyType(COMPANY_TYPE_BROKER);
         
@@ -68,8 +85,51 @@ public class BrokerService extends CompanyService {
         company.setBroker(company.getCompanyId());
         company.setConfigurationId(configuration.getConfigurationId());
         
-        return companyRepository.save(company); //To update with brokerId and master configuration id
+        company = companyRepository.save(company); //To update with brokerId and master configuration id
+        learnCompanyService.updateLearnCompany(company);
+        
+        return company;
     }
+    
+    /**
+     * Fetch specific company from database
+     * 
+     * @param brokerId
+     * @return Company object 
+     */
+    public Company getBroker(Integer brokerId) {
+        Company company =  companyRepository.findByCompanyIdAndCompanyType(brokerId, COMPANY_TYPE_BROKER);
+
+        if (null == company) {
+            throw ApplicationException.createEntityNotFoundError(APIErrorCodes.ENTITY_NOT_FOUND,
+                    "broker", "brokerId="+ brokerId);
+        }
+
+        return company;
+    }
+
+    /**
+     * Update a company in database
+     * 
+     * @param brokerId
+     * @param companyJson
+     * @return
+     * @throws ApplicationException
+     * @throws IOException 
+     * @throws JsonProcessingException 
+     */
+    @Transactional
+    public Company updateBroker(Integer brokerId, String companyJson) 
+            throws ApplicationException, JsonProcessingException, IOException {
+
+        Company companyInDb = companyRepository.findByCompanyIdAndCompanyType(brokerId, COMPANY_TYPE_BROKER);
+        if (null == companyInDb) {
+            throw ApplicationException.createEntityNotFoundError(APIErrorCodes.ENTITY_NOT_FOUND, "broker", "brokerId="+brokerId);
+        }
+        
+        return super.updateCompany(companyJson, brokerId, companyInDb);
+    }
+
     
     /**
      * Validate and get broker for given brokerId

@@ -143,7 +143,7 @@ public class CompanyService  extends CommonService {
         company.setTempID(getTempId());
 
         Company throneCompany = saveCompany(company, brokerId, true);
-        if (brokerId == null) { //i.e. this is to create a brokern
+        if (brokerId == null) { //i.e. 
             throneCompany.setBroker(throneCompany.getCompanyId());
         }
         learnCompanyService.addLearnCompany(throneCompany);// THR-3929 
@@ -196,6 +196,19 @@ public class CompanyService  extends CommonService {
             throw ApplicationException.createEntityNotFoundError(APIErrorCodes.ENTITY_NOT_FOUND, "company", "companyId="+companyId);
         }
         
+        return updateCompany(companyJson, brokerId, companyInDb);
+    }
+
+
+    /**
+     * @param companyJson
+     * @param brokerId
+     * @param companyInDb
+     * @return
+     * @throws IOException
+     */
+    protected Company updateCompany(String companyJson, Integer brokerId,
+            Company companyInDb) throws IOException {
         Company updatedCompany = update(companyJson, companyInDb);
 
         if (updatedCompany.getLocation() != null) {
@@ -293,6 +306,17 @@ public class CompanyService  extends CommonService {
             throw ApplicationException.createEntityNotFoundError(APIErrorCodes.ENTITY_NOT_FOUND, "company", "companyId="+companyId);
         }
 
+        return deleteCompany(companyId, company);
+    }
+
+
+    /**
+     * Delete company
+     * @param companyId
+     * @param company
+     * @return
+     */
+    protected int deleteCompany(int companyId, Company company) {
         companyRepository.softDelete(companyId);
 
         learnCompanyService.deactivateLearnCompany(company);
