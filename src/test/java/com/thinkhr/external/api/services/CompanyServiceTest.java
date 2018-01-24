@@ -26,6 +26,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
+import javax.persistence.EntityManager;
 import javax.validation.ConstraintViolationException;
 
 import org.apache.commons.io.IOUtils;
@@ -105,6 +106,9 @@ public class CompanyServiceTest {
 
     @Mock
     private MessageResourceHandler resourceHandler;
+
+    @Mock
+    private EntityManager entityManager;
 
     @Before
     public void setup(){

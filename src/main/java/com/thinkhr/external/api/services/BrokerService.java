@@ -57,18 +57,18 @@ public class BrokerService extends CompanyService {
    }
 
    /**
-    * Delete specific company from database
+    * Delete specific broker from database
     * 
     * @param brokerId
     */
    public int deleteBroker(int brokerId) throws ApplicationException {
-        Company company = companyRepository.findByCompanyIdAndCompanyType(brokerId, COMPANY_TYPE_BROKER);
+       Company company = companyRepository.findByCompanyIdAndCompanyType(brokerId, COMPANY_TYPE_BROKER);
 
        if (null == company) {
            throw ApplicationException.createEntityNotFoundError(APIErrorCodes.ENTITY_NOT_FOUND, "broker", "brokerId="+brokerId);
        }
 
-       return super.deleteCompany(brokerId, company);
+       return deleteCompany(brokerId, company);
    }
 
 
@@ -82,7 +82,7 @@ public class BrokerService extends CompanyService {
         
         company.setCompanyType(COMPANY_TYPE_BROKER);
         
-        company = super.addCompany(company, null);
+        company = addCompany(company, null);
         
         //Create Master configuration with new company
         Configuration configuration = configurationRepository.save(createMasterConfiguration(company.getCompanyId()));
@@ -94,7 +94,7 @@ public class BrokerService extends CompanyService {
         
         return company;
     }
-    
+
     /**
      * Fetch specific company from database
      * 
