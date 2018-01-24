@@ -29,11 +29,13 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.apache.commons.lang.StringUtils;
+import org.springframework.util.CollectionUtils;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.thinkhr.external.api.exception.APIErrorCodes;
 import com.thinkhr.external.api.exception.ApplicationException;
 import com.thinkhr.external.api.exception.MessageResourceHandler;
+import com.thinkhr.external.api.model.BulkJsonModel;
 import com.thinkhr.external.api.model.CompanyJsonBulk;
 import com.thinkhr.external.api.model.FileImportResult;
 import com.thinkhr.external.api.model.UserJsonBulk;
@@ -289,37 +291,25 @@ public class FileImportUtil {
     }
 
     /**
-     * This function converts company Model to File Model and does basic
-     * validations on the same
+     * Convert list of objects into list of strings 
      * 
-     * @param companies
+     * @param list
+     * @param resource
      * @return
      */
-    public static List<String> validateAndGetFileModel(List<?> objects,
+    public static List<String> validateAndGetContentFromModel(List<BulkJsonModel> list,
             String resource) {
 
-        List<String> fileContents = new ArrayList<String>();
-        int count = 0;
-
-        //Creating a list of file by adding each object returned
-        for (Object obj : objects) {
-            if (obj instanceof CompanyJsonBulk) {
-                CompanyJsonBulk companyBulk = (CompanyJsonBulk) obj;
-                if (count == 0) {
-                    fileContents.add(companyBulk.toHeadersFromField());
-                    count++;
-                }
-                fileContents.add(companyBulk.toValuesFromFields());
-            } else {
-                UserJsonBulk userBulk = (UserJsonBulk) obj;
-                if (count == 0) {
-                    fileContents.add(userBulk.toHeadersFromField());
-                    count++;
-                }
-                fileContents.add(userBulk.toValuesFromFields());
-            }
+        if (CollectionUtils.isEmpty(list)) {
+            return null;
         }
+        
+        List<String> fileContents = new ArrayList<String>();
+        fileContents.add(list.get(0).toHeadersFromField());
 
+        for (BulkJsonModel obj : list) {
+            fileContents.add(obj.getAttributeValueAsCommaSeparated());
+        }
         validateFileContents(fileContents, null, resource);
 
         return fileContents;

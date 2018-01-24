@@ -26,7 +26,7 @@ import static com.thinkhr.external.api.services.utils.FileImportUtil.getRequired
 import static com.thinkhr.external.api.services.utils.FileImportUtil.getValueFromRow;
 import static com.thinkhr.external.api.services.utils.FileImportUtil.populateColumnValues;
 import static com.thinkhr.external.api.services.utils.FileImportUtil.validateAndFilterCustomHeaders;
-import static com.thinkhr.external.api.services.utils.FileImportUtil.validateAndGetFileModel;
+import static com.thinkhr.external.api.services.utils.FileImportUtil.validateAndGetContentFromModel;
 import static com.thinkhr.external.api.services.utils.FileImportUtil.setRequestParamsForBulkJsonResponse;
 
 import java.io.IOException;
@@ -322,7 +322,7 @@ public class UserService extends CommonService {
         if(fileToImport!=null){
             fileContents = validateAndGetFileContent(fileToImport, resource);
         }else{
-            fileContents = validateAndGetFileModel(users, resource);
+            fileContents = validateAndGetContentFromModel(users, resource);
         }
 
         return processRecords (fileContents, broker, resource);
