@@ -354,6 +354,28 @@ public class Company implements SearchableEntity {
     public boolean isBrokerCompany() {
         return this.getCompanyId() != null  && this.getCompanyId().equals(this.getBroker());
     }
+    
+    /**
+     * Determines whether this company has learn admin SKUs
+     * 
+     * TODO: Implement Logic
+     * @return
+     */
+    @JsonIgnore
+    public boolean hasLearnAdminSKU() {
+        return false;
+    }
+    
+    /**
+     * Determines whether this company has Student Permission Only
+     * 
+     * TODO: Implement Logic
+     * @return
+     */
+    @JsonIgnore
+    public boolean hasStudentPermissionOnly() {
+        return true;
+    }
 
     /**
      * Returns fields where "SearchSpec" searching acts on.
