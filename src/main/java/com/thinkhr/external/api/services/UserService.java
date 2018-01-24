@@ -25,9 +25,9 @@ import static com.thinkhr.external.api.services.utils.EntitySearchUtil.getPageab
 import static com.thinkhr.external.api.services.utils.FileImportUtil.getRequiredHeaders;
 import static com.thinkhr.external.api.services.utils.FileImportUtil.getValueFromRow;
 import static com.thinkhr.external.api.services.utils.FileImportUtil.populateColumnValues;
+import static com.thinkhr.external.api.services.utils.FileImportUtil.setRequestParamsForBulkJsonResponse;
 import static com.thinkhr.external.api.services.utils.FileImportUtil.validateAndFilterCustomHeaders;
 import static com.thinkhr.external.api.services.utils.FileImportUtil.validateAndGetContentFromModel;
-import static com.thinkhr.external.api.services.utils.FileImportUtil.setRequestParamsForBulkJsonResponse;
 
 import java.io.IOException;
 import java.sql.DataTruncation;
@@ -54,9 +54,9 @@ import com.thinkhr.external.api.db.entities.User;
 import com.thinkhr.external.api.exception.APIErrorCodes;
 import com.thinkhr.external.api.exception.ApplicationException;
 import com.thinkhr.external.api.model.AppAuthData;
+import com.thinkhr.external.api.model.BulkJsonModel;
 import com.thinkhr.external.api.model.EmailRequest;
 import com.thinkhr.external.api.model.FileImportResult;
-import com.thinkhr.external.api.model.UserJsonBulk;
 import com.thinkhr.external.api.repositories.ThroneRoleRepository;
 import com.thinkhr.external.api.request.APIRequestHelper;
 import com.thinkhr.external.api.services.crypto.AppEncryptorDecryptor;
@@ -301,14 +301,14 @@ public class UserService extends CommonService {
     }    
 
     /**
-     * Imports a CSV file for companies record
+     * Imports a CSV file or Json records for companies record
      * 
      * @param fileToImport
      * @param users 
      * @param brokerId
      * @throws ApplicationException
      */
-    public FileImportResult bulkUpload(MultipartFile fileToImport, List<UserJsonBulk> users, int brokerId) throws ApplicationException {
+    public FileImportResult bulkUpload(MultipartFile fileToImport, List<BulkJsonModel> users, int brokerId) throws ApplicationException {
         
         if (fileToImport == null && CollectionUtils.isEmpty(users)) {
             throw ApplicationException.createFileImportError(APIErrorCodes.REQUIRED_PARAMETER, "file Or UserJsonBody");
@@ -325,7 +325,13 @@ public class UserService extends CommonService {
             fileContents = validateAndGetContentFromModel(users, resource);
         }
 
-        return processRecords (fileContents, broker, resource);
+        FileImportResult fileImportResult = processRecords (fileContents, broker, resource);
+        
+        if(!CollectionUtils.isEmpty(users)){
+            setRequestParamsForBulkJsonResponse(fileImportResult);
+        }
+        
+        return fileImportResult;
 
     }
 
@@ -407,8 +413,6 @@ public class UserService extends CommonService {
         if (logger.isDebugEnabled()) {
             logger.debug(fileImportResult.toString());
         }
-        
-        setRequestParamsForBulkJsonResponse(fileImportResult);
 
         return fileImportResult;
     }

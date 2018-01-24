@@ -33,8 +33,8 @@ import org.springframework.web.multipart.MultipartFile;
 import com.thinkhr.external.api.db.entities.User;
 import com.thinkhr.external.api.exception.ApplicationException;
 import com.thinkhr.external.api.exception.MessageResourceHandler;
+import com.thinkhr.external.api.model.BulkJsonModel;
 import com.thinkhr.external.api.model.FileImportResult;
-import com.thinkhr.external.api.model.UserJsonBulk;
 import com.thinkhr.external.api.services.UserService;
 import com.thinkhr.external.api.services.utils.FileImportUtil;
 
@@ -162,7 +162,7 @@ public class UserController {
      * 
      */
     @RequestMapping(method=RequestMethod.POST,  value="/bulk/json")
-    public ResponseEntity<List<UserJsonBulk>> bulkUploadJson(@RequestBody(required=false) List<UserJsonBulk> users, 
+    public ResponseEntity<List<BulkJsonModel>> bulkUploadJson(@RequestBody(required=false) List<BulkJsonModel> users, 
             @RequestAttribute(name = BROKER_ID_PARAM) Integer brokerId)
                     throws ApplicationException, IOException {
 
@@ -170,7 +170,7 @@ public class UserController {
         FileImportResult fileImportResult = userService.bulkUpload(null, users, brokerId);
         logger.debug("************** USER IMPORT ENDS *****************");
 
-        return new ResponseEntity<List<UserJsonBulk>>(users,fileImportResult.getHttpStatus());
+        return new ResponseEntity<List<BulkJsonModel>>(users,fileImportResult.getHttpStatus());
     }
 
 }

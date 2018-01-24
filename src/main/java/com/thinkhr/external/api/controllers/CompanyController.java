@@ -35,7 +35,7 @@ import com.thinkhr.external.api.ApplicationConstants;
 import com.thinkhr.external.api.db.entities.Company;
 import com.thinkhr.external.api.exception.ApplicationException;
 import com.thinkhr.external.api.exception.MessageResourceHandler;
-import com.thinkhr.external.api.model.CompanyJsonBulk;
+import com.thinkhr.external.api.model.BulkJsonModel;
 import com.thinkhr.external.api.model.FileImportResult;
 import com.thinkhr.external.api.services.CompanyService;
 import com.thinkhr.external.api.services.utils.FileImportUtil;
@@ -172,12 +172,12 @@ public class CompanyController {
     /**
      * Bulk import company records from given JSON data.
      * 
-     * @param CompanyJsonBulk Object
+     * @param BulkJsonModel Object
      * @param brokerId - brokerId from request. Originally retrieved as part of JWT token
      * 
      */
     @RequestMapping(method=RequestMethod.POST,  value="/bulk/json")
-    public ResponseEntity <List<CompanyJsonBulk>> bulkUploadJson(@RequestBody List<CompanyJsonBulk> companies,
+    public ResponseEntity<List<BulkJsonModel>> bulkUploadJson(@RequestBody List<BulkJsonModel> companies,
             @RequestAttribute(name = BROKER_ID_PARAM) Integer brokerId)
                     throws ApplicationException, IOException {
     	
@@ -185,7 +185,7 @@ public class CompanyController {
         FileImportResult fileImportResult = companyService.bulkUpload(null, companies, brokerId);
         logger.debug("************** COMPANY IMPORT ENDS *****************");
 
-        return new ResponseEntity<List<CompanyJsonBulk>>(companies,fileImportResult.getHttpStatus());
+        return new ResponseEntity<List<BulkJsonModel>>(companies,fileImportResult.getHttpStatus());
     }
 
 }

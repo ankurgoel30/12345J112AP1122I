@@ -36,9 +36,7 @@ import com.thinkhr.external.api.exception.APIErrorCodes;
 import com.thinkhr.external.api.exception.ApplicationException;
 import com.thinkhr.external.api.exception.MessageResourceHandler;
 import com.thinkhr.external.api.model.BulkJsonModel;
-import com.thinkhr.external.api.model.CompanyJsonBulk;
 import com.thinkhr.external.api.model.FileImportResult;
-import com.thinkhr.external.api.model.UserJsonBulk;
 import com.thinkhr.external.api.request.APIRequestHelper;
 import com.thinkhr.external.api.response.APIMessageUtil;
 
@@ -296,6 +294,7 @@ public class FileImportUtil {
      * @param list
      * @param resource
      * @return
+     * @throws Exception 
      */
     public static List<String> validateAndGetContentFromModel(List<BulkJsonModel> list,
             String resource) {
@@ -303,10 +302,10 @@ public class FileImportUtil {
         if (CollectionUtils.isEmpty(list)) {
             return null;
         }
-        
-        List<String> fileContents = new ArrayList<String>();
-        fileContents.add(list.get(0).toHeadersFromField());
 
+        List<String> fileContents = new ArrayList<String>();
+
+        fileContents.add((list.get(0)).getAttributeNamesAsCommaSeparated());
         for (BulkJsonModel obj : list) {
             fileContents.add(obj.getAttributeValueAsCommaSeparated());
         }

@@ -41,6 +41,7 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.CollectionUtils;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -49,7 +50,7 @@ import com.thinkhr.external.api.db.entities.Company;
 import com.thinkhr.external.api.db.entities.Location;
 import com.thinkhr.external.api.exception.APIErrorCodes;
 import com.thinkhr.external.api.exception.ApplicationException;
-import com.thinkhr.external.api.model.CompanyJsonBulk;
+import com.thinkhr.external.api.model.BulkJsonModel;
 import com.thinkhr.external.api.model.FileImportResult;
 import com.thinkhr.external.api.services.upload.FileUploadEnum;
 import com.thinkhr.external.api.services.utils.CommonUtil;
@@ -302,14 +303,14 @@ public class CompanyService  extends CommonService {
     }     
 
     /**
-     * Imports a CSV file with companies record or a CompanyModelJson objects
+     * Imports a CSV file with companies record or a BulkJsonModel objects
      * 
      * @param fileToImport
      * @param companies 
      * @param brokerId
      * @throws ApplicationException
      */
-    public FileImportResult bulkUpload(MultipartFile fileToImport, List<CompanyJsonBulk> companies, int brokerId) throws ApplicationException {
+    public FileImportResult bulkUpload(MultipartFile fileToImport, List<BulkJsonModel> companies, int brokerId) throws ApplicationException {
 
         Company broker = validateBrokerId(brokerId);
         
@@ -321,7 +322,13 @@ public class CompanyService  extends CommonService {
         	fileContents = validateAndGetContentFromModel(companies, resource);
         }
         
-        return processRecords (fileContents, broker);
+        FileImportResult fileImportResult = processRecords (fileContents, broker);
+        
+        if(!CollectionUtils.isEmpty(companies)){
+            setRequestParamsForBulkJsonResponse(fileImportResult);
+        }
+        
+        return fileImportResult;
 
     }
 
@@ -399,8 +406,6 @@ public class CompanyService  extends CommonService {
         if (logger.isDebugEnabled()) {
             logger.debug(fileImportResult.toString());
         }
-        
-        setRequestParamsForBulkJsonResponse(fileImportResult);
 
         return fileImportResult;
     }

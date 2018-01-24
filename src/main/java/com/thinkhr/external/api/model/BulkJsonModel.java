@@ -1,23 +1,43 @@
 package com.thinkhr.external.api.model;
 
 import static com.thinkhr.external.api.ApplicationConstants.COMMA_SEPARATOR;
-import static com.thinkhr.external.api.ApplicationConstants.UNDERSCORE;
 
-import java.lang.reflect.Field;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
+import java.util.LinkedHashMap;
+import java.util.Map;
 
 import org.apache.commons.lang.StringUtils;
+
+import com.fasterxml.jackson.annotation.JsonAnyGetter;
+import com.fasterxml.jackson.annotation.JsonAnySetter;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import lombok.Data;
 
 /**
+ * Model Class for Bulk Json Uploads
+ * 
  * @author Surabhi Bhawsar
+ * @since 2018-01-24
  *
  */
 @Data
 public class BulkJsonModel {
+    
+    /**
+     * Linked HashMap for storing all Json fields
+     */
+    @JsonIgnore
+    private Map<String, Object> properties = new LinkedHashMap<>();
+
+    @JsonAnySetter
+    public void add(String key, String value) {
+        properties.put(key, value);
+    }
+
+    @JsonAnyGetter
+    public Map<String, Object> getProperties() {
+        return properties;
+    }
 
     /**
      * To get the header List from the attribute fields
@@ -25,22 +45,22 @@ public class BulkJsonModel {
      * @return
      * @throws Exception 
      */
-    public String toHeadersFromField() throws Exception {
-        return getCommaSeparatedStr(true);
+    public String getAttributeNamesAsCommaSeparated() {
+        return getCommaSeparatedStr(true).toUpperCase();
     }
 
     /**
+     * To prepare comma seperated strings for Attribute Names and Attribute values
+     * 
      * @param collectName
      * @return
      * @throws Exception 
      */
-    private String getCommaSeparatedStr(Boolean collectName) throws Exception {
+    private String getCommaSeparatedStr(Boolean collectName) {
         StringBuilder strBuilder = null;
         
-        Field[] allFields = this.getClass().getDeclaredFields();
-        
-        for (Field field : allFields) {
-            
+        for (Map.Entry<String, Object> entry : this.properties.entrySet()) {
+
             if (strBuilder == null) {
                 strBuilder = new StringBuilder();
             } else {
@@ -48,9 +68,9 @@ public class BulkJsonModel {
             }
             
             if (collectName) {
-                strBuilder.append(covertWithUnderscore(field.getName()));
+                strBuilder.append(covertWithUnderscore(entry.getKey()));
             } else {
-                strBuilder.append(getValue(field));
+                strBuilder.append(entry.getValue().toString());
             }
         }
      
@@ -62,20 +82,13 @@ public class BulkJsonModel {
      * 
      * @return
      */
-    public String getAttributeValueAsCommaSeparated() throws Exception {
+    public String getAttributeValueAsCommaSeparated() {
         return getCommaSeparatedStr(false);
-    }
-    
-    /**
-     * @param field
-     * @return
-     * @throws Exception
-     */
-    public String getValue(Field field) throws Exception {
-        return field.get(this) == null ? "" : field.get(this).toString();
     }
 
     /**
+     * To insert underscore in between the Camel case attribute names
+     * 
      * @param fieldName
      * @return
      */
@@ -94,6 +107,8 @@ public class BulkJsonModel {
     }
     
     /**
+     * To get index of the first Upper Case character in String
+     * 
      * @param str
      * @return
      */
