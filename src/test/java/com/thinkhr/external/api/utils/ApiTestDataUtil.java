@@ -66,6 +66,7 @@ public class ApiTestDataUtil {
     public static final String API_BASE_PATH = "/v1/";
     public static final String COMPANY_API_BASE_PATH = "/v1/companies/";
     public static final String USER_API_BASE_PATH = "/v1/users/";
+    public static final String BROKER_API_BASE_PATH = "/v1/brokers/";
     public static final String COMPANY_API_REQUEST_PARAM_OFFSET = "offset";
     public static final String COMPANY_API_REQUEST_PARAM_LIMIT = "limit";
     public static final String COMPANY_API_REQUEST_PARAM_SORT = "sort";
