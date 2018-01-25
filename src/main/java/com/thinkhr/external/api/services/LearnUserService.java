@@ -60,7 +60,7 @@ public class LearnUserService extends CommonService {
         LearnUser learnUser = modelConvertor.convert(throneUser);
 
         learnUser.setCompanyId(getLearnCompanyId(throneUser));
-
+        
         learnUser.setUserName(getLearnUserNameByRoleId(throneUser));
 
         String roleName = getRoleName(throneUser);
