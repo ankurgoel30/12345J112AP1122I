@@ -212,6 +212,7 @@ public class CompanyService  extends CommonService {
      * @return
      * @throws IOException
      */
+    @Transactional
     protected Company updateCompany(String companyJson, Integer brokerId,
             Company companyInDb) throws IOException {
         Company updatedCompany = update(companyJson, companyInDb);
@@ -223,6 +224,11 @@ public class CompanyService  extends CommonService {
 
         Company throneCompany = saveCompany(updatedCompany, brokerId, false);
         learnCompanyService.updateLearnCompany(throneCompany);
+
+        // This is required otherwise values for updatable=false fields is not synced with 
+        // database when these fields are passed in payload .
+        entityManager.flush();
+        entityManager.refresh(throneCompany);
         return throneCompany;
     }
 
