@@ -39,6 +39,7 @@ import com.thinkhr.external.api.repositories.CompanyRepository;
 import com.thinkhr.external.api.repositories.ConfigurationRepository;
 import com.thinkhr.external.api.repositories.CustomFieldsRepository;
 import com.thinkhr.external.api.repositories.FileDataRepository;
+import com.thinkhr.external.api.repositories.SkusRepository;
 import com.thinkhr.external.api.repositories.StandardFieldsRepository;
 import com.thinkhr.external.api.repositories.UserRepository;
 import com.thinkhr.external.api.services.upload.FileUploadEnum;
@@ -82,6 +83,9 @@ public class CommonService {
     
     @Autowired
     protected ConfigurationRepository configurationRepository;
+    
+    @Autowired
+    protected SkusRepository skusRepository;
     
     @Autowired
     protected LearnRoleRepository learnRoleRepository;

@@ -23,7 +23,6 @@ import static com.thinkhr.external.api.services.utils.FileImportUtil.populateCol
 import static com.thinkhr.external.api.services.utils.FileImportUtil.validateAndFilterCustomHeaders;
 
 import java.io.IOException;
-import java.sql.DataTruncation;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
