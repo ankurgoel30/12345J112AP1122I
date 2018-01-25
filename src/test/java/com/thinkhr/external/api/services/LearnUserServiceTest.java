@@ -4,6 +4,8 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.fail;
+import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.when;
 
 import java.util.List;
@@ -188,7 +190,7 @@ public class LearnUserServiceTest {
     }
 
     /**
-     * Test to verify getRoleName method.
+     * Test to verify getRoleName method for Broker.
      * 
      */
     @Test
@@ -206,7 +208,7 @@ public class LearnUserServiceTest {
     }
 
     /**
-     * Test to verify getRoleName method.
+     * Test to verify getRoleName method for Student
      * 
      */
     @Test
@@ -216,11 +218,35 @@ public class LearnUserServiceTest {
         company.setCompanyId(1);
         company.setBroker(10);
 
-        when(companyRepository.findOne(user.getCompanyId())).thenReturn(company);
+        Company companySpy = spy(company);
+        doReturn(false).when(companySpy).hasLearnAdminSKU();
+        doReturn(true).when(companySpy).hasStudentPermissionOnly();
+        when(companyRepository.findOne(user.getCompanyId())).thenReturn(companySpy);
 
         String roleName = learnService.getRoleName(user);
 
         assertEquals(ApplicationConstants.STUDENT_ROLE, roleName);
+    }
+
+    /**
+     * Test to verify getRoleName method for Client Admin.
+     * 
+     */
+    @Test
+    public void testGetRoleName_ForClientAdmin() {
+        User user = ApiTestDataUtil.createUser();
+        Company company = ApiTestDataUtil.createCompany();
+        company.setCompanyId(1);
+        company.setBroker(10);
+
+        Company companySpy = spy(company);
+        doReturn(true).when(companySpy).hasLearnAdminSKU();
+        doReturn(false).when(companySpy).hasStudentPermissionOnly();
+        when(companyRepository.findOne(user.getCompanyId())).thenReturn(companySpy);
+
+        String roleName = learnService.getRoleName(user);
+
+        assertEquals(ApplicationConstants.CLIENT_ADMIN_ROLE, roleName);
     }
 
     /**

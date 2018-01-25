@@ -14,6 +14,7 @@ import static com.thinkhr.external.api.ApplicationConstants.USER_COLUMN_ADDEDBY;
 import static com.thinkhr.external.api.ApplicationConstants.USER_COLUMN_BROKERID;
 import static com.thinkhr.external.api.ApplicationConstants.USER_COLUMN_CLIENT_ID;
 import static com.thinkhr.external.api.ApplicationConstants.USER_COLUMN_PASSWORD;
+import static com.thinkhr.external.api.exception.APIExceptionHandler.extractMessageFromException;
 import static com.thinkhr.external.api.request.APIRequestHelper.setRequestAttribute;
 import static com.thinkhr.external.api.response.APIMessageUtil.getMessageFromResourceBundle;
 import static com.thinkhr.external.api.services.upload.FileImportValidator.validateAndGetFileContent;
@@ -30,7 +31,6 @@ import static com.thinkhr.external.api.services.utils.FileImportUtil.validateAnd
 import static com.thinkhr.external.api.services.utils.FileImportUtil.validateAndGetContentFromModel;
 
 import java.io.IOException;
-import java.sql.DataTruncation;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -484,16 +484,7 @@ public class UserService extends CommonService {
 
             fileImportResult.increamentSuccessRecords();
         } catch (Exception ex) {
-            String cause = null;
-
-            if (ex instanceof ApplicationException) {
-                ApplicationException appExp = (ApplicationException) ex;
-                cause = getMessageFromResourceBundle(resourceHandler, appExp.getApiErrorCode(),appExp.getErrorMessageParameters());
-            } else if (ex.getCause() instanceof DataTruncation) {
-                cause = getMessageFromResourceBundle(resourceHandler, APIErrorCodes.DATA_TRUNCTATION);
-            } else {
-                cause = ex.getMessage();
-            }
+            String cause = extractMessageFromException(ex, resourceHandler);
 
             fileImportResult.addFailedRecord(record, cause,
                             getMessageFromResourceBundle(resourceHandler, APIErrorCodes.RECORD_NOT_ADDED));

@@ -15,5 +15,5 @@ import com.thinkhr.external.api.db.entities.ThroneRole;
 
 public interface ThroneRoleRepository extends CrudRepository<ThroneRole, Integer> {
 
-    public ThroneRole findByNameAndCompanyId(String name, Integer companyId);
+    public ThroneRole findFirstByNameAndType(String name, String type);
 }

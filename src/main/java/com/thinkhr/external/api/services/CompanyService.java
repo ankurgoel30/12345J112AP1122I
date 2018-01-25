@@ -9,6 +9,7 @@ import static com.thinkhr.external.api.ApplicationConstants.DEFAULT_SORT_BY_COMP
 import static com.thinkhr.external.api.ApplicationConstants.HASH_KEY;
 import static com.thinkhr.external.api.ApplicationConstants.LOCATION;
 import static com.thinkhr.external.api.ApplicationConstants.TOTAL_RECORDS;
+import static com.thinkhr.external.api.exception.APIExceptionHandler.extractMessageFromException;
 import static com.thinkhr.external.api.request.APIRequestHelper.setRequestAttribute;
 import static com.thinkhr.external.api.response.APIMessageUtil.getMessageFromResourceBundle;
 import static com.thinkhr.external.api.services.upload.FileImportValidator.validateAndGetFileContent;
@@ -147,7 +148,9 @@ public class CompanyService  extends CommonService {
         company.setTempID(getTempId());
 
         Company throneCompany = saveCompany(company, brokerId, true);
-        
+        if (brokerId == null) { //i.e. 
+            throneCompany.setBroker(throneCompany.getCompanyId());
+        }
         learnCompanyService.addLearnCompany(throneCompany);// THR-3929 
 
         return throneCompany;
@@ -198,6 +201,19 @@ public class CompanyService  extends CommonService {
             throw ApplicationException.createEntityNotFoundError(APIErrorCodes.ENTITY_NOT_FOUND, "company", "companyId="+companyId);
         }
         
+        return updateCompany(companyJson, brokerId, companyInDb);
+    }
+
+
+    /**
+     * @param companyJson
+     * @param brokerId
+     * @param companyInDb
+     * @return
+     * @throws IOException
+     */
+    protected Company updateCompany(String companyJson, Integer brokerId,
+            Company companyInDb) throws IOException {
         Company updatedCompany = update(companyJson, companyInDb);
 
         if (updatedCompany.getLocation() != null) {
@@ -295,6 +311,17 @@ public class CompanyService  extends CommonService {
             throw ApplicationException.createEntityNotFoundError(APIErrorCodes.ENTITY_NOT_FOUND, "company", "companyId="+companyId);
         }
 
+        return deleteCompany(companyId, company);
+    }
+
+
+    /**
+     * Delete company
+     * @param companyId
+     * @param company
+     * @return
+     */
+    protected int deleteCompany(int companyId, Company company) {
         companyRepository.softDelete(companyId);
 
         learnCompanyService.deactivateLearnCompany(company);
@@ -464,11 +491,10 @@ public class CompanyService  extends CommonService {
 
             fileImportResult.increamentSuccessRecords();
         } catch (Exception ex) {
-            String cause = ex.getCause() instanceof DataTruncation ? 
-                    getMessageFromResourceBundle(resourceHandler, APIErrorCodes.DATA_TRUNCTATION) :
-                        ex.getMessage();
-                    fileImportResult.addFailedRecord(record, cause,
-                            getMessageFromResourceBundle(resourceHandler, APIErrorCodes.RECORD_NOT_ADDED));
+            String cause = extractMessageFromException(ex, resourceHandler);
+
+            fileImportResult.addFailedRecord(record, cause,
+                    getMessageFromResourceBundle(resourceHandler, APIErrorCodes.RECORD_NOT_ADDED));
         }
 
     }

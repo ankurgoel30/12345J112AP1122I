@@ -128,7 +128,7 @@ public class UserController {
     
 
     /**
-     * Bulk import company records from a given CSV file.
+     * Bulk import user records from a given CSV file.
      * 
      * @param Multipart file CSV files with records
      * @param brokerId - brokerId from request. Originally retrieved as part of JWT token

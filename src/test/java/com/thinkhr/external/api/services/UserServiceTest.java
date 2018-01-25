@@ -918,7 +918,7 @@ public class UserServiceTest {
     @Test
     public void testValidateRoleIdFromDB() {
         Integer roleId = 1;
-        ThroneRole role = ApiTestDataUtil.createThroneRole(1, "Agent");
+        ThroneRole role = ApiTestDataUtil.createThroneRole(1, "Broker Admin", "broker");
 
         when(roleRepository.findOne(roleId)).thenReturn(role);
 
