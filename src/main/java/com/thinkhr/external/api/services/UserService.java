@@ -25,7 +25,9 @@ import static com.thinkhr.external.api.services.utils.EntitySearchUtil.getPageab
 import static com.thinkhr.external.api.services.utils.FileImportUtil.getRequiredHeaders;
 import static com.thinkhr.external.api.services.utils.FileImportUtil.getValueFromRow;
 import static com.thinkhr.external.api.services.utils.FileImportUtil.populateColumnValues;
+import static com.thinkhr.external.api.services.utils.FileImportUtil.setRequestParamsForBulkJsonResponse;
 import static com.thinkhr.external.api.services.utils.FileImportUtil.validateAndFilterCustomHeaders;
+import static com.thinkhr.external.api.services.utils.FileImportUtil.validateAndGetContentFromModel;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -51,7 +53,7 @@ import com.thinkhr.external.api.db.entities.Company;
 import com.thinkhr.external.api.db.entities.User;
 import com.thinkhr.external.api.exception.APIErrorCodes;
 import com.thinkhr.external.api.exception.ApplicationException;
-import com.thinkhr.external.api.model.EmailRequest;
+import com.thinkhr.external.api.model.BulkJsonModel;
 import com.thinkhr.external.api.model.FileImportResult;
 import com.thinkhr.external.api.repositories.ThroneRoleRepository;
 import com.thinkhr.external.api.request.APIRequestHelper;
@@ -282,34 +284,46 @@ public class UserService extends CommonService {
     }    
 
     /**
-     * Imports a CSV file for companies record
+     * Imports a CSV file or Json records for companies record
      * 
      * @param fileToImport
+     * @param users 
      * @param brokerId
      * @throws ApplicationException
      */
-    public FileImportResult bulkUpload(MultipartFile fileToImport, int brokerId) throws ApplicationException {
+    public FileImportResult bulkUpload(MultipartFile fileToImport, List<BulkJsonModel> users, int brokerId) throws ApplicationException {
         
-        if (fileToImport == null) {
-            throw ApplicationException.createFileImportError(APIErrorCodes.REQUIRED_PARAMETER, "file");
+        if (fileToImport == null && CollectionUtils.isEmpty(users)) {
+            throw ApplicationException.createFileImportError(APIErrorCodes.REQUIRED_PARAMETER, "file Or UserJsonBody");
         }
 
         Company broker = validateBrokerId(brokerId);
 
-        List<String> fileContents = validateAndGetFileContent(fileToImport, resource);
-
-        FileImportResult result = processRecords (fileContents, broker, resource);
+        List<String> fileContents = null;
         
-        if (isSendEmailEnabled && result.getNumSuccessRecords() > 0) {
+        //Retrieving file contents on basis of input parameter
+        if(fileToImport!=null){
+            fileContents = validateAndGetFileContent(fileToImport, resource);
+        }else{
+            fileContents = validateAndGetContentFromModel(users, resource);
+        }
+
+        FileImportResult fileImportResult = processRecords (fileContents, broker, resource);
+        
+        if(!CollectionUtils.isEmpty(users)){
+            setRequestParamsForBulkJsonResponse(fileImportResult);
+        }
+        
+        if (isSendEmailEnabled && fileImportResult.getNumSuccessRecords() > 0) {
             try {
-                sendMail(broker.getCompanyId(), result.getJobId());
+                sendMail(broker.getCompanyId(), fileImportResult.getJobId());
             } catch (ApplicationException ex) {
                 //TODO: Bypassing exception. 
                 logger.error("Failed to send email ", ex);
             }
         }
         
-        return result;
+        return fileImportResult;
     }
 
     /**

@@ -34,6 +34,7 @@ public class ApplicationConstants {
     public static final String CONTACT = "CONTACT";
     public static final String LOCATION = "LOCATION";
     public static final String CLIENT = "CLIENT";
+    public static final String COMPANY_TYPE_BROKER = "broker_partner";
     
     public static final int MAX_RECORDS_COMPANY_CSV_IMPORT = 3500;
     public static final int MAX_RECORDS_USER_CSV_IMPORT = 500;
@@ -97,6 +98,7 @@ public class ApplicationConstants {
 
     public static final String BROKER_ROLE = "broker";
     public static final String STUDENT_ROLE = "student";
+    public static final String CLIENT_ADMIN_ROLE = "client_admin";
 
     public static final Integer ROLE_ID_FOR_INACTIVE = -1;
     public static final Integer CONFIGURATION_ID_FOR_INACTIVE = -1;
@@ -119,7 +121,6 @@ public class ApplicationConstants {
     public static final String FROM_EMAIL = "from_email";
     public static final String RESET_PASSWORD_PREFIX = "C";
 
-    // Email Channels
-    public static final String SENDGRID_EMAIL_SERVICE = "SendGrid";
-    public static final String MARKETO_EMAIL_SERVICE = "Marketo";
+    public static final String MASTER_CONFIG_KEY = "master";
+    public static final String MASTER_CONFIG_NAME = "Master Configuration";
 }

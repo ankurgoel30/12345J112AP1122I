@@ -59,7 +59,7 @@ public class Company implements SearchableEntity {
     @Column(name = "search_help") 
     private String searchHelp = "";
 
-    @Column(name = "Client_Type") 
+    @Column(name = "Client_Type"  , updatable=false) 
     private String companyType = "";
 
     @NotBlank
@@ -353,6 +353,28 @@ public class Company implements SearchableEntity {
     @JsonIgnore
     public boolean isBrokerCompany() {
         return this.getCompanyId() != null  && this.getCompanyId().equals(this.getBroker());
+    }
+    
+    /**
+     * Determines whether this company has learn admin SKUs
+     * 
+     * TODO: Implement Logic
+     * @return
+     */
+    @JsonIgnore
+    public boolean hasLearnAdminSKU() {
+        return false;
+    }
+    
+    /**
+     * Determines whether this company has Student Permission Only
+     * 
+     * TODO: Implement Logic
+     * @return
+     */
+    @JsonIgnore
+    public boolean hasStudentPermissionOnly() {
+        return true;
     }
 
     /**

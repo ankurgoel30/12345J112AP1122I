@@ -66,6 +66,7 @@ public class ApiTestDataUtil {
     public static final String API_BASE_PATH = "/v1/";
     public static final String COMPANY_API_BASE_PATH = "/v1/companies/";
     public static final String USER_API_BASE_PATH = "/v1/users/";
+    public static final String BROKER_API_BASE_PATH = "/v1/brokers/";
     public static final String COMPANY_API_REQUEST_PARAM_OFFSET = "offset";
     public static final String COMPANY_API_REQUEST_PARAM_LIMIT = "limit";
     public static final String COMPANY_API_REQUEST_PARAM_SORT = "sort";
@@ -1435,29 +1436,13 @@ public class ApiTestDataUtil {
      * @param name
      * @return
      */
-    public static ThroneRole createThroneRole(Integer id, String name) {
+    public static ThroneRole createThroneRole(Integer id, String name, String type) {
         ThroneRole role = new ThroneRole();
         if (role != null) {
             role.setId(id);
         }
         role.setName(name);
-        return role;
-    }
-
-    /**
-     * 
-     * @param id
-     * @param name
-     * @param companyId
-     * @return
-     */
-    public static ThroneRole createThroneRole(Integer id, String name, Integer companyId) {
-        ThroneRole role = new ThroneRole();
-        if (role != null) {
-            role.setId(id);
-        }
-        role.setName(name);
-        role.setCompanyId(companyId);
+        role.setType(type);
         return role;
     }
 

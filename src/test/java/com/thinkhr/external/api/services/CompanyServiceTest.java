@@ -26,6 +26,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
+import javax.persistence.EntityManager;
 import javax.validation.ConstraintViolationException;
 
 import org.apache.commons.io.IOUtils;
@@ -105,6 +106,9 @@ public class CompanyServiceTest {
 
     @Mock
     private MessageResourceHandler resourceHandler;
+
+    @Mock
+    private EntityManager entityManager;
 
     @Before
     public void setup(){
@@ -384,7 +388,7 @@ public class CompanyServiceTest {
         try {
             MultipartFile fileToImport = null;
 
-            companyServiceSpy.bulkUpload(fileToImport, brokerId);
+            companyServiceSpy.bulkUpload(fileToImport, null, brokerId);
             fail("Expecting validation exception for Invalid Broker Id");
         } catch (ApplicationException ex) {
             assertNotNull(ex);
@@ -419,7 +423,7 @@ public class CompanyServiceTest {
             fail("IOException is not expected");
         }
 
-        FileImportResult fileImportResult = companyServiceSpy.bulkUpload(fileToImport, brokerId);
+        FileImportResult fileImportResult = companyServiceSpy.bulkUpload(fileToImport, null, brokerId);
 
         assertNotNull(fileImportResult);
         assertEquals(10, fileImportResult.getTotalRecords());
@@ -453,7 +457,7 @@ public class CompanyServiceTest {
             fail("IOException is not expected");
         }
 
-        FileImportResult fileImportResult = companyServiceSpy.bulkUpload(fileToImport, brokerId);
+        FileImportResult fileImportResult = companyServiceSpy.bulkUpload(fileToImport, null, brokerId);
 
 
         assertNotNull(fileImportResult);
@@ -492,7 +496,7 @@ public class CompanyServiceTest {
         }
 
         try {
-            FileImportResult fileImportResult = companyServiceSpy.bulkUpload(fileToImport, brokerId);
+            FileImportResult fileImportResult = companyServiceSpy.bulkUpload(fileToImport, null, brokerId);
         } catch (ApplicationException ex) {
             assertNotNull(ex);
             assertEquals(APIErrorCodes.UNMAPPED_CUSTOM_HEADERS, ex.getApiErrorCode());

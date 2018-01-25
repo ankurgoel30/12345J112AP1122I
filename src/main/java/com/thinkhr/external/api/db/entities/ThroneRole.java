@@ -18,10 +18,10 @@ public class ThroneRole {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Integer id;
     
-    private Integer companyId;
-    
+    @Column(name = "name")
     private String name;
     
+    @Column(name = "description")
     private String description;
     
     @Column(name = "isAdministrator")
@@ -30,6 +30,6 @@ public class ThroneRole {
     @Column(name = "isImportDefault")
     private Integer importDefault;
     
-    private String learnRole;
-
+    @Column(name = "type")
+    private String type;
 }

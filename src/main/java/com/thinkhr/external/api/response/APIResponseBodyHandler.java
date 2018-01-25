@@ -92,7 +92,6 @@ public class APIResponseBodyHandler implements ResponseBodyAdvice<Object> {
             if ((List)body == null || ((List)body).isEmpty()) {
                 apiResponse.setMessage(getMessageFromResourceBundle(resourceHandler, APIErrorCodes.NO_RECORDS_FOUND));
             } else {
-                apiResponse.setList((List)body);
                 setListData((List) body, httpRequest, apiResponse);
             }
         } else if (body instanceof FileImportResult) {
@@ -139,7 +138,13 @@ public class APIResponseBodyHandler implements ResponseBodyAdvice<Object> {
         }
 
         apiResponse.setList(list);
-
+        apiResponse.setFailedList((List)getRequestAttribute("failedList"));
+        if(null != getRequestAttribute("failedRecords")){
+            apiResponse.setFailedRecords(getRequestAttribute("failedRecords").toString());
+        }
+        if(null != getRequestAttribute("successRecords")){
+            apiResponse.setSuccessRecords(getRequestAttribute("successRecords").toString());
+        }
     }
 
 }

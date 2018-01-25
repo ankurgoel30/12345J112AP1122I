@@ -707,7 +707,7 @@ public class UserServiceTest {
         MultipartFile fileToImport = null;
         Integer brokerId = 1;
         try {
-            FileImportResult  result = userService.bulkUpload(fileToImport, brokerId);
+            FileImportResult  result = userService.bulkUpload(fileToImport, null, brokerId);
         } catch (ApplicationException ae) {
             assertNotNull(ae);
             assertEquals(APIErrorCodes.REQUIRED_PARAMETER, ae.getApiErrorCode()); 
@@ -731,7 +731,7 @@ public class UserServiceTest {
         when(companyRepository.findOne(brokerId)).thenReturn(null);
 
         try {
-            FileImportResult result = userService.bulkUpload(fileToImport,
+            FileImportResult result = userService.bulkUpload(fileToImport, null,
                     brokerId);
         } catch (ApplicationException ae) {
             assertNotNull(ae);
@@ -758,7 +758,7 @@ public class UserServiceTest {
         when(companyRepository.findOne(brokerId)).thenReturn(company);
 
         try {
-            FileImportResult result = userService.bulkUpload(fileToImport,
+            FileImportResult result = userService.bulkUpload(fileToImport, null,
                     brokerId);
         } catch (ApplicationException ae) {
             assertNotNull(ae);
@@ -918,7 +918,7 @@ public class UserServiceTest {
     @Test
     public void testValidateRoleIdFromDB() {
         Integer roleId = 1;
-        ThroneRole role = ApiTestDataUtil.createThroneRole(1, "Agent");
+        ThroneRole role = ApiTestDataUtil.createThroneRole(1, "Broker Admin", "broker");
 
         when(roleRepository.findOne(roleId)).thenReturn(role);
 

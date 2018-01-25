@@ -31,6 +31,8 @@ public class APIResponse {
     private String offset;
     private String sort;
     private String totalRecords;
+    private String failedRecords;
+    private String successRecords;
     private String message;
     private String requestReferenceId;
 
@@ -39,6 +41,7 @@ public class APIResponse {
      * TODO: Replace with generic attribute like list, objects
      */
     private List list;
+    private List failedList;
     private SearchableEntity searchEntity; 
     private FileImportResult fileImportResult;
 
