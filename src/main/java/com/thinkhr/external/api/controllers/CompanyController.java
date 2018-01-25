@@ -176,7 +176,7 @@ public class CompanyController {
      * @param brokerId - brokerId from request. Originally retrieved as part of JWT token
      * 
      */
-    @RequestMapping(method=RequestMethod.POST,  value="/bulk/json")
+    @RequestMapping(method=RequestMethod.POST,  value="/bulk", consumes = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<List<BulkJsonModel>> bulkUploadJson(@RequestBody List<BulkJsonModel> companies,
             @RequestAttribute(name = BROKER_ID_PARAM) Integer brokerId)
                     throws ApplicationException, IOException {
