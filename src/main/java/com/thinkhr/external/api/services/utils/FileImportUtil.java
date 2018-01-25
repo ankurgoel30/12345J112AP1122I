@@ -10,7 +10,9 @@ import static com.thinkhr.external.api.ApplicationConstants.REQUIRED_HEADERS_COM
 import static com.thinkhr.external.api.ApplicationConstants.REQUIRED_HEADERS_USER_CSV_IMPORT;
 import static com.thinkhr.external.api.ApplicationConstants.USER;
 import static com.thinkhr.external.api.ApplicationConstants.USER_CUSTOM_COLUMN_PREFIX;
+import static com.thinkhr.external.api.request.APIRequestHelper.setRequestAttribute;
 import static com.thinkhr.external.api.response.APIMessageUtil.getMessageFromResourceBundle;
+import static com.thinkhr.external.api.services.upload.FileImportValidator.validateFileContents;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -27,11 +29,13 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.apache.commons.lang.StringUtils;
+import org.springframework.util.CollectionUtils;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.thinkhr.external.api.exception.APIErrorCodes;
 import com.thinkhr.external.api.exception.ApplicationException;
 import com.thinkhr.external.api.exception.MessageResourceHandler;
+import com.thinkhr.external.api.model.BulkJsonModel;
 import com.thinkhr.external.api.model.FileImportResult;
 import com.thinkhr.external.api.request.APIRequestHelper;
 import com.thinkhr.external.api.response.APIMessageUtil;
@@ -284,7 +288,49 @@ public class FileImportUtil {
         return null;
     }
 
+    /**
+     * Convert list of objects into list of strings 
+     * 
+     * @param list
+     * @param resource
+     * @return
+     * @throws Exception 
+     */
+    public static List<String> validateAndGetContentFromModel(List<BulkJsonModel> list,
+            String resource) {
+
+        if (CollectionUtils.isEmpty(list)) {
+            return null;
+        }
+
+        List<String> fileContents = new ArrayList<String>();
+
+        fileContents.add((list.get(0)).getAttributeNamesAsCommaSeparated());
+        for (BulkJsonModel obj : list) {
+            fileContents.add(obj.getAttributeValueAsCommaSeparated());
+        }
+        validateFileContents(fileContents, null, resource);
+
+        return fileContents;
+    }
     
+    /**
+     * To Set Request Params for creating JSON bulk response from
+     * FileImportResult
+     * 
+     * @param fileImportResult
+     */
+    public static void setRequestParamsForBulkJsonResponse(
+            FileImportResult fileImportResult) {
+
+        setRequestAttribute("totalRecords", fileImportResult.getTotalRecords());
+        setRequestAttribute("failedRecords",
+                fileImportResult.getNumFailedRecords());
+        setRequestAttribute("successRecords",
+                fileImportResult.getNumSuccessRecords());
+        setRequestAttribute("failedList", fileImportResult.getFailedRecords());
+
+    }
 
 
 }

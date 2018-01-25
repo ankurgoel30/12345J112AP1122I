@@ -388,7 +388,7 @@ public class CompanyServiceTest {
         try {
             MultipartFile fileToImport = null;
 
-            companyServiceSpy.bulkUpload(fileToImport, brokerId);
+            companyServiceSpy.bulkUpload(fileToImport, null, brokerId);
             fail("Expecting validation exception for Invalid Broker Id");
         } catch (ApplicationException ex) {
             assertNotNull(ex);
@@ -423,7 +423,7 @@ public class CompanyServiceTest {
             fail("IOException is not expected");
         }
 
-        FileImportResult fileImportResult = companyServiceSpy.bulkUpload(fileToImport, brokerId);
+        FileImportResult fileImportResult = companyServiceSpy.bulkUpload(fileToImport, null, brokerId);
 
         assertNotNull(fileImportResult);
         assertEquals(10, fileImportResult.getTotalRecords());
@@ -457,7 +457,7 @@ public class CompanyServiceTest {
             fail("IOException is not expected");
         }
 
-        FileImportResult fileImportResult = companyServiceSpy.bulkUpload(fileToImport, brokerId);
+        FileImportResult fileImportResult = companyServiceSpy.bulkUpload(fileToImport, null, brokerId);
 
 
         assertNotNull(fileImportResult);
@@ -496,7 +496,7 @@ public class CompanyServiceTest {
         }
 
         try {
-            FileImportResult fileImportResult = companyServiceSpy.bulkUpload(fileToImport, brokerId);
+            FileImportResult fileImportResult = companyServiceSpy.bulkUpload(fileToImport, null, brokerId);
         } catch (ApplicationException ex) {
             assertNotNull(ex);
             assertEquals(APIErrorCodes.UNMAPPED_CUSTOM_HEADERS, ex.getApiErrorCode());
