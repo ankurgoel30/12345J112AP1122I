@@ -1435,29 +1435,13 @@ public class ApiTestDataUtil {
      * @param name
      * @return
      */
-    public static ThroneRole createThroneRole(Integer id, String name) {
+    public static ThroneRole createThroneRole(Integer id, String name, String type) {
         ThroneRole role = new ThroneRole();
         if (role != null) {
             role.setId(id);
         }
         role.setName(name);
-        return role;
-    }
-
-    /**
-     * 
-     * @param id
-     * @param name
-     * @param companyId
-     * @return
-     */
-    public static ThroneRole createThroneRole(Integer id, String name, Integer companyId) {
-        ThroneRole role = new ThroneRole();
-        if (role != null) {
-            role.setId(id);
-        }
-        role.setName(name);
-        role.setCompanyId(companyId);
+        role.setType(type);
         return role;
     }
 

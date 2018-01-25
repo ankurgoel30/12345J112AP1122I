@@ -31,27 +31,27 @@ public class ThroneRoleRepositoryTest {
      * Test to verify findByNameAndCompanyId method.
      */
     @Test
-    public void testFindByNameAndCompanyId() {
+    public void testFindByNameAndType() {
 
-        ThroneRole role1 = ApiTestDataUtil.createThroneRole(null, "Admin", 2);
+        ThroneRole role1 = ApiTestDataUtil.createThroneRole(null, "Admin", "thinkhr");
 
         // Saving record into H2 DB
         roleRepository.save(role1);
 
-        ThroneRole role2 = ApiTestDataUtil.createThroneRole(null, "Broker", 3);
+        ThroneRole role2 = ApiTestDataUtil.createThroneRole(null, "Broker Admin", "broker");
 
         // Saving record into H2 DB
         roleRepository.save(role2);
 
-        ThroneRole role3 = ApiTestDataUtil.createThroneRole(null, "Student", 5);
+        ThroneRole role3 = ApiTestDataUtil.createThroneRole(null, "Student", "re");
 
         // Saving record into H2 DB
         roleRepository.save(role3);
 
-        ThroneRole foundRole = roleRepository.findByNameAndCompanyId("Broker", 3);
+        ThroneRole foundRole = roleRepository.findFirstByNameAndType("Broker Admin", "broker");
 
-        assertNotNull(foundRole.getId());
-        assertEquals(role2.getCompanyId(), foundRole.getCompanyId());
+        assertNotNull(foundRole);
+        assertEquals(role2.getType(), foundRole.getType());
         assertEquals(role2.getName(), foundRole.getName());
     }
 
