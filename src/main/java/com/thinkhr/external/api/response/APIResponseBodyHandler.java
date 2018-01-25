@@ -139,9 +139,12 @@ public class APIResponseBodyHandler implements ResponseBodyAdvice<Object> {
 
         apiResponse.setList(list);
         apiResponse.setFailedList((List)getRequestAttribute("failedList"));
-        apiResponse.setFailedRecords(getRequestAttribute("failedRecords").toString());
-        apiResponse.setSuccessRecords(getRequestAttribute("successRecords").toString());
-
+        if(null != getRequestAttribute("failedRecords")){
+            apiResponse.setFailedRecords(getRequestAttribute("failedRecords").toString());
+        }
+        if(null != getRequestAttribute("successRecords")){
+            apiResponse.setSuccessRecords(getRequestAttribute("successRecords").toString());
+        }
     }
 
 }
