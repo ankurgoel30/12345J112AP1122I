@@ -1,7 +1,11 @@
 package com.thinkhr.external.api.repositories;
 
+import static com.thinkhr.external.api.utils.ApiTestDataUtil.createConfiguration;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+
+import java.util.Arrays;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -73,6 +77,32 @@ public class ConfigurationRepositoryTest {
         assertEquals(configuration2.getCompanyId(), foundConfiguration.getCompanyId());
         assertEquals(configuration2.getConfigurationKey(), foundConfiguration.getConfigurationKey());
         assertEquals(configuration2.getName(), foundConfiguration.getName());
+    }
+
+    /**
+     * Test to verify findFirstByConfigurationIdAndCompanyId method.
+     * 
+     */
+    @Test
+    public void test_FindMasterConfiguration() {
+        //Test Data
+        Configuration configuration1 = createConfiguration(null, 1, "ABC", "test config1", 0);
+        Configuration configuration2 = createConfiguration(null, 3, "POR", "test config2", 0);
+        Configuration configuration3 = createConfiguration(null, 2, "XYZ", "test config3", 1);// This is master configuration
+        configurationRepository.save(Arrays.asList(configuration1, configuration2, configuration3)); // Saving records into H2 DB
+
+        //Method Call
+        Configuration foundConfiguration = configurationRepository
+                .findMasterConfiguration(configuration1.getConfigurationId());
+        Configuration foundConfiguration2 = configurationRepository
+                .findMasterConfiguration(configuration2.getConfigurationId());
+        Configuration foundConfiguration3 = configurationRepository
+                .findMasterConfiguration(configuration3.getConfigurationId());
+
+        //Assertions
+        assertNotNull(foundConfiguration3);
+        assertNull(foundConfiguration2);
+        assertNull(foundConfiguration);
     }
 
 }

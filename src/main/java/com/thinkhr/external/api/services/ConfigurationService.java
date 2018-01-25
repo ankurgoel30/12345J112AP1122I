@@ -109,7 +109,7 @@ public class ConfigurationService extends CommonService {
      * @param configurationId
      * @return
      */
-    private boolean isValidMasterConfigurationId(Integer configurationId) {
+    protected boolean isValidMasterConfigurationId(Integer configurationId) {
         return configurationRepository.findMasterConfiguration(configurationId) == null ? false : true;
     }
 

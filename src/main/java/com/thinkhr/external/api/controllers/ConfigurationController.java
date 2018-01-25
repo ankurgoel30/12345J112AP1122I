@@ -33,7 +33,7 @@ import com.thinkhr.external.api.services.ConfigurationService;
  */
 @RestController
 @Validated
-@RequestMapping(path="/v1/configuration")
+@RequestMapping(path = "/v1/configurations")
 public class ConfigurationController {
     
     private Logger logger = LoggerFactory.getLogger(ConfigurationController.class);
