@@ -5,6 +5,7 @@ import java.io.IOException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.thinkhr.external.api.db.entities.Company;
@@ -72,6 +73,7 @@ public class ConfigurationService extends CommonService {
      * @param brokerId
      * @return
      */
+    @Transactional
     public Configuration updateConfiguration(Integer configurationId, String configurationJson) 
             throws ApplicationException, JsonProcessingException, IOException {
         Configuration configurationInDb = configurationRepository.findOne(configurationId);
@@ -92,6 +94,7 @@ public class ConfigurationService extends CommonService {
      * @param configurationId
      * @return
      */
+    @Transactional
     public Configuration updateConfiguration(String configurationJson, Configuration configurationInDb) 
             throws IOException {
         Configuration updatedConfiguration = update(configurationJson, configurationInDb);
