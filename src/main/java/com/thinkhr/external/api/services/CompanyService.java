@@ -20,7 +20,9 @@ import static com.thinkhr.external.api.services.utils.EntitySearchUtil.getPageab
 import static com.thinkhr.external.api.services.utils.FileImportUtil.getRequiredHeaders;
 import static com.thinkhr.external.api.services.utils.FileImportUtil.getValueFromRow;
 import static com.thinkhr.external.api.services.utils.FileImportUtil.populateColumnValues;
+import static com.thinkhr.external.api.services.utils.FileImportUtil.setRequestParamsForBulkJsonResponse;
 import static com.thinkhr.external.api.services.utils.FileImportUtil.validateAndFilterCustomHeaders;
+import static com.thinkhr.external.api.services.utils.FileImportUtil.validateAndGetContentFromModel;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -39,6 +41,7 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.CollectionUtils;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -47,6 +50,7 @@ import com.thinkhr.external.api.db.entities.Company;
 import com.thinkhr.external.api.db.entities.Location;
 import com.thinkhr.external.api.exception.APIErrorCodes;
 import com.thinkhr.external.api.exception.ApplicationException;
+import com.thinkhr.external.api.model.BulkJsonModel;
 import com.thinkhr.external.api.model.FileImportResult;
 import com.thinkhr.external.api.services.upload.FileUploadEnum;
 import com.thinkhr.external.api.services.utils.CommonUtil;
@@ -207,6 +211,7 @@ public class CompanyService  extends CommonService {
      * @return
      * @throws IOException
      */
+    @Transactional
     protected Company updateCompany(String companyJson, Integer brokerId,
             Company companyInDb) throws IOException {
         Company updatedCompany = update(companyJson, companyInDb);
@@ -218,6 +223,11 @@ public class CompanyService  extends CommonService {
 
         Company throneCompany = saveCompany(updatedCompany, brokerId, false);
         learnCompanyService.updateLearnCompany(throneCompany);
+
+        // This is required otherwise values for updatable=false fields is not synced with 
+        // database when these fields are passed in payload .
+        entityManager.flush();
+        entityManager.refresh(throneCompany);
         return throneCompany;
     }
 
@@ -325,19 +335,32 @@ public class CompanyService  extends CommonService {
     }     
 
     /**
-     * Imports a CSV file for companies record
+     * Imports a CSV file with companies record or a BulkJsonModel objects
      * 
      * @param fileToImport
+     * @param companies 
      * @param brokerId
      * @throws ApplicationException
      */
-    public FileImportResult bulkUpload(MultipartFile fileToImport, int brokerId) throws ApplicationException {
+    public FileImportResult bulkUpload(MultipartFile fileToImport, List<BulkJsonModel> companies, int brokerId) throws ApplicationException {
 
         Company broker = validateBrokerId(brokerId);
+        
+        List<String> fileContents = null;
 
-        List<String> fileContents = validateAndGetFileContent(fileToImport, COMPANY);
-
-        return processRecords (fileContents, broker);
+        if (null != fileToImport) {
+        	fileContents = validateAndGetFileContent(fileToImport, resource);
+        } else {
+        	fileContents = validateAndGetContentFromModel(companies, resource);
+        }
+        
+        FileImportResult fileImportResult = processRecords (fileContents, broker);
+        
+        if(!CollectionUtils.isEmpty(companies)){
+            setRequestParamsForBulkJsonResponse(fileImportResult);
+        }
+        
+        return fileImportResult;
 
     }
 

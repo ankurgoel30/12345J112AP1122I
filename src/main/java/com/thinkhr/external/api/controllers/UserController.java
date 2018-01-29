@@ -33,6 +33,7 @@ import org.springframework.web.multipart.MultipartFile;
 import com.thinkhr.external.api.db.entities.User;
 import com.thinkhr.external.api.exception.ApplicationException;
 import com.thinkhr.external.api.exception.MessageResourceHandler;
+import com.thinkhr.external.api.model.BulkJsonModel;
 import com.thinkhr.external.api.model.FileImportResult;
 import com.thinkhr.external.api.services.UserService;
 import com.thinkhr.external.api.services.utils.FileImportUtil;
@@ -139,7 +140,7 @@ public class UserController {
                     throws ApplicationException, IOException {
 
         logger.info("##### ######### USER IMPORT BEGINS ######### #####");
-        FileImportResult fileImportResult = userService.bulkUpload(file, brokerId);
+        FileImportResult fileImportResult = userService.bulkUpload(file, null, brokerId);
         logger.debug("************** USER IMPORT ENDS *****************");
 
         // Set the attachment header & set up response to return a CSV file with result and erroneous records
@@ -151,6 +152,25 @@ public class UserController {
 
         return ResponseEntity.status(fileImportResult.getHttpStatus()).headers(headers).contentLength(responseFile.length()).contentType(MediaType.parseMediaType("text/csv"))
                 .body(new InputStreamResource(new FileInputStream(responseFile)));
+    }
+    
+    /**
+     * Bulk import company records from given JSON data
+     * 
+     * @param UserJsonBulk object
+     * @param brokerId - brokerId from request. Originally retrieved as part of JWT token
+     * 
+     */
+    @RequestMapping(method=RequestMethod.POST,  value="/bulk", consumes=MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<List<BulkJsonModel>> bulkUploadJson(@RequestBody(required=false) List<BulkJsonModel> users, 
+            @RequestAttribute(name = BROKER_ID_PARAM) Integer brokerId)
+                    throws ApplicationException, IOException {
+
+        logger.info("##### ######### USER IMPORT BEGINS ######### #####");
+        FileImportResult fileImportResult = userService.bulkUpload(null, users, brokerId);
+        logger.debug("************** USER IMPORT ENDS *****************");
+
+        return new ResponseEntity<List<BulkJsonModel>>(users,fileImportResult.getHttpStatus());
     }
 
 }

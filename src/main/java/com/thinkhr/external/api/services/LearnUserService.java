@@ -1,6 +1,7 @@
 package com.thinkhr.external.api.services;
 
 import static com.thinkhr.external.api.ApplicationConstants.BROKER_ROLE;
+import static com.thinkhr.external.api.ApplicationConstants.CLIENT_ADMIN_ROLE;
 import static com.thinkhr.external.api.ApplicationConstants.INACT;
 import static com.thinkhr.external.api.ApplicationConstants.ROLE_ID_FOR_INACTIVE;
 import static com.thinkhr.external.api.ApplicationConstants.STUDENT_ROLE;
@@ -59,7 +60,7 @@ public class LearnUserService extends CommonService {
         LearnUser learnUser = modelConvertor.convert(throneUser);
 
         learnUser.setCompanyId(getLearnCompanyId(throneUser));
-
+        
         learnUser.setUserName(getLearnUserNameByRoleId(throneUser));
 
         String roleName = getRoleName(throneUser);
@@ -122,9 +123,16 @@ public class LearnUserService extends CommonService {
 
         if (throneCompany.isBrokerCompany()) {
             return BROKER_ROLE;
-        } else {
-            return STUDENT_ROLE;
+        } else {// Company is RE
+            if (throneCompany.hasLearnAdminSKU() && !throneCompany.hasStudentPermissionOnly()) {
+                return CLIENT_ADMIN_ROLE;
+            } else if (!throneCompany.hasLearnAdminSKU() && throneCompany.hasStudentPermissionOnly()) {
+                return STUDENT_ROLE;
+            }
         }
+
+        return null;
+
     }
 
     /**
@@ -190,7 +198,7 @@ public class LearnUserService extends CommonService {
      * @return
      */
     public LearnUserRoleAssignment addUserRoleAssignment(LearnUser learnUser, String roleName) {
-        if (learnUser == null) {
+        if (learnUser == null || roleName == null) {
             return null;
         }
 

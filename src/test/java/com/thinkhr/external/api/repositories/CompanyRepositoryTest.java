@@ -1,5 +1,6 @@
 package com.thinkhr.external.api.repositories;
 
+import static com.thinkhr.external.api.ApplicationConstants.COMPANY_TYPE_BROKER;
 import static com.thinkhr.external.api.ApplicationConstants.DEFAULT_SORT_BY_COMPANY_NAME;
 import static com.thinkhr.external.api.services.utils.EntitySearchUtil.getPageable;
 import static com.thinkhr.external.api.utils.ApiTestDataUtil.createCompanies;
@@ -7,6 +8,8 @@ import static com.thinkhr.external.api.utils.ApiTestDataUtil.createCompaniesWitN
 import static com.thinkhr.external.api.utils.ApiTestDataUtil.createCompany;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 import java.util.Date;
@@ -27,6 +30,7 @@ import com.thinkhr.external.api.db.entities.Company;
 import com.thinkhr.external.api.exception.ApplicationException;
 import com.thinkhr.external.api.services.EntitySearchSpecification;
 import com.thinkhr.external.api.services.utils.EntitySearchUtil;
+import com.thinkhr.external.api.utils.ApiTestDataUtil;
 
 /**
  * Junit to verify methods of CompanyRepository with use of H2 database
@@ -328,6 +332,48 @@ public class CompanyRepositoryTest {
                         broker);
 
         assertEquals(null, company);
+    }
+
+    @Test
+    public void test_findFirstByCompanyNameAndCompanyType() {
+        Company broker = createCompany(null, "Pepcus", "Software", "345345435", new Date(), "Special",
+                "This is search help", "Other", "10");
+        broker.setCompanyType(COMPANY_TYPE_BROKER);
+        
+        Company notBrokerCompany = createCompany(null, "Pepcus", "Software", "345345435", new Date(), "Special",
+                "This is search help", "Other", "10");
+
+        companyRepository.save(broker);
+        companyRepository.save(notBrokerCompany);
+
+        String companyName = "Pepcus";
+        Company company = companyRepository.findFirstByCompanyNameAndCompanyType(companyName, COMPANY_TYPE_BROKER);
+
+        assertNotNull(company);
+        assertEquals(broker.getCompanyName(), company.getCompanyName());
+        assertEquals(broker.getCompanyType(), company.getCompanyType());
+    }
+
+    @Test
+    public void test_findByCompanyIdAndCompanyType() {
+        Company broker = createCompany(null, "Pepcus", "Software", "345345435", new Date(), "Special",
+                "This is search help", "Other", "10");
+        broker.setCompanyType(COMPANY_TYPE_BROKER);
+
+        Company notBrokerCompany = createCompany(null, "Pepcus", "Software", "345345435", new Date(), "Special",
+                "This is search help", "Other", "10");
+
+        companyRepository.save(broker);
+        companyRepository.save(notBrokerCompany);
+
+        Company company = companyRepository.findByCompanyIdAndCompanyType(broker.getCompanyId(), COMPANY_TYPE_BROKER);
+        Company company2 = companyRepository.findByCompanyIdAndCompanyType(notBrokerCompany.getCompanyId(),
+                COMPANY_TYPE_BROKER);
+
+        assertNotNull(company);
+        assertEquals(broker.getCompanyId(), company.getCompanyId());
+        assertEquals(broker.getCompanyType(), company.getCompanyType());
+        assertNull(company2);
     }
 
 

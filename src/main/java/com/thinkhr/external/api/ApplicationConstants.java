@@ -97,6 +97,7 @@ public class ApplicationConstants {
 
     public static final String BROKER_ROLE = "broker";
     public static final String STUDENT_ROLE = "student";
+    public static final String CLIENT_ADMIN_ROLE = "client_admin";
 
     public static final Integer ROLE_ID_FOR_INACTIVE = -1;
     public static final Integer CONFIGURATION_ID_FOR_INACTIVE = -1;
