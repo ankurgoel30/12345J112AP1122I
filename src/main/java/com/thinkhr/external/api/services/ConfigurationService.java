@@ -97,7 +97,14 @@ public class ConfigurationService extends CommonService {
         Configuration updatedConfiguration = update(configurationJson, configurationInDb);
 
         validateObject(updatedConfiguration);
-        return configurationRepository.save(updatedConfiguration);
+        Configuration updatedConfig = configurationRepository.save(updatedConfiguration);
+
+        // This is required otherwise values for updatable=false fields is not synced with 
+        // database when these fields are passed in payload .
+        entityManager.flush();
+        entityManager.refresh(updatedConfig);
+
+        return updatedConfig;
     }
 
     /**

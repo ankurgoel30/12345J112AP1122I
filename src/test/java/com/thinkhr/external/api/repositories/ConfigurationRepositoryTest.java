@@ -71,7 +71,8 @@ public class ConfigurationRepositoryTest {
         // Saving record into H2 DB
         configurationRepository.save(configuration3);
 
-        Configuration foundConfiguration = configurationRepository.findFirstByConfigurationIdAndCompanyId(2, 3);
+        Configuration foundConfiguration = configurationRepository
+                .findFirstByConfigurationIdAndCompanyId(configuration2.getConfigurationId(), 3);
 
         assertNotNull(foundConfiguration.getConfigurationId());
         assertEquals(configuration2.getCompanyId(), foundConfiguration.getCompanyId());

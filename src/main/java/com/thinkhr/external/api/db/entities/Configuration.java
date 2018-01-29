@@ -62,7 +62,7 @@ public class Configuration implements SearchableEntity {
     @Column(name = "deleted")
     private Integer deleted;
     
-    @Column(name = "isMasterConfiguration")
+    @Column(name = "isMasterConfiguration" , updatable=false)
     private Integer masterConfiguration;
     
     @ManyToMany(fetch=FetchType.LAZY, cascade = CascadeType.MERGE)
