@@ -45,7 +45,7 @@ public class ConfigurationController {
     MessageResourceHandler resourceHandler;
 
     /**
-     * Get configuration for a given id from database
+     * Get an alternate configuration for a given id from database
      * 
      * @param id configurationId
      * @return Configuration object
@@ -60,7 +60,7 @@ public class ConfigurationController {
 
 
     /**
-     * Delete specific configuration from database
+     * Delete specific alternate configuration from database
      * 
      * @param configurationId
      */
@@ -73,7 +73,7 @@ public class ConfigurationController {
 
 
     /**
-     * Update a configuration in database
+     * Update an alternate configuration in database
      * 
      * @param Configuration object
      * @throws IOException 
@@ -91,7 +91,7 @@ public class ConfigurationController {
 
 
     /**
-     * Add a configuration in database
+     * Add an alternate configuration in database
      * 
      * @param Configuration object
      */

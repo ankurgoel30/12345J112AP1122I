@@ -39,7 +39,7 @@ import com.thinkhr.external.api.repositories.CompanyRepository;
 import com.thinkhr.external.api.repositories.ConfigurationRepository;
 import com.thinkhr.external.api.repositories.CustomFieldsRepository;
 import com.thinkhr.external.api.repositories.FileDataRepository;
-import com.thinkhr.external.api.repositories.SkusRepository;
+import com.thinkhr.external.api.repositories.SkuRepository;
 import com.thinkhr.external.api.repositories.StandardFieldsRepository;
 import com.thinkhr.external.api.repositories.UserRepository;
 import com.thinkhr.external.api.services.upload.FileUploadEnum;
@@ -85,7 +85,7 @@ public class CommonService {
     protected ConfigurationRepository configurationRepository;
     
     @Autowired
-    protected SkusRepository skusRepository;
+    protected SkuRepository skuRepository;
     
     @Autowired
     protected LearnRoleRepository learnRoleRepository;
@@ -238,7 +238,7 @@ public class CommonService {
     public Configuration createMasterConfiguration(Integer companyId) {
         Configuration configuration = new Configuration();
         configuration.setCompanyId(companyId);
-        configuration.setIsMasterConfiguration(1);
+        configuration.setMasterConfiguration(1);
         configuration.setConfigurationKey(MASTER_CONFIG_KEY);
         configuration.setName(MASTER_CONFIG_NAME);
         configuration.setDescription(MASTER_CONFIG_NAME);

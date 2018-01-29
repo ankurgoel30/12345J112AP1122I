@@ -63,7 +63,7 @@ public class Configuration implements SearchableEntity {
     private Integer deleted;
     
     @Column(name = "isMasterConfiguration")
-    private Integer isMasterConfiguration;
+    private Integer masterConfiguration;
     
     @ManyToMany(fetch=FetchType.LAZY, cascade = CascadeType.MERGE)
     @JoinTable(
@@ -71,7 +71,7 @@ public class Configuration implements SearchableEntity {
             joinColumns = { @JoinColumn(name = "configurationId") }, 
             inverseJoinColumns = { @JoinColumn(name = "skuId") }
     )
-    private List<Skus> skus;
+    private List<Sku> skus;
     
     @Override
     @JsonIgnore

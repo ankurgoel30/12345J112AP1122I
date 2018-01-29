@@ -264,7 +264,7 @@ public class ApiTestDataUtil {
     }
 
     public static Configuration createConfiguration(Integer configurationId, Integer companyId, String configurationKey,
-            String name, Integer isMaster) {
+            String name, Integer master) {
         Configuration configuration = new Configuration();
         if (configurationId != null) {
             configuration.setConfigurationId(configurationId);
@@ -272,7 +272,7 @@ public class ApiTestDataUtil {
         configuration.setCompanyId(companyId);
         configuration.setConfigurationKey(configurationKey);
         configuration.setName(name);
-        configuration.setIsMasterConfiguration(isMaster);
+        configuration.setMasterConfiguration(master);
         return configuration;
     }
 

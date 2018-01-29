@@ -1,5 +1,7 @@
 package com.thinkhr.external.api.db.entities;
 
+import java.util.List;
+
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -23,17 +25,20 @@ import lombok.Data;
 @Table(name = "app_throne_skus")
 @Data
 @JsonInclude(Include.NON_EMPTY)
-public class Skus {
+public class Sku implements SearchableEntity {
     
     @Id
     @GeneratedValue(strategy=GenerationType.AUTO)
     @Column(name = "id")
     private Integer skuId;
     
+    @Column(name = "skuKey")
     private String skuKey;
     
+    @Column(name = "name")
     private String name;
     
+    @Column(name = "description")
     private String description;
     
     @Column(name = "isBrokerOnly")
@@ -41,5 +46,21 @@ public class Skus {
     
     @Column(name = "isActive")
     private Integer active;
+    
+    @Override
+    public List<String> getSearchFields() {
+        // TODO Auto-generated method stub
+        return null;
+    }
+    
+    @Override
+    public String getNodeName() {
+        return "sku";
+    }
+    
+    @Override
+    public String getMultiDataNodeName() {
+        return "skus";
+    }
 
 }

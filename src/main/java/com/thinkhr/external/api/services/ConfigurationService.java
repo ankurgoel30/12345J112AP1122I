@@ -28,25 +28,44 @@ public class ConfigurationService extends CommonService {
     private Logger logger = LoggerFactory.getLogger(ConfigurationService.class);
 
     /**
+     * Get an alternate configuration
      * 
      * @param configurationId
      * @return
      */
     public Configuration getConfiguraiton(Integer configurationId) {
-        // TODO Auto-generated method stub
-        return null;
+        Configuration configuration = configurationRepository.findOne(configurationId);
+        
+        if (null == configuration) {
+            throw ApplicationException.createEntityNotFoundError(APIErrorCodes.ENTITY_NOT_FOUND,
+                    "configuration", "configurationId="+ configurationId);
+        }
+        return configuration;
     }
 
     /**
+     * Delete an alternate configuration
      * 
      * @param configurationId
      */
-    public void deleteConfiguration(Integer configurationId) {
-        // TODO Auto-generated method stub
+    public int deleteConfiguration(Integer configurationId) {
+        Configuration configuration = configurationRepository.findOne(configurationId);
         
+        if (null == configuration) {
+            throw ApplicationException.createEntityNotFoundError(APIErrorCodes.ENTITY_NOT_FOUND, "configuration", "configurationId="+configurationId);
+        }
+        
+        if (configuration.getMasterConfiguration() != null && configuration.getMasterConfiguration() == 1) {
+            throw ApplicationException.createAuthorizationError(APIErrorCodes.MASTER_CONFIGURATION_NOT_CHANGEABLE, 
+                    String.valueOf(configurationId));
+        }
+        configurationRepository.delete(configuration);
+        
+        return configurationId;
     }
 
     /**
+     * Update an alternate configuration
      * 
      * @param configurationId
      * @param configurationJson
@@ -60,6 +79,10 @@ public class ConfigurationService extends CommonService {
             throw ApplicationException.createEntityNotFoundError(APIErrorCodes.ENTITY_NOT_FOUND, "configuration", "configurationId="+configurationId);
         }
         
+        if (configurationInDb.getMasterConfiguration() != null && configurationInDb.getMasterConfiguration() == 1) {
+            throw ApplicationException.createAuthorizationError(APIErrorCodes.MASTER_CONFIGURATION_NOT_CHANGEABLE, 
+                    String.valueOf(configurationId));
+        }
         return updateConfiguration(configurationJson, configurationInDb);
     }
 
@@ -74,11 +97,11 @@ public class ConfigurationService extends CommonService {
         Configuration updatedConfiguration = update(configurationJson, configurationInDb);
 
         validateObject(updatedConfiguration);
-        return null;
+        return configurationRepository.save(updatedConfiguration);
     }
 
     /**
-     * Add a alternate configuration
+     * Add an alternate configuration
      * 
      * @param configuration
      * @return
@@ -87,24 +110,22 @@ public class ConfigurationService extends CommonService {
         Company broker = validateBrokerId(configuration.getCompanyId());
         
         Integer configurationId = broker.getConfigurationId();
-        Integer brokerId = broker.getCompanyId();
         
         if (configurationId == null) {
-            throw ApplicationException.createBadRequest(APIErrorCodes.MASTER_CONFIGURATION_NOT_EXISTS, 
-                    String.valueOf(brokerId)); 
+            throw ApplicationException.createBadRequest(APIErrorCodes.MASTER_CONFIGURATION_NOT_EXISTS); 
         }
         
-        if (configurationId != null && !isValidMasterConfigurationId(configurationId)){
+        if (!isValidMasterConfigurationId(configurationId)){
             throw ApplicationException.createBadRequest(APIErrorCodes.INVALID_MASTER_CONFIGURATION_ID, 
-                    String.valueOf(brokerId));
+                    String.valueOf(configurationId));
         }
         
-        configuration.setIsMasterConfiguration(0); // For alternate configuration
+        configuration.setMasterConfiguration(0); // For alternate configuration
         return configurationRepository.save(configuration);
     }
 
     /**
-     * TO check whether configuration is master.
+     * To check whether configuration is master or not.
      * 
      * @param configurationId
      * @return

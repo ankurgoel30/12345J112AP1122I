@@ -7,6 +7,13 @@ import org.springframework.data.repository.query.Param;
 
 import com.thinkhr.external.api.db.entities.Configuration;
 
+/**
+ * Configuration repository for configuration entity.
+ *  
+ * @author Surabhi Bhawsar
+ * @since 2018-01-23 
+ *
+ */
 public interface ConfigurationRepository
         extends PagingAndSortingRepository<Configuration, Integer>, JpaSpecificationExecutor<Configuration> {
 
@@ -23,7 +30,7 @@ public interface ConfigurationRepository
      * @param configurationId
      * @return
      */
-    @Query(value = "select c from Configuration c where c.configurationId = :id and c.isMasterConfiguration = 1")
+    @Query(value = "select c from Configuration c where c.configurationId = :id and c.masterConfiguration = 1")
     public Configuration findMasterConfiguration(@Param("id") Integer configurationId);
 
 }
