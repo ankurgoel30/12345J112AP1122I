@@ -1,6 +1,5 @@
 package com.thinkhr.external.api.services;
 
-import static com.thinkhr.external.api.ApplicationConstants.APP_AUTH_DATA;
 import static com.thinkhr.external.api.ApplicationConstants.COMMA_SEPARATOR;
 import static com.thinkhr.external.api.ApplicationConstants.CONTACT;
 import static com.thinkhr.external.api.ApplicationConstants.DEFAULT_SORT_BY_USER_NAME;
@@ -32,6 +31,7 @@ import static com.thinkhr.external.api.services.utils.FileImportUtil.validateAnd
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -53,9 +53,7 @@ import com.thinkhr.external.api.db.entities.Company;
 import com.thinkhr.external.api.db.entities.User;
 import com.thinkhr.external.api.exception.APIErrorCodes;
 import com.thinkhr.external.api.exception.ApplicationException;
-import com.thinkhr.external.api.model.AppAuthData;
 import com.thinkhr.external.api.model.BulkJsonModel;
-import com.thinkhr.external.api.model.EmailRequest;
 import com.thinkhr.external.api.model.FileImportResult;
 import com.thinkhr.external.api.repositories.ThroneRoleRepository;
 import com.thinkhr.external.api.request.APIRequestHelper;
@@ -90,6 +88,9 @@ public class UserService extends CommonService {
 
     @Value("${com.thinkhr.external.api.user.default.password}")
     private String defaultPassword;
+
+    @Value("${com.thinkhr.external.api.emailService.enabled}")
+    private boolean isSendEmailEnabled;
 
     private static final String resource = USER;
     
@@ -161,14 +162,14 @@ public class UserService extends CommonService {
 
         learnUserService.addLearnUser(throneUser); //THR-3932
 
-        try {
-            // Sending welcome email to user 
-            EmailRequest emailRequest = emailService.createEmailRequest(brokerId, throneUser.getUserName());
-            emailService.sendEmail(emailRequest);
+        List<User> users = new ArrayList<User>(Arrays.asList(throneUser));
 
-        } catch (Exception ex) {
-            // TODO: Need to understand exact behavior
-            logger.error("Error occured while sending email.", ex);
+        if (isSendEmailEnabled) {
+            try {
+                emailService.createAndSendEmail(brokerId, users);
+            } catch (ApplicationException ex) {
+                logger.error("Failed to send email ", ex);
+            }
         }
 
         return throneUser;
@@ -243,24 +244,6 @@ public class UserService extends CommonService {
     }
 
     /**
-     * 
-     * @param user
-     * @param brokerId
-     */
-    private String getAddedBy(Integer brokerId) {
-        String addedBy = null;
-        AppAuthData authData = (AppAuthData) APIRequestHelper.getRequestAttribute(APP_AUTH_DATA);
-        if (authData != null) {
-            User authUser = userRepository.findByUserName(authData.getUser());
-            addedBy = "" + authUser.getUserId();
-        } else {
-            addedBy = "" + brokerId;
-        }
-
-        return addedBy;
-    }
-
-    /**
      * Validate companyName
      * 
      * @param user
@@ -331,8 +314,16 @@ public class UserService extends CommonService {
             setRequestParamsForBulkJsonResponse(fileImportResult);
         }
         
+        if (isSendEmailEnabled && fileImportResult.getNumSuccessRecords() > 0) {
+            try {
+                sendMail(broker.getCompanyId(), fileImportResult.getJobId());
+            } catch (ApplicationException ex) {
+                //TODO: Bypassing exception. 
+                logger.error("Failed to send email ", ex);
+            }
+        }
+        
         return fileImportResult;
-
     }
 
     /**
@@ -354,6 +345,7 @@ public class UserService extends CommonService {
         fileImportResult.setTotalRecords(records.size());
         fileImportResult.setHeaderLine(headerLine);
         fileImportResult.setBrokerId(broker.getCompanyId());
+        fileImportResult.setJobId((String) APIRequestHelper.getRequestAttribute("jobId"));
 
         String[] headersInCSV = headerLine.split(COMMA_SEPARATOR);
 
@@ -455,7 +447,7 @@ public class UserService extends CommonService {
             userColumnValues.add(companyId);
             userColumnValues.add(encDecyptor.encrypt(defaultPassword));
             userColumnValues.add(getCurrentDateInUTC());
-            userColumnValues.add(getAddedBy(fileImportResult.getBrokerId()));
+            userColumnValues.add(fileImportResult.getJobId());
             userColumnValues.add(fileImportResult.getBrokerId());
             
             userColumnsToInsert.add(USER_COLUMN_CLIENT_ID);
@@ -566,6 +558,22 @@ public class UserService extends CommonService {
         return userName;
     }
     
+    /**
+     * This function send mails to all the users added for given jobId
+     * @param broker
+     * @param jobId
+     */
+    private void sendMail(Integer companyId, String jobId) throws ApplicationException {
+        
+        List<User> userList = userRepository.findByAddedBy(jobId);
+
+        if (CollectionUtils.isEmpty(userList)) {
+            return;
+        }
+
+        emailService.createAndSendEmail(companyId, userList);
+    }
+
     /**
      * Return default sort field for user service
      * 

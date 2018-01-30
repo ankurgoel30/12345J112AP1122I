@@ -1,6 +1,9 @@
 package com.thinkhr.external.api.model;
 
+import java.util.LinkedHashMap;
 import java.util.List;
+
+import com.thinkhr.external.api.db.entities.User;
 
 import lombok.Data;
 
@@ -15,10 +18,10 @@ import lombok.Data;
 public class EmailRequest {
 
     private String fromEmail;
-    private List<String> toEmail;
+ 	
     private String subject;
     private String body;
-    private List<KeyValuePair> parameters;
+    private LinkedHashMap<User,List<KeyValuePair>> recipientToSubstitutionMap = new LinkedHashMap<User,List<KeyValuePair>>();
     
     
 }
