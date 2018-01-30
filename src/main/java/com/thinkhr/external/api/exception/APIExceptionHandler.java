@@ -25,6 +25,7 @@ import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 
+import com.fasterxml.jackson.core.JsonParseException;
 import com.mysql.jdbc.exceptions.jdbc4.MySQLIntegrityConstraintViolationException;
 import com.mysql.jdbc.exceptions.jdbc4.MySQLSyntaxErrorException;
 
@@ -172,7 +173,8 @@ public class APIExceptionHandler extends ResponseEntityExceptionHandler {
     protected ResponseEntity<Object> handleHttpMessageNotReadable(HttpMessageNotReadableException ex, 
             HttpHeaders headers, HttpStatus status, WebRequest request) {
         logger.error(ex);
-        APIError apiError = new APIError(BAD_REQUEST, APIErrorCodes.MALFORMED_JSON_REQUEST, ex);
+        APIError apiError = new APIError(BAD_REQUEST, APIErrorCodes.MALFORMED_JSON_REQUEST,
+                extractMessageFromException(ex, resourceHandler));
         apiError.setMessage(resourceHandler.get(APIErrorCodes.MALFORMED_JSON_REQUEST.name()));
         return buildResponseEntity(apiError);
     }
@@ -310,6 +312,22 @@ public class APIExceptionHandler extends ResponseEntityExceptionHandler {
                 tempExp = ((MySQLIntegrityConstraintViolationException) innerExp1);
             } else if (innerExp2 instanceof MySQLIntegrityConstraintViolationException) {
                 tempExp = ((MySQLIntegrityConstraintViolationException) innerExp2);
+            }
+
+            return tempExp.getLocalizedMessage();
+        }
+        
+        boolean isParseException = ex instanceof JsonParseException
+                || innerExp1 instanceof JsonParseException
+                || innerExp2 instanceof JsonParseException;
+        if (isParseException) {
+            JsonParseException tempExp = null;
+            if (ex instanceof JsonParseException) {
+                tempExp = ((JsonParseException) ex);
+            } else if (innerExp1 instanceof JsonParseException) {
+                tempExp = ((JsonParseException) innerExp1);
+            } else if (innerExp2 instanceof JsonParseException) {
+                tempExp = ((JsonParseException) innerExp2);
             }
 
             return tempExp.getLocalizedMessage();
