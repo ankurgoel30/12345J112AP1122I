@@ -13,6 +13,7 @@ import static com.thinkhr.external.api.exception.APIExceptionHandler.extractMess
 import static com.thinkhr.external.api.request.APIRequestHelper.setRequestAttribute;
 import static com.thinkhr.external.api.response.APIMessageUtil.getMessageFromResourceBundle;
 import static com.thinkhr.external.api.services.upload.FileImportValidator.validateAndGetFileContent;
+import static com.thinkhr.external.api.services.upload.FileImportValidator.validatePhone;
 import static com.thinkhr.external.api.services.upload.FileImportValidator.validateRequired;
 import static com.thinkhr.external.api.services.utils.CommonUtil.getTempId;
 import static com.thinkhr.external.api.services.utils.EntitySearchUtil.getEntitySearchSpecification;
@@ -25,7 +26,6 @@ import static com.thinkhr.external.api.services.utils.FileImportUtil.validateAnd
 import static com.thinkhr.external.api.services.utils.FileImportUtil.validateAndGetContentFromModel;
 
 import java.io.IOException;
-import java.sql.DataTruncation;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -426,6 +426,11 @@ public class CompanyService  extends CommonService {
           
             //Check to validate duplicate record
             if (checkDuplicate(record, fileImportResult, broker.getCompanyId(), headerIndexMap)) {
+                continue;
+            }
+
+            String phone = getValueFromRow(record, headerIndexMap.get(FileUploadEnum.COMPANY_PHONE.getHeader()));
+            if (!validatePhone(record, phone, fileImportResult, resourceHandler)) {
                 continue;
             }
 
