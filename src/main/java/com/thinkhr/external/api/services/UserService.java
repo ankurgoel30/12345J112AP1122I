@@ -295,7 +295,7 @@ public class UserService extends CommonService {
     public FileImportResult bulkUpload(MultipartFile fileToImport, List<BulkJsonModel> users, int brokerId) throws ApplicationException {
         
         if (fileToImport == null && CollectionUtils.isEmpty(users)) {
-            throw ApplicationException.createFileImportError(APIErrorCodes.REQUIRED_PARAMETER, "file Or UserJsonBody");
+            throw ApplicationException.createBulkImportError(APIErrorCodes.REQUIRED_PARAMETER, "file Or UserJsonBody");
         }
 
         Company broker = validateBrokerId(brokerId);

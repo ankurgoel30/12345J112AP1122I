@@ -351,6 +351,10 @@ public class CompanyService  extends CommonService {
      * @throws ApplicationException
      */
     public FileImportResult bulkUpload(MultipartFile fileToImport, List<BulkJsonModel> companies, int brokerId) throws ApplicationException {
+        
+        if (fileToImport == null && CollectionUtils.isEmpty(companies)) {
+            throw ApplicationException.createBulkImportError(APIErrorCodes.REQUIRED_PARAMETER, "file Or CompanyJsonBody");
+        }
 
         Company broker = validateBrokerId(brokerId);
         
@@ -384,11 +388,11 @@ public class CompanyService  extends CommonService {
             Company broker) throws ApplicationException {
 
         if (records == null) {
-            throw ApplicationException.createFileImportError(APIErrorCodes.NO_RECORDS_FOUND_FOR_IMPORT, null);
+            throw ApplicationException.createBulkImportError(APIErrorCodes.NO_RECORDS_FOUND_FOR_IMPORT, null);
         }
 
         if (broker == null || broker.getCompanyId() == null) {
-            throw ApplicationException.createFileImportError(APIErrorCodes.INVALID_BROKER_ID, "null");
+            throw ApplicationException.createBulkImportError(APIErrorCodes.INVALID_BROKER_ID, "null");
         }
 
         FileImportResult fileImportResult = new FileImportResult();

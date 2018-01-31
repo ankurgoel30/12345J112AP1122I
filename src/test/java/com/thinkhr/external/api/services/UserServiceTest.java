@@ -1,8 +1,12 @@
 package com.thinkhr.external.api.services;
 
 import static com.thinkhr.external.api.ApplicationConstants.DEFAULT_SORT_BY_USER_NAME;
+import static com.thinkhr.external.api.ApplicationConstants.REQUIRED_HEADERS_USER_CSV_IMPORT;
 import static com.thinkhr.external.api.ApplicationConstants.UNDERSCORE;
 import static com.thinkhr.external.api.services.utils.EntitySearchUtil.getPageable;
+import static com.thinkhr.external.api.services.utils.FileImportUtil.validateAndGetContentFromModel;
+import static com.thinkhr.external.api.utils.ApiTestDataUtil.createBulkCompanies;
+import static com.thinkhr.external.api.utils.ApiTestDataUtil.createBulkUsers;
 import static com.thinkhr.external.api.utils.ApiTestDataUtil.createCompany;
 import static com.thinkhr.external.api.utils.ApiTestDataUtil.createUser;
 import static com.thinkhr.external.api.utils.ApiTestDataUtil.createUserList;
@@ -56,6 +60,7 @@ import com.thinkhr.external.api.db.learn.entities.LearnUser;
 import com.thinkhr.external.api.exception.APIErrorCodes;
 import com.thinkhr.external.api.exception.ApplicationException;
 import com.thinkhr.external.api.exception.MessageResourceHandler;
+import com.thinkhr.external.api.model.BulkJsonModel;
 import com.thinkhr.external.api.model.FileImportResult;
 import com.thinkhr.external.api.repositories.CompanyRepository;
 import com.thinkhr.external.api.repositories.CustomFieldsRepository;
@@ -739,30 +744,48 @@ public class UserServiceTest {
                     ae.getApiErrorCode());
         }
     }
+    
+    /**
+     * Test bulkUpload when there is no input, neither file nor Json request
+     * headers
+     * 
+     */
+    @Test
+    public void testBulkUpload_NoInput() {
+        int brokerId = 12345;
 
+        try {
+            FileImportResult fileImportResult = userService.bulkUpload(null, null, brokerId);
+        } catch (ApplicationException ex) {
+            assertNotNull(ex);
+            assertEquals(APIErrorCodes.REQUIRED_PARAMETER, ex.getApiErrorCode());
+        }
+    }
+    
     /**
      * Test to verify if validateAndGetFileContent method throws exception.
      * 
      */
     @Test
-    public void testBulkUpload_validateAndGetFileContentFailed() {
-        MultipartFile fileToImport = null;
+    public void testBulkUpload_validateAndGetContentFromModelFailed() {
+        
+        int brokerId = 12345;
+        Company testdataBroker = ApiTestDataUtil.createCompany();
+        when(companyRepository.findOne(brokerId)).thenReturn(testdataBroker);
+        
+        List<BulkJsonModel> users = createBulkUsers();
+        BulkJsonModel user = users.get(0);
+        Map<String,Object> props = user.getProperties();
+        props.remove("firstName");
+        user.setProperties(props);
+        users.set(0, user);
+        
         try {
-            fileToImport = ApiTestDataUtil.createMockMultipartFile_EmptyFile();
-        } catch (IOException e) {
-            fail("Exception not expected");
-        }
-        Integer brokerId = 1;
-        Company company = ApiTestDataUtil.createCompany();
-
-        when(companyRepository.findOne(brokerId)).thenReturn(company);
-
-        try {
-            FileImportResult result = userService.bulkUpload(fileToImport, null,
+            FileImportResult result = userService.bulkUpload(null, users,
                     brokerId);
         } catch (ApplicationException ae) {
             assertNotNull(ae);
-            assertEquals(APIErrorCodes.NO_RECORDS_FOUND_FOR_IMPORT,
+            assertEquals(APIErrorCodes.MISSING_REQUIRED_FIELDS,
                     ae.getApiErrorCode());
         }
     }

@@ -8,6 +8,7 @@ import static com.thinkhr.external.api.services.utils.EmailUtil.SUPPORT_EMAIL;
 import static com.thinkhr.external.api.services.utils.EmailUtil.SUPPORT_PHONE;
 import static com.thinkhr.external.api.services.utils.EmailUtil.USER_NAME;
 
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -16,6 +17,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -50,6 +52,7 @@ import com.thinkhr.external.api.db.entities.User;
 import com.thinkhr.external.api.db.learn.entities.LearnCompany;
 import com.thinkhr.external.api.db.learn.entities.LearnRole;
 import com.thinkhr.external.api.db.learn.entities.LearnUser;
+import com.thinkhr.external.api.model.BulkJsonModel;
 import com.thinkhr.external.api.model.EmailRequest;
 import com.thinkhr.external.api.model.FileImportResult;
 import com.thinkhr.external.api.model.KeyValuePair;
@@ -93,7 +96,7 @@ public class ApiTestDataUtil {
      */
     public static String getJsonString(Object object) throws Exception {
         ObjectMapper mapper = new ObjectMapper();
-        mapper.setSerializationInclusion(Include.NON_NULL);
+        //mapper.setSerializationInclusion(Include.NON_NULL);
         return mapper.writeValueAsString(object);
     }
 
@@ -1595,6 +1598,100 @@ public class ApiTestDataUtil {
         request.getRecipientToSubstitutionMap().put(user, createKeyValueListForEmail());
 
         return request;
+    }
+    
+    
+    
+    public static List<BulkJsonModel> createBulkCompanies() {
+        
+        List<BulkJsonModel> companies = new ArrayList<BulkJsonModel>();
+        
+        BulkJsonModel company = new BulkJsonModel();        
+        Map<String, Object> properties = new LinkedHashMap<>();        
+        properties.put("clientName","Pepcus");
+        properties.put("displayName","10 Monroe St Inc");
+        properties.put("phone", "57934875");
+        properties.put("address", "10 Monroe St");
+        properties.put("address2", "");
+        properties.put("city", "Ellicottville");
+        properties.put("state", "NY");
+        properties.put("zip", "14731");
+        properties.put("industry", "other");
+        properties.put("companySize", "0");
+        properties.put("producer", "");
+        properties.put("businessId", "5330663");
+        properties.put("branch_id", "45");
+        properties.put("clientId", "14073326");
+        properties.put("clientType", "Non PEO");
+        company.setProperties(properties);
+        
+        companies.add(company);
+        
+        company = new BulkJsonModel();        
+        properties = new LinkedHashMap<>();        
+        properties.put("clientName","Pepcus1");
+        properties.put("displayName","10 Monroe St Inc");
+        properties.put("phone", "57934875");
+        properties.put("address", "10 Monroe St");
+        properties.put("address2", "");
+        properties.put("city", "Ellicottville");
+        properties.put("state", "NY");
+        properties.put("zip", "14731");
+        properties.put("industry", "other");
+        properties.put("companySize", "0");
+        properties.put("producer", "");
+        properties.put("businessId", "5330663");
+        properties.put("branch_id", "45");
+        properties.put("clientId", "14073326");
+        properties.put("clientType", "Non PEO");
+        company.setProperties(properties);
+        
+        companies.add(company);
+        
+        return companies;
+        
+    }
+    
+    public static ResponseEntity<List<BulkJsonModel>> createBulkCompanyResponseEntity(List<BulkJsonModel> companies, HttpStatus httpStatus) {
+        return new ResponseEntity<List<BulkJsonModel>>(companies, httpStatus);
+    }
+    
+    public static List<BulkJsonModel> createBulkUsers() {
+        
+        List<BulkJsonModel> users = new ArrayList<BulkJsonModel>();
+        
+        BulkJsonModel user = new BulkJsonModel();        
+        Map<String, Object> properties = new LinkedHashMap<>();        
+        properties.put("firstName", "Sonia");
+        properties.put("lastName", "Martinez");
+        properties.put("clientName", "Apramo LLC");
+        properties.put("email", "sonia@24hrc.com");
+        properties.put("userName", "sonia@24hrc.com");
+        properties.put("phone", "");
+        properties.put("businessId", "4649973");
+        user.setProperties(properties);
+        
+        users.add(user);
+        
+        user = new BulkJsonModel();        
+        properties = new LinkedHashMap<>();        
+        properties.put("firstName", "Aura");
+        properties.put("lastName", "De leon");
+        properties.put("clientName", "Apramo LLC");
+        properties.put("email", "juifr@my.palmbeachstate.edu");
+        properties.put("userName", "juifr@my.palmbeachstate.edu");
+        properties.put("phone", "");
+        properties.put("businessId", "5331675");
+        user.setProperties(properties);
+        
+        users.add(user);
+        
+        return users;
+        
+    }
+    
+    public static ResponseEntity<List<BulkJsonModel>> createBulkUserResponseEntity(List<BulkJsonModel> users, HttpStatus httpStatus) {
+        return new ResponseEntity<List<BulkJsonModel>>(users, httpStatus);
     }
 
 }
