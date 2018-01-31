@@ -18,6 +18,7 @@ import static com.thinkhr.external.api.request.APIRequestHelper.setRequestAttrib
 import static com.thinkhr.external.api.response.APIMessageUtil.getMessageFromResourceBundle;
 import static com.thinkhr.external.api.services.upload.FileImportValidator.validateAndGetFileContent;
 import static com.thinkhr.external.api.services.upload.FileImportValidator.validateEmail;
+import static com.thinkhr.external.api.services.upload.FileImportValidator.validatePhone;
 import static com.thinkhr.external.api.services.upload.FileImportValidator.validateRequired;
 import static com.thinkhr.external.api.services.utils.CommonUtil.getCurrentDateInUTC;
 import static com.thinkhr.external.api.services.utils.EntitySearchUtil.getEntitySearchSpecification;
@@ -381,6 +382,11 @@ public class UserService extends CommonService {
                continue;
            }
            
+            String phone = getValueFromRow(record, headerIndexMap.get(FileUploadEnum.USER_PHONE.getHeader()));
+            if (!validatePhone(record, phone, fileImportResult, resourceHandler)) {
+                continue;
+            }
+
             // Check if user is for valid company
             String clientName = getValueFromRow(record, headerIndexMap.get(FileUploadEnum.USER_CLIENT_NAME.getHeader()));
            
