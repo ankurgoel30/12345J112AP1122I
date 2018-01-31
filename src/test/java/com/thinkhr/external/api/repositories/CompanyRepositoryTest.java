@@ -8,8 +8,6 @@ import static com.thinkhr.external.api.utils.ApiTestDataUtil.createCompaniesWitN
 import static com.thinkhr.external.api.utils.ApiTestDataUtil.createCompany;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 import java.util.Date;
@@ -30,7 +28,6 @@ import com.thinkhr.external.api.db.entities.Company;
 import com.thinkhr.external.api.exception.ApplicationException;
 import com.thinkhr.external.api.services.EntitySearchSpecification;
 import com.thinkhr.external.api.services.utils.EntitySearchUtil;
-import com.thinkhr.external.api.utils.ApiTestDataUtil;
 
 /**
  * Junit to verify methods of CompanyRepository with use of H2 database
@@ -366,14 +363,15 @@ public class CompanyRepositoryTest {
         companyRepository.save(broker);
         companyRepository.save(notBrokerCompany);
 
-        Company company = companyRepository.findByCompanyIdAndCompanyType(broker.getCompanyId(), COMPANY_TYPE_BROKER);
-        Company company2 = companyRepository.findByCompanyIdAndCompanyType(notBrokerCompany.getCompanyId(),
-                COMPANY_TYPE_BROKER);
+        Company company = companyRepository.findByCompanyId(broker.getCompanyId());
+        Company company2 = companyRepository.findByCompanyId(notBrokerCompany.getCompanyId());
 
         assertNotNull(company);
         assertEquals(broker.getCompanyId(), company.getCompanyId());
         assertEquals(broker.getCompanyType(), company.getCompanyType());
-        assertNull(company2);
+        assertNotNull(company2);
+        assertEquals(notBrokerCompany.getCompanyId(), company2.getCompanyId());
+        assertEquals(notBrokerCompany.getCompanyType(), company2.getCompanyType());
     }
 
 
