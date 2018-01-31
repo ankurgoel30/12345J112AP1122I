@@ -3,6 +3,8 @@ package com.thinkhr.external.api.services;
 import static com.thinkhr.external.api.ApplicationConstants.CLIENT;
 import static com.thinkhr.external.api.ApplicationConstants.COMMA_SEPARATOR;
 import static com.thinkhr.external.api.ApplicationConstants.COMPANY;
+import static com.thinkhr.external.api.ApplicationConstants.COMPANY_COLUMN_ADDEDBY;
+import static com.thinkhr.external.api.ApplicationConstants.COMPANY_COLUMN_BROKER;
 import static com.thinkhr.external.api.ApplicationConstants.COMPANY_CUSTOM_HEADER1;
 import static com.thinkhr.external.api.ApplicationConstants.CONFIGURATION_ID_FOR_INACTIVE;
 import static com.thinkhr.external.api.ApplicationConstants.DEFAULT_SORT_BY_COMPANY_NAME;
@@ -13,6 +15,7 @@ import static com.thinkhr.external.api.exception.APIExceptionHandler.extractMess
 import static com.thinkhr.external.api.request.APIRequestHelper.setRequestAttribute;
 import static com.thinkhr.external.api.response.APIMessageUtil.getMessageFromResourceBundle;
 import static com.thinkhr.external.api.services.upload.FileImportValidator.validateAndGetFileContent;
+import static com.thinkhr.external.api.services.upload.FileImportValidator.validatePhone;
 import static com.thinkhr.external.api.services.upload.FileImportValidator.validateRequired;
 import static com.thinkhr.external.api.services.utils.CommonUtil.getTempId;
 import static com.thinkhr.external.api.services.utils.EntitySearchUtil.getEntitySearchSpecification;
@@ -25,7 +28,6 @@ import static com.thinkhr.external.api.services.utils.FileImportUtil.validateAnd
 import static com.thinkhr.external.api.services.utils.FileImportUtil.validateAndGetContentFromModel;
 
 import java.io.IOException;
-import java.sql.DataTruncation;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -53,6 +55,7 @@ import com.thinkhr.external.api.exception.APIErrorCodes;
 import com.thinkhr.external.api.exception.ApplicationException;
 import com.thinkhr.external.api.model.BulkJsonModel;
 import com.thinkhr.external.api.model.FileImportResult;
+import com.thinkhr.external.api.request.APIRequestHelper;
 import com.thinkhr.external.api.services.upload.FileUploadEnum;
 import com.thinkhr.external.api.services.utils.CommonUtil;
 
@@ -212,6 +215,7 @@ public class CompanyService  extends CommonService {
      * @return
      * @throws IOException
      */
+    @Transactional
     protected Company updateCompany(String companyJson, Integer brokerId,
             Company companyInDb) throws IOException {
         Company updatedCompany = update(companyJson, companyInDb);
@@ -223,6 +227,11 @@ public class CompanyService  extends CommonService {
 
         Company throneCompany = saveCompany(updatedCompany, brokerId, false);
         learnCompanyService.updateLearnCompany(throneCompany);
+
+        // This is required otherwise values for updatable=false fields is not synced with 
+        // database when these fields are passed in payload .
+        entityManager.flush();
+        entityManager.refresh(throneCompany);
         return throneCompany;
     }
 
@@ -243,9 +252,13 @@ public class CompanyService  extends CommonService {
         associateChildEntities(company);
 
         // Checking Duplicate company name
-        if (isNew && isDuplicateCompany(company.getCompanyName(), company.getBroker(), company.getCustom1())) {
-            throw ApplicationException.createBadRequest(APIErrorCodes.DUPLICATE_COMPANY_RECORD,
-                    company.getCompanyName());
+        if (isNew) {
+            if (isDuplicateCompany(company.getCompanyName(), company.getBroker(), company.getCustom1())) {
+                throw ApplicationException.createBadRequest(APIErrorCodes.DUPLICATE_COMPANY_RECORD,
+                        company.getCompanyName());
+            }
+
+            company.setAddedBy(getAddedBy(brokerId));
         }
 
         Integer configurationId = company.getConfigurationId();
@@ -386,6 +399,7 @@ public class CompanyService  extends CommonService {
         fileImportResult.setTotalRecords(records.size());
         fileImportResult.setHeaderLine(headerLine);
         fileImportResult.setBrokerId(broker.getCompanyId());
+        fileImportResult.setJobId((String) APIRequestHelper.getRequestAttribute("jobId"));
 
         String[] headersInCSV = headerLine.split(COMMA_SEPARATOR);
 
@@ -420,6 +434,11 @@ public class CompanyService  extends CommonService {
           
             //Check to validate duplicate record
             if (checkDuplicate(record, fileImportResult, broker.getCompanyId(), headerIndexMap)) {
+                continue;
+            }
+
+            String phone = getValueFromRow(record, headerIndexMap.get(FileUploadEnum.COMPANY_PHONE.getHeader()));
+            if (!validatePhone(record, phone, fileImportResult, resourceHandler)) {
                 continue;
             }
 
@@ -479,12 +498,14 @@ public class CompanyService  extends CommonService {
         }
 
         try {
-
             //Finally save companies one by one
             List<String> companyColumnsToInsert = new ArrayList<String>(companyFileHeaderColumnMap.keySet());
             List<String> locationColumnsToInsert = new ArrayList<String>(locationFileHeaderColumnMap.keySet());
-            companyColumnsToInsert.add("broker");
+            companyColumnsToInsert.add(COMPANY_COLUMN_BROKER);
+            companyColumnsToInsert.add(COMPANY_COLUMN_ADDEDBY);
+
             companyColumnsValues.add(fileImportResult.getBrokerId());
+            companyColumnsValues.add(fileImportResult.getJobId());
 
             saveCompanyRecord(companyColumnsValues, locationColumnsValues,
                     companyColumnsToInsert, locationColumnsToInsert);

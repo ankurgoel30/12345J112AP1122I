@@ -59,7 +59,7 @@ public class Company implements SearchableEntity {
     @Column(name = "search_help") 
     private String searchHelp = "";
 
-    @Column(name = "Client_Type" , updatable=false) 
+    @Column(name = "Client_Type"  , updatable=false) 
     private String companyType = "";
 
     @NotBlank
@@ -76,7 +76,7 @@ public class Company implements SearchableEntity {
     private Integer broker;
 
     @NotBlank
-    @Size(max = 12)
+    @Size(max = 10 , min = 10)
     @Column(name = "Client_Phone") 
     private String companyPhone;
 
