@@ -2,6 +2,8 @@ package com.thinkhr.external.api.controllers;
 
 import static com.thinkhr.external.api.ApplicationConstants.BROKER_ID_PARAM;
 import static com.thinkhr.external.api.ApplicationConstants.DEFAULT_SORT_BY_COMPANY_NAME;
+import static com.thinkhr.external.api.ApplicationConstants.SUCCESS_DELETED_ALL_RECORDS;
+import static com.thinkhr.external.api.response.APIMessageUtil.getMessageFromResourceBundle;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -31,12 +33,12 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.thinkhr.external.api.ApplicationConstants;
 import com.thinkhr.external.api.db.entities.Company;
 import com.thinkhr.external.api.exception.ApplicationException;
 import com.thinkhr.external.api.exception.MessageResourceHandler;
 import com.thinkhr.external.api.model.BulkJsonModel;
 import com.thinkhr.external.api.model.FileImportResult;
+import com.thinkhr.external.api.response.APIResponse;
 import com.thinkhr.external.api.services.CompanyService;
 import com.thinkhr.external.api.services.utils.FileImportUtil;
 
@@ -186,6 +188,21 @@ public class CompanyController {
         logger.debug("************** COMPANY IMPORT ENDS *****************");
 
         return new ResponseEntity<List<BulkJsonModel>>(companies,fileImportResult.getHttpStatus());
+    }
+ 
+    /**
+     * Delete all companies by jobId
+     *  
+     * @param jobId
+     * @return
+     */
+    @RequestMapping(method = RequestMethod.DELETE)
+    public ResponseEntity<APIResponse> deleteCompanies(@RequestParam(value = "jobId") String jobId) 
+            throws ApplicationException {
+        companyService.deleteCompanies(jobId);
+        APIResponse apiResponse = new APIResponse();
+        apiResponse.setMessage(getMessageFromResourceBundle(resourceHandler, SUCCESS_DELETED_ALL_RECORDS, jobId));
+        return new ResponseEntity<APIResponse>(apiResponse, HttpStatus.ACCEPTED);
     }
 
 }

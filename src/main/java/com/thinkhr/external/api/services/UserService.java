@@ -599,6 +599,28 @@ public class UserService extends CommonService {
     public boolean validateRoleIdFromDB(Integer roleId) {
         return throneRoleRepository.findOne(roleId) == null ? false : true;
     }
+    
+    /**
+     * Delete all users by jobId
+     * 
+     * @param jobId
+     */
+    @Transactional
+    public void deleteUsers(String jobId) {
+        List<User> users = userRepository.findByAddedBy(jobId);
+        
+        if (CollectionUtils.isEmpty(users)) { 
+            throw ApplicationException.createBadRequest(APIErrorCodes.INVALID_JOB_ID, jobId);
+        }
+        List<Integer> userIdList = new ArrayList<Integer>() ;
+        users.stream().forEach(user -> userIdList.add(user.getUserId()));
+        
+        // Deleting users records from throne DB
+        userRepository.deleteByAddedBy(jobId);
+        
+        // Deleting users records from throne DB
+        learnUserRepository.deleteByThrUserIdIn(userIdList);
+    }
 
 
 }

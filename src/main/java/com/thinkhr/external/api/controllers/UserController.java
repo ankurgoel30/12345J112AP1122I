@@ -2,6 +2,8 @@ package com.thinkhr.external.api.controllers;
 
 import static com.thinkhr.external.api.ApplicationConstants.BROKER_ID_PARAM;
 import static com.thinkhr.external.api.ApplicationConstants.DEFAULT_SORT_BY_USER_NAME;
+import static com.thinkhr.external.api.ApplicationConstants.SUCCESS_DELETED_ALL_RECORDS;
+import static com.thinkhr.external.api.response.APIMessageUtil.getMessageFromResourceBundle;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -35,6 +37,7 @@ import com.thinkhr.external.api.exception.ApplicationException;
 import com.thinkhr.external.api.exception.MessageResourceHandler;
 import com.thinkhr.external.api.model.BulkJsonModel;
 import com.thinkhr.external.api.model.FileImportResult;
+import com.thinkhr.external.api.response.APIResponse;
 import com.thinkhr.external.api.services.UserService;
 import com.thinkhr.external.api.services.utils.FileImportUtil;
 
@@ -171,6 +174,21 @@ public class UserController {
         logger.debug("************** USER IMPORT ENDS *****************");
 
         return new ResponseEntity<List<BulkJsonModel>>(users,fileImportResult.getHttpStatus());
+    }
+    
+    /**
+     * Delete all users by jobId
+     *  
+     * @param jobId
+     * @return
+     */
+    @RequestMapping(method = RequestMethod.DELETE)
+    public ResponseEntity<APIResponse> deleteUsers(@RequestParam(value = "jobId") String jobId) 
+            throws ApplicationException {
+        userService.deleteUsers(jobId);
+        APIResponse apiResponse = new APIResponse();
+        apiResponse.setMessage(getMessageFromResourceBundle(resourceHandler, SUCCESS_DELETED_ALL_RECORDS, jobId));
+        return new ResponseEntity<APIResponse>(apiResponse, HttpStatus.ACCEPTED);
     }
 
 }

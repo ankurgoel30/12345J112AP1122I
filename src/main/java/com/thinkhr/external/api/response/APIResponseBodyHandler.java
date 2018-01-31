@@ -98,7 +98,11 @@ public class APIResponseBodyHandler implements ResponseBodyAdvice<Object> {
             apiResponse.setFileImportResult((FileImportResult) body);
         } else {
             if (statusCode == HttpStatus.ACCEPTED.value()) {
-                apiResponse.setMessage(getMessageFromResourceBundle(resourceHandler, SUCCESS_DELETED, "id", body.toString()));
+                if (body instanceof APIResponse) {
+                    apiResponse.setMessage(((APIResponse)body).getMessage());
+                } else {
+                    apiResponse.setMessage(getMessageFromResourceBundle(resourceHandler, SUCCESS_DELETED, "id", body.toString()));    
+                }
             } else if (body instanceof SearchableEntity) {
                 apiResponse.setSearchEntity((SearchableEntity)body);
             }

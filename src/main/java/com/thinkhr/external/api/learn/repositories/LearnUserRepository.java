@@ -1,7 +1,10 @@
 package com.thinkhr.external.api.learn.repositories;
 
+import java.util.List;
+
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.repository.PagingAndSortingRepository;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.thinkhr.external.api.db.learn.entities.LearnUser;
 
@@ -22,5 +25,12 @@ public interface LearnUserRepository extends PagingAndSortingRepository<LearnUse
      * @return
      */
     public LearnUser findFirstByThrUserId(Integer thrUserId);
+    
+    /**
+     * 
+     * @param thrUserIdList
+     */
+    @Transactional
+    public void deleteByThrUserIdIn(List<Integer> thrUserIdList);
 
 }

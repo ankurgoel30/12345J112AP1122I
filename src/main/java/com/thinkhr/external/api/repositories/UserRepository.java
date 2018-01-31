@@ -21,15 +21,41 @@ import com.thinkhr.external.api.db.entities.User;
 public interface UserRepository extends PagingAndSortingRepository<User, Integer>, JpaSpecificationExecutor<User> {
 
 
+    /**
+     * 
+     * @param userID
+     */
     @Query("update User user set user.isActive=0 , user.deactivationDate=now() where user.userId = ?1")
     @Modifying
     @Transactional
     public void softDelete(int userID);
     
+    /**
+     * 
+     * @param userName
+     * @return
+     */
     public User findByUserName(String userName);
 
+    /**
+     * 
+     * @param companyId
+     * @return
+     */
     public List<User> findByCompanyId(Integer companyId);
 
+    /**
+     * 
+     * @param jobId
+     * @return
+     */
     public List<User> findByAddedBy(String jobId);
+
+    /**
+     * 
+     * @param jobId
+     */
+    @Transactional
+    public void deleteByAddedBy(String jobId);
 
 }

@@ -626,4 +626,26 @@ public class CompanyService  extends CommonService {
         return DEFAULT_SORT_BY_COMPANY_NAME;
     }
 
+    /**
+     * Delete all companies by jobId
+     * 
+     * @param jobId
+     */
+    @Transactional
+    public void deleteCompanies(String jobId) {
+        List<Company> companies = companyRepository.findByAddedBy(jobId);
+        
+        if (CollectionUtils.isEmpty(companies)) { 
+            throw ApplicationException.createBadRequest(APIErrorCodes.INVALID_JOB_ID, jobId);
+        }
+        List<Integer> companyIdList = new ArrayList<Integer>();
+        companies.stream().forEach(company -> companyIdList.add(company.getCompanyId()));
+        
+        // Deleting companies records from throne DB
+        companyRepository.deleteByAddedBy(jobId);
+        
+        // Deleting companies records from learn DB
+        learnCompanyRepository.deleteByCompanyIdIn(companyIdList);  
+    }
+
 }
