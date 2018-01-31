@@ -11,6 +11,11 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JsonDeserializer;
 
+/**
+ * This is custom deserializer class to deserialize date values in json payload
+ * @author Ajay Jain
+ *
+ */
 public class JsonDateDeSerializer extends JsonDeserializer<Date> {
 
     @Override
