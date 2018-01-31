@@ -8,6 +8,7 @@ import com.sendgrid.Content;
 import com.sendgrid.Email;
 import com.sendgrid.Mail;
 import com.sendgrid.Personalization;
+import com.thinkhr.external.api.db.entities.User;
 import com.thinkhr.external.api.model.EmailRequest;
 import com.thinkhr.external.api.model.KeyValuePair;
 
@@ -51,35 +52,35 @@ public class EmailUtil {
      * @return
      */
     public static Mail build(EmailRequest emailRequest) {
-
-        Email emailFrom = new Email(emailRequest.getFromEmail());
-
-        Email emailTo = null;
-        if (emailRequest.getToEmail() != null && !emailRequest.getToEmail().isEmpty()) {
-            emailTo = new Email(emailRequest.getToEmail().get(0));
-        }
-
+        
         Mail mail = new Mail();
 
-        Personalization personalization = new Personalization();
+        for (User userToSendEmail : emailRequest.getRecipientToSubstitutionMap().keySet()) {
+            Personalization personalization = new Personalization();
 
-        List<KeyValuePair> parameters = null;
-        if (emailRequest.getParameters() != null && !emailRequest.getParameters().isEmpty()) {
-            parameters = emailRequest.getParameters();
-            parameters.stream().forEach(keyValuePair -> {
-                personalization.addSubstitution(keyValuePair.getKey(), keyValuePair.getValue());
-            });
+            // Set recipient
+            Email emailTo = null;
+            if (userToSendEmail.getEmail() != null) {
+                emailTo = new Email(userToSendEmail.getEmail());
+            }
+            personalization.addTo(emailTo);
+
+            // Set Substitutions
+            List<KeyValuePair> subtitutions = emailRequest.getRecipientToSubstitutionMap().get(userToSendEmail);
+            if (subtitutions != null && !subtitutions.isEmpty()) {
+                subtitutions.stream().forEach(keyValuePair -> {
+                    personalization.addSubstitution(keyValuePair.getKey(), keyValuePair.getValue());
+                });
+            }
+
+            mail.addPersonalization(personalization);
         }
 
-        personalization.addTo(emailTo);
-        mail.addPersonalization(personalization);
-
+        Email emailFrom = new Email(emailRequest.getFromEmail());
         Content content = new Content("text/html", "<HTML>" + emailRequest.getBody() + "</HTML>");
         mail.addContent(content);
         mail.setFrom(emailFrom);
         mail.setSubject(emailRequest.getSubject());
-
-
         return mail;
     }
     
