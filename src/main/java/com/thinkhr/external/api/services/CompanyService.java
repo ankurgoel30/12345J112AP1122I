@@ -10,6 +10,7 @@ import static com.thinkhr.external.api.ApplicationConstants.CONFIGURATION_ID_FOR
 import static com.thinkhr.external.api.ApplicationConstants.DEFAULT_SORT_BY_COMPANY_NAME;
 import static com.thinkhr.external.api.ApplicationConstants.HASH_KEY;
 import static com.thinkhr.external.api.ApplicationConstants.LOCATION;
+import static com.thinkhr.external.api.ApplicationConstants.SUCCESS_DELETED_ALL_RECORDS;
 import static com.thinkhr.external.api.ApplicationConstants.TOTAL_RECORDS;
 import static com.thinkhr.external.api.exception.APIExceptionHandler.extractMessageFromException;
 import static com.thinkhr.external.api.request.APIRequestHelper.setRequestAttribute;
@@ -51,11 +52,13 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.thinkhr.external.api.ApplicationConstants;
 import com.thinkhr.external.api.db.entities.Company;
 import com.thinkhr.external.api.db.entities.Location;
+import com.thinkhr.external.api.db.entities.User;
 import com.thinkhr.external.api.exception.APIErrorCodes;
 import com.thinkhr.external.api.exception.ApplicationException;
 import com.thinkhr.external.api.model.BulkJsonModel;
 import com.thinkhr.external.api.model.FileImportResult;
 import com.thinkhr.external.api.request.APIRequestHelper;
+import com.thinkhr.external.api.response.APIResponse;
 import com.thinkhr.external.api.services.upload.FileUploadEnum;
 import com.thinkhr.external.api.services.utils.CommonUtil;
 
@@ -630,13 +633,15 @@ public class CompanyService  extends CommonService {
      * Delete all companies by jobId
      * 
      * @param jobId
+     * @return
      */
     @Transactional
-    public void deleteCompanies(String jobId) {
+    public APIResponse deleteCompanies(String jobId) {
+        APIResponse apiResponse = new APIResponse();
         List<Company> companies = companyRepository.findByAddedBy(jobId);
         
         if (CollectionUtils.isEmpty(companies)) { 
-            throw ApplicationException.createBadRequest(APIErrorCodes.INVALID_JOB_ID, jobId);
+            throw ApplicationException.createBadRequest(APIErrorCodes.NO_DATA_FOUND, jobId);
         }
         List<Integer> companyIdList = new ArrayList<Integer>();
         companies.stream().forEach(company -> companyIdList.add(company.getCompanyId()));
@@ -645,7 +650,32 @@ public class CompanyService  extends CommonService {
         companyRepository.deleteByAddedBy(jobId);
         
         // Deleting companies records from learn DB
-        learnCompanyRepository.deleteByCompanyIdIn(companyIdList);  
+        learnCompanyRepository.deleteByCompanyIdIn(companyIdList);
+        
+        // Deleting users associated with these companies
+        deleteAssociatedUsers(companyIdList);
+        
+        apiResponse.setMessage(getMessageFromResourceBundle(resourceHandler, SUCCESS_DELETED_ALL_RECORDS, jobId));
+        return apiResponse;
+    }
+
+    /**
+     * Delete users associated with companies
+     * 
+     * @param companyIdList
+     */
+    @Transactional
+    public void deleteAssociatedUsers(List<Integer> companyIdList) {
+        List<User> users = userRepository.findByCompanyIdIn(companyIdList);
+        
+        List<Integer> userIdList = new ArrayList<Integer>();
+        users.stream().forEach(user -> userIdList.add(user.getUserId()));
+        
+        // Deleting users records from throne DB
+        userRepository.deleteByCompanyIdIn(companyIdList);
+        
+        // Deleting users records from learn DB
+        learnUserRepository.deleteByThrUserIdIn(userIdList); 
     }
 
 }

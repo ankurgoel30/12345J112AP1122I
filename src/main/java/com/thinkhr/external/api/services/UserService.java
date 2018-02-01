@@ -5,6 +5,7 @@ import static com.thinkhr.external.api.ApplicationConstants.CONTACT;
 import static com.thinkhr.external.api.ApplicationConstants.DEFAULT_SORT_BY_USER_NAME;
 import static com.thinkhr.external.api.ApplicationConstants.ROLE_ID_FOR_INACTIVE;
 import static com.thinkhr.external.api.ApplicationConstants.SPACE;
+import static com.thinkhr.external.api.ApplicationConstants.SUCCESS_DELETED_ALL_RECORDS;
 import static com.thinkhr.external.api.ApplicationConstants.TOTAL_RECORDS;
 import static com.thinkhr.external.api.ApplicationConstants.UNDERSCORE;
 import static com.thinkhr.external.api.ApplicationConstants.USER;
@@ -58,6 +59,7 @@ import com.thinkhr.external.api.model.BulkJsonModel;
 import com.thinkhr.external.api.model.FileImportResult;
 import com.thinkhr.external.api.repositories.ThroneRoleRepository;
 import com.thinkhr.external.api.request.APIRequestHelper;
+import com.thinkhr.external.api.response.APIResponse;
 import com.thinkhr.external.api.services.crypto.AppEncryptorDecryptor;
 import com.thinkhr.external.api.services.email.EmailService;
 import com.thinkhr.external.api.services.upload.FileUploadEnum;
@@ -604,13 +606,15 @@ public class UserService extends CommonService {
      * Delete all users by jobId
      * 
      * @param jobId
+     * @return
      */
     @Transactional
-    public void deleteUsers(String jobId) {
+    public APIResponse deleteUsers(String jobId) {
+        APIResponse apiResponse = new APIResponse();
         List<User> users = userRepository.findByAddedBy(jobId);
         
         if (CollectionUtils.isEmpty(users)) { 
-            throw ApplicationException.createBadRequest(APIErrorCodes.INVALID_JOB_ID, jobId);
+            throw ApplicationException.createBadRequest(APIErrorCodes.NO_DATA_FOUND, jobId);
         }
         List<Integer> userIdList = new ArrayList<Integer>() ;
         users.stream().forEach(user -> userIdList.add(user.getUserId()));
@@ -620,6 +624,9 @@ public class UserService extends CommonService {
         
         // Deleting users records from throne DB
         learnUserRepository.deleteByThrUserIdIn(userIdList);
+        
+        apiResponse.setMessage(getMessageFromResourceBundle(resourceHandler, SUCCESS_DELETED_ALL_RECORDS, jobId));
+        return apiResponse;
     }
 
 

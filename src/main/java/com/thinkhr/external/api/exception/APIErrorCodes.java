@@ -55,7 +55,7 @@ public enum APIErrorCodes {
     AUTHORIZATION_FAILED(1032),
     SG_MAIL_FAILED(1033),
     INVALID_PHONE(1034),
-    INVALID_JOB_ID(1035);
+    NO_DATA_FOUND(1035);
 
 
     @Getter

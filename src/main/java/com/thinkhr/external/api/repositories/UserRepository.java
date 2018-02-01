@@ -57,5 +57,18 @@ public interface UserRepository extends PagingAndSortingRepository<User, Integer
      */
     @Transactional
     public void deleteByAddedBy(String jobId);
+    
+    /**
+     * 
+     * @param companyIdList
+     */
+    @Transactional
+    public void deleteByCompanyIdIn(List<Integer> companyIdList);
+    
+    /**
+     * 
+     * @param companyIdList
+     */
+    public List<User> findByCompanyIdIn(List<Integer> companyIdList);
 
 }

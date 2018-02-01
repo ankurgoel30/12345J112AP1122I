@@ -2,8 +2,6 @@ package com.thinkhr.external.api.controllers;
 
 import static com.thinkhr.external.api.ApplicationConstants.BROKER_ID_PARAM;
 import static com.thinkhr.external.api.ApplicationConstants.DEFAULT_SORT_BY_USER_NAME;
-import static com.thinkhr.external.api.ApplicationConstants.SUCCESS_DELETED_ALL_RECORDS;
-import static com.thinkhr.external.api.response.APIMessageUtil.getMessageFromResourceBundle;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -185,9 +183,7 @@ public class UserController {
     @RequestMapping(method = RequestMethod.DELETE)
     public ResponseEntity<APIResponse> deleteUsers(@RequestParam(value = "jobId") String jobId) 
             throws ApplicationException {
-        userService.deleteUsers(jobId);
-        APIResponse apiResponse = new APIResponse();
-        apiResponse.setMessage(getMessageFromResourceBundle(resourceHandler, SUCCESS_DELETED_ALL_RECORDS, jobId));
+        APIResponse apiResponse = userService.deleteUsers(jobId);
         return new ResponseEntity<APIResponse>(apiResponse, HttpStatus.ACCEPTED);
     }
 
