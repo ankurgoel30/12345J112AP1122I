@@ -2,16 +2,14 @@ package com.thinkhr.external.api.services.email;
 
 import static com.thinkhr.external.api.ApplicationConstants.EMAIL_BODY;
 import static com.thinkhr.external.api.ApplicationConstants.EMAIL_SUBJECT;
-import static com.thinkhr.external.api.ApplicationConstants.FROM_EMAIL;
 import static com.thinkhr.external.api.ApplicationConstants.WELCOME_EMAIL_TYPE;
 import static com.thinkhr.external.api.services.utils.CommonUtil.generateHashedValue;
-import static com.thinkhr.external.api.utils.ApiTestDataUtil.buildMail;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.fail;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import org.junit.Test;
@@ -25,15 +23,14 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringRunner;
 
-import com.sendgrid.Mail;
 import com.thinkhr.external.api.ApiApplication;
+import com.thinkhr.external.api.ApplicationConstants;
 import com.thinkhr.external.api.db.entities.Company;
 import com.thinkhr.external.api.db.entities.EmailConfiguration;
 import com.thinkhr.external.api.db.entities.EmailTemplate;
 import com.thinkhr.external.api.db.entities.SetPasswordRequest;
 import com.thinkhr.external.api.db.entities.User;
 import com.thinkhr.external.api.model.EmailRequest;
-import com.thinkhr.external.api.model.KeyValuePair;
 import com.thinkhr.external.api.repositories.CompanyRepository;
 import com.thinkhr.external.api.repositories.EmailTemplateRepository;
 import com.thinkhr.external.api.repositories.SetPasswordRequestRepository;
@@ -48,7 +45,7 @@ import com.thinkhr.external.api.utils.ApiTestDataUtil;
 @RunWith(SpringRunner.class)
 @ContextConfiguration(classes = ApiApplication.class)
 @SpringBootTest
-public class EmailServiceTest {
+public class SendGridEmailServiceTest {
 
     @Mock
     private EmailTemplateRepository emailRepository;
@@ -63,7 +60,7 @@ public class EmailServiceTest {
     private CompanyRepository companyRepository;
 
     @InjectMocks
-    private EmailService emailService;
+    private SendGridEmailService emailService;
 
     @Value("${sendgrid_api_key}")
     private String apiKey;
@@ -79,22 +76,6 @@ public class EmailServiceTest {
 
     @Value("${login_url}")
     private String loginUrl;
-
-    /**
-     * Test to verify sendEmail method through sendgrid API.
-     * 
-     */
-    @Test
-    public void testSendEmail() {
-        Mail mail = buildMail();
-        try {
-            emailService.setApiKey(apiKey);
-            emailService.setAuthTemplateId(authTemplateId);
-            emailService.sendEmail(mail);
-        } catch (Exception e) {
-            fail("Exeption not expected");
-        }
-    }
 
     /**
      * Test to verify saveSetPasswordRequest method
@@ -120,88 +101,62 @@ public class EmailServiceTest {
     }
 
     /**
-     * Test to verify CreateEmailRequest method.
+     * 
+     * Test to verify createEmailRequest for brokerId and userName
      * 
      */
     @Test
     public void testCreateEmailRequest() {
-        User user = ApiTestDataUtil.createUser();
-        Company broker = ApiTestDataUtil.createCompany();
-        List<KeyValuePair> parameters = ApiTestDataUtil.createKeyValueListForEmail();
-
-        EmailTemplate emailTemplate = new EmailTemplate();
-
-        List<EmailConfiguration> configurations = new ArrayList<EmailConfiguration>();
-
-        EmailConfiguration emailConfiguration1 = ApiTestDataUtil.createEmailConfiguration(EMAIL_BODY,
-                "Dear Ajay, Congratulations");
-        configurations.add(emailConfiguration1);
-
-        EmailConfiguration emailConfiguration2 = ApiTestDataUtil.createEmailConfiguration(EMAIL_SUBJECT,
-                "welcomes you to ThinkHR!");
-        configurations.add(emailConfiguration2);
-
-        EmailConfiguration emailConfiguration3 = ApiTestDataUtil.createEmailConfiguration(FROM_EMAIL,
-                "welcome@myhrworkplace.com");
-        configurations.add(emailConfiguration3);
-
-        emailTemplate.setEmailConfigurations(configurations);
-
-        EmailRequest emailRequest = emailService.createEmailRequest(user, broker, parameters, emailTemplate);
-
-        assertEquals(user.getEmail(), emailRequest.getToEmail().get(0));
-        assertFalse(emailRequest.getParameters().isEmpty());
-        assertEquals(emailConfiguration1.getValue(), emailRequest.getBody());
-        assertEquals(broker.getCompanyName() + ", " + emailConfiguration2.getValue(), emailRequest.getSubject());
-        assertEquals(emailConfiguration3.getValue(), emailRequest.getFromEmail());
-
-    }
-
-    /**
-     * Test to verify createEmailRequest for brokerId and userName
-     */
-    @Test
-    public void testCreateEmailRequest_ForBrokerIdAndUserName() {
         Integer brokerId = 8148;
-        String userName = "sbhawsar";
         User user = ApiTestDataUtil.createUser();
+        List<User> users = new ArrayList<User>(Arrays.asList(user));
+
         Company broker = ApiTestDataUtil.createCompany();
-        EmailTemplate emailTemplate = ApiTestDataUtil.createEmailTemplate(1, brokerId, WELCOME_EMAIL_TYPE);
-        
+        EmailTemplate emailTemplate = ApiTestDataUtil.createEmailTemplate(1, brokerId,
+                WELCOME_EMAIL_TYPE);
+
         List<EmailConfiguration> configurations = new ArrayList<EmailConfiguration>();
 
-        EmailConfiguration emailConfiguration1 = ApiTestDataUtil.createEmailConfiguration(EMAIL_BODY,
+        EmailConfiguration emailConfiguration1 = ApiTestDataUtil.createEmailConfiguration(
+                EMAIL_BODY,
                 "Dear Ajay, Congratulations");
         configurations.add(emailConfiguration1);
 
-        EmailConfiguration emailConfiguration2 = ApiTestDataUtil.createEmailConfiguration(EMAIL_SUBJECT,
+        EmailConfiguration emailConfiguration2 = ApiTestDataUtil.createEmailConfiguration(
+                EMAIL_SUBJECT,
                 "welcomes you to ThinkHR!");
         configurations.add(emailConfiguration2);
 
-        EmailConfiguration emailConfiguration3 = ApiTestDataUtil.createEmailConfiguration(FROM_EMAIL,
+        EmailConfiguration emailConfiguration3 = ApiTestDataUtil.createEmailConfiguration(
+                ApplicationConstants.FROM_EMAIL,
                 "welcome@myhrworkplace.com");
         configurations.add(emailConfiguration3);
 
         emailTemplate.setEmailConfigurations(configurations);
 
         // Mocking repository methods
-        Mockito.when(userRepository.findByUserName(userName)).thenReturn(user);
+        Mockito.when(userRepository.findByUserName(user.getUserName())).thenReturn(user);
         Mockito.when(companyRepository.findOne(brokerId)).thenReturn(broker);
-        Mockito.when(emailRepository.findFirstByBrokerIdAndType(brokerId, WELCOME_EMAIL_TYPE)).thenReturn(emailTemplate);
+        Mockito.when(emailRepository.findFirstByBrokerIdAndType(brokerId, WELCOME_EMAIL_TYPE))
+                .thenReturn(emailTemplate);
         Mockito.when(setPasswordRepository.save(Matchers.any(SetPasswordRequest.class)))
                 .thenReturn(new SetPasswordRequest());
 
         emailService.setLoginUrl(loginUrl);
         emailService.setDefaultSupportEmail(defaultSupportEmail);
         emailService.setDefaultSupportPhone(defaultSupportPhone);
-        
-        EmailRequest emailRequest = emailService.createEmailRequest(brokerId, userName);
 
-        assertFalse(emailRequest.getParameters().isEmpty());
+        EmailRequest emailRequest = emailService.createEmailRequest(brokerId, users);
+
+        assertFalse(emailRequest.getRecipientToSubstitutionMap().isEmpty());
         assertEquals("welcome@myhrworkplace.com", emailRequest.getFromEmail());
         assertEquals(broker.getCompanyName() + ", welcomes you to ThinkHR!", emailRequest.getSubject());
         assertEquals("Dear Ajay, Congratulations", emailRequest.getBody());
-        assertEquals(user.getEmail(), emailRequest.getToEmail().get(0));
+        for (User userToSendEmail : emailRequest.getRecipientToSubstitutionMap().keySet()) {
+            assertEquals(user.getUserName(), userToSendEmail.getUserName());
+            assertFalse(emailRequest.getRecipientToSubstitutionMap().get(userToSendEmail).isEmpty());
+        }
+
     }
 
 }
