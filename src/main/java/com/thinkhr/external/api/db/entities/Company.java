@@ -78,7 +78,7 @@ public class Company implements SearchableEntity {
     private Integer broker;
 
     @NotBlank
-    @Size(max = 12)
+    @Size(max = 10 , min = 10)
     @Column(name = "Client_Phone") 
     private String companyPhone;
 

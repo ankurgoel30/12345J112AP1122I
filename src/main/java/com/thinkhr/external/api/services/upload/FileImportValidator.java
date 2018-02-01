@@ -165,5 +165,25 @@ public class FileImportValidator {
         return true;
     }
 
+    /**
+     * To validate email field
+     * @param record
+     * @param email
+     * @param fileImportResult
+     * @param resourceHandler
+     */
+    public static boolean validatePhone(String record, String phoneNo,
+            FileImportResult fileImportResult,
+            MessageResourceHandler resourceHandler) {
+
+        if (phoneNo == null || phoneNo.length() != 10) {
+            fileImportResult.addFailedRecord(record,
+                    getMessageFromResourceBundle(resourceHandler, APIErrorCodes.INVALID_PHONE, phoneNo),
+                    getMessageFromResourceBundle(resourceHandler, APIErrorCodes.SKIPPED_RECORD));
+            return false;
+        }
+
+        return true;
+    }
 
 }
