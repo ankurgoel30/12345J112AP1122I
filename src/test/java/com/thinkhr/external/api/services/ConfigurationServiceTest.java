@@ -82,13 +82,14 @@ public class ConfigurationServiceTest {
     public void test_GetConfiguration() {
         //TestData
         Integer configId = 1;
+        Integer brokerId = 12345;
         Configuration configuration = createConfiguration(1, 2, "ABC", "test config");
 
         //Stub Functions for this test
-        when(configurationRepository.findOne(configId)).thenReturn(configuration);
+        when(configurationRepository.findFirstByConfigurationIdAndCompanyId(configId, brokerId)).thenReturn(configuration);
 
         //Method Call
-        Configuration configurationInDb = configurationService.getConfiguraiton(configId);
+        Configuration configurationInDb = configurationService.getConfiguration(configId, brokerId);
 
         //Assertions
         assertEquals(configuration.getCompanyId(), configurationInDb.getCompanyId());
@@ -102,14 +103,15 @@ public class ConfigurationServiceTest {
     @Test
     public void test_DeleteConfiguration() {
         //TestData
+        Integer brokerId = 12345;
         Integer configId = 1;
         Configuration configuration = createConfiguration(1, 2, "ABC", "test config", 0);
 
         //Stub Functions for this test
-        when(configurationRepository.findOne(configId)).thenReturn(configuration);
+        when(configurationRepository.findFirstByConfigurationIdAndCompanyId(configId, brokerId)).thenReturn(configuration);
 
         //Method Call
-        Integer config = configurationService.deleteConfiguration(configId);
+        Integer config = configurationService.deleteConfiguration(configId, brokerId);
 
         //Assertions
         assertEquals(configId, config);
@@ -121,17 +123,18 @@ public class ConfigurationServiceTest {
     @Test(expected = ApplicationException.class)
     public void test_DeleteConfiguration_NoRecord() {
         //TestData
+        Integer brokerId = 12345;
         Integer configId = 1;
 
         //Stub Functions for this test
-        when(configurationRepository.findOne(configId)).thenReturn(null);
+        when(configurationRepository.findFirstByConfigurationIdAndCompanyId(configId, brokerId)).thenReturn(null);
 
         try {
             //Method Call
-            Integer config = configurationService.deleteConfiguration(configId);
+            Integer config = configurationService.deleteConfiguration(configId, brokerId);
         } catch (ApplicationException ex) {
             //Assertions
-            assertEquals(ex.getApiErrorCode(), APIErrorCodes.ENTITY_NOT_FOUND);
+            assertEquals(ex.getApiErrorCode(), APIErrorCodes.INVALID_CONFIGURATION_ID);
             throw ex;
         }
     }
@@ -144,19 +147,20 @@ public class ConfigurationServiceTest {
     @Test
     public void test_UpdateConfiguration() throws Exception {
         //TestData
+        Integer brokerId = 12345;
         Integer configId = 1;
         Configuration configurationInDb = createConfiguration(1, 2, "ABC", "test config", 0);
         Configuration updatedConfiguration = createConfiguration(1, 2, "ABC", "Updatedname", 0);
         String configJson = "{\"name\": \"Updatename\"}";
 
         //Stub Functions for this test
-        when(configurationRepository.findOne(configId)).thenReturn(configurationInDb);
+        when(configurationRepository.findFirstByConfigurationIdAndCompanyId(configId, brokerId)).thenReturn(configurationInDb);
         when(configurationRepository.save(any(Configuration.class))).thenReturn(updatedConfiguration);
 
         Configuration configuration = null;
         try {
             //Method Call
-            configuration = configurationService.updateConfiguration(configId, configJson);
+            configuration = configurationService.updateConfiguration(configId, configJson, brokerId);
         } catch (Exception ex) {
             fail("Exception not expected");
         }
@@ -171,18 +175,19 @@ public class ConfigurationServiceTest {
     @Test(expected = ApplicationException.class)
     public void test_UpdateConfiguration_NoRecord() {
         //TestData
+        Integer brokerId = 12345;
         Integer configId = 1;
         String configJson = null;
 
         //Stub Functions for this test
-        when(configurationRepository.findOne(configId)).thenReturn(null);
+        when(configurationRepository.findFirstByConfigurationIdAndCompanyId(configId, brokerId)).thenReturn(null);
 
         try {
             //Method Call
-            Configuration config = configurationService.updateConfiguration(configId, configJson);
+            Configuration config = configurationService.updateConfiguration(configId, configJson, brokerId);
         } catch (ApplicationException ex) {
             //Assertions
-            assertEquals(ex.getApiErrorCode(), APIErrorCodes.ENTITY_NOT_FOUND);
+            assertEquals(ex.getApiErrorCode(), APIErrorCodes.INVALID_CONFIGURATION_ID);
             throw ex;
         } catch (Exception ex) {
             fail("Exception not expected");
@@ -195,6 +200,7 @@ public class ConfigurationServiceTest {
     @Test
     public void test_AddConfiguration() {
         //TestData
+        Integer brokerId = 12345;
         Company broker = createCompany();
         broker.setConfigurationId(123);
         Configuration configuration = createConfiguration(1, 2, "ABC", "test config");
@@ -204,11 +210,10 @@ public class ConfigurationServiceTest {
 
         //Stub Functions for this test
         when(companyRepository.findOne(configuration.getCompanyId())).thenReturn(broker);
-        doReturn(true).when(configServiceSpy).isValidMasterConfigurationId(any());
         when(configurationRepository.save(any(Configuration.class))).thenReturn(configuration);
 
         //Method Call
-        Configuration configurationSaved = configServiceSpy.addConfiguration(configuration);
+        Configuration configurationSaved = configServiceSpy.addConfiguration(configuration, brokerId);
         
         //Assertions
         assertEquals(configuration.getCompanyId(), configurationSaved.getCompanyId());
@@ -223,6 +228,7 @@ public class ConfigurationServiceTest {
     @Test
     public void test_AddConfiguration_InvalidBroker() {
         //TestData
+        Integer brokerId = 12345;
         Company broker = createCompany();
         Configuration configuration = createConfiguration(1, 2, "ABC", "test config");
 
@@ -231,7 +237,7 @@ public class ConfigurationServiceTest {
 
         try {
             //Method Call
-            Configuration configurationSaved = configurationService.addConfiguration(configuration);
+            Configuration configurationSaved = configurationService.addConfiguration(configuration, brokerId);
         } catch (ApplicationException ae) {
             //Assertions
             assertNotNull(ae);
@@ -245,6 +251,7 @@ public class ConfigurationServiceTest {
     @Test
     public void test_AddConfiguration_NoMasterConfigExists() {
         //TestData
+        Integer brokerId = 12345;
         Company broker = createCompany();
         Configuration configuration = createConfiguration(1, 2, "ABC", "test config");
         broker.setConfigurationId(null); // Broker does not have any Configuration Set
@@ -254,7 +261,7 @@ public class ConfigurationServiceTest {
 
         try {
             //Method Call
-            Configuration configurationSaved = configurationService.addConfiguration(configuration);
+            Configuration configurationSaved = configurationService.addConfiguration(configuration, brokerId);
         } catch (ApplicationException ae) {
             //Assertions
             assertNotNull(ae);
@@ -268,6 +275,7 @@ public class ConfigurationServiceTest {
     @Test
     public void test_AddConfiguration_InvalidMasterConfig() {
         //TestData
+        Integer brokerId = 12345;
         Company broker = createCompany();
         Configuration configuration = createConfiguration(1, 2, "ABC", "test config");
         broker.setConfigurationId(123);// Broker has configuration set
@@ -277,11 +285,10 @@ public class ConfigurationServiceTest {
 
         //Stub Functions for this test
         when(companyRepository.findOne(configuration.getCompanyId())).thenReturn(broker);
-        doReturn(false).when(configServiceSpy).isValidMasterConfigurationId(any());
 
         try {
             //Method Call
-            Configuration configurationSaved = configServiceSpy.addConfiguration(configuration);
+            Configuration configurationSaved = configServiceSpy.addConfiguration(configuration, brokerId);
         } catch (ApplicationException ae) {
             //Assertions
             assertNotNull(ae);

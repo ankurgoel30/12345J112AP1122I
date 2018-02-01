@@ -1,9 +1,14 @@
 package com.thinkhr.external.api.controllers;
 
+import static com.thinkhr.external.api.ApplicationConstants.BROKER_ID_PARAM;
+import static com.thinkhr.external.api.ApplicationConstants.DEFAULT_SORT_BY_CONFIGURATION_ID;
+
 import java.io.IOException;
+import java.util.List;
 
 import javax.validation.Valid;
 
+import org.hibernate.validator.constraints.Range;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -11,9 +16,11 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestAttribute;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -53,9 +60,29 @@ public class ConfigurationController {
      * 
      */
     @RequestMapping(method=RequestMethod.GET, value="/{configurationId}")
-    public Configuration getById(@PathVariable(name="configurationId", value = "configurationId") Integer configurationId) 
+    public Configuration getById(@PathVariable(name="configurationId", value = "configurationId") Integer configurationId,
+            @RequestAttribute(name = BROKER_ID_PARAM) Integer brokerId) 
             throws ApplicationException {
-        return configurationService.getConfiguraiton(configurationId);
+        return configurationService.getConfiguration(configurationId,brokerId);
+    }
+    
+    /**
+     * Get all configurations for a given brokerid from JWT
+     * 
+     * @param id configurationId
+     * @return Configuration object
+     * @throws ApplicationException 
+     * 
+     */
+    @RequestMapping(method=RequestMethod.GET)
+    public List<Configuration> getConfigurations(@Range(min=0l, message="Please select positive integer value for 'offset'") 
+    @RequestParam(value = "offset", required = false, defaultValue = "0") Integer offset,
+    @Range(min=1l, message="Please select positive integer and should be greater than 0 for 'limit'") 
+    @RequestParam(value = "limit", required = false, defaultValue= "50" ) Integer limit, 
+    @RequestParam(value = "sort", required = false, defaultValue = DEFAULT_SORT_BY_CONFIGURATION_ID) String sort,
+    @RequestParam(value = "searchSpec", required = false) String searchSpec, @RequestAttribute(name = BROKER_ID_PARAM) Integer brokerId) 
+            throws ApplicationException {
+        return configurationService.getConfigurations(brokerId, offset, limit, sort, searchSpec);
     }
 
 
@@ -65,9 +92,10 @@ public class ConfigurationController {
      * @param configurationId
      */
     @RequestMapping(method=RequestMethod.DELETE,value="/{configurationId}")
-    public ResponseEntity<Integer> deleteConfiguration(@PathVariable(name="configurationId", value = "configurationId") Integer configurationId) 
+    public ResponseEntity<Integer> deleteConfiguration(@PathVariable(name="configurationId", value = "configurationId") Integer configurationId,
+            @RequestAttribute(name = BROKER_ID_PARAM) Integer brokerId) 
             throws ApplicationException {
-        configurationService.deleteConfiguration(configurationId);
+        configurationService.deleteConfiguration(configurationId,brokerId);
         return new ResponseEntity <Integer>(configurationId, HttpStatus.ACCEPTED);
     }
 
@@ -81,10 +109,10 @@ public class ConfigurationController {
      */
     @RequestMapping(method=RequestMethod.PUT,value="/{configurationId}")
     public ResponseEntity <Configuration> updateConfiguration(@PathVariable(name="configurationId", value = "configurationId") Integer configurationId, 
-            @RequestBody String configurationJson) 
+            @RequestBody String configurationJson, @RequestAttribute(name = BROKER_ID_PARAM) Integer brokerId) 
             throws ApplicationException, JsonProcessingException, IOException {
 
-        Configuration updatedConfiguration = configurationService.updateConfiguration(configurationId, configurationJson);
+        Configuration updatedConfiguration = configurationService.updateConfiguration(configurationId, configurationJson, brokerId);
         return new ResponseEntity<Configuration>(updatedConfiguration, HttpStatus.OK);
 
     }
@@ -96,9 +124,10 @@ public class ConfigurationController {
      * @param Configuration object
      */
     @RequestMapping(method=RequestMethod.POST)
-    public ResponseEntity<Configuration> addConfiguration(@Valid @RequestBody Configuration configuration)
+    public ResponseEntity<Configuration> addConfiguration(@Valid @RequestBody Configuration configuration,
+            @RequestAttribute(name = BROKER_ID_PARAM) Integer brokerId)
             throws ApplicationException {
-        configurationService.addConfiguration(configuration);
+        configurationService.addConfiguration(configuration,brokerId);
         return new ResponseEntity<Configuration>(configuration, HttpStatus.CREATED);
     }
 

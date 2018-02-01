@@ -61,4 +61,12 @@ public interface CompanyRepository extends PagingAndSortingRepository<Company, I
     @Modifying
     @Transactional
     public void activateCompany(int companyId);
+
+    /**
+     * Repository method
+     * 
+     * @param configurationId
+     * @return
+     */
+    public Company findFirstByConfigurationId(Integer configurationId);
 }

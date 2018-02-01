@@ -63,9 +63,10 @@ public class ConfigurationControllerTest {
      */
     @Test
     public void test_GetConfigurationById() throws Exception {
+        Integer brokerId = 12345;
         Configuration configuration = createConfiguration(1, 2, "ABC", "test config", 0);
 
-        given(configurationController.getById(configuration.getConfigurationId())).willReturn(configuration);
+        given(configurationController.getById(configuration.getConfigurationId(), brokerId)).willReturn(configuration);
 
         mockMvc.perform(get(CONFIG_API_BASE_PATH + configuration.getConfigurationId())
                 .accept(MediaType.APPLICATION_JSON))
@@ -81,12 +82,13 @@ public class ConfigurationControllerTest {
      */
     @Test
     public void test_AddConfiguration() throws Exception {
+        Integer brokerId = 12345;
         Configuration configuration = createConfiguration(1, 2, "ABC", "test config", 0);
 
         ResponseEntity<Configuration> responseEntity = ApiTestDataUtil.createConfigurationResponseEntity(configuration,
                 HttpStatus.CREATED);
 
-        given(configurationController.addConfiguration(Mockito.any(Configuration.class))).willReturn(responseEntity);
+        given(configurationController.addConfiguration(Mockito.any(Configuration.class), brokerId)).willReturn(responseEntity);
 
         mockMvc.perform(post(CONFIG_API_BASE_PATH)
                 .accept(MediaType.APPLICATION_JSON)
@@ -110,7 +112,7 @@ public class ConfigurationControllerTest {
         ResponseEntity<Configuration> responseEntity = ApiTestDataUtil.createConfigurationResponseEntity(configuration,
                 HttpStatus.OK);
 
-        given(configurationController.updateConfiguration(Mockito.any(Integer.class), Mockito.any(String.class)))
+        given(configurationController.updateConfiguration(Mockito.any(Integer.class), Mockito.any(String.class), Mockito.any(Integer.class)))
                 .willReturn(responseEntity);
 
         mockMvc.perform(put(CONFIG_API_BASE_PATH + configuration.getConfigurationId())
@@ -130,13 +132,14 @@ public class ConfigurationControllerTest {
     @Test
     public void test_DeleteConfiguration() throws Exception {
 
+        Integer brokerId = 12345;
         Configuration configuration = createConfiguration(1, 2, "ABC", "test config");
 
         ResponseEntity<Integer> responseEntity = ApiTestDataUtil.createConfigurationIdResponseEntity(
                 configuration.getConfigurationId(),
                 HttpStatus.ACCEPTED);
 
-        given(configurationController.deleteConfiguration(configuration.getConfigurationId()))
+        given(configurationController.deleteConfiguration(configuration.getConfigurationId(), brokerId))
                 .willReturn(responseEntity);
 
         mockMvc.perform(delete(CONFIG_API_BASE_PATH + configuration.getConfigurationId())

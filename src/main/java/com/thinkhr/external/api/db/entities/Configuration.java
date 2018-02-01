@@ -1,5 +1,6 @@
 package com.thinkhr.external.api.db.entities;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.persistence.Basic;
@@ -16,6 +17,8 @@ import javax.persistence.Lob;
 import javax.persistence.ManyToMany;
 import javax.persistence.Table;
 
+import org.hibernate.annotations.Where;
+
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
@@ -29,6 +32,7 @@ import lombok.Data;
  */
 @Entity
 @Table(name = "app_throne_configurations")
+@Where(clause="deleted IS NULL")
 @Data
 @JsonInclude(Include.NON_EMPTY)
 public class Configuration implements SearchableEntity {
@@ -38,7 +42,7 @@ public class Configuration implements SearchableEntity {
     @Column(name = "id")
     private Integer configurationId;
     
-    @Column(name = "companyId")
+    @Column(name = "companyId" , updatable=false)
     private Integer companyId;
     
     @Column(name = "configurationKey")
@@ -76,7 +80,10 @@ public class Configuration implements SearchableEntity {
     @Override
     @JsonIgnore
     public List<String> getSearchFields() {
-        return null;
+        List<String> searchColumns = new ArrayList<String>();
+        searchColumns.add("configurationKey");
+        searchColumns.add("name");
+        return searchColumns;
     }
     
     @Override
