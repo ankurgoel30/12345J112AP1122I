@@ -24,7 +24,7 @@ public class QueryBuilder {
 
     private static final String INSERT_COMPANY = "INSERT INTO clients";
     private static final String INSERT_LOCATION = "INSERT INTO locations";
-    private static final String INSERT_USER = "INSERT INTO contacts";
+    public static final String INSERT_USER = "INSERT INTO contacts";
     private static final String VALUES = "VALUES";
     private static final String START_BRACES = "(";
     private static final String END_BRACES = ") ";

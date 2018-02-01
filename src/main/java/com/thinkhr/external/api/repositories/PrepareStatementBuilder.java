@@ -41,6 +41,7 @@ public class PrepareStatementBuilder {
      * @return
      */
     public static PreparedStatementCreator buildPreparedStatementCreator(String query, List<Object> values) {
+
         return new PreparedStatementCreator() {
             @Override
             public PreparedStatement createPreparedStatement(Connection con) throws SQLException {
@@ -52,6 +53,35 @@ public class PrepareStatementBuilder {
                     Object value = values.get(i);
                     if (value instanceof String) {
                         statement.setString(i+1, (String)value);
+                    } else {
+                        statement.setObject(i + 1, value);
+                    }
+                }
+                return statement;
+            }
+        };
+    }
+
+    /**
+     * To get an instance of preparedStatement
+     * 
+     * @param query
+     * @param values
+     * @return
+     */
+    public static PreparedStatementCreator buildPreparedStatementCreator(PreparedStatement statement,
+            List<Object> values) {
+
+        return new PreparedStatementCreator() {
+            @Override
+            public PreparedStatement createPreparedStatement(Connection con) throws SQLException {
+                if (values == null) {
+                    return statement;
+                }
+                for (int i = 0; i < values.size(); i++) {
+                    Object value = values.get(i);
+                    if (value instanceof String) {
+                        statement.setString(i + 1, (String) value);
                     } else {
                         statement.setObject(i + 1, value);
                     }

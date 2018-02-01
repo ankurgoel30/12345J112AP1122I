@@ -1,31 +1,32 @@
 package com.thinkhr.external.api.repositories;
 
 import static com.thinkhr.external.api.repositories.PrepareStatementBuilder.buildPreparedStatementCreator;
-import static com.thinkhr.external.api.repositories.QueryBuilder.INSERT_PORTAL_COMPANY_CONTRACT;
-import static com.thinkhr.external.api.repositories.QueryBuilder.INSERT_PORTAL_COMPANY_PRODUCT;
 import static com.thinkhr.external.api.repositories.QueryBuilder.buildCompanyInsertQuery;
 import static com.thinkhr.external.api.repositories.QueryBuilder.buildLocationInsertQuery;
-import static com.thinkhr.external.api.repositories.QueryBuilder.buildQuery;
-import static com.thinkhr.external.api.repositories.QueryBuilder.buildUserInsertQuery;
-import static com.thinkhr.external.api.repositories.QueryBuilder.companyContractFieldValues;
-import static com.thinkhr.external.api.repositories.QueryBuilder.companyContractFields;
-import static com.thinkhr.external.api.repositories.QueryBuilder.companyProductFieldValues;
-import static com.thinkhr.external.api.repositories.QueryBuilder.companyProductFields;
 import static com.thinkhr.external.api.repositories.QueryBuilder.defaultCompReqFieldValues;
-import static com.thinkhr.external.api.repositories.QueryBuilder.defaultUserReqFieldValues;
-import static com.thinkhr.external.api.services.CompanyService.getAuthorizationKeyFromCompanyId;
 
-import java.util.ArrayList;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.List;
+import java.util.Map;
+
+import javax.sql.DataSource;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.jdbc.core.ColumnMapRowMapper;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.RowMapperResultSetExtractor;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
+import org.springframework.jdbc.support.JdbcUtils;
 import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.mysql.jdbc.Statement;
+import com.thinkhr.external.api.model.UserCsvModel;
 import com.thinkhr.external.api.services.utils.CommonUtil;
 
 import lombok.Data;
@@ -72,6 +73,24 @@ public class FileDataRepository {
         
         return clientId;
     }
+    
+    /**
+     * @param userColumns
+     * @return
+     * @throws SQLException
+     */
+    public PreparedStatement createdPreparedStatement(String query) throws SQLException {
+        
+       Connection con = jdbcTemplate.getDataSource().getConnection();
+
+       return con.prepareStatement(query, Statement.RETURN_GENERATED_KEYS);
+    }
+    
+    public DataSource getDataSource() throws SQLException {
+        
+        return jdbcTemplate.getDataSource();
+
+     }
 
     /**
      * Save user's record
@@ -79,15 +98,52 @@ public class FileDataRepository {
      * @param userColumnsToInsert
      * @param userColumnValues
      */
-    public Integer saveUserRecord(List<String> userColumns,
-            List<Object> userColumnValues) {
-
-        String insertUserSql = buildUserInsertQuery(userColumns);
-
+    public Integer saveUserRecord2(UserCsvModel userCsvModel) {
         KeyHolder keyHolder = new GeneratedKeyHolder();
 
-        userColumnValues.addAll(defaultUserReqFieldValues);
-        jdbcTemplate.update(buildPreparedStatementCreator(insertUserSql, userColumnValues), keyHolder);
+        jdbcTemplate.update(buildPreparedStatementCreator(userCsvModel.getPreparedStatement(), userCsvModel.getUserColumnValues()), keyHolder);
+        
+        return keyHolder.getKey().intValue();
+    }
+    
+    /**
+     * Save user's record
+     *  
+     * @param userColumnsToInsert
+     * @param userColumnValues
+     * @throws SQLException 
+     */
+    public Integer saveUserRecord(UserCsvModel userCsvModel) throws SQLException {
+        KeyHolder keyHolder = new GeneratedKeyHolder();
+
+        //jdbcTemplate.update(buildPreparedStatementCreator(userCsvModel.getPreparedStatement(), userCsvModel.getUserColumnValues()), keyHolder);
+        
+        for (int i = 0; i < userCsvModel.getUserColumnValues().size(); i++) {
+            Object value = userCsvModel.getUserColumnValues().get(i);
+            if (value instanceof String) {
+                userCsvModel.getPreparedStatement().setString(i + 1, (String) value);
+            } else {
+                userCsvModel.getPreparedStatement().setObject(i + 1, value);
+            }
+        }
+        
+        PreparedStatement ps = userCsvModel.getPreparedStatement();
+        ps.executeUpdate();
+        ps.getGeneratedKeys();
+        
+        List<Map<String, Object>> generatedKeys = keyHolder.getKeyList();
+        generatedKeys.clear();
+        ResultSet keys = ps.getGeneratedKeys();
+        if (keys != null) {
+            try {
+                RowMapperResultSetExtractor<Map<String, Object>> rse =
+                        new RowMapperResultSetExtractor<Map<String, Object>>(new ColumnMapRowMapper(), 1);
+                generatedKeys.addAll(rse.extractData(keys));
+            }
+            finally {
+                JdbcUtils.closeResultSet(keys);
+            }
+        }
         
         return keyHolder.getKey().intValue();
     }
