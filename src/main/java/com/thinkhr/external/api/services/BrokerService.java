@@ -63,7 +63,7 @@ public class BrokerService extends CompanyService {
     * @param brokerId
     */
    public int deleteBroker(int brokerId) throws ApplicationException {
-       Company company = companyRepository.findByCompanyId(brokerId);
+       Company company = companyRepository.findOne(brokerId);
 
        if (null == company) {
            throw ApplicationException.createEntityNotFoundError(APIErrorCodes.ENTITY_NOT_FOUND, "broker", "brokerId="+brokerId);
@@ -105,7 +105,7 @@ public class BrokerService extends CompanyService {
      * @return Company object 
      */
     public Company getBroker(Integer brokerId) {
-        Company company =  companyRepository.findByCompanyId(brokerId);
+        Company company =  companyRepository.findOne(brokerId);
 
         if (null == company) {
             throw ApplicationException.createEntityNotFoundError(APIErrorCodes.ENTITY_NOT_FOUND,
@@ -129,7 +129,7 @@ public class BrokerService extends CompanyService {
     public Company updateBroker(Integer brokerId, String companyJson) 
             throws ApplicationException, JsonProcessingException, IOException {
 
-        Company companyInDb = companyRepository.findByCompanyId(brokerId);
+        Company companyInDb = companyRepository.findOne(brokerId);
         if (null == companyInDb) {
             throw ApplicationException.createEntityNotFoundError(APIErrorCodes.ENTITY_NOT_FOUND, "broker", "brokerId="+brokerId);
         }
