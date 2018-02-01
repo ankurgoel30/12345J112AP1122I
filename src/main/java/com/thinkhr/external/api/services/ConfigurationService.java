@@ -60,12 +60,18 @@ public class ConfigurationService extends CommonService {
     private Configuration checkConfigurationForBroker(Integer configurationId,
             Integer brokerId) {
 
-        Configuration configuration = configurationRepository.findFirstByConfigurationIdAndCompanyId(configurationId, brokerId);
+        Configuration configuration = configurationRepository.findOne(configurationId);
         
         if (null == configuration) {
+            throw ApplicationException.createEntityNotFoundError(APIErrorCodes.ENTITY_NOT_FOUND,
+                    String.valueOf(configurationId));
+        }
+        
+        if(!configuration.getCompanyId().equals(brokerId)){
             throw ApplicationException.createAuthorizationError(APIErrorCodes.INVALID_CONFIGURATION_ID,
                     String.valueOf(configurationId), String.valueOf(brokerId));
         }
+        
         return configuration;
     }
 
@@ -148,9 +154,7 @@ public class ConfigurationService extends CommonService {
      */
     public Configuration addConfiguration(Configuration configuration, Integer brokerId) {
         
-        if(!configuration.getCompanyId().equals(brokerId)){
-            throw ApplicationException.createBadRequest(APIErrorCodes.INVALID_BROKER_ID_IN_BODY,String.valueOf(configuration.getCompanyId()));
-        }
+        configuration.setCompanyId(brokerId);
         
         Configuration masterConfiguration = configurationRepository.findFirstByCompanyIdAndMasterConfiguration(brokerId,1);
         
