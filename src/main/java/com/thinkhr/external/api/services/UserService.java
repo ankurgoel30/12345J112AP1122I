@@ -5,7 +5,7 @@ import static com.thinkhr.external.api.ApplicationConstants.CONTACT;
 import static com.thinkhr.external.api.ApplicationConstants.DEFAULT_SORT_BY_USER_NAME;
 import static com.thinkhr.external.api.ApplicationConstants.ROLE_ID_FOR_INACTIVE;
 import static com.thinkhr.external.api.ApplicationConstants.SPACE;
-import static com.thinkhr.external.api.ApplicationConstants.SUCCESS_DELETED_ALL_RECORDS;
+import static com.thinkhr.external.api.ApplicationConstants.SUCCESS_DELETED;
 import static com.thinkhr.external.api.ApplicationConstants.TOTAL_RECORDS;
 import static com.thinkhr.external.api.ApplicationConstants.UNDERSCORE;
 import static com.thinkhr.external.api.ApplicationConstants.USER;
@@ -610,11 +610,10 @@ public class UserService extends CommonService {
      */
     @Transactional
     public APIResponse deleteUsers(String jobId) {
-        APIResponse apiResponse = new APIResponse();
         List<User> users = userRepository.findByAddedBy(jobId);
         
         if (CollectionUtils.isEmpty(users)) { 
-            throw ApplicationException.createBadRequest(APIErrorCodes.NO_DATA_FOUND, jobId);
+            throw ApplicationException.createBadRequest(APIErrorCodes.NO_RECORDS_FOUND);
         }
         List<Integer> userIdList = new ArrayList<Integer>() ;
         users.stream().forEach(user -> userIdList.add(user.getUserId()));
@@ -624,8 +623,9 @@ public class UserService extends CommonService {
         
         // Deleting users records from throne DB
         learnUserRepository.deleteByThrUserIdIn(userIdList);
-        
-        apiResponse.setMessage(getMessageFromResourceBundle(resourceHandler, SUCCESS_DELETED_ALL_RECORDS, jobId));
+ 
+        APIResponse apiResponse = new APIResponse();
+        apiResponse.setMessage(getMessageFromResourceBundle(resourceHandler, SUCCESS_DELETED, "jobId", jobId));
         return apiResponse;
     }
 

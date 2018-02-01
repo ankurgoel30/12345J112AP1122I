@@ -10,7 +10,7 @@ import static com.thinkhr.external.api.ApplicationConstants.CONFIGURATION_ID_FOR
 import static com.thinkhr.external.api.ApplicationConstants.DEFAULT_SORT_BY_COMPANY_NAME;
 import static com.thinkhr.external.api.ApplicationConstants.HASH_KEY;
 import static com.thinkhr.external.api.ApplicationConstants.LOCATION;
-import static com.thinkhr.external.api.ApplicationConstants.SUCCESS_DELETED_ALL_RECORDS;
+import static com.thinkhr.external.api.ApplicationConstants.SUCCESS_DELETED;
 import static com.thinkhr.external.api.ApplicationConstants.TOTAL_RECORDS;
 import static com.thinkhr.external.api.exception.APIExceptionHandler.extractMessageFromException;
 import static com.thinkhr.external.api.request.APIRequestHelper.setRequestAttribute;
@@ -637,11 +637,10 @@ public class CompanyService  extends CommonService {
      */
     @Transactional
     public APIResponse deleteCompanies(String jobId) {
-        APIResponse apiResponse = new APIResponse();
         List<Company> companies = companyRepository.findByAddedBy(jobId);
         
         if (CollectionUtils.isEmpty(companies)) { 
-            throw ApplicationException.createBadRequest(APIErrorCodes.NO_DATA_FOUND, jobId);
+            throw ApplicationException.createBadRequest(APIErrorCodes.NO_RECORDS_FOUND);
         }
         List<Integer> companyIdList = new ArrayList<Integer>();
         companies.stream().forEach(company -> companyIdList.add(company.getCompanyId()));
@@ -654,8 +653,9 @@ public class CompanyService  extends CommonService {
         
         // Deleting users associated with these companies
         deleteAssociatedUsers(companyIdList);
-        
-        apiResponse.setMessage(getMessageFromResourceBundle(resourceHandler, SUCCESS_DELETED_ALL_RECORDS, jobId));
+
+        APIResponse apiResponse = new APIResponse();
+        apiResponse.setMessage(getMessageFromResourceBundle(resourceHandler, SUCCESS_DELETED, "jobId", jobId));
         return apiResponse;
     }
 

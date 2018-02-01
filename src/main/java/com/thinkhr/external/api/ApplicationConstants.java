@@ -17,7 +17,6 @@ public class ApplicationConstants {
     public static final String DEFAULT_SORT_BY_COMPANY_NAME = "+companyName";
     public static final String DEFAULT_SORT_BY_USER_NAME = "+userName";
     public static final String SUCCESS_DELETED = "SUCCESSFULLY_DELETED";
-    public static final String SUCCESS_DELETED_ALL_RECORDS = "SUCCESSFULLY_DELETED_ALL_RECORDS";
     public static final String TOTAL_RECORDS = "totalRecords";
     public static final String LIMIT_PARAM = "limit";
     public static final String OFFSET_PARAM = "offset";
