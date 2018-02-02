@@ -35,6 +35,7 @@ import com.thinkhr.external.api.exception.ApplicationException;
 import com.thinkhr.external.api.exception.MessageResourceHandler;
 import com.thinkhr.external.api.model.BulkJsonModel;
 import com.thinkhr.external.api.model.FileImportResult;
+import com.thinkhr.external.api.response.APIResponse;
 import com.thinkhr.external.api.services.UserService;
 import com.thinkhr.external.api.services.utils.FileImportUtil;
 
@@ -171,6 +172,19 @@ public class UserController {
         logger.debug("************** USER IMPORT ENDS *****************");
 
         return new ResponseEntity<List<BulkJsonModel>>(users,fileImportResult.getHttpStatus());
+    }
+    
+    /**
+     * Delete all users by jobId
+     *  
+     * @param jobId
+     * @return
+     */
+    @RequestMapping(method = RequestMethod.DELETE)
+    public ResponseEntity<APIResponse> deleteUsers(@RequestParam(value = "jobId") String jobId) 
+            throws ApplicationException {
+        APIResponse apiResponse = userService.deleteUsers(jobId);
+        return new ResponseEntity<APIResponse>(apiResponse, HttpStatus.ACCEPTED);
     }
 
 }

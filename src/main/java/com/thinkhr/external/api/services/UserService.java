@@ -5,6 +5,7 @@ import static com.thinkhr.external.api.ApplicationConstants.CONTACT;
 import static com.thinkhr.external.api.ApplicationConstants.DEFAULT_SORT_BY_USER_NAME;
 import static com.thinkhr.external.api.ApplicationConstants.ROLE_ID_FOR_INACTIVE;
 import static com.thinkhr.external.api.ApplicationConstants.SPACE;
+import static com.thinkhr.external.api.ApplicationConstants.SUCCESS_DELETED;
 import static com.thinkhr.external.api.ApplicationConstants.TOTAL_RECORDS;
 import static com.thinkhr.external.api.ApplicationConstants.UNDERSCORE;
 import static com.thinkhr.external.api.ApplicationConstants.USER;
@@ -58,6 +59,7 @@ import com.thinkhr.external.api.model.BulkJsonModel;
 import com.thinkhr.external.api.model.FileImportResult;
 import com.thinkhr.external.api.repositories.ThroneRoleRepository;
 import com.thinkhr.external.api.request.APIRequestHelper;
+import com.thinkhr.external.api.response.APIResponse;
 import com.thinkhr.external.api.services.crypto.AppEncryptorDecryptor;
 import com.thinkhr.external.api.services.email.EmailService;
 import com.thinkhr.external.api.services.upload.FileUploadEnum;
@@ -598,6 +600,31 @@ public class UserService extends CommonService {
      */
     public boolean validateRoleIdFromDB(Integer roleId) {
         return throneRoleRepository.findOne(roleId) == null ? false : true;
+    }
+    
+    /**
+     * Delete all users by jobId
+     * 
+     * @param jobId
+     * @return
+     */
+    @Transactional
+    public APIResponse deleteUsers(String jobId) {
+        List<Integer> users = userRepository.findAllUsersByJobId(jobId);
+        
+        if (CollectionUtils.isEmpty(users)) { 
+            throw ApplicationException.createBadRequest(APIErrorCodes.NO_RECORDS_FOUND);
+        }
+        
+        // Deleting users records from throne DB
+        userRepository.deleteByAddedBy(jobId);
+        
+        // Deleting users records from throne DB
+        learnUserRepository.deleteByThrUserIdIn(users);
+ 
+        APIResponse apiResponse = new APIResponse();
+        apiResponse.setMessage(getMessageFromResourceBundle(resourceHandler, SUCCESS_DELETED, "jobId", jobId));
+        return apiResponse;
     }
 
 

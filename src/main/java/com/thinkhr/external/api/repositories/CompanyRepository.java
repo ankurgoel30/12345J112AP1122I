@@ -1,9 +1,12 @@
 package com.thinkhr.external.api.repositories;
 
+import java.util.List;
+
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.PagingAndSortingRepository;
+import org.springframework.data.repository.query.Param;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.thinkhr.external.api.db.entities.Company;
@@ -50,8 +53,27 @@ public interface CompanyRepository extends PagingAndSortingRepository<Company, I
     public Company findFirstByCompanyNameAndCustom1AndBroker(String companyName,
             String customField1, Integer brokerId);
 
+    /**
+     * 
+     * @param companyId
+     */
     @Query("update Company c set c.isActive=1, c.deactivationDate=null where c.companyId = ?1")
     @Modifying
     @Transactional
     public void activateCompany(int companyId);
+    
+    /**
+     * 
+     * @param addedBy
+     */
+    @Transactional
+    public void deleteByAddedBy(String addedBy);
+    
+    /**
+     * 
+     * @param jobId
+     * @return
+     */
+    @Query(value = "select c.companyId from Company c where c.addedBy = :jobId")
+    public List<Integer> findAllCompaniesByJobId(@Param("jobId") String jobId);
 }
