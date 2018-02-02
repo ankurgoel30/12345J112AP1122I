@@ -68,7 +68,6 @@ public class PerformanceAspect {
 
     @Before("buildUserInsertQuery()")
     public void bUIQEnter(JoinPoint jp) {
-        System.out.println("Hi");
         userInsertQuery.start();
     }
 
