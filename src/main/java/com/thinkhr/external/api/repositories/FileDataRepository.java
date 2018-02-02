@@ -7,20 +7,15 @@ import static com.thinkhr.external.api.repositories.QueryBuilder.defaultCompReqF
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
-import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.List;
-import java.util.Map;
 
 import javax.sql.DataSource;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.jdbc.core.ColumnMapRowMapper;
 import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.jdbc.core.RowMapperResultSetExtractor;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
-import org.springframework.jdbc.support.JdbcUtils;
 import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
@@ -97,53 +92,12 @@ public class FileDataRepository {
      *  
      * @param userColumnsToInsert
      * @param userColumnValues
-     */
-    public Integer saveUserRecord2(UserCsvModel userCsvModel) {
-        KeyHolder keyHolder = new GeneratedKeyHolder();
-
-        jdbcTemplate.update(buildPreparedStatementCreator(userCsvModel.getPreparedStatement(), userCsvModel.getUserColumnValues()), keyHolder);
-        
-        return keyHolder.getKey().intValue();
-    }
-    
-    /**
-     * Save user's record
-     *  
-     * @param userColumnsToInsert
-     * @param userColumnValues
      * @throws SQLException 
      */
     public Integer saveUserRecord(UserCsvModel userCsvModel) throws SQLException {
         KeyHolder keyHolder = new GeneratedKeyHolder();
 
-        //jdbcTemplate.update(buildPreparedStatementCreator(userCsvModel.getPreparedStatement(), userCsvModel.getUserColumnValues()), keyHolder);
-        
-        for (int i = 0; i < userCsvModel.getUserColumnValues().size(); i++) {
-            Object value = userCsvModel.getUserColumnValues().get(i);
-            if (value instanceof String) {
-                userCsvModel.getPreparedStatement().setString(i + 1, (String) value);
-            } else {
-                userCsvModel.getPreparedStatement().setObject(i + 1, value);
-            }
-        }
-        
-        PreparedStatement ps = userCsvModel.getPreparedStatement();
-        ps.executeUpdate();
-        ps.getGeneratedKeys();
-        
-        List<Map<String, Object>> generatedKeys = keyHolder.getKeyList();
-        generatedKeys.clear();
-        ResultSet keys = ps.getGeneratedKeys();
-        if (keys != null) {
-            try {
-                RowMapperResultSetExtractor<Map<String, Object>> rse =
-                        new RowMapperResultSetExtractor<Map<String, Object>>(new ColumnMapRowMapper(), 1);
-                generatedKeys.addAll(rse.extractData(keys));
-            }
-            finally {
-                JdbcUtils.closeResultSet(keys);
-            }
-        }
+        jdbcTemplate.update(buildPreparedStatementCreator(userCsvModel.getInsertUserSql(), userCsvModel.getUserColumnValues()), keyHolder);
         
         return keyHolder.getKey().intValue();
     }

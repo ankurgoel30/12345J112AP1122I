@@ -402,14 +402,6 @@ public class UserService extends CommonService {
         userCsvModel.setInsertUserSql(
                 QueryBuilder.buildQuery(QueryBuilder.INSERT_USER, userCsvModel.getUserColumnsToInsert()));
 
-        try {
-            userCsvModel
-                    .setPreparedStatement(fileDataRepository.createdPreparedStatement(userCsvModel.getInsertUserSql()));
-        } catch (SQLException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        }
-
         beforeLoop.stop();
         completeLoopTime.start();
 
@@ -471,15 +463,6 @@ public class UserService extends CommonService {
         }
         i++;
 
-
-        try {
-            Connection con = userCsvModel.getPreparedStatement().getConnection();
-            JdbcUtils.closeStatement(userCsvModel.getPreparedStatement());
-            DataSourceUtils.releaseConnection(con, fileDataRepository.getDataSource());
-        } catch (SQLException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        }
         return fileImportResult;
     }
 
