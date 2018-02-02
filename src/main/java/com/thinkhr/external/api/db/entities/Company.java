@@ -29,6 +29,8 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.thinkhr.external.api.helpers.JsonDateDeSerializer;
 
 import lombok.Data;
 
@@ -84,7 +86,7 @@ public class Company implements SearchableEntity {
     private String website;
 
     @NotNull
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")  
+    @JsonDeserialize(using = JsonDateDeSerializer.class) 
     @Temporal(TemporalType.TIMESTAMP)
     @Column(name = "Client_Since", nullable=false) 
     private Date companySince = new Date();

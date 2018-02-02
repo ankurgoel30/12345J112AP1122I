@@ -115,7 +115,7 @@ public class BrokerServiceTest {
     @Test(expected = com.thinkhr.external.api.exception.ApplicationException.class)
     public void testGetBrokerNotExists() {
         Integer companyId = 1;
-        when(companyRepository.findByCompanyId(companyId))
+        when(companyRepository.findOne(companyId))
                 .thenReturn(null);
         Company result = brokerService.getBroker(companyId);
     }
@@ -133,7 +133,7 @@ public class BrokerServiceTest {
         Company company2 = createCompany(1, "ThinkHr", "Software", "345345435", new Date(), "Special",
                 "This is search help", "Other", "10");
 
-        when(companyRepository.findByCompanyId(company.getCompanyId()))
+        when(companyRepository.findOne(company.getCompanyId()))
                         .thenReturn(company);
 
         BrokerService brokerServiceSpy = spy(brokerService);
@@ -187,7 +187,7 @@ public class BrokerServiceTest {
         Company company = createCompany(1, "Pepcus", "Software", "345345435", new Date(), "Special",
                 "This is search help", "Other", "10");
 
-        when(companyRepository.findByCompanyId(company.getCompanyId()))
+        when(companyRepository.findOne(company.getCompanyId()))
                         .thenReturn(null);
         try {
             String companyJson = ApiTestDataUtil.getJsonString(company);
@@ -204,7 +204,7 @@ public class BrokerServiceTest {
     @Test
     public void testDeleteBroker() {
         Company  company = createCompany();
-        when(companyRepository.findByCompanyId(company.getCompanyId()))
+        when(companyRepository.findOne(company.getCompanyId()))
                         .thenReturn(company);
 
         BrokerService brokerServiceSpy =  spy(brokerService);
@@ -225,7 +225,7 @@ public class BrokerServiceTest {
     @Test(expected = com.thinkhr.external.api.exception.ApplicationException.class)
     public void testDeleteCompanyForEntityNotFound() {
         int companyId = 1;
-        when(companyRepository.findByCompanyId(companyId))
+        when(companyRepository.findOne(companyId))
                 .thenReturn(null);
 
         brokerService.deleteBroker(companyId);
