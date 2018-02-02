@@ -9,6 +9,7 @@ import static com.thinkhr.external.api.ApplicationConstants.REQUIRED_HEADERS_COM
 import static com.thinkhr.external.api.ApplicationConstants.REQUIRED_HEADERS_USER_CSV_IMPORT;
 import static com.thinkhr.external.api.ApplicationConstants.USER;
 import static com.thinkhr.external.api.ApplicationConstants.USER_CUSTOM_COLUMN_PREFIX;
+import static com.thinkhr.external.api.utils.ApiTestDataUtil.createBulkUsers;
 import static com.thinkhr.external.api.utils.ApiTestDataUtil.createFileImportResultWithFailedRecords;
 import static com.thinkhr.external.api.utils.ApiTestDataUtil.createFileImportResultWithNoFailedRecords;
 import static com.thinkhr.external.api.utils.ApiTestDataUtil.getAllColumnsToHeadersMapForCompany;
@@ -61,6 +62,7 @@ import com.thinkhr.external.api.ApiApplication;
 import com.thinkhr.external.api.exception.APIErrorCodes;
 import com.thinkhr.external.api.exception.ApplicationException;
 import com.thinkhr.external.api.exception.MessageResourceHandler;
+import com.thinkhr.external.api.model.BulkJsonModel;
 import com.thinkhr.external.api.model.FileImportResult;
 import com.thinkhr.external.api.response.APIMessageUtil;
 
@@ -548,6 +550,21 @@ public class FileImportUtilTest {
     public void testGetMaxRecordsForOtherResource() {
         Integer maxRecords = FileImportUtil.getMaxRecords("ABC");
         assertEquals(null, maxRecords);
+    }
+    
+    /**
+     * Test to validateAndGetContentFromModelSuccess.
+     * 
+     */
+    @Test
+    public void testValidateAndGetContentFromModel() {
+        List<BulkJsonModel> users = createBulkUsers();
+        String resource = "USER";
+        
+        List<String> fileContents = FileImportUtil.validateAndGetContentFromModel(users, resource);
+        
+        assertNotNull(fileContents);
+        assertEquals(3, fileContents.size());
     }
 
 }
