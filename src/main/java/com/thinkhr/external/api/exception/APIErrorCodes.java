@@ -55,8 +55,8 @@ public enum APIErrorCodes {
     AUTHORIZATION_FAILED(1032),
     SG_MAIL_FAILED(1033),
     INVALID_PHONE(1034),
-    DATE_PARSE_ERROR(1035);
-
+    MISSING_REQUIRED_FIELDS(1035),
+    DATE_PARSE_ERROR(1036);
 
     @Getter
     private final Integer code;

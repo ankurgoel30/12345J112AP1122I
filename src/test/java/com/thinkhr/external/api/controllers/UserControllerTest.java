@@ -2,8 +2,11 @@ package com.thinkhr.external.api.controllers;
 
 import static com.thinkhr.external.api.ApplicationConstants.MAX_RECORDS_COMPANY_CSV_IMPORT;
 import static com.thinkhr.external.api.ApplicationConstants.REQUIRED_HEADERS_COMPANY_CSV_IMPORT;
+import static com.thinkhr.external.api.ApplicationConstants.REQUIRED_HEADERS_USER_CSV_IMPORT;
 import static com.thinkhr.external.api.ApplicationConstants.VALID_FILE_EXTENSION_IMPORT;
 import static com.thinkhr.external.api.utils.ApiTestDataUtil.USER_API_BASE_PATH;
+import static com.thinkhr.external.api.utils.ApiTestDataUtil.createBulkUserResponseEntity;
+import static com.thinkhr.external.api.utils.ApiTestDataUtil.createBulkUsers;
 import static com.thinkhr.external.api.utils.ApiTestDataUtil.createInputStreamResponseEntityForBulkUpload;
 import static com.thinkhr.external.api.utils.ApiTestDataUtil.createMockMultipartFile;
 import static com.thinkhr.external.api.utils.ApiTestDataUtil.createUser;
@@ -25,6 +28,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import java.util.List;
+import java.util.Map;
 
 import org.hamcrest.core.IsNot;
 import org.junit.Before;
@@ -51,6 +55,7 @@ import com.thinkhr.external.api.ApiApplication;
 import com.thinkhr.external.api.db.entities.User;
 import com.thinkhr.external.api.exception.APIErrorCodes;
 import com.thinkhr.external.api.exception.ApplicationException;
+import com.thinkhr.external.api.model.BulkJsonModel;
 import com.thinkhr.external.api.utils.ApiTestDataUtil;
 
 /**
@@ -383,7 +388,7 @@ public class UserControllerTest {
     public void testBulkUploadFile_InvalidExtension() throws Exception {
         MockMultipartFile multipartFile = createMockMultipartFile();
         ApplicationException mockedExp = ApplicationException
-                .createFileImportError(APIErrorCodes.INVALID_FILE_EXTENTION,
+                .createBulkImportError(APIErrorCodes.INVALID_FILE_EXTENTION,
                         "Test.abc", VALID_FILE_EXTENSION_IMPORT);
 
         given(userController.bulkUploadFile(any(), any())).willThrow(mockedExp);
@@ -407,7 +412,7 @@ public class UserControllerTest {
     public void testBulkUploadFile_NoRecords() throws Exception {
         MockMultipartFile multipartFile = createMockMultipartFile();
         ApplicationException mockedExp = ApplicationException
-                .createFileImportError(
+                .createBulkImportError(
                         APIErrorCodes.NO_RECORDS_FOUND_FOR_IMPORT, "Test.csv");
 
         given(userController.bulkUploadFile(any(), any())).willThrow(mockedExp);
@@ -434,7 +439,7 @@ public class UserControllerTest {
         String requiredHeaders = String.join(",",
                 REQUIRED_HEADERS_COMPANY_CSV_IMPORT);
         ApplicationException mockedExp = ApplicationException
-                .createFileImportError(APIErrorCodes.MISSING_REQUIRED_HEADERS,
+                .createBulkImportError(APIErrorCodes.MISSING_REQUIRED_HEADERS,
                         "Test.csv", "CLIENT_NAME,DISPLAY_NAME",
                         requiredHeaders);
 
@@ -460,7 +465,7 @@ public class UserControllerTest {
         MockMultipartFile multipartFile = createMockMultipartFile();
 
         ApplicationException mockedExp = ApplicationException
-                .createFileImportError(APIErrorCodes.MAX_RECORD_EXCEEDED,
+                .createBulkImportError(APIErrorCodes.MAX_RECORD_EXCEEDED,
                         String.valueOf(MAX_RECORDS_COMPANY_CSV_IMPORT));
 
         given(userController.bulkUploadFile(any(), any())).willThrow(mockedExp);
@@ -493,6 +498,119 @@ public class UserControllerTest {
                         .file(multipartFile))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType("text/csv"));
+    }
+    
+    /**
+     * Test to verify post (/v1/users/bulk) when it executes successfully for JSON in request Body and returns 
+     * a JSON response with details of JSON upload results
+     * 
+     * @throws Exception
+     * 
+     */
+    @Test
+    public void testBulkUploadJson_Success() throws Exception {
+       
+        List<BulkJsonModel> users = createBulkUsers();
+        
+        ResponseEntity<List<BulkJsonModel>> responseEntity = createBulkUserResponseEntity(users, HttpStatus.CREATED);
+ 
+        given(userController.bulkUploadJson(any(), any())).willReturn(responseEntity);
+        
+        mockMvc.perform(post(USER_API_BASE_PATH + "bulk")
+                .accept(MediaType.APPLICATION_JSON)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(getJsonString(users)))
+        .andExpect(status().isCreated());
+    }
+    
+    /**
+     * Test to verify post (/v1/users/bulk) when it gives Required Field Missing Error for JSON with required field missing in request Body and returns 
+     * a JSON response with details of JSON upload results
+     * 
+     * @throws Exception
+     * 
+     */
+    @Test
+    public void testBulkUploadJson_MissingRequiredAttribute() throws Exception {
+       
+        List<BulkJsonModel> users = createBulkUsers();
+        BulkJsonModel user = users.get(0);
+        Map<String,Object> props = user.getProperties();
+        props.remove("firstName");
+        user.setProperties(props);
+        users.set(0, user);
+        
+        String requiredHeaders = String.join(",", REQUIRED_HEADERS_USER_CSV_IMPORT);
+        ApplicationException mockedExp = ApplicationException.createBulkImportError(APIErrorCodes.MISSING_REQUIRED_FIELDS, "USER",
+                "firstName", requiredHeaders);
+ 
+        given(userController.bulkUploadJson(any(), any())).willThrow(mockedExp);
+        
+        mockMvc.perform(post(USER_API_BASE_PATH + "bulk")
+                .accept(MediaType.APPLICATION_JSON)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(getJsonString(users)))
+        .andExpect(status().isNotAcceptable()).andExpect(jsonPath("errorCode", is(APIErrorCodes.MISSING_REQUIRED_FIELDS.getCode().toString())));
+    }
+    
+    /**
+     * Test to verify post (/v1/users/bulk) when it gives Required Field Missing Error for JSON with required field wrong in request Body and returns 
+     * a JSON response with details of JSON upload results
+     * 
+     * @throws Exception
+     * 
+     */
+    @Test
+    public void testBulkUploadJson_WrongAttribute() throws Exception {
+       
+        List<BulkJsonModel> users = createBulkUsers();
+        BulkJsonModel user = users.get(0);
+        Map<String,Object> props = user.getProperties();
+        props.remove("firstName");
+        props.put("firstname", "Pepcus");
+        user.setProperties(props);
+        users.set(0, user);
+        
+        String requiredHeaders = String.join(",", REQUIRED_HEADERS_USER_CSV_IMPORT);
+        ApplicationException mockedExp = ApplicationException.createBulkImportError(APIErrorCodes.MISSING_REQUIRED_FIELDS, "USER",
+                "firstName", requiredHeaders);
+ 
+        given(userController.bulkUploadJson(any(), any())).willThrow(mockedExp);
+        
+        mockMvc.perform(post(USER_API_BASE_PATH + "bulk")
+                .accept(MediaType.APPLICATION_JSON)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(getJsonString(users)))
+        .andExpect(status().isNotAcceptable()).andExpect(jsonPath("errorCode", is(APIErrorCodes.MISSING_REQUIRED_FIELDS.getCode().toString())));
+    }
+    
+    /**
+     * Test to verify post (/v1/users/bulk) when it gives Required Field Missing Error for JSON with custom field wrong in request Body and returns 
+     * a JSON response with details of JSON upload results
+     * 
+     * @throws Exception
+     * 
+     */
+    @Test
+    public void testBulkUploadJson_MissingCustomAttribute() throws Exception {
+       
+        List<BulkJsonModel> users = createBulkUsers();
+        BulkJsonModel user = users.remove(0);
+        Map<String,Object> props = user.getProperties();
+        props.remove("businessId");
+        props.put("business_Ids", "4649973");
+        user.setProperties(props);
+        users.set(0, user);
+
+        ApplicationException mockedExp = ApplicationException.createBulkImportError(APIErrorCodes.UNMAPPED_CUSTOM_HEADERS,"BUSINESS_IDS");
+ 
+        given(userController.bulkUploadJson(any(), any())).willThrow(mockedExp);
+        
+        mockMvc.perform(post(USER_API_BASE_PATH + "bulk")
+                .accept(MediaType.APPLICATION_JSON)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(getJsonString(users)))
+        .andExpect(status().isNotAcceptable()).andExpect(jsonPath("errorCode", is(APIErrorCodes.UNMAPPED_CUSTOM_HEADERS.getCode().toString())));
     }
 
 }
