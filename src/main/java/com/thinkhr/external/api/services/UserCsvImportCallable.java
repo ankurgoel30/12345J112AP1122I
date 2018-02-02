@@ -1,0 +1,27 @@
+package com.thinkhr.external.api.services;
+import java.util.concurrent.Callable;
+
+import com.thinkhr.external.api.model.CsvModel;
+
+public class UserCsvImportCallable implements Callable<Void> {
+    CsvModel csvModel;
+    Integer recordIndex; //Index of the record to be imported from records in cSVModel
+    Integer brokerId; //Broker Id for which record is to be imported
+
+    UserService userService;
+
+    public UserCsvImportCallable(CsvModel csvModel, Integer recordIndex, Integer brokerId, UserService userService) {
+        this.csvModel = csvModel;
+        this.recordIndex = recordIndex;
+        this.brokerId = brokerId;
+        this.userService = userService;
+    }
+
+    @Override
+    public Void call() throws Exception {
+        userService.addUserRecordForBulk(this.csvModel, recordIndex, brokerId);
+        return null;
+    }
+
+
+}

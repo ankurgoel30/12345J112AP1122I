@@ -1,6 +1,5 @@
 package com.thinkhr.external.api.services;
 
-import static com.thinkhr.external.api.ApplicationConstants.COMMA_SEPARATOR;
 import static com.thinkhr.external.api.ApplicationConstants.CONTACT;
 import static com.thinkhr.external.api.ApplicationConstants.DEFAULT_SORT_BY_USER_NAME;
 import static com.thinkhr.external.api.ApplicationConstants.ROLE_ID_FOR_INACTIVE;
@@ -31,13 +30,15 @@ import static com.thinkhr.external.api.services.utils.FileImportUtil.validateAnd
 import static com.thinkhr.external.api.services.utils.FileImportUtil.validateAndGetContentFromModel;
 
 import java.io.IOException;
-import java.sql.Connection;
-import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 
 import javax.annotation.PostConstruct;
 
@@ -49,12 +50,9 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
-import org.springframework.jdbc.datasource.DataSourceUtils;
-import org.springframework.jdbc.support.JdbcUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
-import org.springframework.util.StopWatch;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.thinkhr.external.api.db.entities.Company;
@@ -62,11 +60,9 @@ import com.thinkhr.external.api.db.entities.User;
 import com.thinkhr.external.api.exception.APIErrorCodes;
 import com.thinkhr.external.api.exception.ApplicationException;
 import com.thinkhr.external.api.model.BulkJsonModel;
+import com.thinkhr.external.api.model.CsvModel;
 import com.thinkhr.external.api.model.FileImportResult;
-import com.thinkhr.external.api.model.UserCsvModel;
-import com.thinkhr.external.api.repositories.QueryBuilder;
 import com.thinkhr.external.api.repositories.ThroneRoleRepository;
-import com.thinkhr.external.api.request.APIRequestHelper;
 import com.thinkhr.external.api.services.crypto.AppEncryptorDecryptor;
 import com.thinkhr.external.api.services.email.EmailService;
 import com.thinkhr.external.api.services.upload.FileUploadEnum;
@@ -104,20 +100,12 @@ public class UserService extends CommonService {
     @Value("${com.thinkhr.external.api.emailService.enabled}")
     private boolean isSendEmailEnabled;
 
-    StopWatch bulkUploadComplete = new StopWatch();
-    StopWatch beforeLoop = new StopWatch();
-    StopWatch completeLoopTime = new StopWatch();
-    StopWatch populateAndSavetoDb = new StopWatch();
-    StopWatch passwordEncrypt = new StopWatch();
-    StopWatch generateUserName = new StopWatch();
-    StopWatch throneUserSave = new StopWatch();
-    StopWatch learnUserSave = new StopWatch();
+    @Value("${com.thinkhr.external.api.threadpool.size}")
+    private Integer threadPoolSize;
 
     @PostConstruct
     public void init() {
-        passwordEncrypt.start();
         encryptedDefaultPassword = encDecyptor.encrypt(defaultPassword);
-        passwordEncrypt.stop();
     }
 
     private static final String resource = USER;
@@ -184,7 +172,7 @@ public class UserService extends CommonService {
     public User addUser(User user, Integer brokerId) {
 
         //Saving default password
-        user.setPasswordApps(encDecyptor.encrypt(defaultPassword));
+        user.setPasswordApps(encryptedDefaultPassword);
 
         User throneUser = saveUser(user, brokerId, true);
 
@@ -317,11 +305,10 @@ public class UserService extends CommonService {
      * @param fileToImport
      * @param users 
      * @param brokerId
+     * 
      * @throws ApplicationException
      */
     public FileImportResult bulkUpload(MultipartFile fileToImport, List<BulkJsonModel> users, int brokerId) throws ApplicationException {
-        clearWatches();
-        bulkUploadComplete.start();
         if (fileToImport == null && CollectionUtils.isEmpty(users)) {
             throw ApplicationException.createFileImportError(APIErrorCodes.REQUIRED_PARAMETER, "file Or UserJsonBody");
         }
@@ -351,8 +338,6 @@ public class UserService extends CommonService {
                 logger.error("Failed to send email ", ex);
             }
         }
-        bulkUploadComplete.stop();
-        printTimeTaken();
         return fileImportResult;
     }
 
@@ -366,120 +351,52 @@ public class UserService extends CommonService {
      */
      FileImportResult processRecords (List<String> records, 
             Company broker, String resource) throws ApplicationException {
-        beforeLoop.start();
-        UserCsvModel userCsvModel = new UserCsvModel();
-        FileImportResult fileImportResult = new FileImportResult();
 
-        String headerLine = records.get(0);
-        records.remove(0);
+        CsvModel csvModel = new CsvModel();
+        csvModel.initialize(records, broker.getCompanyId());
+        csvModel.setHeaderVsColumnMap(appendRequiredAndCustomHeaderMap(broker.getCompanyId(), resource));
 
-        fileImportResult.setTotalRecords(records.size());
-        fileImportResult.setHeaderLine(headerLine);
-        fileImportResult.setBrokerId(broker.getCompanyId());
-        fileImportResult.setJobId((String) APIRequestHelper.getRequestAttribute("jobId"));
-
-        String[] headersInCSV = headerLine.split(COMMA_SEPARATOR);
-
-        //DO not assume that CSV file shall contains fixed column position. Let's read and map then with database column
-        Map<String, String> headerVsColumnMap = appendRequiredAndCustomHeaderMap(broker.getCompanyId(), resource);
-
-        userCsvModel.setHeaderVsColumnMap(headerVsColumnMap);
+        FileImportResult fileImportResult = csvModel.getImportResult();
+        String[] headersInCSV = csvModel.getHeadersInCSV();
+        Map<String, String> headerVsColumnMap = csvModel.getHeaderVsColumnMap();
 
         //Check every custom field from imported file has a corresponding column in database. If not, return error here.
         String[] requiredHeaders = getRequiredHeaders(resource);
         validateAndFilterCustomHeaders(headersInCSV, headerVsColumnMap.values(), requiredHeaders, resourceHandler);
 
-        Map<String, Integer> headerIndexMap = new HashMap<String, Integer>();
-        for (int i = 0; i < headersInCSV.length; i++) {
-            headerIndexMap.put(headersInCSV[i], i);
-        }
-        userCsvModel.setHeaderIndexMap(headerIndexMap);
+        //Setup executor service for adding records in parallel
+        ExecutorService executor = Executors.newFixedThreadPool(threadPoolSize);
+        List<Future<Void>> futureList = new ArrayList<Future<Void>>(csvModel.getRecords().size());
 
-        userCsvModel.getUserColumnsToInsert().addAll(Arrays.asList(USER_COLUMN_PASSWORD,
-                USER_COLUMN_ACTIVATION_DATE, USER_COLUMN_ADDEDBY, USER_COLUMN_BROKERID, USER_COLUMN_CLIENT_ID));
-        userCsvModel.getUserColumnsToInsert().addAll(headerVsColumnMap.keySet());
+        for (int recordIndex = 0; recordIndex < csvModel.getRecords().size(); recordIndex++) {
+            Callable<Void> worker = new UserCsvImportCallable(csvModel, recordIndex, broker.getCompanyId(), this);
 
-        userCsvModel.setInsertUserSql(
-                QueryBuilder.buildQuery(QueryBuilder.INSERT_USER, userCsvModel.getUserColumnsToInsert()));
-
-        try {
-            userCsvModel
-                    .setPreparedStatement(fileDataRepository.createdPreparedStatement(userCsvModel.getInsertUserSql()));
-        } catch (SQLException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
+            Future<Void> future = executor.submit(worker);
+            futureList.add(future);
         }
 
-        beforeLoop.stop();
-        completeLoopTime.start();
+        executor.shutdown();
 
-        int i = 0;
-        for (String record : records ) {
-            
-            if (StringUtils.containsOnly(record,  new char[]{',',' '})) {
-                fileImportResult.increamentBlankRecords();
-                continue; //skip any fully blank line 
-            }
-            
-           
-           List<String> requiredFields = getRequiredHeadersFromStdFields(CONTACT);
-           
-           if (!validateRequired(record, requiredFields, headerIndexMap, fileImportResult, resourceHandler)) {
-               continue;
-           }
-           
-            String email = getValueFromRow(record, headerIndexMap.get(FileUploadEnum.USER_EMAIL.getHeader()));
-           
-           if (!validateEmail(record, email, fileImportResult, resourceHandler)) {
-               continue;
-           }
-           
-            String phone = getValueFromRow(record, headerIndexMap.get(FileUploadEnum.USER_PHONE.getHeader()));
-            if (!validatePhone(record, phone, fileImportResult, resourceHandler)) {
-                continue;
-            }
-
-            // Check if user is for valid company
-            String clientName = getValueFromRow(record, headerIndexMap.get(FileUploadEnum.USER_CLIENT_NAME.getHeader()));
-           
-           Company company = companyRepository.findFirstByCompanyNameAndBroker(clientName, broker.getCompanyId());
-           
-           if (company == null) {
-               fileImportResult.addFailedRecord(record, 
-                        getMessageFromResourceBundle(resourceHandler, APIErrorCodes.INVALID_CLIENT_NAME, clientName,
-                                String.valueOf(broker.getCompanyId())),
-                       getMessageFromResourceBundle(resourceHandler, APIErrorCodes.SKIPPED_RECORD));
-                continue;
-            }
-            
-            //populateAndSavetoDb.start();
-            populateAndSaveToDB(record, headerVsColumnMap,
-                    headerIndexMap,
-                    fileImportResult,
-                    company.getCompanyId(), userCsvModel);
-            //populateAndSavetoDb.stop();
-
+        // Wait for all the task to be completed 
+        while (!executor.isTerminated()) {
         }
-        completeLoopTime.stop();
+
+        // Capture any exceptions if occurred during the execution of any tasks
+        for (int i = 0; i < futureList.size(); i++) {
+            Future<Void> future = futureList.get(i);
+            try {
+                future.get();
+            } catch (InterruptedException e) {
+                fileImportResult.addFailedRecord(csvModel.getRecords().get(i), e.getLocalizedMessage(), null);
+            } catch (ExecutionException e) {
+                fileImportResult.addFailedRecord(csvModel.getRecords().get(i), e.getLocalizedMessage(), null);
+            }
+        }
 
         if (logger.isDebugEnabled()) {
             logger.debug(fileImportResult.toString());
         }
 
-        if (i % 20 == 0) {
-            //entityManager.clear();
-        }
-        i++;
-
-
-        try {
-            Connection con = userCsvModel.getPreparedStatement().getConnection();
-            JdbcUtils.closeStatement(userCsvModel.getPreparedStatement());
-            DataSourceUtils.releaseConnection(con, fileDataRepository.getDataSource());
-        } catch (SQLException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        }
         return fileImportResult;
     }
 
@@ -493,16 +410,11 @@ public class UserService extends CommonService {
      * @param fileImportResult
      * @param companyId
      */
-    public void populateAndSaveToDB(String record, 
+    public void populateAndSaveToDB(String record,
             Map<String, String> userHeaderColumnMap, 
             Map<String, Integer> headerIndexMap,
             FileImportResult fileImportResult, 
-            int companyId, UserCsvModel userCsvModel) {
-
-        userCsvModel.getUserColumnValues().clear();
-        userCsvModel.getUserColumnValues().addAll(QueryBuilder.defaultUserReqFieldValues);
-        userCsvModel.getUserColumnValues().addAll(Arrays.asList(encryptedDefaultPassword,
-                getCurrentDateInUTC(), fileImportResult.getJobId(), fileImportResult.getBrokerId()));
+            int companyId) {
 
         List<Object> userColumnValues = null;
 
@@ -521,11 +433,21 @@ public class UserService extends CommonService {
 
         try {
 
-            userCsvModel.getUserColumnValues().add(companyId);
-            userCsvModel.getUserColumnValues().addAll(userColumnValues);
+            //Finally save users one by one
+            List<String> userColumnsToInsert = new ArrayList<String>(userHeaderColumnMap.keySet());
+            userColumnValues.add(companyId);
+            userColumnValues.add(encryptedDefaultPassword);
+            userColumnValues.add(getCurrentDateInUTC());
+            userColumnValues.add(fileImportResult.getJobId());
+            userColumnValues.add(fileImportResult.getBrokerId());
             
+            userColumnsToInsert.add(USER_COLUMN_CLIENT_ID);
+            userColumnsToInsert.add(USER_COLUMN_PASSWORD);
+            userColumnsToInsert.add(USER_COLUMN_ACTIVATION_DATE);
+            userColumnsToInsert.add(USER_COLUMN_ADDEDBY);
+            userColumnsToInsert.add(USER_COLUMN_BROKERID);
+
             // THR-3927 [Start]
-            //generateUserName.start();
             String userName = getValueFromRow(record, headerIndexMap.get(FileUploadEnum.USER_USER_NAME.getHeader()));
             String lastName = getValueFromRow(record, headerIndexMap.get(FileUploadEnum.USER_LAST_NAME.getHeader()));
             String firstName = getValueFromRow(record, headerIndexMap.get(FileUploadEnum.USER_FIRST_NAME.getHeader()));
@@ -535,16 +457,13 @@ public class UserService extends CommonService {
 
             // Get Index of UserName field in userColumnsToInsert and replace the username  
             // value in userColumnValues with the generated user name
-            int userNameColumnIndex = userCsvModel.getUserColumnsToInsert()
-                    .indexOf(FileUploadEnum.USER_USER_NAME.getColumn());
-
+            int userNameColumnIndex = userColumnsToInsert.indexOf(FileUploadEnum.USER_USER_NAME.getColumn());
             if (userNameColumnIndex != -1) {
-                userCsvModel.getUserColumnValues().set(userNameColumnIndex, userName);
+                userColumnValues.set(userNameColumnIndex, userName);
             }
-            //generateUserName.stop();
             // THR-3927 [End]
 
-            saveUserRecord(userCsvModel);
+            saveUserRecord(userColumnValues, userColumnsToInsert);
 
             fileImportResult.increamentSuccessRecords();
         } catch (Exception ex) {
@@ -552,29 +471,78 @@ public class UserService extends CommonService {
 
             fileImportResult.addFailedRecord(record, cause,
                             getMessageFromResourceBundle(resourceHandler, APIErrorCodes.RECORD_NOT_ADDED));
+        }
+        
 
-            clearWatches();
+    }
+
+    /**
+     * 
+     * @param csvModel
+     * @param recordIndex
+     * @param brokerId
+     */
+    public void addUserRecordForBulk(CsvModel csvModel, Integer recordIndex, Integer brokerId) {
+        FileImportResult fileImportResult = csvModel.getImportResult();
+        String record = csvModel.getRecords().get(recordIndex);
+        Map<String, Integer> headerIndexMap = csvModel.getHeaderIndexMap();
+        Map<String, String> headerVsColumnMap = csvModel.getHeaderVsColumnMap();
+
+        if (StringUtils.containsOnly(record, new char[] { ',', ' ' })) {
+            fileImportResult.increamentBlankRecords();
+            return; //skip any fully blank line 
         }
 
+        List<String> requiredFields = getRequiredHeadersFromStdFields(CONTACT);
+
+        if (!validateRequired(record, requiredFields, headerIndexMap, fileImportResult, resourceHandler)) {
+            return;
+        }
+
+        String email = getValueFromRow(record, headerIndexMap.get(FileUploadEnum.USER_EMAIL.getHeader()));
+
+        if (!validateEmail(record, email, fileImportResult, resourceHandler)) {
+            return;
+        }
+
+        String phone = getValueFromRow(record, headerIndexMap.get(FileUploadEnum.USER_PHONE.getHeader()));
+        if (!validatePhone(record, phone, fileImportResult, resourceHandler)) {
+            return;
+        }
+
+        // Check if user is for valid company
+        String clientName = getValueFromRow(record,
+                headerIndexMap.get(FileUploadEnum.USER_CLIENT_NAME.getHeader()));
+
+        Company company = companyRepository.findFirstByCompanyNameAndBroker(clientName, brokerId);
+
+        if (company == null) {
+            fileImportResult.addFailedRecord(record,
+                    getMessageFromResourceBundle(resourceHandler, APIErrorCodes.INVALID_CLIENT_NAME,
+                            clientName,
+                            String.valueOf(brokerId)),
+                    getMessageFromResourceBundle(resourceHandler, APIErrorCodes.SKIPPED_RECORD));
+            return;
+        }
+
+        populateAndSaveToDB(record, headerVsColumnMap,
+                headerIndexMap,
+                fileImportResult,
+                company.getCompanyId());
     }
 
     /**
      * Saves User and LearnUser record
      * @param userColumnValues
      * @param userColumnsToInsert
-     * @throws SQLException 
      */
     @Transactional
-    public void saveUserRecord(UserCsvModel userCsvModel) throws SQLException {
-        throneUserSave.start();
-        Integer userId = fileDataRepository.saveUserRecord(userCsvModel);
+    public void saveUserRecord(List<Object> userColumnValues, List<String> userColumnsToInsert) {
+        Integer userId = fileDataRepository.saveUserRecord(userColumnsToInsert, userColumnValues);
         User throneUser = this.getUser(userId);
-        throneUserSave.stop();
 
         try {
-            //learnUserSave.start();
             learnUserService.addLearnUserForBulk(throneUser);
-            //learnUserSave.stop();
         } catch (Exception ex) {
             // TODO: FIXME - Ideally this should handled by transaction roll-back; some-reason transaction is not working 
             // Need some research on it. To manage records properly, explicitly roll-back record. 
@@ -672,27 +640,4 @@ public class UserService extends CommonService {
     public boolean validateRoleIdFromDB(Integer roleId) {
         return throneRoleRepository.findOne(roleId) == null ? false : true;
     }
-
-    private void printTimeTaken() {
-        System.out.println("Bulk Upload Complete - " + bulkUploadComplete.getTotalTimeSeconds());
-        System.out.println("Before Forloop - " + beforeLoop.getTotalTimeSeconds());
-        System.out.println("Complete loop time - " + completeLoopTime.getTotalTimeSeconds());
-        System.out.println("Time in populate and save to DB  - " + populateAndSavetoDb.getTotalTimeSeconds());
-        System.out.println("Time in passsword Encrypt - " + passwordEncrypt.getTotalTimeSeconds());
-        System.out.println("Time in generate username - " + generateUserName.getTotalTimeSeconds());
-        System.out.println("Time in Throne Db - " + throneUserSave.getTotalTimeSeconds());
-        System.out.println("Time in LearnDb - " + learnUserSave.getTotalTimeSeconds());
-    }
-
-    private void clearWatches() {
-        //        List<StopWatch> watches = Arrays.asList(bulkUploadComplete, beforeLoop, completeLoopTime, populateAndSavetoDb,
-        //                passwordEncrypt, generateUserName, throneUserSave, learnUserSave);
-        //        watches.stream().forEach(watch -> {
-        //            if (watch.isRunning()) {
-        //                watch.stop();
-        //            }
-        //        });
-        //bulkUploadComplete.stop();
-    }
-
 }
