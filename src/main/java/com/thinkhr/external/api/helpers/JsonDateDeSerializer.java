@@ -1,5 +1,6 @@
 package com.thinkhr.external.api.helpers;
 
+import static com.thinkhr.external.api.ApplicationConstants.DATE_PATTERN;
 import static com.thinkhr.external.api.response.APIMessageUtil.getMessageFromResourceBundle;
 
 import java.io.IOException;
@@ -31,8 +32,7 @@ public class JsonDateDeSerializer extends JsonDeserializer<Date> {
 
     @Override
     public Date deserialize(JsonParser p, DeserializationContext ctxt) throws IOException, JsonProcessingException {
-        String datePattern = "yyyy-MM-dd";
-        SimpleDateFormat format = new SimpleDateFormat(datePattern);
+        SimpleDateFormat format = new SimpleDateFormat(DATE_PATTERN);
         format.setLenient(false);
 
         String date = p.getText();
@@ -41,7 +41,7 @@ public class JsonDateDeSerializer extends JsonDeserializer<Date> {
             return format.parse(date);
         } catch (ParseException e) {
             String customMessage = getMessageFromResourceBundle(resourceHandler, APIErrorCodes.DATE_PARSE_ERROR,
-                    datePattern);
+                    DATE_PATTERN);
 
             throw new JsonParseException(e.getLocalizedMessage() + ". " + customMessage, null, e);
         }
