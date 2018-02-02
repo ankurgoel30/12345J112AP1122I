@@ -11,6 +11,11 @@ import com.thinkhr.external.api.db.entities.Company;
 
 import lombok.Data;
 
+/**
+ * Model class to be used for CSV import
+ * @author Ajay Jain
+ *
+ */
 @Data
 public class CsvModel {
     List<String> records = new ArrayList<String>();
@@ -20,6 +25,11 @@ public class CsvModel {
     Map<String, String> headerVsColumnMap = new HashMap<String,String>() ;
     FileImportResult importResult  =  new FileImportResult();
     
+    /**
+     * 
+     * @param csvRecords
+     * @param brokerId
+     */
     public void initialize(List<String> csvRecords , Integer brokerId) {
         this.headerLine = csvRecords.get(0);
         csvRecords.remove(0);

@@ -207,19 +207,14 @@ public class FileImportValidator {
             FileImportResult fileImportResult,
             MessageResourceHandler resourceHandler) {
 
-        return true;
-        //        if (phoneNo == "") {
-        //            return true;
-        //        }
-        //
-        //        if (phoneNo == null || phoneNo.length() != 10) {
-        //            fileImportResult.addFailedRecord(record,
-        //                    getMessageFromResourceBundle(resourceHandler, APIErrorCodes.INVALID_PHONE, phoneNo),
-        //                    getMessageFromResourceBundle(resourceHandler, APIErrorCodes.SKIPPED_RECORD));
-        //            return false;
-        //        }
+        if (phoneNo == null || phoneNo.length() != 10) {
+            fileImportResult.addFailedRecord(record,
+                    getMessageFromResourceBundle(resourceHandler, APIErrorCodes.INVALID_PHONE, phoneNo),
+                    getMessageFromResourceBundle(resourceHandler, APIErrorCodes.SKIPPED_RECORD));
+            return false;
+        }
 
-        //return true;
+        return true;
     }
 
 }

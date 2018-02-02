@@ -1,17 +1,22 @@
 package com.thinkhr.external.api.repositories;
 
 import static com.thinkhr.external.api.repositories.PrepareStatementBuilder.buildPreparedStatementCreator;
+import static com.thinkhr.external.api.repositories.QueryBuilder.INSERT_PORTAL_COMPANY_CONTRACT;
+import static com.thinkhr.external.api.repositories.QueryBuilder.INSERT_PORTAL_COMPANY_PRODUCT;
 import static com.thinkhr.external.api.repositories.QueryBuilder.buildCompanyInsertQuery;
 import static com.thinkhr.external.api.repositories.QueryBuilder.buildLocationInsertQuery;
+import static com.thinkhr.external.api.repositories.QueryBuilder.buildQuery;
 import static com.thinkhr.external.api.repositories.QueryBuilder.buildUserInsertQuery;
+import static com.thinkhr.external.api.repositories.QueryBuilder.companyContractFieldValues;
+import static com.thinkhr.external.api.repositories.QueryBuilder.companyContractFields;
+import static com.thinkhr.external.api.repositories.QueryBuilder.companyProductFieldValues;
+import static com.thinkhr.external.api.repositories.QueryBuilder.companyProductFields;
 import static com.thinkhr.external.api.repositories.QueryBuilder.defaultCompReqFieldValues;
+import static com.thinkhr.external.api.repositories.QueryBuilder.defaultUserReqFieldValues;
+import static com.thinkhr.external.api.services.CompanyService.getAuthorizationKeyFromCompanyId;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.List;
-
-import javax.sql.DataSource;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -21,7 +26,6 @@ import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.mysql.jdbc.Statement;
 import com.thinkhr.external.api.services.utils.CommonUtil;
 
 import lombok.Data;
@@ -68,24 +72,6 @@ public class FileDataRepository {
         
         return clientId;
     }
-    
-    /**
-     * @param userColumns
-     * @return
-     * @throws SQLException
-     */
-    public PreparedStatement createdPreparedStatement(String query) throws SQLException {
-        
-       Connection con = jdbcTemplate.getDataSource().getConnection();
-
-       return con.prepareStatement(query, Statement.RETURN_GENERATED_KEYS);
-    }
-    
-    public DataSource getDataSource() throws SQLException {
-        
-        return jdbcTemplate.getDataSource();
-
-     }
 
     /**
      * Save user's record
@@ -100,9 +86,10 @@ public class FileDataRepository {
 
         KeyHolder keyHolder = new GeneratedKeyHolder();
 
-        userColumnValues.addAll(QueryBuilder.defaultUserReqFieldValues);
+        userColumnValues.addAll(defaultUserReqFieldValues);
         jdbcTemplate.update(buildPreparedStatementCreator(insertUserSql, userColumnValues), keyHolder);
         
         return keyHolder.getKey().intValue();
     }
+
 }

@@ -17,7 +17,7 @@ import org.springframework.util.StopWatch;
  * Java class for tracking performance  of functions 
  * Make the value of performanceAspect.enabled property to true to enable this Aspect
  * 
- * @author Admin
+ * @author Ajay Jain
  */
 public class PerformanceAspect {
  
@@ -101,16 +101,5 @@ public class PerformanceAspect {
         System.out.println("Time in buildQuery - " + userInsertQuery.getTotalTimeMillis());
 
         System.out.println(Runtime.getRuntime().availableProcessors());
-    }
-
-    private void clearWatches() {
-        //        List<StopWatch> watches = Arrays.asList(bulkUploadComplete, beforeLoop, completeLoopTime, populateAndSavetoDb,
-        //                passwordEncrypt, generateUserName, throneUserSave, learnUserSave);
-        //        watches.stream().forEach(watch -> {
-        //            if (watch.isRunning()) {
-        //                watch.stop();
-        //            }
-        //        });
-        //bulkUploadComplete.stop();
     }
 }

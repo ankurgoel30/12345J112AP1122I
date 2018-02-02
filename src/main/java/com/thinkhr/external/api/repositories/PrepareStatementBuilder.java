@@ -41,7 +41,6 @@ public class PrepareStatementBuilder {
      * @return
      */
     public static PreparedStatementCreator buildPreparedStatementCreator(String query, List<Object> values) {
-
         return new PreparedStatementCreator() {
             @Override
             public PreparedStatement createPreparedStatement(Connection con) throws SQLException {
@@ -61,6 +60,5 @@ public class PrepareStatementBuilder {
             }
         };
     }
-
 
 }

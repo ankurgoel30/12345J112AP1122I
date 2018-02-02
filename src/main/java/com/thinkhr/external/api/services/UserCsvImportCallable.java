@@ -3,6 +3,11 @@ import java.util.concurrent.Callable;
 
 import com.thinkhr.external.api.model.CsvModel;
 
+/**
+ * Callable class to be used for importing Records in CSV in parallel
+ * @author Ajay Jain
+ *
+ */
 public class UserCsvImportCallable implements Callable<Void> {
     CsvModel csvModel;
     Integer recordIndex; //Index of the record to be imported from records in cSVModel
