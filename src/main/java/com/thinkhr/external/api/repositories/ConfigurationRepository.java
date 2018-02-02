@@ -2,6 +2,9 @@ package com.thinkhr.external.api.repositories;
 
 import java.util.List;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
@@ -41,10 +44,10 @@ public interface ConfigurationRepository
      * 
      * @param configurationId
      */
-    @Query("update Configuration c set deleted=UNIX_TIMESTAMP() where c.configurationId = ?1")
+    @Query("update Configuration c set deleted=UNIX_TIMESTAMP() where c.configurationId = :configurationId")
     @Modifying
     @Transactional
-    public void softDelete(Integer configurationId);
+    public void softDelete(@Param(value = "configurationId")Integer configurationId);
 
     /**
      * Find first configuration by Company Id and Master Configuration flag

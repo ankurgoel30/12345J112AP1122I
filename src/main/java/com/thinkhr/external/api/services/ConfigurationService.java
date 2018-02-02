@@ -7,7 +7,9 @@ import static com.thinkhr.external.api.services.utils.EntitySearchUtil.getPageab
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -47,29 +49,29 @@ public class ConfigurationService extends CommonService {
      */
     public Configuration getConfiguration(Integer configurationId, Integer brokerId) {
         
-        return checkConfigurationForBroker(configurationId, brokerId);
+        Configuration configuration = configurationRepository.findOne(configurationId);
+        
+        if (null == configuration) {
+            throw ApplicationException.createEntityNotFoundError(APIErrorCodes.ENTITY_NOT_FOUND,
+                    "Configuration", "Configuration Id = " + String.valueOf(configurationId));
+        }
+        
+        return checkConfigurationForBroker(configuration, brokerId);
     }
 
     /**
      * Checks if the configuration belongs to the broker
      * 
-     * @param configurationId
+     * @param configuration
      * @param brokerId
      * @return
      */
-    private Configuration checkConfigurationForBroker(Integer configurationId,
+    private Configuration checkConfigurationForBroker(Configuration configuration,
             Integer brokerId) {
-
-        Configuration configuration = configurationRepository.findOne(configurationId);
-        
-        if (null == configuration) {
-            throw ApplicationException.createEntityNotFoundError(APIErrorCodes.ENTITY_NOT_FOUND,
-                    String.valueOf(configurationId));
-        }
         
         if(!configuration.getCompanyId().equals(brokerId)){
-            throw ApplicationException.createAuthorizationError(APIErrorCodes.INVALID_CONFIGURATION_ID,
-                    String.valueOf(configurationId), String.valueOf(brokerId));
+            throw ApplicationException.createAuthorizationError(APIErrorCodes.UNAUTHORIZED_CONFIGURATION_ACCESS,
+                    String.valueOf(brokerId), String.valueOf(configuration.getConfigurationId()));
         }
         
         return configuration;
@@ -82,7 +84,15 @@ public class ConfigurationService extends CommonService {
      * @param brokerId 
      */
     public int deleteConfiguration(Integer configurationId, Integer brokerId) {
-        Configuration configuration = checkConfigurationForBroker(configurationId, brokerId);
+        
+        Configuration configuration = configurationRepository.findOne(configurationId);
+        
+        if (null == configuration) {
+            throw ApplicationException.createEntityNotFoundError(APIErrorCodes.ENTITY_NOT_FOUND,
+                    "Configuration", "Configuration Id = " + String.valueOf(configurationId));
+        }
+        
+        checkConfigurationForBroker(configuration, brokerId);
         
         if (configuration.getMasterConfiguration() != null && configuration.getMasterConfiguration() == 1) {
             throw ApplicationException.createAuthorizationError(APIErrorCodes.MASTER_CONFIGURATION_NOT_CHANGEABLE, 
@@ -113,7 +123,14 @@ public class ConfigurationService extends CommonService {
     public Configuration updateConfiguration(Integer configurationId, String configurationJson, Integer brokerId) 
             throws ApplicationException, JsonProcessingException, IOException {
         
-        Configuration configurationInDb = checkConfigurationForBroker(configurationId, brokerId);
+        Configuration configurationInDb = configurationRepository.findOne(configurationId);
+        
+        if (null == configurationInDb) {
+            throw ApplicationException.createEntityNotFoundError(APIErrorCodes.ENTITY_NOT_FOUND,
+                    "Configuration", "Configuration Id = " + String.valueOf(configurationId));
+        }
+        
+        checkConfigurationForBroker(configurationInDb, brokerId);
         
         if (configurationInDb.getMasterConfiguration() != null && configurationInDb.getMasterConfiguration() == 1) {
             throw ApplicationException.createAuthorizationError(APIErrorCodes.MASTER_CONFIGURATION_NOT_CHANGEABLE, 
@@ -162,6 +179,8 @@ public class ConfigurationService extends CommonService {
             throw ApplicationException.createBadRequest(APIErrorCodes.MASTER_CONFIGURATION_NOT_EXISTS); 
         }
         
+        configuration.setMasterConfiguration(null);
+        
         return configurationRepository.save(configuration);
     }
 
@@ -174,29 +193,57 @@ public class ConfigurationService extends CommonService {
      * @param sort 
      * @param limit 
      * @param offset 
+     * @param allRequestParams 
      * @return
      */
-    public List<Configuration> getConfigurations(Integer brokerId, Integer offset, Integer limit, String sortField, String searchSpec) {
+    public List<Configuration> getConfigurations(Integer brokerId, Integer offset, Integer limit, String sortField, String searchSpec, Map<String, String> requestParams) {
         
         List<Configuration> configurations = new ArrayList<Configuration>();
         
+        Map<String,String> brokerParameter = new HashMap<String,String>();
+        brokerParameter.put("companyId", String.valueOf(brokerId));
+        
         Pageable pageable = getPageable(offset, limit, sortField, getDefaultSortField());
-        Specification<Configuration> spec = getEntitySearchSpecification(searchSpec, null, Configuration.class, new Configuration());
-
+        Specification<Configuration> spec = getEntitySearchSpecification(searchSpec, requestParams, Configuration.class, new Configuration());
+        
+        spec = addFilterInSearchSpecification(spec,brokerParameter);
+        
         Page<Configuration> configurationList  = configurationRepository.findAll(spec, pageable);
 
         if (configurationList != null) {
-            configurationList.getContent().forEach(c -> {
-                if(c.getCompanyId().equals(brokerId)){
-                    configurations.add(c);
-                }
-            });
+            configurationList.getContent().forEach(c -> configurations.add(c));
         }
 
         //Get and set the total number of records
-        setRequestAttribute(TOTAL_RECORDS, configurations.size());
+        setRequestAttribute(TOTAL_RECORDS, configurationRepository.count(spec));
         
         return configurations;
+    }
+
+    
+    /**
+     * To add broker manually in search specification
+     * 
+     * @param spec
+     * @param requestParameter
+     * @return 
+     */
+    private Specification<Configuration> addFilterInSearchSpecification(
+            Specification<Configuration> spec, Map<String, String> requestParameter) {
+
+        if(spec!=null){
+            EntitySearchSpecification<Configuration> entitySearchSpecification = (EntitySearchSpecification<Configuration>)spec;
+            if(entitySearchSpecification.getSearchParameters() != null){
+                entitySearchSpecification.getSearchParameters().putAll(requestParameter);
+            }else if(entitySearchSpecification.getSearchSpec() != null){
+                entitySearchSpecification.setSearchParameters(requestParameter);
+            }
+            
+            return entitySearchSpecification;
+        }
+        else{
+            return new EntitySearchSpecification(requestParameter, new Configuration());
+        }
     }
     
 

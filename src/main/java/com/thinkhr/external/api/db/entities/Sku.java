@@ -1,7 +1,5 @@
 package com.thinkhr.external.api.db.entities;
 
-import java.util.List;
-
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -9,7 +7,6 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Table;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 
@@ -26,7 +23,7 @@ import lombok.Data;
 @Table(name = "app_throne_skus")
 @Data
 @JsonInclude(Include.NON_EMPTY)
-public class Sku implements SearchableEntity {
+public class Sku {
     
     @Id
     @GeneratedValue(strategy=GenerationType.AUTO)
@@ -47,23 +44,4 @@ public class Sku implements SearchableEntity {
     
     @Column(name = "isActive")
     private Integer active;
-    
-    @Override
-    @JsonIgnore
-    public List<String> getSearchFields() {
-        return null;
-    }
-    
-    @Override
-    @JsonIgnore
-    public String getNodeName() {
-        return "sku";
-    }
-    
-    @Override
-    @JsonIgnore
-    public String getMultiDataNodeName() {
-        return "skus";
-    }
-
 }

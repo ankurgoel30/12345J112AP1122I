@@ -5,6 +5,7 @@ import static com.thinkhr.external.api.ApplicationConstants.DEFAULT_SORT_BY_CONF
 
 import java.io.IOException;
 import java.util.List;
+import java.util.Map;
 
 import javax.validation.Valid;
 
@@ -80,9 +81,11 @@ public class ConfigurationController {
     @Range(min=1l, message="Please select positive integer and should be greater than 0 for 'limit'") 
     @RequestParam(value = "limit", required = false, defaultValue= "50" ) Integer limit, 
     @RequestParam(value = "sort", required = false, defaultValue = DEFAULT_SORT_BY_CONFIGURATION_ID) String sort,
-    @RequestParam(value = "searchSpec", required = false) String searchSpec, @RequestAttribute(name = BROKER_ID_PARAM) Integer brokerId) 
+    @RequestParam(value = "searchSpec", required = false) String searchSpec,
+    @RequestParam Map<String, String> allRequestParams,
+    @RequestAttribute(name = BROKER_ID_PARAM) Integer brokerId) 
             throws ApplicationException {
-        return configurationService.getConfigurations(brokerId, offset, limit, sort, searchSpec);
+        return configurationService.getConfigurations(brokerId, offset, limit, sort, searchSpec, allRequestParams);
     }
 
 
