@@ -176,7 +176,7 @@ public class FileImportUtil {
 
         customHeaders.removeAll(allMappedHeaders);// = customHeaders - allMappedHeaders
         if (!customHeaders.isEmpty()) {
-            throw ApplicationException.createFileImportError(APIErrorCodes.UNMAPPED_CUSTOM_HEADERS,
+            throw ApplicationException.createBulkImportError(APIErrorCodes.UNMAPPED_CUSTOM_HEADERS,
                     StringUtils.join(customHeaders, COMMA_SEPARATOR));
         }
     }

@@ -7,6 +7,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.commons.lang.StringUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -62,7 +63,7 @@ public class BrokerService extends CompanyService {
     * @param brokerId
     */
    public int deleteBroker(int brokerId) throws ApplicationException {
-       Company company = companyRepository.findByCompanyIdAndCompanyType(brokerId, COMPANY_TYPE_BROKER);
+       Company company = companyRepository.findOne(brokerId);
 
        if (null == company) {
            throw ApplicationException.createEntityNotFoundError(APIErrorCodes.ENTITY_NOT_FOUND, "broker", "brokerId="+brokerId);
@@ -80,7 +81,9 @@ public class BrokerService extends CompanyService {
     @Transactional
     public Company addBroker(Company company) {
         
-        company.setCompanyType(COMPANY_TYPE_BROKER);
+        if (StringUtils.isEmpty(company.getCompanyType())) {
+            company.setCompanyType(COMPANY_TYPE_BROKER);
+        }
         
         company = addCompany(company, null);
         
@@ -102,7 +105,7 @@ public class BrokerService extends CompanyService {
      * @return Company object 
      */
     public Company getBroker(Integer brokerId) {
-        Company company =  companyRepository.findByCompanyIdAndCompanyType(brokerId, COMPANY_TYPE_BROKER);
+        Company company =  companyRepository.findOne(brokerId);
 
         if (null == company) {
             throw ApplicationException.createEntityNotFoundError(APIErrorCodes.ENTITY_NOT_FOUND,
@@ -126,7 +129,7 @@ public class BrokerService extends CompanyService {
     public Company updateBroker(Integer brokerId, String companyJson) 
             throws ApplicationException, JsonProcessingException, IOException {
 
-        Company companyInDb = companyRepository.findByCompanyIdAndCompanyType(brokerId, COMPANY_TYPE_BROKER);
+        Company companyInDb = companyRepository.findOne(brokerId);
         if (null == companyInDb) {
             throw ApplicationException.createEntityNotFoundError(APIErrorCodes.ENTITY_NOT_FOUND, "broker", "brokerId="+brokerId);
         }

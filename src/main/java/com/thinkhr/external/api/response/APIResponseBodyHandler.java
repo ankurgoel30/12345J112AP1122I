@@ -80,6 +80,9 @@ public class APIResponseBodyHandler implements ResponseBodyAdvice<Object> {
         ServletServerHttpResponse httpResponse = (ServletServerHttpResponse) response;
 
         APIResponse apiResponse = new APIResponse();
+        if (body instanceof APIResponse) {
+            apiResponse = (APIResponse)body;
+        }
         int statusCode = httpResponse.getServletResponse().getStatus();
         apiResponse.setCode(String.valueOf(statusCode));
         apiResponse.setStatus(HttpStatus.valueOf(statusCode).name());
@@ -98,7 +101,9 @@ public class APIResponseBodyHandler implements ResponseBodyAdvice<Object> {
             apiResponse.setFileImportResult((FileImportResult) body);
         } else {
             if (statusCode == HttpStatus.ACCEPTED.value()) {
-                apiResponse.setMessage(getMessageFromResourceBundle(resourceHandler, SUCCESS_DELETED, "id", body.toString()));
+                if (body instanceof Integer) {
+                    apiResponse.setMessage(getMessageFromResourceBundle(resourceHandler, SUCCESS_DELETED, "id", body.toString()));
+                }
             } else if (body instanceof SearchableEntity) {
                 apiResponse.setSearchEntity((SearchableEntity)body);
             }

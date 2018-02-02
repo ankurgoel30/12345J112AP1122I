@@ -26,7 +26,6 @@ import org.powermock.modules.junit4.PowerMockRunner;
 import org.powermock.modules.junit4.PowerMockRunnerDelegate;
 import org.springframework.test.context.junit4.SpringRunner;
 
-import com.thinkhr.external.api.ApplicationConstants;
 import com.thinkhr.external.api.db.entities.Company;
 import com.thinkhr.external.api.db.entities.Configuration;
 import com.thinkhr.external.api.exception.APIErrorCodes;
@@ -116,7 +115,7 @@ public class BrokerServiceTest {
     @Test(expected = com.thinkhr.external.api.exception.ApplicationException.class)
     public void testGetBrokerNotExists() {
         Integer companyId = 1;
-        when(companyRepository.findByCompanyIdAndCompanyType(companyId, ApplicationConstants.COMPANY_TYPE_BROKER))
+        when(companyRepository.findOne(companyId))
                 .thenReturn(null);
         Company result = brokerService.getBroker(companyId);
     }
@@ -134,8 +133,7 @@ public class BrokerServiceTest {
         Company company2 = createCompany(1, "ThinkHr", "Software", "345345435", new Date(), "Special",
                 "This is search help", "Other", "10");
 
-        when(companyRepository.findByCompanyIdAndCompanyType(company.getCompanyId(),
-                COMPANY_TYPE_BROKER))
+        when(companyRepository.findOne(company.getCompanyId()))
                         .thenReturn(company);
 
         BrokerService brokerServiceSpy = spy(brokerService);
@@ -174,7 +172,7 @@ public class BrokerServiceTest {
 
         assertEquals(company.getCompanyId(), result.getCompanyId());
         assertEquals("Pepcus", result.getCompanyName());
-        assertEquals(COMPANY_TYPE_BROKER, result.getCompanyType());
+        assertEquals("Software", result.getCompanyType());
         assertEquals("345345435", result.getCompanyPhone());
     }
 
@@ -189,8 +187,7 @@ public class BrokerServiceTest {
         Company company = createCompany(1, "Pepcus", "Software", "345345435", new Date(), "Special",
                 "This is search help", "Other", "10");
 
-        when(companyRepository.findByCompanyIdAndCompanyType(company.getCompanyId(),
-                COMPANY_TYPE_BROKER))
+        when(companyRepository.findOne(company.getCompanyId()))
                         .thenReturn(null);
         try {
             String companyJson = ApiTestDataUtil.getJsonString(company);
@@ -207,8 +204,7 @@ public class BrokerServiceTest {
     @Test
     public void testDeleteBroker() {
         Company  company = createCompany();
-        when(companyRepository.findByCompanyIdAndCompanyType(company.getCompanyId(),
-                COMPANY_TYPE_BROKER))
+        when(companyRepository.findOne(company.getCompanyId()))
                         .thenReturn(company);
 
         BrokerService brokerServiceSpy =  spy(brokerService);
@@ -229,7 +225,7 @@ public class BrokerServiceTest {
     @Test(expected = com.thinkhr.external.api.exception.ApplicationException.class)
     public void testDeleteCompanyForEntityNotFound() {
         int companyId = 1;
-        when(companyRepository.findByCompanyIdAndCompanyType(companyId, ApplicationConstants.COMPANY_TYPE_BROKER))
+        when(companyRepository.findOne(companyId))
                 .thenReturn(null);
 
         brokerService.deleteBroker(companyId);

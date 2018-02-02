@@ -75,5 +75,22 @@ public class CommonUtil {
         Date dateInUTC = new Date();
         return dateInUTC;
     }
+
+    /**
+     * This function returns the first object which is instance of class cls from array of objects objs.
+     * If no objects from objs is instance of cls then returns null.
+     * 
+     * @param cls
+     * @param objs
+     * @return
+     */
+    public static Object getObjectForClass(Class<?> cls, Object... objs) {
+        for (Object o : objs) {
+            if (cls.isInstance(o)) {
+                return o;
+            }
+        }
+        return null;
+    }
 	
 }

@@ -2,6 +2,7 @@ package com.thinkhr.external.api.services.upload;
 
 import static com.thinkhr.external.api.ApplicationConstants.COMMA_SEPARATOR;
 import static com.thinkhr.external.api.ApplicationConstants.EMAIL_PATTERN;
+import static com.thinkhr.external.api.ApplicationConstants.UNDERSCORE;
 import static com.thinkhr.external.api.ApplicationConstants.VALID_FILE_EXTENSION_IMPORT;
 import static com.thinkhr.external.api.response.APIMessageUtil.getMessageFromResourceBundle;
 import static com.thinkhr.external.api.services.utils.FileImportUtil.getMaxRecords;
@@ -46,12 +47,12 @@ public class FileImportValidator {
 
         // Validate if file has valid extension
         if (!FilenameUtils.isExtension(fileName,VALID_FILE_EXTENSION_IMPORT)) {
-            throw ApplicationException.createFileImportError(APIErrorCodes.INVALID_FILE_EXTENTION, fileName, VALID_FILE_EXTENSION_IMPORT);
+            throw ApplicationException.createBulkImportError(APIErrorCodes.INVALID_FILE_EXTENTION, fileName, VALID_FILE_EXTENSION_IMPORT);
         }
 
         //validate if files has no records
         if (fileToImport.isEmpty()) {
-            throw ApplicationException.createFileImportError(APIErrorCodes.NO_RECORDS_FOUND_FOR_IMPORT, fileName);
+            throw ApplicationException.createBulkImportError(APIErrorCodes.NO_RECORDS_FOUND_FOR_IMPORT, fileName);
         }
 
         // Read all records from file
@@ -73,13 +74,13 @@ public class FileImportValidator {
     public static void validateFileContents(List<String> fileContents, String fileName, String resource) {
         
         if (fileContents == null || fileContents.isEmpty() || fileContents.size() < 2) {
-            throw ApplicationException.createFileImportError(APIErrorCodes.NO_RECORDS_FOUND_FOR_IMPORT, fileName);
+            throw ApplicationException.createBulkImportError(APIErrorCodes.NO_RECORDS_FOUND_FOR_IMPORT, fileName);
         }
         
         int maxRecord = getMaxRecords(resource);
 
         if (fileContents.size() - 1 > maxRecord) {
-            throw ApplicationException.createFileImportError(APIErrorCodes.MAX_RECORD_EXCEEDED,
+            throw ApplicationException.createBulkImportError(APIErrorCodes.MAX_RECORD_EXCEEDED,
                     String.valueOf(maxRecord));
         }
 
@@ -96,12 +97,42 @@ public class FileImportValidator {
             String requiredHeadersStr = String.join(",", requiredHeaders);
 
             String missingHeadersStr = String.join(",", missingHeadersIfAny);
+            
+            if(fileName != null){
+                throw ApplicationException.createBulkImportError(APIErrorCodes.MISSING_REQUIRED_HEADERS, fileName, missingHeadersStr,
+                        requiredHeadersStr);
+            }else{
+                
+                missingHeadersStr = removeUnderscoreAndApplyCamelCase(missingHeadersStr.toLowerCase());
+                requiredHeadersStr = removeUnderscoreAndApplyCamelCase(requiredHeadersStr.toLowerCase());
+                throw ApplicationException.createBulkImportError(APIErrorCodes.MISSING_REQUIRED_FIELDS, resource, missingHeadersStr,
+                        requiredHeadersStr);
+            }
 
-            throw ApplicationException.createFileImportError(APIErrorCodes.MISSING_REQUIRED_HEADERS, fileName, missingHeadersStr,
-                    requiredHeadersStr);
+            
         }
 
     }
+    
+    /**
+     * Create Camel Casing for strings with underscore
+     * 
+     * @param str
+     * @return
+     */
+    private static String removeUnderscoreAndApplyCamelCase(String str) {
+        
+        StringBuilder strBuild = new StringBuilder(str);
+        int index = strBuild.indexOf(UNDERSCORE);
+        while (index >= 0) {
+            strBuild.replace(index, index+2, Character.toString(Character.toUpperCase(strBuild.charAt(index+1))));
+            index = strBuild.indexOf(UNDERSCORE, index + 1);
+        }
+        
+        return strBuild.toString();
+    }
+
+
     /**
      * To validate email field
      * @param record
