@@ -25,6 +25,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.domain.Sort.Direction;
 import org.springframework.data.jpa.domain.Specification;
 
+import com.thinkhr.external.api.db.entities.Configuration;
 import com.thinkhr.external.api.db.entities.SearchableEntity;
 import com.thinkhr.external.api.exception.APIErrorCodes;
 import com.thinkhr.external.api.exception.ApplicationException;
@@ -268,5 +269,31 @@ public class EntitySearchUtil {
         return null;
     }
 
+    /**
+     * To add additional filters in search specification
+     * @param <T>
+     * @param spec
+     * @param filterParamMap
+     * @return 
+     */
+    @SuppressWarnings({ "unchecked", "rawtypes" })
+    public static <T> Specification<Configuration> applyAdditionalFilter(
+            Specification<T> spec, Map<String, String> filterParamMap, SearchableEntity entity) {
 
+        if (spec == null) {
+            return new EntitySearchSpecification(filterParamMap, entity);
+        }
+        
+        EntitySearchSpecification eSpec = ((EntitySearchSpecification)spec);
+        
+        if (eSpec.getSearchParameters() == null || eSpec.getSearchParameters().isEmpty()) {
+            eSpec.setSearchParameters(filterParamMap);
+            return eSpec;
+        }
+        
+        eSpec.getSearchParameters().putAll(filterParamMap);
+        
+        return eSpec ;
+    }
+    
 }

@@ -4,9 +4,11 @@ import static com.thinkhr.external.api.ApplicationConstants.TOTAL_RECORDS;
 import static com.thinkhr.external.api.request.APIRequestHelper.setRequestAttribute;
 import static com.thinkhr.external.api.services.utils.EntitySearchUtil.getEntitySearchSpecification;
 import static com.thinkhr.external.api.services.utils.EntitySearchUtil.getPageable;
+import static com.thinkhr.external.api.services.utils.EntitySearchUtil.applyAdditionalFilter;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -18,6 +20,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.CollectionUtils;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.thinkhr.external.api.db.entities.Company;
@@ -204,9 +207,10 @@ public class ConfigurationService extends CommonService {
         brokerParameter.put("companyId", String.valueOf(brokerId));
         
         Pageable pageable = getPageable(offset, limit, sortField, getDefaultSortField());
-        Specification<Configuration> spec = getEntitySearchSpecification(searchSpec, requestParams, Configuration.class, new Configuration());
+        Configuration entity = new Configuration();
+        Specification<Configuration> spec = getEntitySearchSpecification(searchSpec, requestParams, Configuration.class, entity);
         
-        spec = addFilterInSearchSpecification(spec,brokerParameter);
+        spec = applyAdditionalFilter(spec, Collections.singletonMap("companyId", String.valueOf(brokerId)), entity);
         
         Page<Configuration> configurationList  = configurationRepository.findAll(spec, pageable);
 
@@ -220,31 +224,4 @@ public class ConfigurationService extends CommonService {
         return configurations;
     }
 
-    
-    /**
-     * To add broker manually in search specification
-     * 
-     * @param spec
-     * @param requestParameter
-     * @return 
-     */
-    private Specification<Configuration> addFilterInSearchSpecification(
-            Specification<Configuration> spec, Map<String, String> requestParameter) {
-
-        if(spec!=null){
-            EntitySearchSpecification<Configuration> entitySearchSpecification = (EntitySearchSpecification<Configuration>)spec;
-            if(entitySearchSpecification.getSearchParameters() != null){
-                entitySearchSpecification.getSearchParameters().putAll(requestParameter);
-            }else if(entitySearchSpecification.getSearchSpec() != null){
-                entitySearchSpecification.setSearchParameters(requestParameter);
-            }
-            
-            return entitySearchSpecification;
-        }
-        else{
-            return new EntitySearchSpecification(requestParameter, new Configuration());
-        }
-    }
-    
-
-}
+ }

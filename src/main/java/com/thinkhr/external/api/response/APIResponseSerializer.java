@@ -7,6 +7,7 @@ import java.io.IOException;
 import java.util.List;
 
 import org.apache.commons.lang.StringUtils;
+import org.springframework.util.CollectionUtils;
 
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.JsonSerializer;
@@ -140,7 +141,7 @@ public class APIResponseSerializer extends JsonSerializer<APIResponse> {
                 jGen.writeStringField("totalRecords",apiResponse.getTotalRecords());
                 jGen.writeStringField("successfulRecords",apiResponse.getSuccessRecords());
                 jGen.writeStringField("failedRecords",apiResponse.getFailedRecords());
-                if(apiResponse.getFailedList().size() > 0){
+                if(!CollectionUtils.isEmpty(apiResponse.getFailedList())){
                     jGen.writeFieldName("failedRecordsList");
                     jGen.writeStartArray();
                     for (Object obj : apiResponse.getFailedList()) {
