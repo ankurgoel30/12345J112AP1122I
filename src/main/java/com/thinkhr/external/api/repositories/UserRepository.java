@@ -6,6 +6,7 @@ import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.PagingAndSortingRepository;
+import org.springframework.data.repository.query.Param;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.thinkhr.external.api.db.entities.User;
@@ -49,7 +50,15 @@ public interface UserRepository extends PagingAndSortingRepository<User, Integer
      * @param jobId
      * @return
      */
-    public List<User> findByAddedBy(String jobId);
+    @Query(value = "select u.userId from User u where u.addedBy = :jobId")
+    public List<Integer> findAllUsersByJobId(@Param("jobId") String jobId);
+    
+    /**
+     * 
+     * @param addedBy
+     * @return
+     */
+    public List<User> findByAddedBy(String addedBy);
 
     /**
      * 

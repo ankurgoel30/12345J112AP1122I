@@ -6,6 +6,7 @@ import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.PagingAndSortingRepository;
+import org.springframework.data.repository.query.Param;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.thinkhr.external.api.db.entities.Company;
@@ -78,8 +79,9 @@ public interface CompanyRepository extends PagingAndSortingRepository<Company, I
     
     /**
      * 
-     * @param addedBy
+     * @param jobId
      * @return
      */
-    public List<Company> findByAddedBy(String addedBy);
+    @Query(value = "select c.companyId from Company c where c.addedBy = :jobId")
+    public List<Integer> findAllCompaniesByJobId(@Param("jobId") String jobId);
 }

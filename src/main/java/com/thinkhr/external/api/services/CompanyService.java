@@ -637,22 +637,20 @@ public class CompanyService  extends CommonService {
      */
     @Transactional
     public APIResponse deleteCompanies(String jobId) {
-        List<Company> companies = companyRepository.findByAddedBy(jobId);
+        List<Integer> companies = companyRepository.findAllCompaniesByJobId(jobId);
         
         if (CollectionUtils.isEmpty(companies)) { 
             throw ApplicationException.createBadRequest(APIErrorCodes.NO_RECORDS_FOUND);
         }
-        List<Integer> companyIdList = new ArrayList<Integer>();
-        companies.stream().forEach(company -> companyIdList.add(company.getCompanyId()));
         
         // Deleting companies records from throne DB
         companyRepository.deleteByAddedBy(jobId);
         
         // Deleting companies records from learn DB
-        learnCompanyRepository.deleteByCompanyIdIn(companyIdList);
+        learnCompanyRepository.deleteByCompanyIdIn(companies);
         
         // Deleting users associated with these companies
-        deleteAssociatedUsers(companyIdList);
+        deleteAssociatedUsers(companies);
 
         APIResponse apiResponse = new APIResponse();
         apiResponse.setMessage(getMessageFromResourceBundle(resourceHandler, SUCCESS_DELETED, "jobId", jobId));

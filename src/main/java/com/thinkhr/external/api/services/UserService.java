@@ -610,19 +610,17 @@ public class UserService extends CommonService {
      */
     @Transactional
     public APIResponse deleteUsers(String jobId) {
-        List<User> users = userRepository.findByAddedBy(jobId);
+        List<Integer> users = userRepository.findAllUsersByJobId(jobId);
         
         if (CollectionUtils.isEmpty(users)) { 
             throw ApplicationException.createBadRequest(APIErrorCodes.NO_RECORDS_FOUND);
         }
-        List<Integer> userIdList = new ArrayList<Integer>() ;
-        users.stream().forEach(user -> userIdList.add(user.getUserId()));
         
         // Deleting users records from throne DB
         userRepository.deleteByAddedBy(jobId);
         
         // Deleting users records from throne DB
-        learnUserRepository.deleteByThrUserIdIn(userIdList);
+        learnUserRepository.deleteByThrUserIdIn(users);
  
         APIResponse apiResponse = new APIResponse();
         apiResponse.setMessage(getMessageFromResourceBundle(resourceHandler, SUCCESS_DELETED, "jobId", jobId));
