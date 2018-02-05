@@ -19,6 +19,7 @@ import javax.validation.Validation;
 import javax.validation.Validator;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -110,6 +111,9 @@ public class CommonService {
 
     @Autowired
     protected SetPasswordRequestRepository setPasswordRepository;
+    
+    @Value("${com.thinkhr.external.api.threadpool.size}")
+    protected Integer threadPoolSize;
     
     @PersistenceContext
     protected EntityManager entityManager;

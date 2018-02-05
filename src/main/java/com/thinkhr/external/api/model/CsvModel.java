@@ -6,8 +6,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
-import com.thinkhr.external.api.db.entities.Company;
+import java.util.stream.IntStream;
 
 import lombok.Data;
 
@@ -35,9 +34,9 @@ public class CsvModel {
         csvRecords.remove(0);
         this.records = csvRecords;
         this.headersInCSV = headerLine.split(COMMA_SEPARATOR);
-        for (int i = 0; i < headersInCSV.length; i++) {
-            headerIndexMap.put(headersInCSV[i], i);
-        }
+        IntStream.range(0, headersInCSV.length).forEach(i -> 
+                 headerIndexMap.put(headersInCSV[i], i)
+        );
         
         this.importResult.initialize(this, brokerId);
     }

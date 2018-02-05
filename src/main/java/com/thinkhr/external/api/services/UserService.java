@@ -102,9 +102,6 @@ public class UserService extends CommonService {
     @Value("${com.thinkhr.external.api.emailService.enabled}")
     private boolean isSendEmailEnabled;
 
-    @Value("${com.thinkhr.external.api.threadpool.size}")
-    private Integer threadPoolSize;
-
     @PostConstruct
     public void init() {
         encryptedDefaultPassword = encDecyptor.encrypt(defaultPassword);
