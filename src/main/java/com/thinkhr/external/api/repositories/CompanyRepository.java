@@ -76,4 +76,12 @@ public interface CompanyRepository extends PagingAndSortingRepository<Company, I
      */
     @Query(value = "select c.companyId from Company c where c.addedBy = :jobId")
     public List<Integer> findAllCompaniesByJobId(@Param("jobId") String jobId);
+
+    /**
+     * Repository method
+     * 
+     * @param configurationId
+     * @return
+     */
+    public Company findFirstByConfigurationId(Integer configurationId);
 }

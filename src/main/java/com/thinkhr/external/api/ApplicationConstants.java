@@ -16,6 +16,7 @@ public class ApplicationConstants {
     public static final String ASCENDING = "+";
     public static final String DEFAULT_SORT_BY_COMPANY_NAME = "+companyName";
     public static final String DEFAULT_SORT_BY_USER_NAME = "+userName";
+    public static final String DEFAULT_SORT_BY_CONFIGURATION_ID = "+configurationId";
     public static final String SUCCESS_DELETED = "SUCCESSFULLY_DELETED";
     public static final String TOTAL_RECORDS = "totalRecords";
     public static final String LIMIT_PARAM = "limit";

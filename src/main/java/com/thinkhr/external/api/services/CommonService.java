@@ -44,6 +44,7 @@ import com.thinkhr.external.api.repositories.CustomFieldsRepository;
 import com.thinkhr.external.api.repositories.EmailTemplateRepository;
 import com.thinkhr.external.api.repositories.FileDataRepository;
 import com.thinkhr.external.api.repositories.SetPasswordRequestRepository;
+import com.thinkhr.external.api.repositories.SkuRepository;
 import com.thinkhr.external.api.repositories.StandardFieldsRepository;
 import com.thinkhr.external.api.repositories.UserRepository;
 import com.thinkhr.external.api.request.APIRequestHelper;
@@ -88,6 +89,9 @@ public class CommonService {
     
     @Autowired
     protected ConfigurationRepository configurationRepository;
+    
+    @Autowired
+    protected SkuRepository skuRepository;
     
     @Autowired
     protected LearnRoleRepository learnRoleRepository;
@@ -263,7 +267,7 @@ public class CommonService {
     public Configuration createMasterConfiguration(Integer companyId) {
         Configuration configuration = new Configuration();
         configuration.setCompanyId(companyId);
-        configuration.setIsMasterConfiguration(1);
+        configuration.setMasterConfiguration(1);
         configuration.setConfigurationKey(MASTER_CONFIG_KEY);
         configuration.setName(MASTER_CONFIG_NAME);
         configuration.setDescription(MASTER_CONFIG_NAME);
