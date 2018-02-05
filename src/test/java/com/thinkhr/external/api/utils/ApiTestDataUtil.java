@@ -69,6 +69,7 @@ public class ApiTestDataUtil {
     public static final String API_BASE_PATH = "/v1/";
     public static final String COMPANY_API_BASE_PATH = "/v1/companies/";
     public static final String USER_API_BASE_PATH = "/v1/users/";
+    public static final String CONFIG_API_BASE_PATH = "/v1/configurations/";
     public static final String BROKER_API_BASE_PATH = "/v1/brokers/";
     public static final String COMPANY_API_REQUEST_PARAM_OFFSET = "offset";
     public static final String COMPANY_API_REQUEST_PARAM_LIMIT = "limit";
@@ -263,6 +264,11 @@ public class ApiTestDataUtil {
      */
     public static Configuration createConfiguration(Integer configurationId, Integer companyId, String configurationKey,
             String name) {
+        return createConfiguration(configurationId, companyId, configurationKey, name, null);
+    }
+
+    public static Configuration createConfiguration(Integer configurationId, Integer companyId, String configurationKey,
+            String name, Integer master) {
         Configuration configuration = new Configuration();
         if (configurationId != null) {
             configuration.setConfigurationId(configurationId);
@@ -270,6 +276,7 @@ public class ApiTestDataUtil {
         configuration.setCompanyId(companyId);
         configuration.setConfigurationKey(configurationKey);
         configuration.setName(name);
+        configuration.setMasterConfiguration(master);
         return configuration;
     }
 
@@ -1694,4 +1701,20 @@ public class ApiTestDataUtil {
         return new ResponseEntity<List<BulkJsonModel>>(users, httpStatus);
     }
 
+    /**
+     * Creates a company response object
+     * 
+     * @param company
+     * @param httpStatus
+     * @return
+     */
+    public static ResponseEntity<Configuration> createConfigurationResponseEntity(Configuration config,
+            HttpStatus httpStatus) {
+        return new ResponseEntity<Configuration>(config, httpStatus);
+    }
+
+    public static ResponseEntity<Integer> createConfigurationIdResponseEntity(Integer configurationId,
+            HttpStatus httpStatus) {
+        return new ResponseEntity<Integer>(configurationId, httpStatus);
+    }
 }
