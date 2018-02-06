@@ -1,11 +1,8 @@
 package com.thinkhr.external.api.services;
 
 import static com.thinkhr.external.api.ApplicationConstants.DEFAULT_SORT_BY_USER_NAME;
-import static com.thinkhr.external.api.ApplicationConstants.REQUIRED_HEADERS_USER_CSV_IMPORT;
 import static com.thinkhr.external.api.ApplicationConstants.UNDERSCORE;
 import static com.thinkhr.external.api.services.utils.EntitySearchUtil.getPageable;
-import static com.thinkhr.external.api.services.utils.FileImportUtil.validateAndGetContentFromModel;
-import static com.thinkhr.external.api.utils.ApiTestDataUtil.createBulkCompanies;
 import static com.thinkhr.external.api.utils.ApiTestDataUtil.createBulkUsers;
 import static com.thinkhr.external.api.utils.ApiTestDataUtil.createCompany;
 import static com.thinkhr.external.api.utils.ApiTestDataUtil.createUser;
@@ -47,10 +44,14 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringRunner;
+import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.thinkhr.external.api.ApiApplication;
 import com.thinkhr.external.api.ApplicationConstants;
+import com.thinkhr.external.api.config.AppConfig;
+import com.thinkhr.external.api.config.LearnDBTestConfig;
+import com.thinkhr.external.api.config.PortalDBTestConfig;
 import com.thinkhr.external.api.db.entities.Company;
 import com.thinkhr.external.api.db.entities.CustomFields;
 import com.thinkhr.external.api.db.entities.StandardFields;
@@ -84,7 +85,8 @@ import com.thinkhr.external.api.utils.ApiTestDataUtil;
 @PowerMockRunnerDelegate(SpringRunner.class)
 @PrepareForTest(value = { FileImportUtil.class, FileImportValidator.class, APIMessageUtil.class })
 @PowerMockIgnore({ "javax.management.*", "javax.crypto.*" })
-@ContextConfiguration(classes = ApiApplication.class)
+@ContextConfiguration(classes = { ApiApplication.class, AppConfig.class, PortalDBTestConfig.class,
+        LearnDBTestConfig.class })
 @SpringBootTest
 public class UserServiceTest {
 
@@ -524,6 +526,7 @@ public class UserServiceTest {
         Mockito.doReturn(columnToHeaderMap).when(userServiceSpy)
                 .appendRequiredAndCustomHeaderMap(companyId, resource);
 
+        ReflectionTestUtils.setField(userServiceSpy, "threadPoolSize", 20);
         FileImportResult fileImportResult = userServiceSpy.processRecords(records, broker, resource);
 
         assertEquals(3, fileImportResult.getNumBlankRecords());
@@ -576,6 +579,7 @@ public class UserServiceTest {
             fail("Exception not expected");
         }
 
+        ReflectionTestUtils.setField(userService, "threadPoolSize", 20);
         fileImportResult = userService.processRecords(records, broker,
                 resource);
 
@@ -633,6 +637,7 @@ public class UserServiceTest {
             fail("Exception not expected");
         }
 
+        ReflectionTestUtils.setField(userService, "threadPoolSize", 20);
         fileImportResult = userService.processRecords(records, broker,
                 resource);
 
@@ -696,6 +701,7 @@ public class UserServiceTest {
             fail("Exception not expected");
         }
 
+        ReflectionTestUtils.setField(userService, "threadPoolSize", 20);
         fileImportResult = userService.processRecords(records, broker,
                 resource);
 
