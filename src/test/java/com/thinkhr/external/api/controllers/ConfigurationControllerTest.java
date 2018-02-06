@@ -84,13 +84,13 @@ public class ConfigurationControllerTest {
      */
     @Test
     public void test_AddConfiguration() throws Exception {
-        Integer brokerId = 12345;
+
         Configuration configuration = createConfiguration(1, 2, "ABC", "test config", 0);
 
         ResponseEntity<Configuration> responseEntity = ApiTestDataUtil.createConfigurationResponseEntity(configuration,
                 HttpStatus.CREATED);
 
-        given(configurationController.addConfiguration(Mockito.any(Configuration.class), brokerId)).willReturn(responseEntity);
+        given(configurationController.addConfiguration(Mockito.any(Configuration.class), Mockito.anyInt())).willReturn(responseEntity);
 
         mockMvc.perform(post(CONFIG_API_BASE_PATH)
                 .accept(MediaType.APPLICATION_JSON)
@@ -134,14 +134,13 @@ public class ConfigurationControllerTest {
     @Test
     public void test_DeleteConfiguration() throws Exception {
 
-        Integer brokerId = 2;
         Configuration configuration = createConfiguration(1, 2, "ABC", "test config");
 
         ResponseEntity<Integer> responseEntity = ApiTestDataUtil.createConfigurationIdResponseEntity(
                 configuration.getConfigurationId(),
                 HttpStatus.ACCEPTED);
 
-        given(configurationController.deleteConfiguration(configuration.getConfigurationId(), brokerId))
+        given(configurationController.deleteConfiguration(Mockito.anyInt(), Mockito.anyInt()))
                 .willReturn(responseEntity);
 
         mockMvc.perform(delete(CONFIG_API_BASE_PATH + configuration.getConfigurationId())

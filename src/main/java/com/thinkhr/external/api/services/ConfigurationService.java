@@ -143,6 +143,8 @@ public class ConfigurationService extends CommonService {
                     String.valueOf(configurationId));
         }
         
+        //To remove sku List from configuration fetched from DB specifically to operate delete sku functionality
+        configurationInDb.setSkus(null);
         Configuration configuration = update(configurationJson, configurationInDb);
         
         if(!CollectionUtils.isEmpty(configuration.getSkus())){

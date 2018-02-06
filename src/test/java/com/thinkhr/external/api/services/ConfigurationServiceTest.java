@@ -14,7 +14,9 @@ import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.when;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import javax.persistence.EntityManager;
 
@@ -272,7 +274,7 @@ public class ConfigurationServiceTest {
         Configuration masterConfiguration = createConfiguration(1, 2, "ABC2", "masterConfig", 1);
         String configJson = "{\"name\": \"Updatename\",\"skus\": [{\"skuId\": 1}]}";
         
-        List<Sku> masterSkus = new ArrayList<Sku>();
+        Set<Sku> masterSkus = new HashSet<Sku>();
         masterSkus.add(createSku(2));
         masterConfiguration.setSkus(masterSkus);
 
