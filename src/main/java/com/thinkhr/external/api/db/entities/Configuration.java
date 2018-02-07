@@ -57,12 +57,15 @@ public class Configuration implements SearchableEntity {
     @Basic(fetch=FetchType.LAZY)
     private String description;
     
+    @JsonIgnore
     @Column(name = "created")
     private Integer created;
     
+    @JsonIgnore
     @Column(name = "updated")
     private Integer updated;
     
+    @JsonIgnore
     @Column(name = "deleted")
     private Integer deleted;
     

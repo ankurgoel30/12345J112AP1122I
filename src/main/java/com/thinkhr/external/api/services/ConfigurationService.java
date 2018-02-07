@@ -2,6 +2,7 @@ package com.thinkhr.external.api.services;
 
 import static com.thinkhr.external.api.ApplicationConstants.DEFAULT_SORT_BY_CONFIGURATION_ID;
 import static com.thinkhr.external.api.ApplicationConstants.TOTAL_RECORDS;
+import static com.thinkhr.external.api.ApplicationConstants.SKUS_FIELD;
 import static com.thinkhr.external.api.request.APIRequestHelper.setRequestAttribute;
 import static com.thinkhr.external.api.services.utils.EntitySearchUtil.applyAdditionalFilter;
 import static com.thinkhr.external.api.services.utils.EntitySearchUtil.getEntitySearchSpecification;
@@ -143,13 +144,18 @@ public class ConfigurationService extends CommonService {
                     String.valueOf(configurationId));
         }
         
-        //To remove sku List from configuration fetched from DB specifically to operate delete sku functionality
-        configurationInDb.setSkus(null);
+        //To Set Configuration DB object's SKU list to null when all SKU have to be deleted otherwise it merges the same and does not delete
+        if(containsField(configurationJson,SKUS_FIELD)){
+            configurationInDb.setSkus(null);
+        }
+        
         Configuration configuration = update(configurationJson, configurationInDb);
         
         if(!CollectionUtils.isEmpty(configuration.getSkus())){
             validateSkusToConfigure(configuration, brokerId);
         }
+        
+        configuration.setUpdated((int) (System.currentTimeMillis() / 1000L));
         
         return updateConfiguration(configuration);
     }
@@ -170,7 +176,7 @@ public class ConfigurationService extends CommonService {
         
         if(!CollectionUtils.isEmpty(requiredSkuIds)){
             throw ApplicationException.createBadRequest(APIErrorCodes.INVALID_SKU_IDS, 
-                    StringUtils.join(requiredSkuIds, ","),StringUtils.join(masterSkuIds, ","));
+                    StringUtils.join(requiredSkuIds, ","),StringUtils.join(masterSkuIds, ","),String.valueOf(brokerId));
         }
     }
 
@@ -219,6 +225,8 @@ public class ConfigurationService extends CommonService {
         
         //Modification done as master configuration cannot be created via this API
         configuration.setMasterConfiguration(null);
+        
+        configuration.setCreated((int) (System.currentTimeMillis() / 1000L));
         
         return configurationRepository.save(configuration);
     }
