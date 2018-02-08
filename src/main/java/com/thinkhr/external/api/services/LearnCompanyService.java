@@ -6,6 +6,8 @@ import static com.thinkhr.external.api.ApplicationConstants.UNDERSCORE;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 import org.hashids.Hashids;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -32,6 +34,8 @@ public class LearnCompanyService extends CommonService {
 
     @Autowired
     protected LearnUserService learnUserService;
+
+    protected Map<String, LearnPackageMaster> learnPackageMap = new ConcurrentHashMap<String, LearnPackageMaster>();
 
     /**
      * Save learnCompany to database
@@ -96,7 +100,15 @@ public class LearnCompanyService extends CommonService {
      * @return
      */
     public LearnPackageMaster getDefaultPackageMaster() {
-        return packageRepository.findFirstByName(defaultCompanyPackage);
+        LearnPackageMaster learnPackage = null;
+        if (learnPackageMap.get(defaultCompanyPackage) != null) {
+            learnPackage = learnPackageMap.get(defaultCompanyPackage);
+        } else {
+            learnPackage = packageRepository.findFirstByName(defaultCompanyPackage);
+            learnPackageMap.put(defaultCompanyPackage, learnPackage);
+        }
+
+        return learnPackage;
     }
 
     /**
