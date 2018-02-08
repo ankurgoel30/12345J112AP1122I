@@ -8,23 +8,23 @@ import com.thinkhr.external.api.model.CsvModel;
  * @author Ajay Jain
  *
  */
-public class UserCsvImportCallable implements Callable<Void> {
+public class CsvImportCallable implements Callable<Void> {
     CsvModel csvModel;
     Integer recordIndex; //Index of the record to be imported from records in cSVModel
     Integer brokerId; //Broker Id for which record is to be imported
 
-    UserService userService;
+    CommonService commonService;
 
-    public UserCsvImportCallable(CsvModel csvModel, Integer recordIndex, Integer brokerId, UserService userService) {
+    public CsvImportCallable(CsvModel csvModel, Integer recordIndex, Integer brokerId, CommonService service) {
         this.csvModel = csvModel;
         this.recordIndex = recordIndex;
         this.brokerId = brokerId;
-        this.userService = userService;
+        this.commonService = service;
     }
 
     @Override
     public Void call() throws Exception {
-        userService.addUserRecordForBulk(this.csvModel, recordIndex, brokerId);
+        commonService.addRecordForBulk(this.csvModel, recordIndex, brokerId);
         return null;
     }
 

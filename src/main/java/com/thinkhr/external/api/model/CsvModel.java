@@ -21,7 +21,7 @@ public class CsvModel {
     String headerLine ;
     String[] headersInCSV ;
     Map<String, Integer> headerIndexMap = new HashMap<String,Integer>();
-    Map<String, String> headerVsColumnMap = new HashMap<String,String>() ;
+    Map<String, Map<String, String>> headerVsColumnMap = new HashMap<String, Map<String,String>>();
     FileImportResult importResult  =  new FileImportResult();
     
     /**

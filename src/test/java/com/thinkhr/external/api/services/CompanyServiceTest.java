@@ -3,9 +3,7 @@ package com.thinkhr.external.api.services;
 import static com.thinkhr.external.api.ApplicationConstants.COMMA_SEPARATOR;
 import static com.thinkhr.external.api.ApplicationConstants.COMPANY;
 import static com.thinkhr.external.api.ApplicationConstants.DEFAULT_SORT_BY_COMPANY_NAME;
-import static com.thinkhr.external.api.ApplicationConstants.REQUIRED_HEADERS_COMPANY_CSV_IMPORT;
 import static com.thinkhr.external.api.services.utils.EntitySearchUtil.getPageable;
-import static com.thinkhr.external.api.services.utils.FileImportUtil.validateAndGetContentFromModel;
 import static com.thinkhr.external.api.utils.ApiTestDataUtil.createBulkCompanies;
 import static com.thinkhr.external.api.utils.ApiTestDataUtil.createCompany;
 import static com.thinkhr.external.api.utils.ApiTestDataUtil.createCustomFieldsList;
@@ -22,7 +20,6 @@ import static org.powermock.api.mockito.PowerMockito.mockStatic;
 
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.sql.DataTruncation;
 import java.util.ArrayList;
@@ -52,6 +49,7 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.test.context.junit4.SpringRunner;
+import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.thinkhr.external.api.ApplicationConstants;
@@ -689,7 +687,6 @@ public class CompanyServiceTest {
     @Test
     public void testPopulateAndSaveToDB_RecordSave_Success() {
         FileImportResult fileImportResult = new FileImportResult();
-        int recCount = 13;
         String record = "Test Record";
 
         mockStatic(FileImportUtil.class);
@@ -728,7 +725,7 @@ public class CompanyServiceTest {
         when(learnCompanyService.addLearnCompanyForBulk(Matchers.any())).thenReturn(1);
 
         companyService.populateAndSaveToDB(record, companyColumnsToHeaderMap, locationColumnsToHeaderMap, headerIndexMap,
-                fileImportResult, recCount);
+                fileImportResult);
 
         assertEquals(1, fileImportResult.getNumSuccessRecords());
     }
@@ -740,7 +737,6 @@ public class CompanyServiceTest {
     @Test
     public void testPopulateAndSaveToDB_RecordSave_Failed() {
         FileImportResult fileImportResult = new FileImportResult();
-        int recCount = 13;
         String record = "Test Record";
 
         mockStatic(FileImportUtil.class);
@@ -773,8 +769,7 @@ public class CompanyServiceTest {
         ex.initCause(new DataTruncation(0, true, true, 12, 13));
         Mockito.doThrow(ex).when(fileDataRepository).saveCompanyRecord(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any());
 
-        companyService.populateAndSaveToDB(record, companyColumnsToHeaderMap, locationColumnsToHeaderMap, headerIndexMap, fileImportResult,
-                recCount);
+        companyService.populateAndSaveToDB(record, companyColumnsToHeaderMap, locationColumnsToHeaderMap, headerIndexMap, fileImportResult);
 
         assertEquals(expectedSuccessCount, fileImportResult.getNumSuccessRecords());
         assertEquals(expectedFailureCount, fileImportResult.getNumFailedRecords());
@@ -787,7 +782,6 @@ public class CompanyServiceTest {
     @Test
     public void testPopulateAndSaveToDB_MissingFieldExcepion() {
         FileImportResult fileImportResult = new FileImportResult();
-        int recCount = 13;
         String record = "Test Record";
 
         mockStatic(FileImportUtil.class);
@@ -810,8 +804,7 @@ public class CompanyServiceTest {
         int expectedFailureCount = fileImportResult.getNumFailedRecords() + 1;
         int expectedFailedRecordsListSize = fileImportResult.getFailedRecords().size() + 1;
         
-        companyService.populateAndSaveToDB(record, companyColumnsToHeaderMap, locationColumnsToHeaderMap, headerIndexMap, fileImportResult,
-                recCount);
+        companyService.populateAndSaveToDB(record, companyColumnsToHeaderMap, locationColumnsToHeaderMap, headerIndexMap, fileImportResult);
         
         assertEquals(expectedSuccessCount, fileImportResult.getNumSuccessRecords());
         assertEquals(expectedFailureCount, fileImportResult.getNumFailedRecords());
@@ -888,6 +881,7 @@ public class CompanyServiceTest {
                         Matchers.anyString());
 
         // call processRecords
+        ReflectionTestUtils.setField(companyServiceSpy, "threadPoolSize", 20);
         FileImportResult fileImportResult = companyServiceSpy.processRecords(records, broker);
 
         assertEquals(3, fileImportResult.getNumBlankRecords());

@@ -39,6 +39,7 @@ import com.thinkhr.external.api.learn.repositories.LearnRoleRepository;
 import com.thinkhr.external.api.learn.repositories.LearnUserRepository;
 import com.thinkhr.external.api.learn.repositories.PackageRepository;
 import com.thinkhr.external.api.model.AppAuthData;
+import com.thinkhr.external.api.model.CsvModel;
 import com.thinkhr.external.api.repositories.CompanyRepository;
 import com.thinkhr.external.api.repositories.ConfigurationRepository;
 import com.thinkhr.external.api.repositories.CustomFieldsRepository;
@@ -276,5 +277,9 @@ public class CommonService {
         configuration.setName(MASTER_CONFIG_NAME);
         configuration.setDescription(MASTER_CONFIG_NAME);
         return configuration;
+    }
+
+    protected void addRecordForBulk(CsvModel csvModel, Integer recordIndex, Integer brokerId) {
+       // implementation is done at company and user service classes.
     }
 }

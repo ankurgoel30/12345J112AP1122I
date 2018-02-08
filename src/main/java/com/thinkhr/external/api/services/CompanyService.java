@@ -29,6 +29,7 @@ import static com.thinkhr.external.api.services.utils.FileImportUtil.validateAnd
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Callable;
@@ -403,26 +404,30 @@ public class CompanyService  extends CommonService {
         
         CsvModel csvModel = new CsvModel();
         csvModel.initialize(records, broker.getCompanyId());
-        csvModel.setHeaderVsColumnMap(appendRequiredAndCustomHeaderMap(broker.getCompanyId(), resource));
+        
+        Map<String, Map<String, String>> combinedHashMap = new HashMap<String, Map<String,String>>();
+        
+        //DO not assume that CSV file contains fixed column position. Let's read and map then with database column
+        Map<String, String> companyFileHeaderMap = appendRequiredAndCustomHeaderMap(broker.getCompanyId(), resource);
+        Map<String, String> locationFileHeaderColumnMap = FileUploadEnum.prepareColumnHeaderMap(LOCATION);
+        combinedHashMap.put(COMPANY, companyFileHeaderMap);
+        combinedHashMap.put(LOCATION, locationFileHeaderColumnMap);
+        
+        csvModel.setHeaderVsColumnMap(combinedHashMap);
 
         FileImportResult fileImportResult = csvModel.getImportResult();
         String[] headersInCSV = csvModel.getHeadersInCSV();
         
-        //DO not assume that CSV file contains fixed column position. Let's read and map then with database column
-        Map<String, String> headerVsColumnMap = csvModel.getHeaderVsColumnMap();
-
-        Map<String, String> locationFileHeaderColumnMap = FileUploadEnum.prepareColumnHeaderMap(LOCATION);
-
         //Check every custom field from imported file has a corresponding column in database. If not, return error here.
         String[] requiredHeaders = getRequiredHeaders(resource);
-        validateAndFilterCustomHeaders(headersInCSV, headerVsColumnMap.values(), requiredHeaders, resourceHandler);
+        validateAndFilterCustomHeaders(headersInCSV, companyFileHeaderMap.values(), requiredHeaders, resourceHandler);
         
         //Setup executor service for adding records in parallel
         ExecutorService executor = Executors.newFixedThreadPool(threadPoolSize);
         List<Future<Void>> futureList = new ArrayList<Future<Void>>(csvModel.getRecords().size());
 
         for (int recordIndex = 0; recordIndex < csvModel.getRecords().size(); recordIndex++) {
-            Callable<Void> worker = new CompanyCsvImportCallable(csvModel, recordIndex, broker.getCompanyId(), this, locationFileHeaderColumnMap);
+            Callable<Void> worker = new CsvImportCallable(csvModel, recordIndex, broker.getCompanyId(), this);
 
             Future<Void> future = executor.submit(worker);
             futureList.add(future);
@@ -674,14 +679,17 @@ public class CompanyService  extends CommonService {
      * @param csvModel
      * @param recordIndex
      * @param brokerId
-     * @param locationHeaderColumnMap
      */
-    public void addCompanyRecordForBulk(CsvModel csvModel, Integer recordIndex, Integer brokerId, Map<String, String> locationHeaderColumnMap) {
-            
+    @Override
+    public void addRecordForBulk(CsvModel csvModel, Integer recordIndex, Integer brokerId) {
+        
         FileImportResult fileImportResult = csvModel.getImportResult();
         String record = csvModel.getRecords().get(recordIndex);
         Map<String, Integer> headerIndexMap = csvModel.getHeaderIndexMap();
-        Map<String, String> headerVsColumnMap = csvModel.getHeaderVsColumnMap();
+        Map<String, Map<String, String>> headerVsColumnMap = csvModel.getHeaderVsColumnMap();
+
+        Map<String, String> companyHeaderVsColumnMap = headerVsColumnMap.get(COMPANY);
+        Map<String, String> locationHeaderVsColumnMap = headerVsColumnMap.get(LOCATION);
 
         if (StringUtils.containsOnly(record, new char[] { ',', ' ' })) {
             fileImportResult.increamentBlankRecords();
@@ -704,8 +712,8 @@ public class CompanyService  extends CommonService {
             return;
         }
 
-        populateAndSaveToDB(record, headerVsColumnMap,
-                locationHeaderColumnMap,
+        populateAndSaveToDB(record, companyHeaderVsColumnMap,
+                locationHeaderVsColumnMap,
                 headerIndexMap,
                 fileImportResult);
     }

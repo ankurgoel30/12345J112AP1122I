@@ -33,6 +33,7 @@ import static com.thinkhr.external.api.services.utils.FileImportUtil.validateAnd
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Callable;
@@ -353,22 +354,25 @@ public class UserService extends CommonService {
 
         CsvModel csvModel = new CsvModel();
         csvModel.initialize(records, broker.getCompanyId());
-        csvModel.setHeaderVsColumnMap(appendRequiredAndCustomHeaderMap(broker.getCompanyId(), resource));
+        
+        Map<String, Map<String, String>> headerVsColumnMap = new HashMap<String, Map<String,String>>();
+        Map<String, String> userHeaderVsColumnMap = appendRequiredAndCustomHeaderMap(broker.getCompanyId(), resource);
+        headerVsColumnMap.put(resource, userHeaderVsColumnMap);
+        csvModel.setHeaderVsColumnMap(headerVsColumnMap);
 
         FileImportResult fileImportResult = csvModel.getImportResult();
         String[] headersInCSV = csvModel.getHeadersInCSV();
-        Map<String, String> headerVsColumnMap = csvModel.getHeaderVsColumnMap();
 
         //Check every custom field from imported file has a corresponding column in database. If not, return error here.
         String[] requiredHeaders = getRequiredHeaders(resource);
-        validateAndFilterCustomHeaders(headersInCSV, headerVsColumnMap.values(), requiredHeaders, resourceHandler);
+        validateAndFilterCustomHeaders(headersInCSV, headerVsColumnMap.get(resource).values(), requiredHeaders, resourceHandler);
 
         //Setup executor service for adding records in parallel
         ExecutorService executor = Executors.newFixedThreadPool(threadPoolSize);
         List<Future<Void>> futureList = new ArrayList<Future<Void>>(csvModel.getRecords().size());
 
         for (int recordIndex = 0; recordIndex < csvModel.getRecords().size(); recordIndex++) {
-            Callable<Void> worker = new UserCsvImportCallable(csvModel, recordIndex, broker.getCompanyId(), this);
+            Callable<Void> worker = new CsvImportCallable(csvModel, recordIndex, broker.getCompanyId(), this);
 
             Future<Void> future = executor.submit(worker);
             futureList.add(future);
@@ -481,11 +485,14 @@ public class UserService extends CommonService {
      * @param recordIndex
      * @param brokerId
      */
-    public void addUserRecordForBulk(CsvModel csvModel, Integer recordIndex, Integer brokerId) {
+    @Override
+    public void addRecordForBulk(CsvModel csvModel, Integer recordIndex, Integer brokerId) {
         FileImportResult fileImportResult = csvModel.getImportResult();
         String record = csvModel.getRecords().get(recordIndex);
         Map<String, Integer> headerIndexMap = csvModel.getHeaderIndexMap();
-        Map<String, String> headerVsColumnMap = csvModel.getHeaderVsColumnMap();
+        Map<String, Map<String, String>> headerVsColumnMap = csvModel.getHeaderVsColumnMap();
+        
+        Map<String, String> userHeaderVsColumnMap = headerVsColumnMap.get(USER);
 
         if (StringUtils.containsOnly(record, new char[] { ',', ' ' })) {
             fileImportResult.increamentBlankRecords();
@@ -524,7 +531,7 @@ public class UserService extends CommonService {
             return;
         }
 
-        populateAndSaveToDB(record, headerVsColumnMap,
+        populateAndSaveToDB(record, userHeaderVsColumnMap,
                 headerIndexMap,
                 fileImportResult,
                 company.getCompanyId());
