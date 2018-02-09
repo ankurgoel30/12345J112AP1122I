@@ -2,6 +2,8 @@ package com.thinkhr.external.api.response;
 
 import java.util.List;
 
+import com.docusign.esign.model.Recipients;
+import com.docusign.esign.model.ViewUrl;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
@@ -44,6 +46,8 @@ public class APIResponse {
     private List failedList;
     private SearchableEntity searchEntity; 
     private FileImportResult fileImportResult;
+    private Recipients recipeints;
+    private ViewUrl viewUrl;
 
 
 }

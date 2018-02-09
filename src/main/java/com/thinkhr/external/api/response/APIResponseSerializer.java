@@ -48,6 +48,10 @@ public class APIResponseSerializer extends JsonSerializer<APIResponse> {
 
             serializeMessage(apiResponse, jGen);
 
+            serializeRecipients(apiResponse, jGen);
+
+            serializeRecipientViewUrl(apiResponse, jGen);
+
             jGen.writeEndObject();
         } catch (Exception ex) {
             throw ApplicationException.createInternalError(APIErrorCodes.ERROR_WRITING_JSON_OUTPUT, apiResponse.toString());
@@ -101,6 +105,33 @@ public class APIResponseSerializer extends JsonSerializer<APIResponse> {
         if (apiResponse.getSearchEntity() != null) {
             jGen.writeFieldName(apiResponse.getSearchEntity().getNodeName());
             jGen.writeObject(apiResponse.getSearchEntity());
+        }
+    }
+
+    /**
+     * To Serialize Docusign Recipients
+     * @param apiResponse
+     * @param jGen
+     * @throws IOException
+     */
+    private void serializeRecipients(APIResponse apiResponse, JsonGenerator jGen) throws IOException {
+        if (apiResponse.getRecipeints() != null) {
+            jGen.writeFieldName("recipients");
+            jGen.writeObject(apiResponse.getRecipeints());
+        }
+    }
+
+    /**
+     * To serialize  ViewURL
+     * 
+     * @param apiResponse
+     * @param jGen
+     * @throws IOException
+     */
+    private void serializeRecipientViewUrl(APIResponse apiResponse, JsonGenerator jGen) throws IOException {
+        if (apiResponse.getViewUrl() != null) {
+            jGen.writeFieldName("viewUrl");
+            jGen.writeObject(apiResponse.getViewUrl());
         }
     }
 

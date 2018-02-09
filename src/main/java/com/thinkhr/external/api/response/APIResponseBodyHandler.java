@@ -28,6 +28,8 @@ import org.springframework.http.server.ServletServerHttpResponse;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseBodyAdvice;
 
+import com.docusign.esign.model.Recipients;
+import com.docusign.esign.model.ViewUrl;
 import com.thinkhr.external.api.db.entities.SearchableEntity;
 import com.thinkhr.external.api.exception.APIError;
 import com.thinkhr.external.api.exception.APIErrorCodes;
@@ -99,6 +101,11 @@ public class APIResponseBodyHandler implements ResponseBodyAdvice<Object> {
             }
         } else if (body instanceof FileImportResult) {
             apiResponse.setFileImportResult((FileImportResult) body);
+        } else if (body instanceof Recipients) {
+            apiResponse.setRecipeints((Recipients) body);
+        } else if (body instanceof ViewUrl) {
+            System.out.println("Coming here.......");
+            apiResponse.setViewUrl((ViewUrl) body);
         } else {
             if (statusCode == HttpStatus.ACCEPTED.value()) {
                 if (body instanceof Integer) {
