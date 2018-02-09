@@ -23,11 +23,9 @@ import static com.thinkhr.external.api.services.upload.FileImportValidator.valid
 import static com.thinkhr.external.api.services.utils.CommonUtil.getCurrentDateInUTC;
 import static com.thinkhr.external.api.services.utils.EntitySearchUtil.getEntitySearchSpecification;
 import static com.thinkhr.external.api.services.utils.EntitySearchUtil.getPageable;
-import static com.thinkhr.external.api.services.utils.FileImportUtil.getRequiredHeaders;
 import static com.thinkhr.external.api.services.utils.FileImportUtil.getValueFromRow;
 import static com.thinkhr.external.api.services.utils.FileImportUtil.populateColumnValues;
 import static com.thinkhr.external.api.services.utils.FileImportUtil.setRequestParamsForBulkJsonResponse;
-import static com.thinkhr.external.api.services.utils.FileImportUtil.validateAndFilterCustomHeaders;
 import static com.thinkhr.external.api.services.utils.FileImportUtil.validateAndGetContentFromModel;
 
 import java.io.IOException;
@@ -36,11 +34,6 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.Callable;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
 
 import javax.annotation.PostConstruct;
 
@@ -79,7 +72,7 @@ import com.thinkhr.external.api.services.upload.FileUploadEnum;
  */
 
 @Service
-public class UserService extends CommonService {
+public class UserService extends ImportService {
 
     private Logger logger = LoggerFactory.getLogger(UserService.class);
 
@@ -323,8 +316,16 @@ public class UserService extends CommonService {
         }else{
             fileContents = validateAndGetContentFromModel(users, resource);
         }
+        
+        CsvModel csvModel = new CsvModel();
+        csvModel.initialize(fileContents, broker.getCompanyId());
+        
+        Map<String, Map<String, String>> headerVsColumnMap = new HashMap<String, Map<String,String>>();
+        Map<String, String> userHeaderVsColumnMap = appendRequiredAndCustomHeaderMap(broker.getCompanyId(), resource);
+        headerVsColumnMap.put(resource, userHeaderVsColumnMap);
+        csvModel.setHeaderVsColumnMap(headerVsColumnMap);
 
-        FileImportResult fileImportResult = processRecords (fileContents, broker, resource);
+        FileImportResult fileImportResult = processCsvModel(resource, csvModel);
         
         if(!CollectionUtils.isEmpty(users)){
             setRequestParamsForBulkJsonResponse(fileImportResult);
@@ -338,68 +339,6 @@ public class UserService extends CommonService {
                 logger.error("Failed to send email ", ex);
             }
         }
-        return fileImportResult;
-    }
-
-    /**
-     * Process imported file to save users records in database
-     *  
-     * @param records
-     * @param brokerId
-     * @param resource
-     * @throws ApplicationException
-     */
-     FileImportResult processRecords (List<String> records, 
-            Company broker, String resource) throws ApplicationException {
-
-        CsvModel csvModel = new CsvModel();
-        csvModel.initialize(records, broker.getCompanyId());
-        
-        Map<String, Map<String, String>> headerVsColumnMap = new HashMap<String, Map<String,String>>();
-        Map<String, String> userHeaderVsColumnMap = appendRequiredAndCustomHeaderMap(broker.getCompanyId(), resource);
-        headerVsColumnMap.put(resource, userHeaderVsColumnMap);
-        csvModel.setHeaderVsColumnMap(headerVsColumnMap);
-
-        FileImportResult fileImportResult = csvModel.getImportResult();
-        String[] headersInCSV = csvModel.getHeadersInCSV();
-
-        //Check every custom field from imported file has a corresponding column in database. If not, return error here.
-        String[] requiredHeaders = getRequiredHeaders(resource);
-        validateAndFilterCustomHeaders(headersInCSV, headerVsColumnMap.get(resource).values(), requiredHeaders, resourceHandler);
-
-        //Setup executor service for adding records in parallel
-        ExecutorService executor = Executors.newFixedThreadPool(threadPoolSize);
-        List<Future<Void>> futureList = new ArrayList<Future<Void>>(csvModel.getRecords().size());
-
-        for (int recordIndex = 0; recordIndex < csvModel.getRecords().size(); recordIndex++) {
-            Callable<Void> worker = new CsvImportCallable(csvModel, recordIndex, broker.getCompanyId(), this);
-
-            Future<Void> future = executor.submit(worker);
-            futureList.add(future);
-        }
-
-        executor.shutdown();
-
-        // Wait for all the task to be completed 
-        while (!executor.isTerminated()) {
-        }
-
-        // Capture any exceptions if occurred during the execution of any tasks
-        for (int i = 0; i < futureList.size(); i++) {
-            Future<Void> future = futureList.get(i);
-            try {
-                future.get();
-            } catch (InterruptedException e) {
-                fileImportResult.addFailedRecord(csvModel.getRecords().get(i), e.getLocalizedMessage(), null);
-            } catch (ExecutionException e) {
-                fileImportResult.addFailedRecord(csvModel.getRecords().get(i), e.getLocalizedMessage(), null);
-            }
-        }
-
-        if (logger.isDebugEnabled()) {
-            logger.debug(fileImportResult.toString());
-        }
-
         return fileImportResult;
     }
 

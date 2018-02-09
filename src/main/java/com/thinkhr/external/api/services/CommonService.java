@@ -279,7 +279,4 @@ public class CommonService {
         return configuration;
     }
 
-    protected void addRecordForBulk(CsvModel csvModel, Integer recordIndex, Integer brokerId) {
-       // implementation is done at company and user service classes.
-    }
 }

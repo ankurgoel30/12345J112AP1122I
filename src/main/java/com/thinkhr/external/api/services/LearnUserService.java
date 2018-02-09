@@ -15,9 +15,9 @@ import static com.thinkhr.external.api.db.learn.entities.LearnUserRoleAssignment
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -39,7 +39,7 @@ import com.thinkhr.external.api.db.learn.entities.LearnUserRoleAssignment;
 @Service
 public class LearnUserService extends CommonService {
 
-    Map<String, LearnRole> learnRoleMap = new HashMap<String, LearnRole>();
+    Map<String, LearnRole> learnRoleMap = new ConcurrentHashMap<String, LearnRole>();
 
     /**
      * Save learnUser to database

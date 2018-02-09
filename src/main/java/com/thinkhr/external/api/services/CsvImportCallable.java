@@ -13,18 +13,18 @@ public class CsvImportCallable implements Callable<Void> {
     Integer recordIndex; //Index of the record to be imported from records in cSVModel
     Integer brokerId; //Broker Id for which record is to be imported
 
-    CommonService commonService;
+    ImportService importService;
 
-    public CsvImportCallable(CsvModel csvModel, Integer recordIndex, Integer brokerId, CommonService service) {
+    public CsvImportCallable(CsvModel csvModel, Integer recordIndex, Integer brokerId, ImportService service) {
         this.csvModel = csvModel;
         this.recordIndex = recordIndex;
         this.brokerId = brokerId;
-        this.commonService = service;
+        this.importService = service;
     }
 
     @Override
     public Void call() throws Exception {
-        commonService.addRecordForBulk(this.csvModel, recordIndex, brokerId);
+        importService.addRecordForBulk(this.csvModel, recordIndex, brokerId);
         return null;
     }
 
