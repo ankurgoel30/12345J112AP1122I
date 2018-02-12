@@ -29,6 +29,8 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonProperty.Access;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.thinkhr.external.api.helpers.JsonDateDeSerializer;
 
@@ -71,7 +73,8 @@ public class Company implements SearchableEntity {
     @Column(name = "t1_display_name") 
     private String displayName;
 
-    @Column(name = "aspect") 
+    @Column(name = "aspect")
+    @JsonProperty(access = Access.WRITE_ONLY)
     private String aspect;
 
     @Column(name = "Broker") 
@@ -82,7 +85,8 @@ public class Company implements SearchableEntity {
     @Column(name = "Client_Phone") 
     private String companyPhone;
 
-    @Column(name = "Website") 
+    @Column(name = "Website")
+    @JsonProperty(access = Access.WRITE_ONLY)
     private String website;
 
     @NotNull
@@ -97,19 +101,24 @@ public class Company implements SearchableEntity {
     @Column(name = "Client_Status") 
     private Integer companyStatus;
 
-    @Column(name = "enhanced_password") 
+    @Column(name = "enhanced_password")
+    @JsonProperty(access = Access.WRITE_ONLY)
     private Integer enhancedPassword;
 
-    @Column(name = "client_hours") 
+    @Column(name = "client_hours")
+    @JsonProperty(access = Access.WRITE_ONLY)
     private String companyHours;
 
     @Column(name = "issuesBroker") 
+    @JsonProperty(access = Access.WRITE_ONLY)
     private String issuesBroker;
 
     @Column(name = "issuesClient") 
+    @JsonProperty(access = Access.WRITE_ONLY)
     private Integer issuesCompany;
 
     @Column(name = "issue_frequency") 
+    @JsonProperty(access = Access.WRITE_ONLY)
     private Integer issueFrequency;
 
     @NotBlank
@@ -121,97 +130,126 @@ public class Company implements SearchableEntity {
     private String companySize;
 
     @Column(name = "actualCompanySize") 
+    @JsonProperty(access = Access.WRITE_ONLY)
     private Integer actualCompanySize;
 
     @Column(name = "salesNotes") 
+    @JsonProperty(access = Access.WRITE_ONLY)
     private String salesNotes;
 
-    @Column(name = "customClient") 
+    @Column(name = "customClient")
+    @JsonProperty(access = Access.WRITE_ONLY)
     private Integer customCompany;
 
     @Column(name = "groupID") 
+    @JsonProperty(access = Access.WRITE_ONLY)
     private String groupID;
 
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")  
     @Column(name = "deactivationDate") 
     @Temporal(TemporalType.DATE)
+    @JsonProperty(access = Access.WRITE_ONLY)
     private Date deactivationDate;
 
     @Column(name = "deactivationID") 
+    @JsonProperty(access = Access.WRITE_ONLY)
     private Integer deactivationID;
 
-    @Column(name = "login") 
+    @Column(name = "login")
+    @JsonProperty(access = Access.WRITE_ONLY)
     private Integer login;
 
     @Column(name = "producer") 
+    @JsonProperty(access = Access.WRITE_ONLY)
     private String producer;
 
     @Column(name = "specialDomain") 
+    @JsonProperty(access = Access.WRITE_ONLY)
     private String specialDomain;
 
     @Column(name = "addedBy") 
     private String addedBy;
 
     @Column(name = "channel") 
+    @JsonProperty(access = Access.WRITE_ONLY)
     private String channel;
 
     @Column(name = "directID") 
+    @JsonProperty(access = Access.WRITE_ONLY)
     private Integer directID;
 
     @Column(name = "resellerID") 
+    @JsonProperty(access = Access.WRITE_ONLY)
     private Integer resellerID;
 
     @Column(name = "parentID") 
+    @JsonProperty(access = Access.WRITE_ONLY)
     private Integer parentID;
 
     @Column(name = "familiesID") 
+    @JsonProperty(access = Access.WRITE_ONLY)
     private Integer familiesID;
 
     @Column(name = "referral") 
+    @JsonProperty(access = Access.WRITE_ONLY)
     private String referral;
 
-    @Column(name = "tally") 
+    @Column(name = "tally")
+    @JsonProperty(access = Access.WRITE_ONLY)
     private Integer tally;
 
     @Column(name = "optOut") 
+    @JsonProperty(access = Access.WRITE_ONLY)
     private Integer optOut;
 
     @Column(name = "optOutWelcome") 
+    @JsonProperty(access = Access.WRITE_ONLY)
     private Integer optOutWelcome;
 
     @Column(name = "newsletterID") 
+    @JsonProperty(access = Access.WRITE_ONLY)
     private Integer newsletterID;
 
     @Column(name = "newsletterPrivateLabel") 
+    @JsonProperty(access = Access.WRITE_ONLY)
     private Integer newsletterPrivateLabel;
 
     @Column(name = "officeLocation") 
+    @JsonProperty(access = Access.WRITE_ONLY)
     private String officeLocation;
 
     @Column(name = "partnerClientType") 
+    @JsonProperty(access = Access.WRITE_ONLY)
     private String partnerCompanyType;
 
     @Column(name = "offering") 
+    @JsonProperty(access = Access.WRITE_ONLY)
     private String offering;
 
     @Column(name = "marketID") 
+    @JsonProperty(access = Access.WRITE_ONLY)
     private Integer marketID;
 
     @Column(name = "marketCode") 
+    @JsonProperty(access = Access.WRITE_ONLY)
     private String marketCode;
 
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")  
     @Column(name = "suspended") 
     @Temporal(TemporalType.TIMESTAMP)
+    @JsonProperty(access = Access.WRITE_ONLY)
     private Date suspended;
 
     @Column(name = "marketingCampaign") 
+    @JsonProperty(access = Access.WRITE_ONLY)
     private String marketingCampaign;
 
     @Column(name = "marketingFree") 
+    @JsonProperty(access = Access.WRITE_ONLY)
     private Integer marketingFree;
 
-    @Column(name = "avoidTerms") 
+    @Column(name = "avoidTerms")
+    @JsonProperty(access = Access.WRITE_ONLY)
     private Integer avoidTerms;
 
     @Column(name = "t1_customfield1") 
@@ -231,92 +269,121 @@ public class Company implements SearchableEntity {
 
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")  
     @Column(name = "customDate") 
+    @JsonProperty(access = Access.WRITE_ONLY)
     private Timestamp customDate;
 
-    @Column(name = "noReporting") 
+    @Column(name = "noReporting")
+    @JsonProperty(access = Access.WRITE_ONLY)
     private Integer noReporting;
 
-    @Column(name = "noTerms") 
+    @Column(name = "noTerms")
+    @JsonProperty(access = Access.WRITE_ONLY)
     private Integer noTerms;
 
     @Column(name = "expiryDate") 
     @Temporal(TemporalType.DATE)
+    @JsonProperty(access = Access.WRITE_ONLY)
     private Date expiryDate;
 
     @Column(name = "partnerAdmin") 
+    @JsonProperty(access = Access.WRITE_ONLY)
     private Integer partnerAdmin;
 
     @Column(name = "level") 
+    @JsonProperty(access = Access.WRITE_ONLY)
     private Integer level;
 
     @Column(name = "brainID") 
+    @JsonProperty(access = Access.WRITE_ONLY)
     private String brainID;
 
     @Column(name = "tokenID") 
+    @JsonProperty(access = Access.WRITE_ONLY)
     private String tokenID;
 
     @Column(name = "subscriptionID") 
+    @JsonProperty(access = Access.WRITE_ONLY)
     private String subscriptionID;
 
-    @Column(name = "posters") 
+    @Column(name = "posters")
+    @JsonProperty(access = Access.WRITE_ONLY)
     private Integer posters;
 
-    @Column(name = "complyLinks") 
+    @Column(name = "complyLinks")
+    @JsonProperty(access = Access.WRITE_ONLY)
     private Integer complyLinks;
 
     @Column(name = "resources") 
+    @JsonProperty(access = Access.WRITE_ONLY)
     private Integer resources;
 
-    @Column(name = "newLook") 
+    @Column(name = "newLook")
+    @JsonProperty(access = Access.WRITE_ONLY)
     private Integer newLook;
 
-    @Column(name = "customStyle") 
+    @Column(name = "customStyle")
+    @JsonProperty(access = Access.WRITE_ONLY)
     private Integer customStyle;
 
     @Column(name = "setup_fee") 
+    @JsonProperty(access = Access.WRITE_ONLY)
     private Integer setupFee;
 
     @Column(name = "customerSuccessManager") 
+    @JsonProperty(access = Access.WRITE_ONLY)
     private Integer customerSuccessManager;
 
     @Column(name = "trial") 
+    @JsonProperty(access = Access.WRITE_ONLY)
     private Integer trial;
 
-    @Column(name = "upsellLearn") 
+    @Column(name = "upsellLearn")
+    @JsonProperty(access = Access.WRITE_ONLY)
     private Integer upsellLearn;
 
     @Column(name = "sales_rep") 
+    @JsonProperty(access = Access.WRITE_ONLY)
     private String salesRep;
 
-    @Column(name = "exported") 
+    @Column(name = "exported")
+    @JsonProperty(access = Access.WRITE_ONLY)
     private Integer exported;
 
     @Column(name = "direct_landing") 
+    @JsonProperty(access = Access.WRITE_ONLY)
     private Integer directLanding;
 
     @Column(name = "revenue") 
+    @JsonProperty(access = Access.WRITE_ONLY)
     private String revenue;
 
     @Column(name = "workplaceUsers") 
+    @JsonProperty(access = Access.WRITE_ONLY)
     private Integer workplaceUsers;
 
     @Column(name = "temp_Client_Status") 
+    @JsonProperty(access = Access.WRITE_ONLY)
     private Integer tempCompanyStatus;
 
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")  
     @Column(name = "Renewal_Date") 
+    @JsonProperty(access = Access.WRITE_ONLY)
     private Date renewalDate;
 
     @Column(name = "re_manager") 
+    @JsonProperty(access = Access.WRITE_ONLY)
     private Integer reManager;
 
     @Column(name = "partner_manager") 
+    @JsonProperty(access = Access.WRITE_ONLY)
     private Integer partnerManager;
 
-    @Column(name = "auto_welcome_email") 
+    @Column(name = "auto_welcome_email")
+    @JsonProperty(access = Access.WRITE_ONLY)
     private Integer autoWelcomeEmail;
 
-    @Column(name = "contact_assignments") 
+    @Column(name = "contact_assignments")
+    @JsonProperty(access = Access.WRITE_ONLY)
     private Integer contactAssignments;
 
     @Column(name = "salesforceID") 
@@ -325,7 +392,8 @@ public class Company implements SearchableEntity {
     @Column(name = "special_note", nullable=false) 
     private String specialNote = ""; 
 
-    @Column(name = "sourceID") 
+    @Column(name = "sourceID")
+    @JsonProperty(access = Access.WRITE_ONLY)
     private Integer sourceId;
 
     @Column(name = "t1_is_active", updatable= false)

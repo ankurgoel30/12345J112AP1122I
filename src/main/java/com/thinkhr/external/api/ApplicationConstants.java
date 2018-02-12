@@ -38,7 +38,7 @@ public class ApplicationConstants {
     public static final String COMPANY_TYPE_BROKER = "broker_partner";
     
     public static final int MAX_RECORDS_COMPANY_CSV_IMPORT = 3500;
-    public static final int MAX_RECORDS_USER_CSV_IMPORT = 500;
+    public static final int MAX_RECORDS_USER_CSV_IMPORT = 4500;
     public static final String SPACE = " ";
 
     public static final String DEFAULT_BROKER_ID = "187624";

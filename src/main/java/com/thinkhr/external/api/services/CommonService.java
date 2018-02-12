@@ -19,6 +19,7 @@ import javax.validation.Validation;
 import javax.validation.Validator;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import com.fasterxml.jackson.databind.JsonNode;
@@ -39,6 +40,7 @@ import com.thinkhr.external.api.learn.repositories.LearnRoleRepository;
 import com.thinkhr.external.api.learn.repositories.LearnUserRepository;
 import com.thinkhr.external.api.learn.repositories.PackageRepository;
 import com.thinkhr.external.api.model.AppAuthData;
+import com.thinkhr.external.api.model.CsvModel;
 import com.thinkhr.external.api.repositories.CompanyRepository;
 import com.thinkhr.external.api.repositories.ConfigurationRepository;
 import com.thinkhr.external.api.repositories.CustomFieldsRepository;
@@ -111,6 +113,9 @@ public class CommonService {
 
     @Autowired
     protected SetPasswordRequestRepository setPasswordRepository;
+    
+    @Value("${com.thinkhr.external.api.threadpool.size}")
+    protected Integer threadPoolSize;
     
     @PersistenceContext
     protected EntityManager entityManager;
