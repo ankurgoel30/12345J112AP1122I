@@ -10,6 +10,7 @@ import org.springframework.http.HttpStatus;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.thinkhr.external.api.request.APIRequestHelper;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -39,19 +40,19 @@ public class FileImportResult {
     @JsonInclude(JsonInclude.Include.NON_EMPTY)
     private List<FailedRecord> failedRecords = new ArrayList<FailedRecord>();
 
-    public void increamentSuccessRecords() {
+    public synchronized void increamentSuccessRecords() {
         numSuccessRecords++;
     }
 
-    public void increamentFailedRecords() {
+    public synchronized void increamentFailedRecords() {
         numFailedRecords++;
     }
     
-    public void increamentBlankRecords() {
+    public synchronized void increamentBlankRecords() {
         numBlankRecords++;
     }
 
-    public void addFailedRecord(String record, String failureCause, String info) {
+    public synchronized void addFailedRecord(String record, String failureCause, String info) {
         increamentFailedRecords();
         this.getFailedRecords().add(new FailedRecord(recCount++, record, failureCause, info));
     }
@@ -145,5 +146,17 @@ public class FileImportResult {
             return HttpStatus.BAD_REQUEST;
         } else 
             return HttpStatus.MULTI_STATUS;
+    }
+    
+    /**
+     * 
+     * @param csvModel
+     * @param brokerId
+     */
+    public void initialize(CsvModel csvModel,Integer brokerId) {
+        this.setTotalRecords(csvModel.getRecords().size());
+        this.setHeaderLine(csvModel.getHeaderLine());
+        this.setBrokerId(brokerId);
+        this.setJobId((String) APIRequestHelper.getRequestAttribute("jobId"));
     }
 }

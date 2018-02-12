@@ -3,9 +3,7 @@ package com.thinkhr.external.api.services;
 import static com.thinkhr.external.api.ApplicationConstants.COMMA_SEPARATOR;
 import static com.thinkhr.external.api.ApplicationConstants.COMPANY;
 import static com.thinkhr.external.api.ApplicationConstants.DEFAULT_SORT_BY_COMPANY_NAME;
-import static com.thinkhr.external.api.ApplicationConstants.REQUIRED_HEADERS_COMPANY_CSV_IMPORT;
 import static com.thinkhr.external.api.services.utils.EntitySearchUtil.getPageable;
-import static com.thinkhr.external.api.services.utils.FileImportUtil.validateAndGetContentFromModel;
 import static com.thinkhr.external.api.utils.ApiTestDataUtil.createBulkCompanies;
 import static com.thinkhr.external.api.utils.ApiTestDataUtil.createCompany;
 import static com.thinkhr.external.api.utils.ApiTestDataUtil.createCustomFieldsList;
@@ -22,7 +20,6 @@ import static org.powermock.api.mockito.PowerMockito.mockStatic;
 
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.sql.DataTruncation;
 import java.util.ArrayList;
@@ -419,13 +416,12 @@ public class CompanyServiceTest {
     public void testBulkUpload_NoFailedRecords() {
         int brokerId = 12345;
         Company testdataBroker = ApiTestDataUtil.createCompany();
-        CompanyService companyServiceSpy = Mockito.spy(new CompanyService());
+        CompanyService companyServiceSpy = Mockito.spy(companyService);
         Mockito.doReturn(testdataBroker).when(companyServiceSpy).validateBrokerId(brokerId);
 
         FileImportResult fileImportResultTestData = ApiTestDataUtil.createFileImportResultWithNoFailedRecords();
 
-        Mockito.doReturn(fileImportResultTestData).when(companyServiceSpy).processRecords(Matchers.any(),
-                Matchers.any());
+        Mockito.doReturn(fileImportResultTestData).when(companyServiceSpy).processCsvModel(Matchers.any(), Matchers.any());
 
         MultipartFile fileToImport = null;
         try {
@@ -453,13 +449,12 @@ public class CompanyServiceTest {
     public void testBulkUpload_FailedRecords() {
         int brokerId = 12345;
         Company testdataBroker = ApiTestDataUtil.createCompany();
-        CompanyService companyServiceSpy = Mockito.spy(new CompanyService());
+        CompanyService companyServiceSpy = Mockito.spy(companyService);
         Mockito.doReturn(testdataBroker).when(companyServiceSpy).validateBrokerId(brokerId);
 
         FileImportResult fileImportResultTestData = ApiTestDataUtil.createFileImportResultWithFailedRecords();
 
-        Mockito.doReturn(fileImportResultTestData).when(companyServiceSpy).processRecords(Matchers.any(),
-                Matchers.any());
+        Mockito.doReturn(fileImportResultTestData).when(companyServiceSpy).processCsvModel(Matchers.any(), Matchers.any());
 
         MultipartFile fileToImport = null;
         try {
@@ -490,14 +485,13 @@ public class CompanyServiceTest {
     public void testBulkUpload_UnmappedCustomHeadersException() {
         int brokerId = 12345;
         Company testdataBroker = ApiTestDataUtil.createCompany();
-        CompanyService companyServiceSpy = Mockito.spy(new CompanyService());
+        CompanyService companyServiceSpy = Mockito.spy(companyService);
         Mockito.doReturn(testdataBroker).when(companyServiceSpy).validateBrokerId(brokerId);
 
         ApplicationException appEx = ApplicationException.createBulkImportError(APIErrorCodes.UNMAPPED_CUSTOM_HEADERS,
                 StringUtils.join(new String[] { "NAME", "AGE" }, COMMA_SEPARATOR));
 
-        Mockito.doThrow(appEx).when(companyServiceSpy).processRecords(Matchers.any(),
-                Matchers.any());
+        Mockito.doThrow(appEx).when(companyServiceSpy).processCsvModel(Matchers.any(), Matchers.any());
 
         MultipartFile fileToImport = null;
         try {
@@ -544,13 +538,12 @@ public class CompanyServiceTest {
     public void testBulkUpload_NoFailedRecordsForJsonInput() {
         int brokerId = 12345;
         Company testdataBroker = ApiTestDataUtil.createCompany();
-        CompanyService companyServiceSpy = Mockito.spy(new CompanyService());
+        CompanyService companyServiceSpy = Mockito.spy(companyService);
         Mockito.doReturn(testdataBroker).when(companyServiceSpy).validateBrokerId(brokerId);
 
         FileImportResult fileImportResultTestData = ApiTestDataUtil.createFileImportResultWithNoFailedRecords();
 
-        Mockito.doReturn(fileImportResultTestData).when(companyServiceSpy).processRecords(Matchers.any(),
-                Matchers.any());
+        Mockito.doReturn(fileImportResultTestData).when(companyServiceSpy).processCsvModel(Matchers.any(), Matchers.any());
 
         List<BulkJsonModel> companies = createBulkCompanies();
 
@@ -570,13 +563,12 @@ public class CompanyServiceTest {
     public void testBulkUpload_FailedRecordsForJsonInput() {
         int brokerId = 12345;
         Company testdataBroker = ApiTestDataUtil.createCompany();
-        CompanyService companyServiceSpy = Mockito.spy(new CompanyService());
+        CompanyService companyServiceSpy = Mockito.spy(companyService);
         Mockito.doReturn(testdataBroker).when(companyServiceSpy).validateBrokerId(brokerId);
 
         FileImportResult fileImportResultTestData = ApiTestDataUtil.createFileImportResultWithFailedRecords();
 
-        Mockito.doReturn(fileImportResultTestData).when(companyServiceSpy).processRecords(Matchers.any(),
-                Matchers.any());
+        Mockito.doReturn(fileImportResultTestData).when(companyServiceSpy).processCsvModel(Matchers.any(), Matchers.any());
 
         List<BulkJsonModel> companies = createBulkCompanies();
 
@@ -689,7 +681,6 @@ public class CompanyServiceTest {
     @Test
     public void testPopulateAndSaveToDB_RecordSave_Success() {
         FileImportResult fileImportResult = new FileImportResult();
-        int recCount = 13;
         String record = "Test Record";
 
         mockStatic(FileImportUtil.class);
@@ -728,7 +719,7 @@ public class CompanyServiceTest {
         when(learnCompanyService.addLearnCompanyForBulk(Matchers.any())).thenReturn(1);
 
         companyService.populateAndSaveToDB(record, companyColumnsToHeaderMap, locationColumnsToHeaderMap, headerIndexMap,
-                fileImportResult, recCount);
+                fileImportResult);
 
         assertEquals(1, fileImportResult.getNumSuccessRecords());
     }
@@ -740,7 +731,6 @@ public class CompanyServiceTest {
     @Test
     public void testPopulateAndSaveToDB_RecordSave_Failed() {
         FileImportResult fileImportResult = new FileImportResult();
-        int recCount = 13;
         String record = "Test Record";
 
         mockStatic(FileImportUtil.class);
@@ -773,8 +763,7 @@ public class CompanyServiceTest {
         ex.initCause(new DataTruncation(0, true, true, 12, 13));
         Mockito.doThrow(ex).when(fileDataRepository).saveCompanyRecord(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any());
 
-        companyService.populateAndSaveToDB(record, companyColumnsToHeaderMap, locationColumnsToHeaderMap, headerIndexMap, fileImportResult,
-                recCount);
+        companyService.populateAndSaveToDB(record, companyColumnsToHeaderMap, locationColumnsToHeaderMap, headerIndexMap, fileImportResult);
 
         assertEquals(expectedSuccessCount, fileImportResult.getNumSuccessRecords());
         assertEquals(expectedFailureCount, fileImportResult.getNumFailedRecords());
@@ -787,7 +776,6 @@ public class CompanyServiceTest {
     @Test
     public void testPopulateAndSaveToDB_MissingFieldExcepion() {
         FileImportResult fileImportResult = new FileImportResult();
-        int recCount = 13;
         String record = "Test Record";
 
         mockStatic(FileImportUtil.class);
@@ -810,123 +798,13 @@ public class CompanyServiceTest {
         int expectedFailureCount = fileImportResult.getNumFailedRecords() + 1;
         int expectedFailedRecordsListSize = fileImportResult.getFailedRecords().size() + 1;
         
-        companyService.populateAndSaveToDB(record, companyColumnsToHeaderMap, locationColumnsToHeaderMap, headerIndexMap, fileImportResult,
-                recCount);
+        companyService.populateAndSaveToDB(record, companyColumnsToHeaderMap, locationColumnsToHeaderMap, headerIndexMap, fileImportResult);
         
         assertEquals(expectedSuccessCount, fileImportResult.getNumSuccessRecords());
         assertEquals(expectedFailureCount, fileImportResult.getNumFailedRecords());
         assertEquals(expectedFailedRecordsListSize, fileImportResult.getFailedRecords().size());
     }
 
-    /**
-     * Test process records when validateAndFilterCustomHeaders throws unmapped headers exception
-     */
-    @Test
-    public void testProcessRecords_UnmappedHeaderException() {
-        int companyId = 12345;
-        List<String> records = ApiTestDataUtil.getCsvRecords();
-        Company broker = ApiTestDataUtil.createCompany();
-        broker.setCompanyId(companyId);
-
-        String[] customHeaders = new String[] { "CLIENT_TYPE", "BUSINESS_ID" };
-        ApplicationException expectedException = ApplicationException.createBulkImportError(APIErrorCodes.UNMAPPED_CUSTOM_HEADERS,
-                StringUtils.join(customHeaders, COMMA_SEPARATOR));
-
-        // Mock validateAndFilterCustomHeaders to throw exception for UNMAPPED_CUSTOM_HEADERS
-        try {
-            mockStatic(FileImportUtil.class);
-
-            PowerMockito.doThrow(expectedException).when(FileImportUtil.class, "validateAndFilterCustomHeaders", Matchers.any(),
-                    Matchers.any(), Matchers.any(), Matchers.any());
-
-        } catch (Exception e) {
-            fail("Exception not expected");
-        }
-
-        // Mock appendRequiredAndCustomHeaderMap to return desired test data
-        Map<String, String> columnToHeaderMap = ApiTestDataUtil.getColumnsToHeadersMapForComapny();
-        CompanyService companyServiceSpy = Mockito.spy(new CompanyService());
-        Mockito.doReturn(columnToHeaderMap).when(companyServiceSpy)
-                .appendRequiredAndCustomHeaderMap(Matchers.anyInt(),
-                        Matchers.anyString());
-
-        // Call processRecords and expect the mocked exception thrown by validateAndFilterCustomHeaders
-        try {
-            companyServiceSpy.processRecords(records, broker);
-        } catch (ApplicationException ex) {
-            assertNotNull(ex);
-            assertEquals(APIErrorCodes.UNMAPPED_CUSTOM_HEADERS, ex.getApiErrorCode());
-        }
-    }
-
-    /**
-     * Test process records for bank csv records
-     */
-    @Test
-    public void testProcessRecords_BlankRecords() {
-        List<String> records = ApiTestDataUtil.getBlankCsvRecordsForCompany();
-        Company broker = ApiTestDataUtil.createCompany();
-        int companyId = 12345;
-        broker.setCompanyId(companyId);
-
-        // Mock validateAndFilterCustomHeaders to doNothing
-        try {
-            mockStatic(FileImportUtil.class);
-
-            PowerMockito.doNothing().when(FileImportUtil.class, "validateAndFilterCustomHeaders", Matchers.any(),
-                    Matchers.any(), Matchers.any(), Matchers.any());
-
-        } catch (Exception e) {
-            fail("Exception not expected");
-        }
-
-        Map<String, String> columnToHeaderMap = ApiTestDataUtil
-                .getColumnsToHeadersMapForComapny();
-        CompanyService companyServiceSpy = Mockito.spy(new CompanyService());
-        Mockito.doReturn(columnToHeaderMap).when(companyServiceSpy)
-                .appendRequiredAndCustomHeaderMap(Matchers.anyInt(),
-                        Matchers.anyString());
-
-        // call processRecords
-        FileImportResult fileImportResult = companyServiceSpy.processRecords(records, broker);
-
-        assertEquals(3, fileImportResult.getNumBlankRecords());
-    }
-
-    /**
-     * Test process records for Null Broker
-     */
-    @Test
-    public void testProcessRecords_NullBroker() {
-        List<String> records = ApiTestDataUtil.getBlankCsvRecordsForCompany();
-        Company broker = null;
-
-        try {
-            companyService.processRecords(records, broker);
-        } catch (ApplicationException appExp) {
-            assertNotNull(appExp);
-            assertEquals(APIErrorCodes.INVALID_BROKER_ID, appExp.getApiErrorCode());
-        }
-    }
-
-    /**
-     * Test processRecords for Null Records
-     */
-    @Test
-    public void testProcessRecords_NullRecords() {
-        List<String> records = null;
-        Company broker = ApiTestDataUtil.createCompany();
-        int companyId = 12345;
-        broker.setCompanyId(companyId);
-
-        try {
-            companyService.processRecords(records, broker);
-        } catch (ApplicationException appExp) {
-            assertNotNull(appExp);
-            assertEquals(APIErrorCodes.NO_RECORDS_FOUND_FOR_IMPORT, appExp.getApiErrorCode());
-        }
-    }
-    
     /**
      * Test SaveCompanyRecord
      */
