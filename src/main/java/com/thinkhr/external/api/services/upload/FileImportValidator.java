@@ -207,7 +207,7 @@ public class FileImportValidator {
             FileImportResult fileImportResult,
             MessageResourceHandler resourceHandler) {
 
-        if (phoneNo == null || phoneNo.length() != 10) {
+        if (!StringUtils.isBlank(phoneNo) && phoneNo.length() != 10) { 
             fileImportResult.addFailedRecord(record,
                     getMessageFromResourceBundle(resourceHandler, APIErrorCodes.INVALID_PHONE, phoneNo),
                     getMessageFromResourceBundle(resourceHandler, APIErrorCodes.SKIPPED_RECORD));

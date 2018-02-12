@@ -1,7 +1,6 @@
 package com.thinkhr.external.api.services;
 
 import static com.thinkhr.external.api.ApplicationConstants.CLIENT;
-import static com.thinkhr.external.api.ApplicationConstants.COMMA_SEPARATOR;
 import static com.thinkhr.external.api.ApplicationConstants.COMPANY;
 import static com.thinkhr.external.api.ApplicationConstants.COMPANY_COLUMN_ADDEDBY;
 import static com.thinkhr.external.api.ApplicationConstants.COMPANY_COLUMN_BROKER;
@@ -21,11 +20,9 @@ import static com.thinkhr.external.api.services.upload.FileImportValidator.valid
 import static com.thinkhr.external.api.services.utils.CommonUtil.getTempId;
 import static com.thinkhr.external.api.services.utils.EntitySearchUtil.getEntitySearchSpecification;
 import static com.thinkhr.external.api.services.utils.EntitySearchUtil.getPageable;
-import static com.thinkhr.external.api.services.utils.FileImportUtil.getRequiredHeaders;
 import static com.thinkhr.external.api.services.utils.FileImportUtil.getValueFromRow;
 import static com.thinkhr.external.api.services.utils.FileImportUtil.populateColumnValues;
 import static com.thinkhr.external.api.services.utils.FileImportUtil.setRequestParamsForBulkJsonResponse;
-import static com.thinkhr.external.api.services.utils.FileImportUtil.validateAndFilterCustomHeaders;
 import static com.thinkhr.external.api.services.utils.FileImportUtil.validateAndGetContentFromModel;
 
 import java.io.IOException;
@@ -56,8 +53,8 @@ import com.thinkhr.external.api.db.entities.User;
 import com.thinkhr.external.api.exception.APIErrorCodes;
 import com.thinkhr.external.api.exception.ApplicationException;
 import com.thinkhr.external.api.model.BulkJsonModel;
+import com.thinkhr.external.api.model.CsvModel;
 import com.thinkhr.external.api.model.FileImportResult;
-import com.thinkhr.external.api.request.APIRequestHelper;
 import com.thinkhr.external.api.response.APIResponse;
 import com.thinkhr.external.api.services.upload.FileUploadEnum;
 import com.thinkhr.external.api.services.utils.CommonUtil;
@@ -74,7 +71,7 @@ import com.thinkhr.external.api.services.utils.CommonUtil;
  */
 
 @Service
-public class CompanyService  extends CommonService {
+public class CompanyService  extends ImportService {
 
     @Autowired
     protected LearnCompanyService learnCompanyService;
@@ -369,7 +366,28 @@ public class CompanyService  extends CommonService {
         	fileContents = validateAndGetContentFromModel(companies, resource);
         }
         
-        FileImportResult fileImportResult = processRecords (fileContents, broker);
+        if (fileContents == null) {
+            throw ApplicationException.createBulkImportError(APIErrorCodes.NO_RECORDS_FOUND_FOR_IMPORT, null);
+        }
+
+        if (broker == null || broker.getCompanyId() == null) {
+            throw ApplicationException.createBulkImportError(APIErrorCodes.INVALID_BROKER_ID, "null");
+        }
+        
+        CsvModel csvModel = new CsvModel();
+        csvModel.initialize(fileContents, broker.getCompanyId());
+        
+        Map<String, Map<String, String>> combinedHashMap = new HashMap<String, Map<String,String>>();
+        
+        //DO not assume that CSV file contains fixed column position. Let's read and map then with database column
+        Map<String, String> companyFileHeaderMap = appendRequiredAndCustomHeaderMap(broker.getCompanyId(), resource);
+        Map<String, String> locationFileHeaderColumnMap = FileUploadEnum.prepareColumnHeaderMap(LOCATION);
+        combinedHashMap.put(COMPANY, companyFileHeaderMap);
+        combinedHashMap.put(LOCATION, locationFileHeaderColumnMap);
+        
+        csvModel.setHeaderVsColumnMap(combinedHashMap);
+        
+        FileImportResult fileImportResult = processCsvModel(resource, csvModel);
         
         if(!CollectionUtils.isEmpty(companies)){
             setRequestParamsForBulkJsonResponse(fileImportResult);
@@ -377,90 +395,6 @@ public class CompanyService  extends CommonService {
         
         return fileImportResult;
 
-    }
-
-    /**
-     * Process imported file to save companies records in database
-     *  
-     * @param records
-     * @param brokerId
-     * @param resource
-     * @throws ApplicationException
-     */
-    FileImportResult processRecords(List<String> records, 
-            Company broker) throws ApplicationException {
-
-        if (records == null) {
-            throw ApplicationException.createBulkImportError(APIErrorCodes.NO_RECORDS_FOUND_FOR_IMPORT, null);
-        }
-
-        if (broker == null || broker.getCompanyId() == null) {
-            throw ApplicationException.createBulkImportError(APIErrorCodes.INVALID_BROKER_ID, "null");
-        }
-
-        FileImportResult fileImportResult = new FileImportResult();
-
-        String headerLine = records.get(0);
-        records.remove(0);
-
-        fileImportResult.setTotalRecords(records.size());
-        fileImportResult.setHeaderLine(headerLine);
-        fileImportResult.setBrokerId(broker.getCompanyId());
-        fileImportResult.setJobId((String) APIRequestHelper.getRequestAttribute("jobId"));
-
-        String[] headersInCSV = headerLine.split(COMMA_SEPARATOR);
-
-        //DO not assume that CSV file shall contains fixed column position. Let's read and map then with database column
-        Map<String, String> companyFileHeaderColumnMap = appendRequiredAndCustomHeaderMap(broker.getCompanyId(), resource); 
-
-        Map<String, String> locationFileHeaderColumnMap = FileUploadEnum.prepareColumnHeaderMap(LOCATION);
-
-        //Check every custom field from imported file has a corresponding column in database. If not, return error here.
-        String[] requiredHeaders = getRequiredHeaders(resource);
-        validateAndFilterCustomHeaders(headersInCSV, companyFileHeaderColumnMap.values(), requiredHeaders, resourceHandler);
-
-        Map<String, Integer> headerIndexMap = new HashMap<String, Integer>();
-        for (int i = 0; i < headersInCSV.length; i++) {
-            headerIndexMap.put(headersInCSV[i], i);
-        }
-
-        int recCount = 0;
-
-        for (String record : records ) {
-            
-            if (StringUtils.isEmpty(StringUtils.deleteWhitespace(record).replaceAll(",", ""))) {
-                fileImportResult.increamentBlankRecords();
-                continue; //skip any fully blank line 
-            }
-
-            List<String> requiredFields = getRequiredHeadersFromStdFields(CLIENT);
-
-            if (!validateRequired(record, requiredFields, headerIndexMap, fileImportResult, resourceHandler)) {
-                continue;
-            }
-          
-            //Check to validate duplicate record
-            if (checkDuplicate(record, fileImportResult, broker.getCompanyId(), headerIndexMap)) {
-                continue;
-            }
-
-            String phone = getValueFromRow(record, headerIndexMap.get(FileUploadEnum.COMPANY_PHONE.getHeader()));
-            if (!validatePhone(record, phone, fileImportResult, resourceHandler)) {
-                continue;
-            }
-
-            populateAndSaveToDB(record, companyFileHeaderColumnMap,
-                    locationFileHeaderColumnMap,
-                    headerIndexMap,
-                    fileImportResult,
-                    recCount);
-        }
-
-        if (logger.isDebugEnabled()) {
-            logger.debug(fileImportResult.toString());
-        }
-
-        return fileImportResult;
     }
 
 
@@ -479,8 +413,7 @@ public class CompanyService  extends CommonService {
             Map<String, String> companyFileHeaderColumnMap, 
             Map<String, String> locationFileHeaderColumnMap, 
             Map<String, Integer> headerIndexMap,
-            FileImportResult fileImportResult, 
-            int recCount) {
+            FileImportResult fileImportResult) {
 
         List<Object> companyColumnsValues = null;
         List<Object> locationColumnsValues = null;
@@ -678,6 +611,50 @@ public class CompanyService  extends CommonService {
         
         // Deleting users records from learn DB
         learnUserRepository.deleteByThrUserIdIn(userIdList); 
+    }
+
+    /**
+     * 
+     * @param csvModel
+     * @param recordIndex
+     * @param brokerId
+     */
+    @Override
+    public void addRecordForBulk(CsvModel csvModel, Integer recordIndex, Integer brokerId) {
+        
+        FileImportResult fileImportResult = csvModel.getImportResult();
+        String record = csvModel.getRecords().get(recordIndex);
+        Map<String, Integer> headerIndexMap = csvModel.getHeaderIndexMap();
+        Map<String, Map<String, String>> headerVsColumnMap = csvModel.getHeaderVsColumnMap();
+
+        Map<String, String> companyHeaderVsColumnMap = headerVsColumnMap.get(COMPANY);
+        Map<String, String> locationHeaderVsColumnMap = headerVsColumnMap.get(LOCATION);
+
+        if (StringUtils.containsOnly(record, new char[] { ',', ' ' })) {
+            fileImportResult.increamentBlankRecords();
+            return; //skip any fully blank line 
+        }
+        
+        List<String> requiredFields = getRequiredHeadersFromStdFields(CLIENT);
+
+        if (!validateRequired(record, requiredFields, headerIndexMap, fileImportResult, resourceHandler)) {
+            return;
+        }
+      
+        //Check to validate duplicate record
+        if (checkDuplicate(record, fileImportResult, brokerId, headerIndexMap)) {
+            return;
+        }
+
+        String phone = getValueFromRow(record, headerIndexMap.get(FileUploadEnum.COMPANY_PHONE.getHeader()));
+        if (!validatePhone(record, phone, fileImportResult, resourceHandler)) {
+            return;
+        }
+
+        populateAndSaveToDB(record, companyHeaderVsColumnMap,
+                locationHeaderVsColumnMap,
+                headerIndexMap,
+                fileImportResult);
     }
 
 }
