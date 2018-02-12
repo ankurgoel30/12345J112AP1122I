@@ -2,6 +2,7 @@ package com.thinkhr.external.api.services;
 
 import static com.thinkhr.external.api.ApplicationConstants.CONTACT;
 import static com.thinkhr.external.api.ApplicationConstants.DEFAULT_SORT_BY_USER_NAME;
+import static com.thinkhr.external.api.ApplicationConstants.MAX_SENDGRID_PERSONALISATION;
 import static com.thinkhr.external.api.ApplicationConstants.ROLE_ID_FOR_INACTIVE;
 import static com.thinkhr.external.api.ApplicationConstants.SPACE;
 import static com.thinkhr.external.api.ApplicationConstants.SUCCESS_DELETED;
@@ -563,7 +564,16 @@ public class UserService extends ImportService {
             return;
         }
 
-        emailService.createAndSendEmail(companyId, userList);
+        List<User> tempUserList = new ArrayList<User>();
+        int counter = 0;
+        for (User user : userList) {
+            tempUserList.add(user);
+            if (tempUserList.size() % MAX_SENDGRID_PERSONALISATION == 0 || counter == userList.size() - 1) {
+                emailService.createAndSendEmail(companyId, tempUserList);
+                tempUserList = new ArrayList<User>();
+            }
+            counter++;
+        }
     }
 
     /**
