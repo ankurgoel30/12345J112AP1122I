@@ -564,6 +564,8 @@ public class UserService extends ImportService {
             return;
         }
 
+        // Sendgrid has limit of maximum 1000 personalisation in a single mail request.
+        // So here dividing the users in chunks of 1000
         List<User> tempUserList = new ArrayList<User>();
         int counter = 0;
         for (User user : userList) {
