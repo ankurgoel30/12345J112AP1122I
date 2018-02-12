@@ -224,7 +224,7 @@ public class ConfigurationService extends CommonService {
         }
         
         //Modification done as master configuration cannot be created via this API
-        configuration.setMasterConfiguration(null);
+        configuration.setMasterConfiguration(0);
         
         configuration.setCreated((int) (System.currentTimeMillis() / 1000L));
         
