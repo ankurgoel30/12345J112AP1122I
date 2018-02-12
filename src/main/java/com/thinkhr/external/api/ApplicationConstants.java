@@ -47,6 +47,7 @@ public class ApplicationConstants {
     public static final String COMMA_SEPARATOR = ",";
     public static final String QUERY_SEPARATOR = "?";
     public static final String FAILED_COLUMN_TO_IMPORT = "FAILURE_REASON";
+    public static final String SKUS_FIELD = "skus";
 
     //Paychex has special treatment for determining duplicate records
     public static final Integer SPECIAL_CASE_BROKER1 = 187624;

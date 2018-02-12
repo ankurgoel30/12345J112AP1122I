@@ -34,12 +34,6 @@ public interface ConfigurationRepository
     public Configuration findFirstByConfigurationIdAndCompanyId(Integer configurationId, Integer companyId);
 
     /**
-     * @param brokerId
-     * @return
-     */
-    public List<Configuration> findByCompanyId(Integer brokerId);
-
-    /**
      * Soft Delete Configuration
      * 
      * @param configurationId
