@@ -652,7 +652,7 @@ public class CompanyService  extends ImportService {
         }
 
         String phone = getValueFromRow(record, headerIndexMap.get(FileUploadEnum.COMPANY_PHONE.getHeader()));
-        if (!validatePhone(record, phone, fileImportResult, resourceHandler)) {
+        if (!validatePhone(COMPANY, record, phone, fileImportResult, resourceHandler)) {
             return;
         }
 
