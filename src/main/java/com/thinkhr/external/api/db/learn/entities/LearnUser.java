@@ -55,7 +55,7 @@ public class LearnUser {
     private String email;
     
     @Column(name="phone1")
-    @Size(max = 10, min = 10)
+    @Size(max = 20)
     private String phone1;
     
     @Column(name="companyid")
