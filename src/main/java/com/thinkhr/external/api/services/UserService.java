@@ -557,7 +557,6 @@ public class UserService extends ImportService {
      * @param broker
      * @param jobId
      */
-    @Async
     private void sendMail(Integer companyId, String jobId) throws ApplicationException {
         
         List<User> userList = userRepository.findByAddedBy(jobId);
@@ -566,18 +565,7 @@ public class UserService extends ImportService {
             return;
         }
 
-        // Sendgrid has limit of maximum 1000 personalisation in a single mail request.
-        // So here dividing the users in chunks of 1000
-        List<User> tempUserList = new ArrayList<User>();
-        int counter = 0;
-        for (User user : userList) {
-            tempUserList.add(user);
-            if (tempUserList.size() % MAX_SENDGRID_PERSONALISATION == 0 || counter == userList.size() - 1) {
-                emailService.createAndSendEmail(companyId, tempUserList);
-                tempUserList = new ArrayList<User>();
-            }
-            counter++;
-        }
+        sendEmailToUsers(companyId, userList);
     }
 
     /**
