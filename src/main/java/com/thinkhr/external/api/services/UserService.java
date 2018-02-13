@@ -46,6 +46,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
@@ -556,6 +557,7 @@ public class UserService extends ImportService {
      * @param broker
      * @param jobId
      */
+    @Async
     private void sendMail(Integer companyId, String jobId) throws ApplicationException {
         
         List<User> userList = userRepository.findByAddedBy(jobId);

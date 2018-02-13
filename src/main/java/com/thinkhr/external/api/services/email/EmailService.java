@@ -60,7 +60,6 @@ public abstract class EmailService extends CommonService {
      * @param brokerId
      * @param users
      */
-    @Async
     public void createAndSendEmail(Integer brokerId, List<User> users) { 
         EmailRequest emailRequest = createEmailRequest(brokerId, users);
         sendEmail(emailRequest);
