@@ -238,10 +238,11 @@ public class BrokerServiceTest {
     @Test
     public void testCheckDuplicateForNoDuplicates() {
         String brokerName = "Pepcus";
+        Company company = createCompany();
         when(companyRepository.findFirstByCompanyNameAndCompanyType(brokerName, COMPANY_TYPE_BROKER)).thenReturn(null);
 
         // when no duplicate record exists in DB.
-        boolean isDuplicate = brokerService.isDuplicateCompany(brokerName, null, null);
+        boolean isDuplicate = brokerService.isDuplicateCompany(company);
         assertTrue(!isDuplicate);
     }
 
@@ -253,10 +254,11 @@ public class BrokerServiceTest {
     public void test_isDublicateCompany_True() {
         String brokerName = "Pepcus";
         Company company = createCompany();
+        company.setCompanyType(COMPANY_TYPE_BROKER); 
         when(companyRepository.findFirstByCompanyNameAndCompanyType(brokerName, COMPANY_TYPE_BROKER))
                 .thenReturn(company);
 
-        boolean isDuplicate = brokerService.isDuplicateCompany(brokerName, null, null);
+        boolean isDuplicate = brokerService.isDuplicateCompany(company);
         assertTrue(isDuplicate);
     }
 }

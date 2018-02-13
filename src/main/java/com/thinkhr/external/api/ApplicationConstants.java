@@ -47,6 +47,7 @@ public class ApplicationConstants {
     public static final String COMMA_SEPARATOR = ",";
     public static final String QUERY_SEPARATOR = "?";
     public static final String FAILED_COLUMN_TO_IMPORT = "FAILURE_REASON";
+    public static final String SKUS_FIELD = "skus";
 
     //Paychex has special treatment for determining duplicate records
     public static final Integer SPECIAL_CASE_BROKER1 = 187624;
@@ -125,4 +126,6 @@ public class ApplicationConstants {
     public static final String MASTER_CONFIG_KEY = "master";
     public static final String MASTER_CONFIG_NAME = "Master Configuration";
     public static final String DATE_PATTERN = "yyyy-MM-dd";
+
+    public static final Integer MAX_SENDGRID_PERSONALISATION = 1000;
 }

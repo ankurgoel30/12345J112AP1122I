@@ -2,9 +2,9 @@ package com.thinkhr.external.api.db.entities;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 import javax.persistence.Basic;
-import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
@@ -57,25 +57,28 @@ public class Configuration implements SearchableEntity {
     @Basic(fetch=FetchType.LAZY)
     private String description;
     
+    @JsonIgnore
     @Column(name = "created")
     private Integer created;
     
+    @JsonIgnore
     @Column(name = "updated")
     private Integer updated;
     
+    @JsonIgnore
     @Column(name = "deleted")
     private Integer deleted;
     
     @Column(name = "isMasterConfiguration" , updatable=false)
     private Integer masterConfiguration;
     
-    @ManyToMany(fetch=FetchType.LAZY, cascade = CascadeType.MERGE)
+    @ManyToMany(fetch=FetchType.LAZY)
     @JoinTable(
             name = "app_throne_configurations_skus", 
             joinColumns = { @JoinColumn(name = "configurationId") }, 
             inverseJoinColumns = { @JoinColumn(name = "skuId") }
     )
-    private List<Sku> skus;
+    private Set<Sku> skus;
     
     @Override
     @JsonIgnore

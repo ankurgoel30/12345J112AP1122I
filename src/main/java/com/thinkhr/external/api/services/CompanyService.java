@@ -253,7 +253,7 @@ public class CompanyService  extends ImportService {
 
         // Checking Duplicate company name
         if (isNew) {
-            if (isDuplicateCompany(company.getCompanyName(), company.getBroker(), company.getCustom1())) {
+            if (isDuplicateCompany(company)) {
                 throw ApplicationException.createBadRequest(APIErrorCodes.DUPLICATE_COMPANY_RECORD,
                         company.getCompanyName());
             }
@@ -287,16 +287,16 @@ public class CompanyService  extends ImportService {
      * @param custom1
      * @return
      */
-    public boolean isDuplicateCompany(String companyName, Integer brokerId, String custom1) {
+    public boolean isDuplicateCompany(Company company) {
 
         boolean isDuplicate = false;
 
-        boolean isSpecial = (brokerId.equals(ApplicationConstants.SPECIAL_CASE_BROKER1) ||
-                brokerId.equals(ApplicationConstants.SPECIAL_CASE_BROKER2)); 
+        boolean isSpecial = (company.getBroker().equals(ApplicationConstants.SPECIAL_CASE_BROKER1) ||
+                company.getBroker().equals(ApplicationConstants.SPECIAL_CASE_BROKER2)); 
         
         //find matching company by given company name and broker id
-        Company companyFromDB = companyRepository.findFirstByCompanyNameAndBroker(companyName,
-                brokerId);
+        Company companyFromDB = companyRepository.findFirstByCompanyNameAndBroker(company.getCompanyName(),
+                company.getBroker());
 
         if (null != companyFromDB) { //A DB query is must here to check duplicates in data
             if (!isSpecial) {
@@ -304,8 +304,8 @@ public class CompanyService  extends ImportService {
             }
             // handle special case of Paychex
             // find matching company by given company name, custom1 field and broker id
-            if (isSpecial && companyRepository.findFirstByCompanyNameAndCustom1AndBroker(companyName,
-                    custom1, brokerId) != null) {
+            if (isSpecial && companyRepository.findFirstByCompanyNameAndCustom1AndBroker(company.getCompanyName(),
+                    company.getCustom1(), company.getBroker()) != null) {
                 isDuplicate = true;
             }
         }
@@ -519,8 +519,13 @@ public class CompanyService  extends ImportService {
         String companyName = getValueFromRow(record, headerIndexMap.get(FileUploadEnum.COMPANY_NAME.getHeader()));
 
         String custom1Value = getValueFromRow(record, headerIndexMap.get(COMPANY_CUSTOM_HEADER1));
+        
+        Company company = new Company();
+        company.setCompanyName(companyName);
+        company.setBroker(brokerId);
+        company.setCustom1(custom1Value); 
 
-        boolean isDuplicate = isDuplicateCompany(companyName, brokerId, custom1Value);
+        boolean isDuplicate = isDuplicateCompany(company);
 
         boolean isSpecial = (brokerId.equals(ApplicationConstants.SPECIAL_CASE_BROKER1) ||
                 brokerId.equals(ApplicationConstants.SPECIAL_CASE_BROKER2)); 
@@ -647,7 +652,7 @@ public class CompanyService  extends ImportService {
         }
 
         String phone = getValueFromRow(record, headerIndexMap.get(FileUploadEnum.COMPANY_PHONE.getHeader()));
-        if (!validatePhone(record, phone, fileImportResult, resourceHandler)) {
+        if (!validatePhone(COMPANY, record, phone, fileImportResult, resourceHandler)) {
             return;
         }
 

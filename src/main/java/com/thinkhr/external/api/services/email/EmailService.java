@@ -18,8 +18,8 @@ import static com.thinkhr.external.api.services.utils.EmailUtil.prepareResetPass
 import java.util.ArrayList;
 import java.util.List;
 
-import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.scheduling.annotation.Async;
 
 import com.thinkhr.external.api.ApplicationConstants;
 import com.thinkhr.external.api.db.entities.Company;
@@ -60,6 +60,7 @@ public abstract class EmailService extends CommonService {
      * @param brokerId
      * @param users
      */
+    @Async
     public void createAndSendEmail(Integer brokerId, List<User> users) { 
         EmailRequest emailRequest = createEmailRequest(brokerId, users);
         sendEmail(emailRequest);

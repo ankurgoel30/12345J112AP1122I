@@ -81,7 +81,7 @@ public class Company implements SearchableEntity {
     private Integer broker;
 
     @NotBlank
-    @Size(max = 10 , min = 10)
+    @Size(max = 12)
     @Column(name = "Client_Phone") 
     private String companyPhone;
 
@@ -90,7 +90,8 @@ public class Company implements SearchableEntity {
     private String website;
 
     @NotNull
-    @JsonDeserialize(using = JsonDateDeSerializer.class) 
+    @JsonDeserialize(using = JsonDateDeSerializer.class)
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")  
     @Temporal(TemporalType.TIMESTAMP)
     @Column(name = "Client_Since", nullable=false) 
     private Date companySince = new Date();
