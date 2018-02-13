@@ -837,7 +837,7 @@ public class CompanyServiceTest {
         Integer roleId = 5;
         Integer configurationId = 1;
         Integer companyId = 2;
-        Configuration configuration = ApiTestDataUtil.createConfiguration(1, 2, "ABC", "test config");
+        Configuration configuration = ApiTestDataUtil.createConfiguration(1, 2, "ABC", "test config", "test description");
 
         when(configurationRepository.findFirstByConfigurationIdAndCompanyId(configurationId, companyId))
                 .thenReturn(configuration);

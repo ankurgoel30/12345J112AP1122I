@@ -18,6 +18,7 @@ import javax.persistence.ManyToMany;
 import javax.persistence.Table;
 
 import org.hibernate.annotations.Where;
+import org.hibernate.validator.constraints.NotBlank;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
@@ -45,13 +46,16 @@ public class Configuration implements SearchableEntity {
     @Column(name = "companyId" , updatable=false)
     private Integer companyId;
     
+    @NotBlank
     @Column(name = "configurationKey")
     @Basic(fetch=FetchType.LAZY)
     private String configurationKey;
     
+    @NotBlank
     @Column(name = "name")
-    private String name;
+    private String configurationName;
 
+    @NotBlank
     @Lob
     @Column(name = "description")
     @Basic(fetch=FetchType.LAZY)
