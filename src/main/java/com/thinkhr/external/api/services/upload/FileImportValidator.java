@@ -18,6 +18,7 @@ import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
 
+import com.thinkhr.external.api.ApplicationConstants;
 import com.thinkhr.external.api.exception.APIErrorCodes;
 import com.thinkhr.external.api.exception.ApplicationException;
 import com.thinkhr.external.api.exception.MessageResourceHandler;
@@ -200,13 +201,22 @@ public class FileImportValidator {
      * @param fileImportResult
      * @param resourceHandler
      */
-    public static boolean validatePhone(String record, String phoneNo,
+    public static boolean validatePhone(String resource, String record, String phoneNo,
             FileImportResult fileImportResult,
             MessageResourceHandler resourceHandler) {
 
-        if (!StringUtils.isBlank(phoneNo) && phoneNo.length() != 10) { 
+        Integer maxPhoneLength = 12;
+        if (resource == ApplicationConstants.COMPANY) {
+            maxPhoneLength = 12;
+        }
+        if (resource == ApplicationConstants.USER) {
+            maxPhoneLength = 20;
+        }
+
+        if (!StringUtils.isBlank(phoneNo) && phoneNo.length() > maxPhoneLength) {
             fileImportResult.addFailedRecord(record,
-                    getMessageFromResourceBundle(resourceHandler, APIErrorCodes.INVALID_PHONE, phoneNo),
+                    getMessageFromResourceBundle(resourceHandler, APIErrorCodes.INVALID_PHONE, phoneNo,
+                            String.valueOf(maxPhoneLength)),
                     getMessageFromResourceBundle(resourceHandler, APIErrorCodes.SKIPPED_RECORD));
             return false;
         }

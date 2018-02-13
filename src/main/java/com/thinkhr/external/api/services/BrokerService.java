@@ -154,13 +154,13 @@ public class BrokerService extends CompanyService {
     }
 
     /**
-     * To validate duplicate company record for client_type="broker_partner"
+     * To validate duplicate company record for client_type
      */
     @Override
-    public boolean isDuplicateCompany(String brokerName, Integer brokerId, String custom1) {
-        //find matching company by given company name and company type = 'broker_partner'
-        Company companyFromDB = companyRepository.findFirstByCompanyNameAndCompanyType(brokerName,
-                COMPANY_TYPE_BROKER);
+    public boolean isDuplicateCompany(Company company) {
+        //find matching company by given company name and company type
+        Company companyFromDB = companyRepository.findFirstByCompanyNameAndCompanyType(company.getCompanyName(),
+                company.getCompanyType());
 
         return companyFromDB == null ? false : true;
     }
