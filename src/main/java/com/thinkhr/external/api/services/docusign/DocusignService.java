@@ -9,6 +9,7 @@ import org.springframework.stereotype.Service;
 import com.docusign.esign.api.AuthenticationApi;
 import com.docusign.esign.api.EnvelopesApi;
 import com.docusign.esign.client.ApiClient;
+import com.docusign.esign.client.ApiException;
 import com.docusign.esign.client.Configuration;
 import com.docusign.esign.model.EnvelopeDefinition;
 import com.docusign.esign.model.EnvelopeSummary;
@@ -19,7 +20,7 @@ import com.docusign.esign.model.Recipients;
 import com.docusign.esign.model.TemplateRole;
 import com.docusign.esign.model.ViewUrl;
 import com.thinkhr.external.api.model.SignatureRequest;
-import com.thinkhr.external.api.model.SignerViewRequest;
+import com.thinkhr.external.api.model.Signer;
 
 /**
  * Service class for Docusign related functionality
@@ -43,8 +44,14 @@ public class DocusignService {
 
     private LoginAccount docusignLoginAccount;
 
-    private static String templateId = "13c0637e-da20-4b18-8b1c-30979d1329d9";
-    private static String templateRoleName = "Admin";
+    @Value("${docusign.templateId}")
+    private String templateId;
+
+    @Value("${docusign.templateRoleName}")
+    private String templateRoleName;
+    
+    @Value("${docusign.returnUrl}")
+    private String returnUrl;
 
     /**
      * 
@@ -101,9 +108,10 @@ public class DocusignService {
      * @param templateRoleName
      * @param users
      * @return
+     * @throws ApiException 
      */
-    public Recipients requestSignatureFromTemplate(SignatureRequest signatureRequest) {
-        // Autheticate to Docusign Account for accessing docusign APIs
+    public EnvelopeSummary requestSignatureFromTemplate(SignatureRequest signatureRequest) throws ApiException {
+        // Authenticate to Docusign Account for accessing docusign APIs
         authenticateDocuSign();
 
         //===============================================================================
@@ -115,13 +123,13 @@ public class DocusignService {
         envDef.setEmailSubject("Please sign this document");
 
         // assign template information including ID and role(s)
-        envDef.setTemplateId(signatureRequest.getTemplateId());
+        envDef.setTemplateId(templateId);
 
         // create a template role with a valid templateId and roleName and assign signer info
         List<TemplateRole> templateRolesList = new ArrayList<TemplateRole>();
         signatureRequest.getSigners().stream().forEach(signer -> {
             TemplateRole tRole = new TemplateRole();
-            tRole.setRoleName(signatureRequest.getTemplateRoleName());
+            tRole.setRoleName(templateRoleName);
             tRole.setName(signer.getName());
             tRole.setEmail(signer.getEmail());
             tRole.setClientUserId(signer.getClientId());
@@ -149,18 +157,18 @@ public class DocusignService {
             System.out.println("EnvelopeSummary: " + envelopeSummary);
         } catch (com.docusign.esign.client.ApiException ex) {
             System.out.println("Exception: " + ex);
+            throw ex;
         }
 
-        Recipients recipients = getRecipients(envelopeSummary.getEnvelopeId());
-
-        return recipients;
+        return envelopeSummary;
     }
 
     /**
-     * 
+     * Get the recipients and their status for the given envelope
      * @param envelopeId
+     * @throws ApiException 
      */
-    public Recipients getRecipients(String envelopeId) {
+    public Signer getRecipientsStatus(String envelopeId, Signer signer) throws ApiException {
         // Autheticate to Docusign Account for accessing docusign APIs
         authenticateDocuSign();
 
@@ -175,15 +183,39 @@ public class DocusignService {
             // call the listRecipients() API
             recips = envelopesApi.listRecipients(accountId, envelopeId);
 
-            System.out.println("Recipients: " + recips);
+            List<com.docusign.esign.model.Signer> signers = recips.getSigners();
+
+            for (com.docusign.esign.model.Signer s : recips.getSigners()) {
+                if (s.getEmail().equals(signer.getEmail())) {
+                    signer.setClientId(s.getClientUserId());
+                    signer.setCustomFeilds(s.getCustomFields());
+                    signer.setDeliveryMethod(s.getDeliveryMethod());
+                    signer.setName(s.getName());
+                    signer.setRecipientId(s.getRecipientId());
+                    signer.setRoleName(s.getRoleName());
+                    signer.setSentDateTime(s.getSignedDateTime());
+                    signer.setStatus(s.getStatus());
+                    signer.setUserId(s.getUserId());
+                    break;
+                }
+            }
+
+            System.out.println("Signer: " + signer);
         } catch (com.docusign.esign.client.ApiException ex) {
             System.out.println("Exception: " + ex);
+            throw ex;
         }
 
-        return recips;
+        return signer;
     }
 
-    public ViewUrl getRecipientViewForEmbeddedSigning(SignerViewRequest request) {
+    /**
+     * This function gets the Url for Embedded signing for given envelope and signer
+     * @param request
+     * @return
+     * @throws ApiException 
+     */
+    public ViewUrl generateRecipientViewForEmbeddedSigning(String envelopeId, Signer signer) throws ApiException {
         // Autheticate to Docusign Account for accessing docusign APIs
         authenticateDocuSign();
 
@@ -197,21 +229,22 @@ public class DocusignService {
 
             // set the url where recipient need to go once they are done signing
             RecipientViewRequest returnUrl = new RecipientViewRequest();
-            returnUrl.setReturnUrl("https://www.google.com");
+            returnUrl.setReturnUrl("returnUrl");
             returnUrl.setAuthenticationMethod("email");
 
             // recipient information must match embedded recipient info we provided in step #2
-            returnUrl.setEmail(request.getSigner().getEmail());
-            returnUrl.setUserName(request.getSigner().getName());
+            returnUrl.setEmail(signer.getEmail());
+            returnUrl.setUserName(signer.getName());
             returnUrl.setRecipientId("1");
-            returnUrl.setClientUserId(request.getSigner().getClientId());
+            returnUrl.setClientUserId(signer.getClientId());
 
             // call the CreateRecipientView API
-            recipientView = envelopesApi.createRecipientView(accountId, request.getEnvelopeId(), returnUrl);
+            recipientView = envelopesApi.createRecipientView(accountId, envelopeId, returnUrl);
 
             System.out.println("ViewUrl: " + recipientView);
         } catch (com.docusign.esign.client.ApiException ex) {
             System.out.println("Exception: " + ex);
+            throw ex;
         }
 
         return recipientView;

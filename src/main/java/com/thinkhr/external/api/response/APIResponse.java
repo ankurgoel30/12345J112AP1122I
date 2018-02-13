@@ -2,13 +2,14 @@ package com.thinkhr.external.api.response;
 
 import java.util.List;
 
-import com.docusign.esign.model.Recipients;
+import com.docusign.esign.model.EnvelopeSummary;
 import com.docusign.esign.model.ViewUrl;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.thinkhr.external.api.db.entities.SearchableEntity;
 import com.thinkhr.external.api.model.FileImportResult;
+import com.thinkhr.external.api.model.Signer;
 
 import lombok.Data;
 
@@ -46,8 +47,10 @@ public class APIResponse {
     private List failedList;
     private SearchableEntity searchEntity; 
     private FileImportResult fileImportResult;
-    private Recipients recipeints;
+    private Signer signer;
+    private ViewUrl[] viewUrls;
     private ViewUrl viewUrl;
+    private EnvelopeSummary envelop;
 
 
 }

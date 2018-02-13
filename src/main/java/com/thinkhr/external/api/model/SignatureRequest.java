@@ -13,7 +13,5 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 public class SignatureRequest {
-    String templateId;
-    String templateRoleName;
     List<Signer> signers;
 }

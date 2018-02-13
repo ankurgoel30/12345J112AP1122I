@@ -48,7 +48,9 @@ public class APIResponseSerializer extends JsonSerializer<APIResponse> {
 
             serializeMessage(apiResponse, jGen);
 
-            serializeRecipients(apiResponse, jGen);
+            serializeEnvelopeSummary(apiResponse, jGen);
+
+            serializeSigner(apiResponse, jGen);
 
             serializeRecipientViewUrl(apiResponse, jGen);
 
@@ -114,10 +116,10 @@ public class APIResponseSerializer extends JsonSerializer<APIResponse> {
      * @param jGen
      * @throws IOException
      */
-    private void serializeRecipients(APIResponse apiResponse, JsonGenerator jGen) throws IOException {
-        if (apiResponse.getRecipeints() != null) {
-            jGen.writeFieldName("recipients");
-            jGen.writeObject(apiResponse.getRecipeints());
+    private void serializeSigner(APIResponse apiResponse, JsonGenerator jGen) throws IOException {
+        if (apiResponse.getSigner() != null) {
+            jGen.writeFieldName("signer");
+            jGen.writeObject(apiResponse.getSigner());
         }
     }
 
@@ -129,9 +131,27 @@ public class APIResponseSerializer extends JsonSerializer<APIResponse> {
      * @throws IOException
      */
     private void serializeRecipientViewUrl(APIResponse apiResponse, JsonGenerator jGen) throws IOException {
+        if (apiResponse.getViewUrls() != null) {
+            jGen.writeFieldName("viewUrls");
+            jGen.writeObject(apiResponse.getViewUrls());
+        }
+
         if (apiResponse.getViewUrl() != null) {
             jGen.writeFieldName("viewUrl");
             jGen.writeObject(apiResponse.getViewUrl());
+        }
+    }
+
+    /**
+     * 
+     * @param apiResponse
+     * @param jGen
+     * @throws IOException
+     */
+    private void serializeEnvelopeSummary(APIResponse apiResponse, JsonGenerator jGen) throws IOException {
+        if (apiResponse.getEnvelop() != null) {
+            jGen.writeFieldName("envelope");
+            jGen.writeObject(apiResponse.getEnvelop());
         }
     }
 
