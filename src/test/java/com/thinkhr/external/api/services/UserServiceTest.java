@@ -572,6 +572,7 @@ public class UserServiceTest {
         users.set(0, user);
         
         try {
+            userService.maxRecordsUserImport=3500;
             FileImportResult result = userService.bulkUpload(null, users,
                     brokerId);
         } catch (ApplicationException ae) {

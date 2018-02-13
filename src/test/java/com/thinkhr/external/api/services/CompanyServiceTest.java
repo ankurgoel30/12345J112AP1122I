@@ -417,6 +417,7 @@ public class CompanyServiceTest {
         int brokerId = 12345;
         Company testdataBroker = ApiTestDataUtil.createCompany();
         CompanyService companyServiceSpy = Mockito.spy(companyService);
+        companyServiceSpy.maxRecordsCompanyImport=3500;
         Mockito.doReturn(testdataBroker).when(companyServiceSpy).validateBrokerId(brokerId);
 
         FileImportResult fileImportResultTestData = ApiTestDataUtil.createFileImportResultWithNoFailedRecords();
@@ -450,6 +451,7 @@ public class CompanyServiceTest {
         int brokerId = 12345;
         Company testdataBroker = ApiTestDataUtil.createCompany();
         CompanyService companyServiceSpy = Mockito.spy(companyService);
+        companyServiceSpy.maxRecordsCompanyImport=3500;
         Mockito.doReturn(testdataBroker).when(companyServiceSpy).validateBrokerId(brokerId);
 
         FileImportResult fileImportResultTestData = ApiTestDataUtil.createFileImportResultWithFailedRecords();
@@ -486,6 +488,7 @@ public class CompanyServiceTest {
         int brokerId = 12345;
         Company testdataBroker = ApiTestDataUtil.createCompany();
         CompanyService companyServiceSpy = Mockito.spy(companyService);
+        companyServiceSpy.maxRecordsCompanyImport=3500;
         Mockito.doReturn(testdataBroker).when(companyServiceSpy).validateBrokerId(brokerId);
 
         ApplicationException appEx = ApplicationException.createBulkImportError(APIErrorCodes.UNMAPPED_CUSTOM_HEADERS,
@@ -539,6 +542,7 @@ public class CompanyServiceTest {
         int brokerId = 12345;
         Company testdataBroker = ApiTestDataUtil.createCompany();
         CompanyService companyServiceSpy = Mockito.spy(companyService);
+        companyServiceSpy.maxRecordsCompanyImport=3500;
         Mockito.doReturn(testdataBroker).when(companyServiceSpy).validateBrokerId(brokerId);
 
         FileImportResult fileImportResultTestData = ApiTestDataUtil.createFileImportResultWithNoFailedRecords();
@@ -564,6 +568,7 @@ public class CompanyServiceTest {
         int brokerId = 12345;
         Company testdataBroker = ApiTestDataUtil.createCompany();
         CompanyService companyServiceSpy = Mockito.spy(companyService);
+        companyServiceSpy.maxRecordsCompanyImport=3500;
         Mockito.doReturn(testdataBroker).when(companyServiceSpy).validateBrokerId(brokerId);
 
         FileImportResult fileImportResultTestData = ApiTestDataUtil.createFileImportResultWithFailedRecords();
