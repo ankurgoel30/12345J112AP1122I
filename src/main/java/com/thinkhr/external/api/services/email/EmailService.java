@@ -21,6 +21,7 @@ import java.util.List;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Async;
+import org.springframework.util.CollectionUtils;
 
 import com.thinkhr.external.api.ApplicationConstants;
 import com.thinkhr.external.api.db.entities.Company;
@@ -58,7 +59,13 @@ public abstract class EmailService extends CommonService {
     protected String loginUrl;
     
     @Async
-    public void sendEmailToUsers(Integer companyId, List<User> userList) {
+    public void sendEmailToUsers(Integer companyId, String jobId) {
+        List<User> userList = userRepository.findByAddedBy(jobId);
+
+        if (CollectionUtils.isEmpty(userList)) {
+            return;
+        }
+
         // Sendgrid has limit of maximum 1000 personalisation in a single mail request.
         // So here dividing the users in chunks of 1000
         List<User> tempUserList = new ArrayList<User>();

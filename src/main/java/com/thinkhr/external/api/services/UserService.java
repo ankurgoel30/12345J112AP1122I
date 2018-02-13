@@ -2,7 +2,6 @@ package com.thinkhr.external.api.services;
 
 import static com.thinkhr.external.api.ApplicationConstants.CONTACT;
 import static com.thinkhr.external.api.ApplicationConstants.DEFAULT_SORT_BY_USER_NAME;
-import static com.thinkhr.external.api.ApplicationConstants.MAX_SENDGRID_PERSONALISATION;
 import static com.thinkhr.external.api.ApplicationConstants.ROLE_ID_FOR_INACTIVE;
 import static com.thinkhr.external.api.ApplicationConstants.SPACE;
 import static com.thinkhr.external.api.ApplicationConstants.SUCCESS_DELETED;
@@ -46,7 +45,6 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
-import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
@@ -335,7 +333,7 @@ public class UserService extends ImportService {
         
         if (isSendEmailEnabled && fileImportResult.getNumSuccessRecords() > 0) {
             try {
-                sendMail(broker.getCompanyId(), fileImportResult.getJobId());
+                emailService.sendEmailToUsers(broker.getCompanyId(), fileImportResult.getJobId());
             } catch (ApplicationException ex) {
                 //TODO: Bypassing exception. 
                 logger.error("Failed to send email ", ex);
@@ -550,22 +548,6 @@ public class UserService extends ImportService {
         }
 
         return userName;
-    }
-    
-    /**
-     * This function send mails to all the users added for given jobId
-     * @param broker
-     * @param jobId
-     */
-    private void sendMail(Integer companyId, String jobId) throws ApplicationException {
-        
-        List<User> userList = userRepository.findByAddedBy(jobId);
-
-        if (CollectionUtils.isEmpty(userList)) {
-            return;
-        }
-
-        sendEmailToUsers(companyId, userList);
     }
 
     /**
