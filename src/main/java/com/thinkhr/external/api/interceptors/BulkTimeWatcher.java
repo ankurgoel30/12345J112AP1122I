@@ -63,7 +63,7 @@ public class BulkTimeWatcher {
 
     @Before("sendEmailPointcut()")
     public void sendEmailBefore(JoinPoint jp) {
-        logger.info("Hi Comiinf in sendMail");
+        logger.info("In sendEmail feature.....");
         sendEmailWatch.start();
     }
 
