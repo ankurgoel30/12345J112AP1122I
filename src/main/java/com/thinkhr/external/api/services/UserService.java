@@ -312,9 +312,9 @@ public class UserService extends ImportService {
         
         //Retrieving file contents on basis of input parameter
         if(fileToImport!=null){
-            fileContents = validateAndGetFileContent(fileToImport, resource);
+            fileContents = validateAndGetFileContent(fileToImport, resource, maxRecordsUserImport);
         }else{
-            fileContents = validateAndGetContentFromModel(users, resource);
+            fileContents = validateAndGetContentFromModel(users, resource, maxRecordsUserImport);
         }
         
         CsvModel csvModel = new CsvModel();
