@@ -333,7 +333,7 @@ public class UserService extends ImportService {
         
         if (isSendEmailEnabled && fileImportResult.getNumSuccessRecords() > 0) {
             try {
-                sendMail(broker.getCompanyId(), fileImportResult.getJobId());
+                emailService.sendEmailToUsers(broker.getCompanyId(), fileImportResult.getJobId());
             } catch (ApplicationException ex) {
                 //TODO: Bypassing exception. 
                 logger.error("Failed to send email ", ex);
@@ -548,22 +548,6 @@ public class UserService extends ImportService {
         }
 
         return userName;
-    }
-    
-    /**
-     * This function send mails to all the users added for given jobId
-     * @param broker
-     * @param jobId
-     */
-    private void sendMail(Integer companyId, String jobId) throws ApplicationException {
-        
-        List<User> userList = userRepository.findByAddedBy(jobId);
-
-        if (CollectionUtils.isEmpty(userList)) {
-            return;
-        }
-
-        emailService.createAndSendEmail(companyId, userList);
     }
 
     /**

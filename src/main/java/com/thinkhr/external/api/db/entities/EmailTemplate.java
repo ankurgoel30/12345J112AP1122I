@@ -5,6 +5,7 @@ import java.util.List;
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
@@ -39,7 +40,7 @@ public class EmailTemplate {
     @Column(name = "sendgridTemplateId", nullable = false)
     private String sendgridTemplateId;
     
-    @OneToMany(mappedBy= "emailTemplate" , cascade = CascadeType.ALL)
+    @OneToMany(mappedBy= "emailTemplate" , cascade = CascadeType.ALL , fetch = FetchType.EAGER)
     private List<EmailConfiguration> emailConfigurations;
 
 }
