@@ -265,20 +265,21 @@ public class ApiTestDataUtil {
      * @return
      */
     public static Configuration createConfiguration(Integer configurationId, Integer companyId, String configurationKey,
-            String name) {
-        return createConfiguration(configurationId, companyId, configurationKey, name, null);
+            String name, String description) {
+        return createConfiguration(configurationId, companyId, configurationKey, name, null, description);
     }
 
     public static Configuration createConfiguration(Integer configurationId, Integer companyId, String configurationKey,
-            String name, Integer master) {
+            String name, Integer master, String description) {
         Configuration configuration = new Configuration();
         if (configurationId != null) {
             configuration.setConfigurationId(configurationId);
         }
         configuration.setCompanyId(companyId);
         configuration.setConfigurationKey(configurationKey);
-        configuration.setName(name);
+        configuration.setConfigurationName(name); 
         configuration.setMasterConfiguration(master);
+        configuration.setDescription(description); 
         return configuration;
     }
     
@@ -289,9 +290,9 @@ public class ApiTestDataUtil {
      */
     public static List<Configuration> createConfigurationList(){
        
-        Configuration configuration = createConfiguration(1, 2, "ABC", "test config");
-        Configuration configuration1 = createConfiguration(2, 3, "ABC1", "test1 config");
-        Configuration configuration2 = createConfiguration(3, 4, "ABC2", "test2 config");
+        Configuration configuration = createConfiguration(1, 2, "ABC", "test config", "test description");
+        Configuration configuration1 = createConfiguration(2, 3, "ABC1", "test1 config", "test description");
+        Configuration configuration2 = createConfiguration(3, 4, "ABC2", "test2 config", "test description");
         
         List<Configuration> configurationList = new ArrayList<Configuration>();
         configurationList.add(configuration);
@@ -1779,7 +1780,7 @@ public class ApiTestDataUtil {
      */
     public static Sku createSku(Integer id){
         Sku sku = new Sku();
-        sku.setSkuId(id);
+        sku.setId(id);
         return sku;
     }
 }

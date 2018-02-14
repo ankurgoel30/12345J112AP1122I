@@ -361,9 +361,9 @@ public class CompanyService  extends ImportService {
         List<String> fileContents = null;
 
         if (null != fileToImport) {
-        	fileContents = validateAndGetFileContent(fileToImport, resource);
+        	fileContents = validateAndGetFileContent(fileToImport, resource, maxRecordsCompanyImport);
         } else {
-        	fileContents = validateAndGetContentFromModel(companies, resource);
+        	fileContents = validateAndGetContentFromModel(companies, resource, maxRecordsCompanyImport);
         }
         
         if (fileContents == null) {

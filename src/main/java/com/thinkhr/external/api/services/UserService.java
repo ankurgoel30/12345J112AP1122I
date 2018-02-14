@@ -2,7 +2,6 @@ package com.thinkhr.external.api.services;
 
 import static com.thinkhr.external.api.ApplicationConstants.CONTACT;
 import static com.thinkhr.external.api.ApplicationConstants.DEFAULT_SORT_BY_USER_NAME;
-import static com.thinkhr.external.api.ApplicationConstants.MAX_SENDGRID_PERSONALISATION;
 import static com.thinkhr.external.api.ApplicationConstants.ROLE_ID_FOR_INACTIVE;
 import static com.thinkhr.external.api.ApplicationConstants.SPACE;
 import static com.thinkhr.external.api.ApplicationConstants.SUCCESS_DELETED;
@@ -313,9 +312,9 @@ public class UserService extends ImportService {
         
         //Retrieving file contents on basis of input parameter
         if(fileToImport!=null){
-            fileContents = validateAndGetFileContent(fileToImport, resource);
+            fileContents = validateAndGetFileContent(fileToImport, resource, maxRecordsUserImport);
         }else{
-            fileContents = validateAndGetContentFromModel(users, resource);
+            fileContents = validateAndGetContentFromModel(users, resource, maxRecordsUserImport);
         }
         
         CsvModel csvModel = new CsvModel();
@@ -334,7 +333,7 @@ public class UserService extends ImportService {
         
         if (isSendEmailEnabled && fileImportResult.getNumSuccessRecords() > 0) {
             try {
-                sendMail(broker.getCompanyId(), fileImportResult.getJobId());
+                emailService.sendEmailToUsers(broker.getCompanyId(), fileImportResult.getJobId());
             } catch (ApplicationException ex) {
                 //TODO: Bypassing exception. 
                 logger.error("Failed to send email ", ex);
@@ -549,33 +548,6 @@ public class UserService extends ImportService {
         }
 
         return userName;
-    }
-    
-    /**
-     * This function send mails to all the users added for given jobId
-     * @param broker
-     * @param jobId
-     */
-    private void sendMail(Integer companyId, String jobId) throws ApplicationException {
-        
-        List<User> userList = userRepository.findByAddedBy(jobId);
-
-        if (CollectionUtils.isEmpty(userList)) {
-            return;
-        }
-
-        // Sendgrid has limit of maximum 1000 personalisation in a single mail request.
-        // So here dividing the users in chunks of 1000
-        List<User> tempUserList = new ArrayList<User>();
-        int counter = 0;
-        for (User user : userList) {
-            tempUserList.add(user);
-            if (tempUserList.size() % MAX_SENDGRID_PERSONALISATION == 0 || counter == userList.size() - 1) {
-                emailService.createAndSendEmail(companyId, tempUserList);
-                tempUserList = new ArrayList<User>();
-            }
-            counter++;
-        }
     }
 
     /**

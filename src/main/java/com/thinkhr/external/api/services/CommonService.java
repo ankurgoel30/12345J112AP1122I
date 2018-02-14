@@ -120,6 +120,12 @@ public class CommonService {
     @PersistenceContext
     protected EntityManager entityManager;
     
+    @Value("${com.thinkhr.external.api.company.records.limit}")
+    protected int maxRecordsCompanyImport;
+    
+    @Value("${com.thinkhr.external.api.user.records.limit}")
+    protected int maxRecordsUserImport;
+    
     /**
      * @return
      */
@@ -275,7 +281,7 @@ public class CommonService {
         configuration.setCompanyId(companyId);
         configuration.setMasterConfiguration(1);
         configuration.setConfigurationKey(MASTER_CONFIG_KEY);
-        configuration.setName(MASTER_CONFIG_NAME);
+        configuration.setConfigurationName(MASTER_CONFIG_NAME); 
         configuration.setDescription(MASTER_CONFIG_NAME);
         return configuration;
     }

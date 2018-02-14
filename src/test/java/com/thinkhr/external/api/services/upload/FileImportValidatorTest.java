@@ -2,7 +2,6 @@ package com.thinkhr.external.api.services.upload;
 
 import static com.thinkhr.external.api.ApplicationConstants.COMMA_SEPARATOR;
 import static com.thinkhr.external.api.ApplicationConstants.COMPANY;
-import static com.thinkhr.external.api.ApplicationConstants.MAX_RECORDS_COMPANY_CSV_IMPORT;
 import static com.thinkhr.external.api.ApplicationConstants.REQUIRED_HEADERS_COMPANY_CSV_IMPORT;
 import static com.thinkhr.external.api.utils.ApiTestDataUtil.getFileRecordForUser;
 import static com.thinkhr.external.api.utils.ApiTestDataUtil.getFileRecordForUserMissingFields;
@@ -48,6 +47,8 @@ public class FileImportValidatorTest {
     @Autowired
     private MessageResourceHandler resourceHandler;
     
+    private static int MAX_RECORDS_COMPANY_CSV_IMPORT = 3500;
+    
     /**
      * Test validateAndGetFileContent when MultipartFile object of a file
      * without csv extension is given as input
@@ -69,7 +70,7 @@ public class FileImportValidatorTest {
         }
 
         try {
-            List<String> fileContents = FileImportValidator.validateAndGetFileContent(multipartFile, COMPANY);
+            List<String> fileContents = FileImportValidator.validateAndGetFileContent(multipartFile, COMPANY, MAX_RECORDS_COMPANY_CSV_IMPORT);
             fail("Expecting validation exception for invalid extension of file");
         } catch (ApplicationException appEx) {
             Assert.assertNotNull(appEx);
@@ -98,7 +99,7 @@ public class FileImportValidatorTest {
         }
 
         try {
-            List<String> fileContents = FileImportValidator.validateAndGetFileContent(multipartFile, COMPANY);
+            List<String> fileContents = FileImportValidator.validateAndGetFileContent(multipartFile, COMPANY, MAX_RECORDS_COMPANY_CSV_IMPORT);
             fail("Expecting validation exception for invalid extension of file");
         } catch (ApplicationException appEx) {
             Assert.assertNotNull(appEx);
@@ -123,7 +124,7 @@ public class FileImportValidatorTest {
 
             multipartFile = new MockMultipartFile("file", file.getName(), "text/plain", IOUtils.toByteArray(input));
 
-            List<String> fileContents = FileImportValidator.validateAndGetFileContent(multipartFile, COMPANY);
+            List<String> fileContents = FileImportValidator.validateAndGetFileContent(multipartFile, COMPANY, MAX_RECORDS_COMPANY_CSV_IMPORT);
             assertEquals(2, fileContents.size());
         } catch (IOException e1) {
             fail("IOException is not expected");
@@ -146,7 +147,7 @@ public class FileImportValidatorTest {
 
             multipartFile = new MockMultipartFile("file", file.getName(), "text/plain", IOUtils.toByteArray(input));
 
-            List<String> fileContents = FileImportValidator.validateAndGetFileContent(multipartFile, COMPANY);
+            List<String> fileContents = FileImportValidator.validateAndGetFileContent(multipartFile, COMPANY, MAX_RECORDS_COMPANY_CSV_IMPORT);
             assertEquals(101, fileContents.size());
         } catch (IOException e1) {
             fail("IOException is not expected");
@@ -161,7 +162,7 @@ public class FileImportValidatorTest {
         List<String> fileContents = new ArrayList<String>();
 
         try {
-            FileImportValidator.validateFileContents(fileContents, "Test.csv", COMPANY);
+            FileImportValidator.validateFileContents(fileContents, "Test.csv", COMPANY, MAX_RECORDS_COMPANY_CSV_IMPORT);
             fail("Expecting validation exception for no records");
         } catch (ApplicationException appEx) {
             Assert.assertNotNull(appEx);
@@ -177,7 +178,7 @@ public class FileImportValidatorTest {
         List<String> fileContents = null;
 
         try {
-            FileImportValidator.validateFileContents(fileContents, "Test.csv", COMPANY);
+            FileImportValidator.validateFileContents(fileContents, "Test.csv", COMPANY, MAX_RECORDS_COMPANY_CSV_IMPORT);
             fail("Expecting validation exception for no records");
         } catch (ApplicationException appEx) {
             Assert.assertNotNull(appEx);
@@ -196,7 +197,7 @@ public class FileImportValidatorTest {
                 "CLIENT_NAME,DISPLAY_NAME,PHONE,ADDRESS,ADDRESS2,CITY,STATE,ZIP,INDUSTRY,COMPANY_SIZE,PRODUCER,BUSINESS_ID,BRANCH_ID,CLIENT_ID,CLIENT_TYPE");
 
         try {
-            FileImportValidator.validateFileContents(fileContents, "Test.csv", COMPANY);
+            FileImportValidator.validateFileContents(fileContents, "Test.csv", COMPANY, MAX_RECORDS_COMPANY_CSV_IMPORT);
             fail("Expecting validation exception for no records");
         } catch (ApplicationException appEx) {
             Assert.assertNotNull(appEx);
@@ -218,7 +219,7 @@ public class FileImportValidatorTest {
         }
 
         try {
-            FileImportValidator.validateFileContents(fileContents, "Test.csv", COMPANY);
+            FileImportValidator.validateFileContents(fileContents, "Test.csv", COMPANY, MAX_RECORDS_COMPANY_CSV_IMPORT);
             fail("Expecting validation exception for Max Records Exceed");
         } catch (ApplicationException appEx) {
             assertNotNull(appEx);
@@ -241,7 +242,7 @@ public class FileImportValidatorTest {
             fileContents.add("record" + i);
         }
 
-        FileImportValidator.validateFileContents(fileContents, "Test.csv", COMPANY);
+        FileImportValidator.validateFileContents(fileContents, "Test.csv", COMPANY, MAX_RECORDS_COMPANY_CSV_IMPORT);
     }
 
     /**
@@ -262,7 +263,7 @@ public class FileImportValidatorTest {
         }
 
         try {
-            FileImportValidator.validateFileContents(fileContents, "Test.csv", COMPANY);
+            FileImportValidator.validateFileContents(fileContents, "Test.csv", COMPANY, MAX_RECORDS_COMPANY_CSV_IMPORT);
             fail("Expecting validation exception for Missing Headers");
         } catch (ApplicationException appEx) {
             assertNotNull(appEx);
