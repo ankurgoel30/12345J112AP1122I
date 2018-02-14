@@ -275,7 +275,7 @@ public class CommonService {
         configuration.setCompanyId(companyId);
         configuration.setMasterConfiguration(1);
         configuration.setConfigurationKey(MASTER_CONFIG_KEY);
-        configuration.setName(MASTER_CONFIG_NAME);
+        configuration.setConfigurationName(MASTER_CONFIG_NAME); 
         configuration.setDescription(MASTER_CONFIG_NAME);
         return configuration;
     }

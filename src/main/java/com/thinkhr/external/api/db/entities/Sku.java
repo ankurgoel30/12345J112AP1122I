@@ -28,7 +28,7 @@ public class Sku {
     @Id
     @GeneratedValue(strategy=GenerationType.AUTO)
     @Column(name = "id")
-    private Integer skuId;
+    private Integer id;
     
     @Column(name = "skuKey")
     private String skuKey;
