@@ -82,7 +82,7 @@ public class FileImportUtilTest {
     }
     
     @Value("${com.thinkhr.external.api.user.records.limit}")
-    public static Integer MAX_RECORDS_USER_CSV_IMPORT;
+    public Integer MAX_RECORDS_USER_CSV_IMPORT;
 
     /**
      * Test to verify when there is at least one missing header. 

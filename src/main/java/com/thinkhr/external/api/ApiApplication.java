@@ -26,7 +26,6 @@ import com.thinkhr.external.api.services.email.SendGridEmailService;
  */
 
 @SpringBootApplication
-@PropertySource(value = {"classpath:application.properties","classpath:db.properties","classpath:email.properties"})
 public class ApiApplication {
 
     @Value("${com.thinkhr.external.api.crypto.algo}")
