@@ -4,7 +4,7 @@ import static com.thinkhr.external.api.ApplicationConstants.COMPANY_TYPE_BROKER;
 import static com.thinkhr.external.api.ApplicationConstants.WELCOME_EMAIL_TYPE;
 import static com.thinkhr.external.api.ApplicationConstants.WELCOME_SENDER_EMAIL;
 import static com.thinkhr.external.api.ApplicationConstants.WELCOME_SENDER_EMAIL_SUBJECT;
-import static com.thinkhr.external.api.ApplicationConstants.DEFAULT_WELCOME_EMAIL;
+import static com.thinkhr.external.api.ApplicationConstants.FROM_EMAIL_ADDRESS;
 import static com.thinkhr.external.api.ApplicationConstants.DEFAULT_WELCOME_EMAIL_SUBJECT;
 
 import java.io.IOException;
@@ -43,6 +43,12 @@ public class BrokerService extends CompanyService {
     
     @Value("${sendgrid_auth_template_id}")
     private String authTemplateId;
+    
+    @Value("${com.thinkhr.external.api.email.subject.id}")
+    private Integer welcomeEmailSubjectId;
+    
+    @Value("${com.thinkhr.external.api.from.email.id}")
+    private Integer welcomeEmailId;
     
     /**
     *
@@ -180,7 +186,7 @@ public class BrokerService extends CompanyService {
         //Set Email Configuration for Email Subject 
         EmailConfiguration emailConfigurationForSubject = new EmailConfiguration();
         EmailField emailFieldForSubject = new EmailField();
-        emailFieldForSubject.setId(2);
+        emailFieldForSubject.setId(welcomeEmailSubjectId);
         emailConfigurationForSubject.setEmailField(emailFieldForSubject);
         emailConfigurationForSubject.setValue(company.getWelcomeSenderEmailSubject());
         emailConfigurationForSubject.setEmailTemplate(emailTemplate);
@@ -189,7 +195,7 @@ public class BrokerService extends CompanyService {
         //Set Email Configuration for Email
         EmailConfiguration emailConfigurationForMail = new EmailConfiguration();
         EmailField emailFieldForMail = new EmailField();
-        emailFieldForMail.setId(11);
+        emailFieldForMail.setId(welcomeEmailId);
         emailConfigurationForMail.setEmailField(emailFieldForMail);
         emailConfigurationForMail.setValue(company.getWelcomeSenderEmail());
         emailConfigurationForMail.setEmailTemplate(emailTemplate);
@@ -231,14 +237,14 @@ public class BrokerService extends CompanyService {
         //Set default values if no configuration present for broker
         if(emailTemplate == null){
             company.setWelcomeSenderEmailSubject(DEFAULT_WELCOME_EMAIL_SUBJECT);
-            company.setWelcomeSenderEmail(DEFAULT_WELCOME_EMAIL);
+            company.setWelcomeSenderEmail(FROM_EMAIL_ADDRESS);
             
         //Set specific values for broker from his Email Configuration    
         }else{
             for (EmailConfiguration configuration : emailTemplate.getEmailConfigurations()) {
-                if(configuration.getEmailField().getId() == 2){
+                if(configuration.getEmailField().getId() == welcomeEmailSubjectId){
                     company.setWelcomeSenderEmailSubject(configuration.getValue());
-                }else if(configuration.getEmailField().getId() == 11){
+                }else if(configuration.getEmailField().getId() == welcomeEmailId){
                     company.setWelcomeSenderEmail(configuration.getValue());
                 }
             }

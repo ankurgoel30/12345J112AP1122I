@@ -115,8 +115,7 @@ public class ApplicationConstants {
     //EMAIL PROPERTIES
     public static final String DEFAULT_WELCOME_EMAIL_SUBJECT= "Welcome to ThinkHR!";
     public static final String DEFAULT_WELCOME_BODY = "";
-    public static final String FROM_EMAIL_ADDRESS = "";
-    public static final String DEFAULT_WELCOME_EMAIL = "Default Email Address";
+    public static final String FROM_EMAIL_ADDRESS = "Default Email Address";
     public static final String WELCOME_SENDER_EMAIL_SUBJECT = "welcomeSenderEmailSubject";
     public static final String WELCOME_SENDER_EMAIL = "welcomeSenderEmail";
     
