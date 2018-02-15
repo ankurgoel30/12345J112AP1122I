@@ -165,6 +165,8 @@ public class BrokerServiceTest {
         Integer brokerId = 10;
         Company company = createCompany(1, "Pepcus", "Software", "345345435", new Date(), "Special",
                 "This is search help", "Other", "10");
+        company.setWelcomeSenderEmail("abc@xyz.com");
+        company.setWelcomeSenderEmailSubject("Welcome to ThinkHR!");
 
         BrokerService brokerServiceSpy = spy(brokerService);
         Configuration config = brokerService.createMasterConfiguration(null);
@@ -176,7 +178,7 @@ public class BrokerServiceTest {
         when(companyRepository.save(company)).thenReturn(company);
         when(emailTemplateRepository.save(emailTemplate)).thenReturn(null);
 
-        Company result = brokerServiceSpy.addBroker(company,"subject","email");
+        Company result = brokerServiceSpy.addBroker(company);
 
         assertEquals(company.getCompanyId(), result.getCompanyId());
         assertEquals("Pepcus", result.getCompanyName());

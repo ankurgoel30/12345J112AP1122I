@@ -2,6 +2,8 @@ package com.thinkhr.external.api.services;
 
 import static com.thinkhr.external.api.ApplicationConstants.COMPANY_TYPE_BROKER;
 import static com.thinkhr.external.api.ApplicationConstants.WELCOME_EMAIL_TYPE;
+import static com.thinkhr.external.api.ApplicationConstants.WELCOME_SENDER_EMAIL;
+import static com.thinkhr.external.api.ApplicationConstants.WELCOME_SENDER_EMAIL_SUBJECT;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -90,10 +92,18 @@ public class BrokerService extends CompanyService {
      * @param welcomeSenderEmailSubject 
      */
     @Transactional
-    public Company addBroker(Company company, String welcomeSenderEmailSubject, String welcomeSenderEmail) {
+    public Company addBroker(Company company) {
         
         if (StringUtils.isEmpty(company.getCompanyType())) {
             company.setCompanyType(COMPANY_TYPE_BROKER);
+        }
+        
+        if (StringUtils.isEmpty(company.getWelcomeSenderEmailSubject())) {
+            throw ApplicationException.createBadRequest(APIErrorCodes.NULL_PARAMETER, WELCOME_SENDER_EMAIL_SUBJECT);
+        }
+        
+        if (StringUtils.isEmpty(company.getWelcomeSenderEmail())) {
+            throw ApplicationException.createBadRequest(APIErrorCodes.NULL_PARAMETER, WELCOME_SENDER_EMAIL);
         }
         
         company = addCompany(company, null);
@@ -106,7 +116,7 @@ public class BrokerService extends CompanyService {
         company = companyRepository.save(company); //To update with brokerId and master configuration id
         learnCompanyService.updateLearnCompany(company);
         
-        createEmailTemplateAndConfiguration(company, welcomeSenderEmailSubject, welcomeSenderEmail);
+        createEmailTemplateAndConfiguration(company);
         
         return company;
     }
@@ -118,13 +128,13 @@ public class BrokerService extends CompanyService {
      * @param welcomeSenderEmail 
      * @param welcomeSenderEmailSubject 
      */
-    private void createEmailTemplateAndConfiguration(Company company, String welcomeSenderEmailSubject, String welcomeSenderEmail) {
+    private void createEmailTemplateAndConfiguration(Company company) {
 
         //Set the email template
         EmailTemplate emailTemplate = createEmailTemplate(company);
         
         //Create the Email Configurations
-        List<EmailConfiguration> emailConfigurations = createEmailConfigurationWithTemplate(company, welcomeSenderEmailSubject, welcomeSenderEmail, emailTemplate);
+        List<EmailConfiguration> emailConfigurations = createEmailConfigurationWithTemplate(company, emailTemplate);
         
         emailTemplate.setEmailConfigurations(emailConfigurations);
         
@@ -153,13 +163,11 @@ public class BrokerService extends CompanyService {
      * Creates email configuration for broker with the specified template
      * 
      * @param company
-     * @param welcomeSenderEmailSubject
-     * @param welcomeSenderEmail
      * @param emailTemplate 
      * @return 
      */
     private List<EmailConfiguration> createEmailConfigurationWithTemplate(Company company,
-            String welcomeSenderEmailSubject, String welcomeSenderEmail, EmailTemplate emailTemplate) {
+            EmailTemplate emailTemplate) {
 
         List<EmailConfiguration> emailConfigurations = new ArrayList<EmailConfiguration>();
         
@@ -168,7 +176,7 @@ public class BrokerService extends CompanyService {
         EmailField emailFieldForSubject = new EmailField();
         emailFieldForSubject.setId(2);
         emailConfigurationForSubject.setEmailField(emailFieldForSubject);
-        emailConfigurationForSubject.setValue(welcomeSenderEmailSubject);
+        emailConfigurationForSubject.setValue(company.getWelcomeSenderEmailSubject());
         emailConfigurationForSubject.setEmailTemplate(emailTemplate);
         emailConfigurations.add(emailConfigurationForSubject);
         
@@ -177,7 +185,7 @@ public class BrokerService extends CompanyService {
         EmailField emailFieldForMail = new EmailField();
         emailFieldForMail.setId(11);
         emailConfigurationForMail.setEmailField(emailFieldForMail);
-        emailConfigurationForMail.setValue(welcomeSenderEmail);
+        emailConfigurationForMail.setValue(company.getWelcomeSenderEmail());
         emailConfigurationForMail.setEmailTemplate(emailTemplate);
         emailConfigurations.add(emailConfigurationForMail);
         

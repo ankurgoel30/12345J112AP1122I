@@ -16,6 +16,7 @@ import javax.persistence.OneToOne;
 import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
+import javax.persistence.Transient;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
@@ -409,6 +410,14 @@ public class Company implements SearchableEntity {
 
     @Column(name = "t1_email_template_id")
     private String emailTemplateId;
+    
+    @Transient
+    @JsonProperty(access = Access.WRITE_ONLY)
+    private String welcomeSenderEmailSubject;
+    
+    @Transient
+    @JsonProperty(access = Access.WRITE_ONLY)
+    private String welcomeSenderEmail;
 
     @NotNull
     @Valid

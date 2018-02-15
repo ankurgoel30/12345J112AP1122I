@@ -116,6 +116,8 @@ public class ApplicationConstants {
     public static final String DEFAULT_WELCOME_SUBJECT= "";
     public static final String DEFAULT_WELCOME_BODY = "";
     public static final String FROM_EMAIL_ADDRESS = "";
+    public static final String WELCOME_SENDER_EMAIL_SUBJECT = "welcomeSenderEmailSubject";
+    public static final String WELCOME_SENDER_EMAIL = "welcomeSenderEmail";
     
     // For email feature 
     public static final String EMAIL_BODY = "body";
