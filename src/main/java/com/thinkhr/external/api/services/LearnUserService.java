@@ -16,6 +16,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -36,6 +38,8 @@ import com.thinkhr.external.api.db.learn.entities.LearnUserRoleAssignment;
  */
 @Service
 public class LearnUserService extends CommonService {
+
+    Map<String, LearnRole> learnRoleMap = new ConcurrentHashMap<String, LearnRole>();
 
     /**
      * Save learnUser to database
@@ -60,7 +64,7 @@ public class LearnUserService extends CommonService {
         LearnUser learnUser = modelConvertor.convert(throneUser);
 
         learnUser.setCompanyId(getLearnCompanyId(throneUser));
-        
+
         learnUser.setUserName(getLearnUserNameByRoleId(throneUser));
 
         String roleName = getRoleName(throneUser);
@@ -180,7 +184,13 @@ public class LearnUserService extends CommonService {
         ));
 
         String roleName = getRoleName(throneUser);
-        LearnRole learnRole = learnRoleRepository.findFirstByShortName(roleName);
+        LearnRole learnRole = null;
+        if (learnRoleMap.containsKey(roleName)) {
+            learnRole = learnRoleMap.get(roleName);
+        } else {
+            learnRole = learnRoleRepository.findFirstByShortName(roleName);
+            learnRoleMap.put(roleName, learnRole);
+        }
         Integer roleId = null;
         if (learnRole != null) {
             roleId = learnRole.getId();

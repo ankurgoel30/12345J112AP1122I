@@ -72,7 +72,7 @@ public class BrokerService extends CompanyService {
     * @param brokerId
     */
    public int deleteBroker(int brokerId) throws ApplicationException {
-       Company company = companyRepository.findByCompanyId(brokerId);
+       Company company = companyRepository.findOne(brokerId);
 
        if (null == company) {
            throw ApplicationException.createEntityNotFoundError(APIErrorCodes.ENTITY_NOT_FOUND, "broker", "brokerId="+brokerId);
@@ -92,7 +92,7 @@ public class BrokerService extends CompanyService {
     @Transactional
     public Company addBroker(Company company, String welcomeSenderEmailSubject, String welcomeSenderEmail) {
         
-        if (StringUtils.isEmpty(company.getCompanyType())) { 
+        if (StringUtils.isEmpty(company.getCompanyType())) {
             company.setCompanyType(COMPANY_TYPE_BROKER);
         }
         
@@ -192,7 +192,7 @@ public class BrokerService extends CompanyService {
      * @return Company object 
      */
     public Company getBroker(Integer brokerId) {
-        Company company =  companyRepository.findByCompanyId(brokerId);
+        Company company =  companyRepository.findOne(brokerId);
 
         if (null == company) {
             throw ApplicationException.createEntityNotFoundError(APIErrorCodes.ENTITY_NOT_FOUND,
@@ -216,7 +216,7 @@ public class BrokerService extends CompanyService {
     public Company updateBroker(Integer brokerId, String companyJson) 
             throws ApplicationException, JsonProcessingException, IOException {
 
-        Company companyInDb = companyRepository.findByCompanyId(brokerId);
+        Company companyInDb = companyRepository.findOne(brokerId);
         if (null == companyInDb) {
             throw ApplicationException.createEntityNotFoundError(APIErrorCodes.ENTITY_NOT_FOUND, "broker", "brokerId="+brokerId);
         }
@@ -241,13 +241,13 @@ public class BrokerService extends CompanyService {
     }
 
     /**
-     * To validate duplicate company record for client_type="broker_partner"
+     * To validate duplicate company record for client_type
      */
     @Override
-    public boolean isDuplicateCompany(String brokerName, Integer brokerId, String custom1) {
-        //find matching company by given company name and company type = 'broker_partner'
-        Company companyFromDB = companyRepository.findFirstByCompanyNameAndCompanyType(brokerName,
-                COMPANY_TYPE_BROKER);
+    public boolean isDuplicateCompany(Company company) {
+        //find matching company by given company name and company type
+        Company companyFromDB = companyRepository.findFirstByCompanyNameAndCompanyType(company.getCompanyName(),
+                company.getCompanyType());
 
         return companyFromDB == null ? false : true;
     }

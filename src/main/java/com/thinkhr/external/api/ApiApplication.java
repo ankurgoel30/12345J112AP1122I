@@ -13,6 +13,8 @@ import com.thinkhr.external.api.services.crypto.AESEncryptorDecryptor;
 import com.thinkhr.external.api.services.crypto.AppEncryptorDecryptor;
 import com.thinkhr.external.api.services.crypto.BCryptPasswordEncryptor;
 import com.thinkhr.external.api.services.crypto.BlowfishEncryptorDecryptor;
+import com.thinkhr.external.api.services.email.EmailService;
+import com.thinkhr.external.api.services.email.SendGridEmailService;
 
 /**
  * Main class for Spring Boot based API application.
@@ -28,6 +30,9 @@ public class ApiApplication {
     @Value("${com.thinkhr.external.api.crypto.algo}")
     private String cryptoAlgo;
     
+    @Value("${com.thinkhr.external.api.emailService}")
+    private String emailService;
+
     @Value("${com.thinkhr.external.api.crypto.encrypt.key}")
     private String key;
     
@@ -73,6 +78,17 @@ public class ApiApplication {
         
         return new AESEncryptorDecryptor(key, initVector);
         
+    }
+
+    /**
+     * Facilitates Email Service to send welcome email.
+     * 
+     * @return
+     */
+    @Bean
+    @Lazy(value = true)
+    public EmailService getEmailService() {
+        return new SendGridEmailService();
     }
 
     /**

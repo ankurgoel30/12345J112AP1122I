@@ -1,9 +1,10 @@
 package com.thinkhr.external.api.controllers;
 
-import static com.thinkhr.external.api.ApplicationConstants.MAX_RECORDS_COMPANY_CSV_IMPORT;
 import static com.thinkhr.external.api.ApplicationConstants.REQUIRED_HEADERS_COMPANY_CSV_IMPORT;
 import static com.thinkhr.external.api.ApplicationConstants.VALID_FILE_EXTENSION_IMPORT;
 import static com.thinkhr.external.api.utils.ApiTestDataUtil.COMPANY_API_BASE_PATH;
+import static com.thinkhr.external.api.utils.ApiTestDataUtil.createBulkCompanies;
+import static com.thinkhr.external.api.utils.ApiTestDataUtil.createBulkCompanyResponseEntity;
 import static com.thinkhr.external.api.utils.ApiTestDataUtil.createCompanies;
 import static com.thinkhr.external.api.utils.ApiTestDataUtil.createCompany;
 import static com.thinkhr.external.api.utils.ApiTestDataUtil.createCompanyIdResponseEntity;
@@ -36,6 +37,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.core.io.InputStreamResource;
@@ -44,6 +46,7 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
@@ -55,6 +58,7 @@ import com.thinkhr.external.api.ApiApplication;
 import com.thinkhr.external.api.db.entities.Company;
 import com.thinkhr.external.api.exception.APIErrorCodes;
 import com.thinkhr.external.api.exception.ApplicationException;
+import com.thinkhr.external.api.model.BulkJsonModel;
 
 /**
  * Junit class to test all the methods\APIs written for CompanyController
@@ -80,7 +84,9 @@ public class CompanyControllerTest {
     public void setup() {
         this.mockMvc = MockMvcBuilders.webAppContextSetup(wac).build();
     }
-
+    
+    @Value("${com.thinkhr.external.api.company.records.limit}")
+    public static Integer MAX_RECORDS_COMPANY_CSV_IMPORT;
     /**
      * Test to verify Get companies API (/v1/companies) when no request parameters (default) are provided  
      * 
@@ -327,7 +333,7 @@ public class CompanyControllerTest {
     @Test
     public void testBulkUploadFile_InvalidExtension() throws Exception {
         MockMultipartFile multipartFile = createMockMultipartFile();
-        ApplicationException mockedExp = ApplicationException.createFileImportError(APIErrorCodes.INVALID_FILE_EXTENTION, "Test.abc",
+        ApplicationException mockedExp = ApplicationException.createBulkImportError(APIErrorCodes.INVALID_FILE_EXTENTION, "Test.abc",
                 VALID_FILE_EXTENSION_IMPORT);
 
         given(companyController.bulkUploadFile(any(), any())).willThrow(mockedExp);
@@ -346,7 +352,7 @@ public class CompanyControllerTest {
     @Test
     public void testBulkUploadFile_NoRecords() throws Exception {
         MockMultipartFile multipartFile = createMockMultipartFile();
-        ApplicationException mockedExp = ApplicationException.createFileImportError(APIErrorCodes.NO_RECORDS_FOUND_FOR_IMPORT, "Test.csv");
+        ApplicationException mockedExp = ApplicationException.createBulkImportError(APIErrorCodes.NO_RECORDS_FOUND_FOR_IMPORT, "Test.csv");
 
         given(companyController.bulkUploadFile(any(), any())).willThrow(mockedExp);
 
@@ -366,7 +372,7 @@ public class CompanyControllerTest {
         MockMultipartFile multipartFile = createMockMultipartFile();
 
         String requiredHeaders = String.join(",", REQUIRED_HEADERS_COMPANY_CSV_IMPORT);
-        ApplicationException mockedExp = ApplicationException.createFileImportError(APIErrorCodes.MISSING_REQUIRED_HEADERS, "Test.csv",
+        ApplicationException mockedExp = ApplicationException.createBulkImportError(APIErrorCodes.MISSING_REQUIRED_HEADERS, "Test.csv",
                 "CLIENT_NAME,DISPLAY_NAME", requiredHeaders);
 
         given(companyController.bulkUploadFile(any(), any())).willThrow(mockedExp);
@@ -386,7 +392,7 @@ public class CompanyControllerTest {
     public void testBulkUploadFile_MaxRecordExceed() throws Exception {
         MockMultipartFile multipartFile = createMockMultipartFile();
 
-        ApplicationException mockedExp = ApplicationException.createFileImportError(APIErrorCodes.MAX_RECORD_EXCEEDED,
+        ApplicationException mockedExp = ApplicationException.createBulkImportError(APIErrorCodes.MAX_RECORD_EXCEEDED,
                 String.valueOf(MAX_RECORDS_COMPANY_CSV_IMPORT));
 
         given(companyController.bulkUploadFile(any(), any())).willThrow(mockedExp);
@@ -411,5 +417,118 @@ public class CompanyControllerTest {
 
         ResultActions resultActions = mockMvc.perform(fileUpload(COMPANY_API_BASE_PATH + "bulk").file(multipartFile))
                 .andExpect(status().isOk()).andExpect(content().contentType("text/csv"));
+    }
+    
+    /**
+     * Test to verify post (/v1/companies/bulk) when it executes successfully for JSON in request Body and returns 
+     * a JSON response with details of JSON upload results
+     * 
+     * @throws Exception
+     * 
+     */
+    @Test
+    public void testBulkUploadJson_Success() throws Exception {
+       
+        List<BulkJsonModel> companies = createBulkCompanies();
+        
+        ResponseEntity<List<BulkJsonModel>> responseEntity = createBulkCompanyResponseEntity(companies, HttpStatus.CREATED);
+ 
+        given(companyController.bulkUploadJson(any(), any())).willReturn(responseEntity);
+        
+        mockMvc.perform(post(COMPANY_API_BASE_PATH + "bulk")
+                .accept(MediaType.APPLICATION_JSON)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(getJsonString(companies)))
+        .andExpect(status().isCreated());
+    }
+    
+    /**
+     * Test to verify post (/v1/companies/bulk) when it gives Required Field Missing Error for JSON with required field missing in request Body and returns 
+     * a JSON response with details of JSON upload results
+     * 
+     * @throws Exception
+     * 
+     */
+    @Test
+    public void testBulkUploadJson_MissingRequiredAttribute() throws Exception {
+       
+        List<BulkJsonModel> companies = createBulkCompanies();
+        BulkJsonModel company = companies.get(0);
+        Map<String,Object> props = company.getProperties();
+        props.remove("clientName");
+        company.setProperties(props);
+        companies.set(0, company);
+        
+        String requiredHeaders = String.join(",", REQUIRED_HEADERS_COMPANY_CSV_IMPORT);
+        ApplicationException mockedExp = ApplicationException.createBulkImportError(APIErrorCodes.MISSING_REQUIRED_FIELDS, "COMPANY",
+                "clientName", requiredHeaders);
+ 
+        given(companyController.bulkUploadJson(any(), any())).willThrow(mockedExp);
+        
+        mockMvc.perform(post(COMPANY_API_BASE_PATH + "bulk")
+                .accept(MediaType.APPLICATION_JSON)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(getJsonString(companies)))
+        .andExpect(status().isNotAcceptable()).andExpect(jsonPath("errorCode", is(APIErrorCodes.MISSING_REQUIRED_FIELDS.getCode().toString())));
+    }
+    
+    /**
+     * Test to verify post (/v1/companies/bulk) when it gives Required Field Missing Error for JSON with required field wrong in request Body and returns 
+     * a JSON response with details of JSON upload results
+     * 
+     * @throws Exception
+     * 
+     */
+    @Test
+    public void testBulkUploadJson_WrongAttribute() throws Exception {
+       
+        List<BulkJsonModel> companies = createBulkCompanies();
+        BulkJsonModel company = companies.get(0);
+        Map<String,Object> props = company.getProperties();
+        props.remove("clientName");
+        props.put("clientname", "Pepcus");
+        company.setProperties(props);
+        companies.set(0, company);
+        
+        String requiredHeaders = String.join(",", REQUIRED_HEADERS_COMPANY_CSV_IMPORT);
+        ApplicationException mockedExp = ApplicationException.createBulkImportError(APIErrorCodes.MISSING_REQUIRED_FIELDS, "COMPANY",
+                "clientName", requiredHeaders);
+ 
+        given(companyController.bulkUploadJson(any(), any())).willThrow(mockedExp);
+        
+        mockMvc.perform(post(COMPANY_API_BASE_PATH + "bulk")
+                .accept(MediaType.APPLICATION_JSON)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(getJsonString(companies)))
+        .andExpect(status().isNotAcceptable()).andExpect(jsonPath("errorCode", is(APIErrorCodes.MISSING_REQUIRED_FIELDS.getCode().toString())));
+    }
+    
+    /**
+     * Test to verify post (/v1/companies/bulk) when it gives Required Field Missing Error for JSON with custom field wrong in request Body and returns 
+     * a JSON response with details of JSON upload results
+     * 
+     * @throws Exception
+     * 
+     */
+    @Test
+    public void testBulkUploadJson_MissingCustomAttribute() throws Exception {
+       
+        List<BulkJsonModel> companies = createBulkCompanies();
+        BulkJsonModel company = companies.remove(0);
+        Map<String,Object> props = company.getProperties();
+        props.remove("branchId");
+        props.put("branch_Ids", "45");
+        company.setProperties(props);
+        companies.set(0, company);
+
+        ApplicationException mockedExp = ApplicationException.createBulkImportError(APIErrorCodes.UNMAPPED_CUSTOM_HEADERS,"BRANCH_IDS");
+ 
+        given(companyController.bulkUploadJson(any(), any())).willThrow(mockedExp);
+        
+        mockMvc.perform(post(COMPANY_API_BASE_PATH + "bulk")
+                .accept(MediaType.APPLICATION_JSON)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(getJsonString(companies)))
+        .andExpect(status().isNotAcceptable()).andExpect(jsonPath("errorCode", is(APIErrorCodes.UNMAPPED_CUSTOM_HEADERS.getCode().toString())));
     }
 }

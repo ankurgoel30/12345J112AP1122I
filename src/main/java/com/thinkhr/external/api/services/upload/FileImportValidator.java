@@ -2,9 +2,9 @@ package com.thinkhr.external.api.services.upload;
 
 import static com.thinkhr.external.api.ApplicationConstants.COMMA_SEPARATOR;
 import static com.thinkhr.external.api.ApplicationConstants.EMAIL_PATTERN;
+import static com.thinkhr.external.api.ApplicationConstants.UNDERSCORE;
 import static com.thinkhr.external.api.ApplicationConstants.VALID_FILE_EXTENSION_IMPORT;
 import static com.thinkhr.external.api.response.APIMessageUtil.getMessageFromResourceBundle;
-import static com.thinkhr.external.api.services.utils.FileImportUtil.getMaxRecords;
 import static com.thinkhr.external.api.services.utils.FileImportUtil.getMissingHeaders;
 import static com.thinkhr.external.api.services.utils.FileImportUtil.getRequiredHeaders;
 import static com.thinkhr.external.api.services.utils.FileImportUtil.readFileContent;
@@ -18,6 +18,7 @@ import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
 
+import com.thinkhr.external.api.ApplicationConstants;
 import com.thinkhr.external.api.exception.APIErrorCodes;
 import com.thinkhr.external.api.exception.ApplicationException;
 import com.thinkhr.external.api.exception.MessageResourceHandler;
@@ -40,24 +41,24 @@ public class FileImportValidator {
      * @throws ApplicationException
      * 
      */
-    public static List<String> validateAndGetFileContent (MultipartFile fileToImport, String resource) throws ApplicationException {
+    public static List<String> validateAndGetFileContent (MultipartFile fileToImport, String resource, int maxRecord) throws ApplicationException {
 
         String fileName = fileToImport.getOriginalFilename();
 
         // Validate if file has valid extension
         if (!FilenameUtils.isExtension(fileName,VALID_FILE_EXTENSION_IMPORT)) {
-            throw ApplicationException.createFileImportError(APIErrorCodes.INVALID_FILE_EXTENTION, fileName, VALID_FILE_EXTENSION_IMPORT);
+            throw ApplicationException.createBulkImportError(APIErrorCodes.INVALID_FILE_EXTENTION, fileName, VALID_FILE_EXTENSION_IMPORT);
         }
 
         //validate if files has no records
         if (fileToImport.isEmpty()) {
-            throw ApplicationException.createFileImportError(APIErrorCodes.NO_RECORDS_FOUND_FOR_IMPORT, fileName);
+            throw ApplicationException.createBulkImportError(APIErrorCodes.NO_RECORDS_FOUND_FOR_IMPORT, fileName);
         }
 
         // Read all records from file
         List<String> fileContents = readFileContent(fileToImport);
 
-        validateFileContents(fileContents, fileName, resource);
+        validateFileContents(fileContents, fileName, resource, maxRecord);
 
         return fileContents;
     }
@@ -70,16 +71,14 @@ public class FileImportValidator {
      * @param fileName
      * @param resource
      */
-    public static void validateFileContents(List<String> fileContents, String fileName, String resource) {
+    public static void validateFileContents(List<String> fileContents, String fileName, String resource, int maxRecord) {
         
         if (fileContents == null || fileContents.isEmpty() || fileContents.size() < 2) {
-            throw ApplicationException.createFileImportError(APIErrorCodes.NO_RECORDS_FOUND_FOR_IMPORT, fileName);
+            throw ApplicationException.createBulkImportError(APIErrorCodes.NO_RECORDS_FOUND_FOR_IMPORT, fileName);
         }
-        
-        int maxRecord = getMaxRecords(resource);
 
         if (fileContents.size() - 1 > maxRecord) {
-            throw ApplicationException.createFileImportError(APIErrorCodes.MAX_RECORD_EXCEEDED,
+            throw ApplicationException.createBulkImportError(APIErrorCodes.MAX_RECORD_EXCEEDED,
                     String.valueOf(maxRecord));
         }
 
@@ -96,12 +95,42 @@ public class FileImportValidator {
             String requiredHeadersStr = String.join(",", requiredHeaders);
 
             String missingHeadersStr = String.join(",", missingHeadersIfAny);
+            
+            if(fileName != null){
+                throw ApplicationException.createBulkImportError(APIErrorCodes.MISSING_REQUIRED_HEADERS, fileName, missingHeadersStr,
+                        requiredHeadersStr);
+            }else{
+                
+                missingHeadersStr = removeUnderscoreAndApplyCamelCase(missingHeadersStr.toLowerCase());
+                requiredHeadersStr = removeUnderscoreAndApplyCamelCase(requiredHeadersStr.toLowerCase());
+                throw ApplicationException.createBulkImportError(APIErrorCodes.MISSING_REQUIRED_FIELDS, resource, missingHeadersStr,
+                        requiredHeadersStr);
+            }
 
-            throw ApplicationException.createFileImportError(APIErrorCodes.MISSING_REQUIRED_HEADERS, fileName, missingHeadersStr,
-                    requiredHeadersStr);
+            
         }
 
     }
+    
+    /**
+     * Create Camel Casing for strings with underscore
+     * 
+     * @param str
+     * @return
+     */
+    private static String removeUnderscoreAndApplyCamelCase(String str) {
+        
+        StringBuilder strBuild = new StringBuilder(str);
+        int index = strBuild.indexOf(UNDERSCORE);
+        while (index >= 0) {
+            strBuild.replace(index, index+2, Character.toString(Character.toUpperCase(strBuild.charAt(index+1))));
+            index = strBuild.indexOf(UNDERSCORE, index + 1);
+        }
+        
+        return strBuild.toString();
+    }
+
+
     /**
      * To validate email field
      * @param record
@@ -165,5 +194,34 @@ public class FileImportValidator {
         return true;
     }
 
+    /**
+     * To validate email field
+     * @param record
+     * @param email
+     * @param fileImportResult
+     * @param resourceHandler
+     */
+    public static boolean validatePhone(String resource, String record, String phoneNo,
+            FileImportResult fileImportResult,
+            MessageResourceHandler resourceHandler) {
+
+        Integer maxPhoneLength = 12;
+        if (resource == ApplicationConstants.COMPANY) {
+            maxPhoneLength = 12;
+        }
+        if (resource == ApplicationConstants.USER) {
+            maxPhoneLength = 20;
+        }
+
+        if (!StringUtils.isBlank(phoneNo) && phoneNo.length() > maxPhoneLength) {
+            fileImportResult.addFailedRecord(record,
+                    getMessageFromResourceBundle(resourceHandler, APIErrorCodes.INVALID_PHONE, phoneNo,
+                            String.valueOf(maxPhoneLength)),
+                    getMessageFromResourceBundle(resourceHandler, APIErrorCodes.SKIPPED_RECORD));
+            return false;
+        }
+
+        return true;
+    }
 
 }

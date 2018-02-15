@@ -28,6 +28,8 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonProperty.Access;
 
 import lombok.Data;
 
@@ -83,9 +85,11 @@ public class User implements SearchableEntity {
     private Integer roleId;
 
     @Column(name="accountID")
+    @JsonProperty(access = Access.WRITE_ONLY)
     private String accountId;
 
     @Column(name="Mobile")
+    @JsonProperty(access = Access.WRITE_ONLY)
     private String mobile;
 
     @Column(name="Phone")
@@ -93,6 +97,7 @@ public class User implements SearchableEntity {
     private String phone;
 
     @Column(name="Fax")
+    @JsonProperty(access = Access.WRITE_ONLY)
     private String fax;
 
     @Column(name="Location")
@@ -122,6 +127,7 @@ public class User implements SearchableEntity {
     private String searchHelp = ""; 
 
     @Column(name="Title")
+    @JsonProperty(access = Access.WRITE_ONLY)
     private String title;
 
     @NotNull
@@ -130,6 +136,7 @@ public class User implements SearchableEntity {
 
     @NotNull
     @Column(name="mkdate", nullable=false)
+    @JsonProperty(access = Access.WRITE_ONLY)
     private String mkdate = "";
 
     @JsonIgnore
@@ -139,10 +146,12 @@ public class User implements SearchableEntity {
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = VALID_FORMAT_YYYY_MM_DD)
     @Temporal(TemporalType.TIMESTAMP)
     @Column(name = "activationDate")
+    @JsonProperty(access = Access.WRITE_ONLY)
     private Date activationDate;
 
     @NotNull
     @Column(name="codevalid", nullable=false)
+    @JsonProperty(access = Access.WRITE_ONLY)
     private String codevalid = "";
 
     @Column(name = "active", updatable = false)
@@ -153,6 +162,7 @@ public class User implements SearchableEntity {
     private String addedBy;
 
     @Column(name="client_hours")
+    @JsonProperty(access = Access.WRITE_ONLY)
     private String clientHours;
 
     @Column(name="client_status")
@@ -161,72 +171,92 @@ public class User implements SearchableEntity {
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = VALID_FORMAT_YYYY_MM_DD)
     @Temporal(TemporalType.TIMESTAMP)
     @Column(name = "deactivationDate")
+    @JsonProperty(access = Access.WRITE_ONLY)
     private Date deactivationDate;
 
     @Column(name="deactivationID")
+    @JsonProperty(access = Access.WRITE_ONLY)
     private Integer deactivationId;
 
     @Column(name="decision_maker")
+    @JsonProperty(access = Access.WRITE_ONLY)
     private Integer decisionMaker;
 
     @Column(name="deleted")
+    @JsonProperty(access = Access.WRITE_ONLY)
     private Integer deleted;
 
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = VALID_FORMAT_YYYY_MM_DD)
     @Temporal(TemporalType.TIMESTAMP)
     @Column(name="expirationDate")
+    @JsonProperty(access = Access.WRITE_ONLY)
     private Date expirationDate;
 
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = VALID_FORMAT_YYYY_MM_DD)
     @Temporal(TemporalType.TIMESTAMP)
     @Column(name="firstMail")
+    @JsonProperty(access = Access.WRITE_ONLY)
     private Date firstMail;
 
     @Lob
     @Column(name="firstMailMessage")
+    @JsonProperty(access = Access.WRITE_ONLY)
     private String firstMailMessage;
 
     @Column(name="firstMailSuccess")
+    @JsonProperty(access = Access.WRITE_ONLY)
     private String firstMailSuccess;
 
     @Column(name="has_SPD")
+    @JsonProperty(access = Access.WRITE_ONLY)
     private Integer hasSPD;
 
     @Column(name="hrhID")
+    @JsonProperty(access = Access.WRITE_ONLY)
     private Integer hrhId;
 
     @Column(name="International")
+    @JsonProperty(access = Access.WRITE_ONLY)
     private Integer international;
 
     @Column(name="learn_reminder")
+    @JsonProperty(access = Access.WRITE_ONLY)
     private Integer learnReminder;
 
     @Column(name="learn_sync")
+    @JsonProperty(access = Access.WRITE_ONLY)
     private Integer learnSync;
 
     @Column(name="mailStatus")
+    @JsonProperty(access = Access.WRITE_ONLY)
     private Integer mailStatus;
 
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = VALID_FORMAT_YYYY_MM_DD)
     @Temporal(TemporalType.TIMESTAMP)
     @Column(name="mailTime")
+    @JsonProperty(access = Access.WRITE_ONLY)
     private Date mailTime;
 
     @Column(name="master")
+    @JsonProperty(access = Access.WRITE_ONLY)
     private Integer master;
 
     @Column(name="master_backup")
+    @JsonProperty(access = Access.WRITE_ONLY)
     private Integer masterBackup;
 
     @Column(name="modified")
+    @JsonProperty(access = Access.WRITE_ONLY)
     private Integer modified;
 
     @Column(name="Phone_Backup")
+    @JsonProperty(access = Access.WRITE_ONLY)
     private String phoneBackup;
 
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = VALID_FORMAT_YYYY_MM_DD)
     @Temporal(TemporalType.TIMESTAMP)
     @Column(name="reminder")
+    @JsonProperty(access = Access.WRITE_ONLY)
     private Date reminder;
 
     @Column(name="salesforceID")
@@ -234,6 +264,7 @@ public class User implements SearchableEntity {
     private String salesforceID;
 
     @Column(name="specialBlast")
+    @JsonProperty(access = Access.WRITE_ONLY)
     private String specialBlast;
 
     @Column(name="t1_customfield1")
@@ -255,13 +286,16 @@ public class User implements SearchableEntity {
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = VALID_FORMAT_YYYY_MM_DD)
     @Temporal(TemporalType.TIMESTAMP)
     @Column(name="terms")
+    @JsonProperty(access = Access.WRITE_ONLY)
     private Date terms;
 
     @Column(name="testAccount")
+    @JsonProperty(access = Access.WRITE_ONLY)
     private Integer testAccount;
 
     @NotNull
     @Column(name="update_password", nullable = false)
+    @JsonProperty(access = Access.WRITE_ONLY)
     private String updatePassword = "";
 
     @Override

@@ -34,7 +34,7 @@ public class ConfigurationRepositoryTest {
     @Test
     public void testSaveConfiguration() {
 
-        Configuration configuration = ApiTestDataUtil.createConfiguration(null, 2, "ABC", "test config");
+        Configuration configuration = ApiTestDataUtil.createConfiguration(null, 2, "ABC", "test config", "test description");
 
         // Saving record into H2 DB
         Configuration savedConfiguration = configurationRepository.save(configuration);
@@ -42,7 +42,7 @@ public class ConfigurationRepositoryTest {
         assertNotNull(savedConfiguration.getConfigurationId());
         assertEquals(configuration.getCompanyId(), savedConfiguration.getCompanyId());
         assertEquals(configuration.getConfigurationKey(), savedConfiguration.getConfigurationKey());
-        assertEquals(configuration.getName(), savedConfiguration.getName());
+        assertEquals(configuration.getConfigurationName(), savedConfiguration.getConfigurationName());
     }
 
     /**
@@ -52,27 +52,58 @@ public class ConfigurationRepositoryTest {
     @Test
     public void testFindFirstByConfigurationIdAndCompanyId() {
 
-        Configuration configuration1 = ApiTestDataUtil.createConfiguration(null, 1, "ABC", "test config1");
+        Configuration configuration1 = ApiTestDataUtil.createConfiguration(null, 1, "ABC", "test config1", "test description");
 
         // Saving record into H2 DB
         configurationRepository.save(configuration1);
 
-        Configuration configuration2 = ApiTestDataUtil.createConfiguration(null, 3, "POR", "test config2");
+        Configuration configuration2 = ApiTestDataUtil.createConfiguration(null, 3, "POR", "test config2", "test description");
 
         // Saving record into H2 DB
         configurationRepository.save(configuration2);
 
-        Configuration configuration3 = ApiTestDataUtil.createConfiguration(null, 2, "XYZ", "test config3");
+        Configuration configuration3 = ApiTestDataUtil.createConfiguration(null, 2, "XYZ", "test config3", "test description");
 
         // Saving record into H2 DB
         configurationRepository.save(configuration3);
 
-        Configuration foundConfiguration = configurationRepository.findFirstByConfigurationIdAndCompanyId(2, 3);
+        Configuration foundConfiguration = configurationRepository
+                .findFirstByConfigurationIdAndCompanyId(configuration2.getConfigurationId(), 3);
 
         assertNotNull(foundConfiguration.getConfigurationId());
         assertEquals(configuration2.getCompanyId(), foundConfiguration.getCompanyId());
         assertEquals(configuration2.getConfigurationKey(), foundConfiguration.getConfigurationKey());
-        assertEquals(configuration2.getName(), foundConfiguration.getName());
+        assertEquals(configuration2.getConfigurationName(), foundConfiguration.getConfigurationName());
     }
+    
+    /**
+     * Test to verify findFirstByConfigurationIdAndCompanyId method.
+     * 
+     */
+    @Test
+    public void testFindFirstByCompanyIdAndMasterConfiguration() {
 
+        Configuration configuration1 = ApiTestDataUtil.createConfiguration(null, 1, "ABC", "test config1", "test description");
+
+        // Saving record into H2 DB
+        configurationRepository.save(configuration1);
+
+        Configuration configuration2 = ApiTestDataUtil.createConfiguration(null, 3, "POR", "test config2,1", "test description");
+
+        // Saving record into H2 DB
+        configurationRepository.save(configuration2);
+
+        Configuration configuration3 = ApiTestDataUtil.createConfiguration(null, 3, "XYZ", "test config3", "test description");
+
+        // Saving record into H2 DB
+        configurationRepository.save(configuration3);
+
+        Configuration foundConfiguration = configurationRepository
+                .findFirstByConfigurationIdAndCompanyId(configuration2.getConfigurationId(), 3);
+
+        assertNotNull(foundConfiguration.getConfigurationId());
+        assertEquals(configuration2.getCompanyId(), foundConfiguration.getCompanyId());
+        assertEquals(configuration2.getConfigurationKey(), foundConfiguration.getConfigurationKey());
+        assertEquals(configuration2.getConfigurationName(), foundConfiguration.getConfigurationName());
+    }
 }

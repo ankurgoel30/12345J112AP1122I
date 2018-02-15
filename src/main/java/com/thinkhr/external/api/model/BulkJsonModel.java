@@ -45,6 +45,7 @@ public class BulkJsonModel {
      * @return
      * @throws Exception 
      */
+    @JsonIgnore
     public String getAttributeNamesAsCommaSeparated() {
         return getCommaSeparatedStr(true).toUpperCase();
     }
@@ -82,6 +83,7 @@ public class BulkJsonModel {
      * 
      * @return
      */
+    @JsonIgnore
     public String getAttributeValueAsCommaSeparated() {
         return getCommaSeparatedStr(false);
     }

@@ -7,7 +7,9 @@ import static com.thinkhr.external.api.services.utils.EmailUtil.SET_PASSWORD_LIN
 import static com.thinkhr.external.api.services.utils.EmailUtil.SUPPORT_EMAIL;
 import static com.thinkhr.external.api.services.utils.EmailUtil.SUPPORT_PHONE;
 import static com.thinkhr.external.api.services.utils.EmailUtil.USER_NAME;
+import static com.thinkhr.external.api.utils.ApiTestDataUtil.createConfiguration;
 
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -16,6 +18,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -44,12 +47,14 @@ import com.thinkhr.external.api.db.entities.EmailConfiguration;
 import com.thinkhr.external.api.db.entities.EmailField;
 import com.thinkhr.external.api.db.entities.EmailTemplate;
 import com.thinkhr.external.api.db.entities.Location;
+import com.thinkhr.external.api.db.entities.Sku;
 import com.thinkhr.external.api.db.entities.StandardFields;
 import com.thinkhr.external.api.db.entities.ThroneRole;
 import com.thinkhr.external.api.db.entities.User;
 import com.thinkhr.external.api.db.learn.entities.LearnCompany;
 import com.thinkhr.external.api.db.learn.entities.LearnRole;
 import com.thinkhr.external.api.db.learn.entities.LearnUser;
+import com.thinkhr.external.api.model.BulkJsonModel;
 import com.thinkhr.external.api.model.EmailRequest;
 import com.thinkhr.external.api.model.FileImportResult;
 import com.thinkhr.external.api.model.KeyValuePair;
@@ -66,6 +71,7 @@ public class ApiTestDataUtil {
     public static final String API_BASE_PATH = "/v1/";
     public static final String COMPANY_API_BASE_PATH = "/v1/companies/";
     public static final String USER_API_BASE_PATH = "/v1/users/";
+    public static final String CONFIG_API_BASE_PATH = "/v1/configurations/";
     public static final String BROKER_API_BASE_PATH = "/v1/brokers/";
     public static final String COMPANY_API_REQUEST_PARAM_OFFSET = "offset";
     public static final String COMPANY_API_REQUEST_PARAM_LIMIT = "limit";
@@ -93,7 +99,7 @@ public class ApiTestDataUtil {
      */
     public static String getJsonString(Object object) throws Exception {
         ObjectMapper mapper = new ObjectMapper();
-        mapper.setSerializationInclusion(Include.NON_NULL);
+        //mapper.setSerializationInclusion(Include.NON_NULL);
         return mapper.writeValueAsString(object);
     }
 
@@ -259,15 +265,41 @@ public class ApiTestDataUtil {
      * @return
      */
     public static Configuration createConfiguration(Integer configurationId, Integer companyId, String configurationKey,
-            String name) {
+            String name, String description) {
+        return createConfiguration(configurationId, companyId, configurationKey, name, null, description);
+    }
+
+    public static Configuration createConfiguration(Integer configurationId, Integer companyId, String configurationKey,
+            String name, Integer master, String description) {
         Configuration configuration = new Configuration();
         if (configurationId != null) {
             configuration.setConfigurationId(configurationId);
         }
         configuration.setCompanyId(companyId);
         configuration.setConfigurationKey(configurationKey);
-        configuration.setName(name);
+        configuration.setConfigurationName(name); 
+        configuration.setMasterConfiguration(master);
+        configuration.setDescription(description); 
         return configuration;
+    }
+    
+    /**
+     * Test Data creation for list of configurations
+     * 
+     * @return
+     */
+    public static List<Configuration> createConfigurationList(){
+       
+        Configuration configuration = createConfiguration(1, 2, "ABC", "test config", "test description");
+        Configuration configuration1 = createConfiguration(2, 3, "ABC1", "test1 config", "test description");
+        Configuration configuration2 = createConfiguration(3, 4, "ABC2", "test2 config", "test description");
+        
+        List<Configuration> configurationList = new ArrayList<Configuration>();
+        configurationList.add(configuration);
+        configurationList.add(configuration1);
+        configurationList.add(configuration2);
+        
+        return configurationList;
     }
 
     /**
@@ -1586,18 +1618,169 @@ public class ApiTestDataUtil {
      * @return
      */
     public static EmailRequest createEmailRequest() {
-
+        User user = createUser();
         EmailRequest request = new EmailRequest();
 
-        List<String> toEmail = new ArrayList<String>();
-        toEmail.add("test123@pepcus.com");
-
         request.setFromEmail("welcome@myhrworkplace.com");
-        request.setParameters(createKeyValueListForEmail());
         request.setSubject("welcome to thinkHR");
-        request.setToEmail(toEmail);
         request.setBody("Hello, you now have access to thinkHR");
+        request.getRecipientToSubstitutionMap().put(user, createKeyValueListForEmail());
+
         return request;
     }
+    
+    
+    
+    /**
+     * Create Bulk Companies test data
+     * 
+     * @return
+     */
+    public static List<BulkJsonModel> createBulkCompanies() {
+        
+        List<BulkJsonModel> companies = new ArrayList<BulkJsonModel>();
+        
+        BulkJsonModel company = new BulkJsonModel();        
+        Map<String, Object> properties = new LinkedHashMap<>();        
+        properties.put("clientName","Pepcus");
+        properties.put("displayName","10 Monroe St Inc");
+        properties.put("phone", "57934875");
+        properties.put("address", "10 Monroe St");
+        properties.put("address2", "");
+        properties.put("city", "Ellicottville");
+        properties.put("state", "NY");
+        properties.put("zip", "14731");
+        properties.put("industry", "other");
+        properties.put("companySize", "0");
+        properties.put("producer", "");
+        properties.put("businessId", "5330663");
+        properties.put("branch_id", "45");
+        properties.put("clientId", "14073326");
+        properties.put("clientType", "Non PEO");
+        company.setProperties(properties);
+        
+        companies.add(company);
+        
+        company = new BulkJsonModel();        
+        properties = new LinkedHashMap<>();        
+        properties.put("clientName","Pepcus1");
+        properties.put("displayName","10 Monroe St Inc");
+        properties.put("phone", "57934875");
+        properties.put("address", "10 Monroe St");
+        properties.put("address2", "");
+        properties.put("city", "Ellicottville");
+        properties.put("state", "NY");
+        properties.put("zip", "14731");
+        properties.put("industry", "other");
+        properties.put("companySize", "0");
+        properties.put("producer", "");
+        properties.put("businessId", "5330663");
+        properties.put("branch_id", "45");
+        properties.put("clientId", "14073326");
+        properties.put("clientType", "Non PEO");
+        company.setProperties(properties);
+        
+        companies.add(company);
+        
+        return companies;
+        
+    }
+    
+    /**
+     * Create Bulk companies response object
+     * 
+     * @param companies
+     * @param httpStatus
+     * @return
+     */
+    public static ResponseEntity<List<BulkJsonModel>> createBulkCompanyResponseEntity(List<BulkJsonModel> companies, HttpStatus httpStatus) {
+        return new ResponseEntity<List<BulkJsonModel>>(companies, httpStatus);
+    }
+    
+    
+    /**
+     * Create test data for Bulk users
+     * 
+     * @return
+     */
+    public static List<BulkJsonModel> createBulkUsers() {
+        
+        List<BulkJsonModel> users = new ArrayList<BulkJsonModel>();
+        
+        BulkJsonModel user = new BulkJsonModel();        
+        Map<String, Object> properties = new LinkedHashMap<>();        
+        properties.put("firstName", "Sonia");
+        properties.put("lastName", "Martinez");
+        properties.put("clientName", "Apramo LLC");
+        properties.put("email", "sonia@24hrc.com");
+        properties.put("userName", "sonia@24hrc.com");
+        properties.put("phone", "");
+        properties.put("businessId", "4649973");
+        user.setProperties(properties);
+        
+        users.add(user);
+        
+        user = new BulkJsonModel();        
+        properties = new LinkedHashMap<>();        
+        properties.put("firstName", "Aura");
+        properties.put("lastName", "De leon");
+        properties.put("clientName", "Apramo LLC");
+        properties.put("email", "juifr@my.palmbeachstate.edu");
+        properties.put("userName", "juifr@my.palmbeachstate.edu");
+        properties.put("phone", "");
+        properties.put("businessId", "5331675");
+        user.setProperties(properties);
+        
+        users.add(user);
+        
+        return users;
+        
+    }
+    
+    /**
+     * Creates a Bulk User response object
+     * 
+     * @param company
+     * @param httpStatus
+     * @return
+     */
+    public static ResponseEntity<List<BulkJsonModel>> createBulkUserResponseEntity(List<BulkJsonModel> users, HttpStatus httpStatus) {
+        return new ResponseEntity<List<BulkJsonModel>>(users, httpStatus);
+    }
 
+    /**
+     * Creates a configuration response object
+     * 
+     * @param company
+     * @param httpStatus
+     * @return
+     */
+    public static ResponseEntity<Configuration> createConfigurationResponseEntity(Configuration config,
+            HttpStatus httpStatus) {
+        return new ResponseEntity<Configuration>(config, httpStatus);
+    }
+
+    /**
+     * Creates a configuration response object
+     * 
+     * @param company
+     * @param httpStatus
+     * @return
+     */
+    public static ResponseEntity<Integer> createConfigurationIdResponseEntity(Integer configurationId,
+            HttpStatus httpStatus) {
+        return new ResponseEntity<Integer>(configurationId, httpStatus);
+    }
+    
+    /**
+     * Create test Data for Sku
+     * 
+     * @param id
+     * @return
+     */
+    public static Sku createSku(Integer id){
+        Sku sku = new Sku();
+        sku.setId(id);
+        return sku;
+    }
 }

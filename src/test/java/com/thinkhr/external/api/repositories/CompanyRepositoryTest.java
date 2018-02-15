@@ -363,8 +363,8 @@ public class CompanyRepositoryTest {
         companyRepository.save(broker);
         companyRepository.save(notBrokerCompany);
 
-        Company company = companyRepository.findByCompanyId(broker.getCompanyId());
-        Company company2 = companyRepository.findByCompanyId(notBrokerCompany.getCompanyId());
+        Company company = companyRepository.findOne(broker.getCompanyId());
+        Company company2 = companyRepository.findOne(notBrokerCompany.getCompanyId());
 
         assertNotNull(company);
         assertEquals(broker.getCompanyId(), company.getCompanyId());

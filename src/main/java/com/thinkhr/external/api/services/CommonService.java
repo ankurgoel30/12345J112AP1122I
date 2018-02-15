@@ -1,5 +1,6 @@
 package com.thinkhr.external.api.services;
 
+import static com.thinkhr.external.api.ApplicationConstants.APP_AUTH_DATA;
 import static com.thinkhr.external.api.services.utils.FileImportUtil.getCustomFieldPrefix;
 import static com.thinkhr.external.api.ApplicationConstants.*;
 
@@ -18,14 +19,17 @@ import javax.validation.Validation;
 import javax.validation.Validator;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectReader;
 import com.thinkhr.external.api.db.entities.Company;
 import com.thinkhr.external.api.db.entities.Configuration;
 import com.thinkhr.external.api.db.entities.CustomFields;
 import com.thinkhr.external.api.db.entities.StandardFields;
+import com.thinkhr.external.api.db.entities.User;
 import com.thinkhr.external.api.exception.APIErrorCodes;
 import com.thinkhr.external.api.exception.ApplicationException;
 import com.thinkhr.external.api.exception.MessageResourceHandler;
@@ -35,13 +39,18 @@ import com.thinkhr.external.api.learn.repositories.LearnFileDataRepository;
 import com.thinkhr.external.api.learn.repositories.LearnRoleRepository;
 import com.thinkhr.external.api.learn.repositories.LearnUserRepository;
 import com.thinkhr.external.api.learn.repositories.PackageRepository;
+import com.thinkhr.external.api.model.AppAuthData;
+import com.thinkhr.external.api.model.CsvModel;
 import com.thinkhr.external.api.repositories.CompanyRepository;
 import com.thinkhr.external.api.repositories.ConfigurationRepository;
 import com.thinkhr.external.api.repositories.CustomFieldsRepository;
 import com.thinkhr.external.api.repositories.EmailTemplateRepository;
 import com.thinkhr.external.api.repositories.FileDataRepository;
+import com.thinkhr.external.api.repositories.SetPasswordRequestRepository;
+import com.thinkhr.external.api.repositories.SkuRepository;
 import com.thinkhr.external.api.repositories.StandardFieldsRepository;
 import com.thinkhr.external.api.repositories.UserRepository;
+import com.thinkhr.external.api.request.APIRequestHelper;
 import com.thinkhr.external.api.services.upload.FileUploadEnum;
 
 import lombok.Data;
@@ -85,6 +94,9 @@ public class CommonService {
     protected ConfigurationRepository configurationRepository;
     
     @Autowired
+    protected SkuRepository skuRepository;
+    
+    @Autowired
     protected LearnRoleRepository learnRoleRepository;
 
     @Autowired
@@ -99,8 +111,23 @@ public class CommonService {
     @Autowired
     PackageRepository packageRepository;
     
+    @Autowired
+    protected EmailTemplateRepository emailRepository;
+
+    @Autowired
+    protected SetPasswordRequestRepository setPasswordRepository;
+    
+    @Value("${com.thinkhr.external.api.threadpool.size}")
+    protected Integer threadPoolSize;
+    
     @PersistenceContext
     protected EntityManager entityManager;
+    
+    @Value("${com.thinkhr.external.api.company.records.limit}")
+    protected int maxRecordsCompanyImport;
+    
+    @Value("${com.thinkhr.external.api.user.records.limit}")
+    protected int maxRecordsUserImport;
     
     /**
      * @return
@@ -230,7 +257,24 @@ public class CommonService {
     }
     
     /**
-     * To create a Configuration for given companyId
+     * 
+     * @param user
+     * @param brokerId
+     */
+    protected String getAddedBy(Integer brokerId) {
+        String addedBy = null;
+        AppAuthData authData = (AppAuthData) APIRequestHelper.getRequestAttribute(APP_AUTH_DATA);
+        if (authData != null) {
+            User authUser = userRepository.findByUserName(authData.getUser());
+            addedBy = String.valueOf(authUser.getUserId());
+        } else {
+            addedBy = String.valueOf(brokerId); 
+        }
+
+        return addedBy;
+    }
+    
+    /** To create a Configuration for given companyId
      * 
      * @param companyId
      * @return
@@ -238,10 +282,28 @@ public class CommonService {
     public Configuration createMasterConfiguration(Integer companyId) {
         Configuration configuration = new Configuration();
         configuration.setCompanyId(companyId);
-        configuration.setIsMasterConfiguration(1);
+        configuration.setMasterConfiguration(1);
         configuration.setConfigurationKey(MASTER_CONFIG_KEY);
-        configuration.setName(MASTER_CONFIG_NAME);
+        configuration.setConfigurationName(MASTER_CONFIG_NAME); 
         configuration.setDescription(MASTER_CONFIG_NAME);
         return configuration;
+    }
+    
+    /**
+     * Returns true if Json String has the requested field
+     * 
+     * @param configurationJson
+     * @return
+     */
+    public boolean containsField(String configurationJson, String field) {
+       
+            try {
+                ObjectMapper mapper = new ObjectMapper();
+                // convert JSON string to Map
+                JsonNode node = mapper.readTree(configurationJson);
+                return (node.has(field)) ? true : false;
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
     }
 }

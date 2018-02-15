@@ -1,7 +1,10 @@
 package com.thinkhr.external.api.learn.repositories;
 
+import java.util.List;
+
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.repository.PagingAndSortingRepository;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.thinkhr.external.api.db.learn.entities.LearnCompany;
 
@@ -30,4 +33,11 @@ public interface LearnCompanyRepository extends PagingAndSortingRepository<Learn
      * @return
      */
     public LearnCompany findFirstByCompanyId(Integer thrCompanyId);
+    
+    /**
+     * 
+     * @param thrCompanyIdList
+     */
+    @Transactional
+    public void deleteByCompanyIdIn(List<Integer> thrCompanyIdList);
 }
