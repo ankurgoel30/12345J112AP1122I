@@ -412,11 +412,9 @@ public class Company implements SearchableEntity {
     private String emailTemplateId;
     
     @Transient
-    @JsonProperty(access = Access.WRITE_ONLY)
     private String welcomeSenderEmailSubject;
     
     @Transient
-    @JsonProperty(access = Access.WRITE_ONLY)
     private String welcomeSenderEmail;
 
     @NotNull

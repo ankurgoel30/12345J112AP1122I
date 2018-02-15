@@ -4,6 +4,8 @@ import static com.thinkhr.external.api.ApplicationConstants.COMPANY_TYPE_BROKER;
 import static com.thinkhr.external.api.ApplicationConstants.WELCOME_EMAIL_TYPE;
 import static com.thinkhr.external.api.ApplicationConstants.WELCOME_SENDER_EMAIL;
 import static com.thinkhr.external.api.ApplicationConstants.WELCOME_SENDER_EMAIL_SUBJECT;
+import static com.thinkhr.external.api.ApplicationConstants.DEFAULT_WELCOME_EMAIL;
+import static com.thinkhr.external.api.ApplicationConstants.DEFAULT_WELCOME_EMAIL_SUBJECT;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -65,7 +67,11 @@ public class BrokerService extends CompanyService {
             requestParameters = new HashMap<String, String>();
         }
         requestParameters.put("companyType", COMPANY_TYPE_BROKER); //To always filter broker records;
-        return getAllCompany(offset, limit, sortField, searchSpec, requestParameters);
+        List<Company> companies = getAllCompany(offset, limit, sortField, searchSpec, requestParameters);
+        
+        companies.forEach(c -> setWelcomeEmailDetails(c));
+        
+        return companies;
    }
 
    /**
@@ -206,7 +212,38 @@ public class BrokerService extends CompanyService {
             throw ApplicationException.createEntityNotFoundError(APIErrorCodes.ENTITY_NOT_FOUND,
                     "broker", "brokerId="+ brokerId);
         }
+        
+        company = setWelcomeEmailDetails(company);
 
+        return company;
+    }
+
+    /**
+     * Sets the Welcome Email Subject and Welcome Email for the Broker
+     * 
+     * @param company
+     * @return
+     */
+    private Company setWelcomeEmailDetails(Company company) {
+        
+        EmailTemplate emailTemplate = emailTemplateRepository.findFirstByBrokerIdAndType(company.getCompanyId(), WELCOME_EMAIL_TYPE);
+        
+        //Set default values if no configuration present for broker
+        if(emailTemplate == null){
+            company.setWelcomeSenderEmailSubject(DEFAULT_WELCOME_EMAIL_SUBJECT);
+            company.setWelcomeSenderEmail(DEFAULT_WELCOME_EMAIL);
+            
+        //Set specific values for broker from his Email Configuration    
+        }else{
+            for (EmailConfiguration configuration : emailTemplate.getEmailConfigurations()) {
+                if(configuration.getEmailField().getId() == 2){
+                    company.setWelcomeSenderEmailSubject(configuration.getValue());
+                }else if(configuration.getEmailField().getId() == 11){
+                    company.setWelcomeSenderEmail(configuration.getValue());
+                }
+            }
+        }
+        
         return company;
     }
 
