@@ -13,6 +13,7 @@ import java.util.List;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
+import org.mockito.Matchers;
 import org.mockito.Mock;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ContextConfiguration;
@@ -182,7 +183,7 @@ public class LearnUserServiceTest {
         when(learnFileDataRepository.saveLearnUserRecord(learnUserColumnList, learnUserColumnValuesList, roleId))
                 .thenReturn(1);
         when(companyRepository.findOne(user.getCompanyId())).thenReturn(company);
-        when(learnRoleRepository.findFirstByShortName(roleName)).thenReturn(new LearnRole());
+        when(learnRoleRepository.findFirstByShortName(Matchers.anyString())).thenReturn(new LearnRole());
 
         Integer learnUserId = learnService.addLearnUserForBulk(user);
 

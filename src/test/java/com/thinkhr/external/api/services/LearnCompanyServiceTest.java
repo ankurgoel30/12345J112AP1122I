@@ -21,6 +21,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringRunner;
+import org.springframework.test.util.ReflectionTestUtils;
 
 import com.thinkhr.external.api.ApiApplication;
 import com.thinkhr.external.api.db.entities.Company;
@@ -112,6 +113,7 @@ public class LearnCompanyServiceTest {
         LearnPackageMaster package1 = ApiTestDataUtil.createPacakge(1L, 10, defaultCompanyPackage);
         LearnCompany learnCompany = ApiTestDataUtil.createLearnCompany(1L, 1, "Pepcus", "Software");
 
+        ReflectionTestUtils.setField(learnService, "defaultCompanyPackage", "World"); 
         when(packageRepository.findFirstByName(Matchers.any())).thenReturn(package1);
 
         LearnPackageMaster actual = learnService.addPackage(learnCompany, defaultCompanyPackage);
@@ -230,6 +232,7 @@ public class LearnCompanyServiceTest {
         LearnPackageMaster package1 = ApiTestDataUtil.createPacakge(1L, 10, "World");
         List<Object> columns = ApiTestDataUtil.getInsertColumnsForLearn(company);
 
+        ReflectionTestUtils.setField(learnService, "defaultCompanyPackage", "World");
         when(packageRepository.findFirstByName(defaultCompanyPackage)).thenReturn(package1);
 
         when(learnFileDataRepository.saveLearnCompanyRecord(columns, package1.getId().intValue()))
