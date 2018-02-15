@@ -68,7 +68,7 @@ public class ConfigurationControllerTest {
     @Test
     public void test_GetConfigurationById() throws Exception {
         Integer brokerId = 12345;
-        Configuration configuration = createConfiguration(1, 2, "ABC", "test config", 0);
+        Configuration configuration = createConfiguration(1, 2, "ABC", "test config", 0, "test description");
 
         given(configurationController.getById(configuration.getConfigurationId(), brokerId)).willReturn(configuration);
 
@@ -85,7 +85,7 @@ public class ConfigurationControllerTest {
     @Test
     public void test_AddConfiguration() throws Exception {
 
-        Configuration configuration = createConfiguration(1, 2, "ABC", "test config", 0);
+        Configuration configuration = createConfiguration(1, 2, "ABC", "test config", 0, "test description");
 
         ResponseEntity<Configuration> responseEntity = ApiTestDataUtil.createConfigurationResponseEntity(configuration,
                 HttpStatus.CREATED);
@@ -109,7 +109,7 @@ public class ConfigurationControllerTest {
      */
     @Test
     public void test_UpdateConfiguration() throws Exception {
-        Configuration configuration = createConfiguration(1, 2, "ABC", "test config", 0);
+        Configuration configuration = createConfiguration(1, 2, "ABC", "test config", 0, "test description");
 
         ResponseEntity<Configuration> responseEntity = ApiTestDataUtil.createConfigurationResponseEntity(configuration,
                 HttpStatus.OK);
@@ -134,7 +134,7 @@ public class ConfigurationControllerTest {
     @Test
     public void test_DeleteConfiguration() throws Exception {
 
-        Configuration configuration = createConfiguration(1, 2, "ABC", "test config");
+        Configuration configuration = createConfiguration(1, 2, "ABC", "test config", "test description");
 
         ResponseEntity<Integer> responseEntity = ApiTestDataUtil.createConfigurationIdResponseEntity(
                 configuration.getConfigurationId(),

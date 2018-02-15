@@ -1,13 +1,12 @@
 package com.thinkhr.external.api.services;
 
-import static com.thinkhr.external.api.ApplicationConstants.DEFAULT_SORT_BY_CONFIGURATION_ID;
+import static com.thinkhr.external.api.ApplicationConstants.DEFAULT_SORT_BY_CONFIGURATION_NAME;
 import static com.thinkhr.external.api.services.utils.EntitySearchUtil.getPageable;
 import static com.thinkhr.external.api.utils.ApiTestDataUtil.createCompany;
 import static com.thinkhr.external.api.utils.ApiTestDataUtil.createConfiguration;
 import static com.thinkhr.external.api.utils.ApiTestDataUtil.createSku;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.spy;
@@ -96,7 +95,7 @@ public class ConfigurationServiceTest {
         //TestData
         Integer configId = 1;
         Integer brokerId = 2;
-        Configuration configuration = createConfiguration(1, 2, "ABC", "test config");
+        Configuration configuration = createConfiguration(1, 2, "ABC", "test config", "test description");
 
         //Stub Functions for this test
         when(configurationRepository.findOne(configId)).thenReturn(configuration);
@@ -120,7 +119,7 @@ public class ConfigurationServiceTest {
         //TestData
         Integer configId = 1;
         Integer brokerId = 12345;
-        Configuration configuration = createConfiguration(1, 2, "ABC", "test config");
+        Configuration configuration = createConfiguration(1, 2, "ABC", "test config", "test description");
 
         //Stub Functions for this test
         when(configurationRepository.findOne(configId)).thenReturn(configuration);
@@ -142,7 +141,7 @@ public class ConfigurationServiceTest {
         //TestData
         Integer brokerId = 2;
         Integer configId = 1;
-        Configuration configuration = createConfiguration(1, 2, "ABC", "test config", 0);
+        Configuration configuration = createConfiguration(1, 2, "ABC", "test config", 0, "test description");
 
         //Stub Functions for this test
         when(configurationRepository.findOne(configId)).thenReturn(configuration);
@@ -162,7 +161,7 @@ public class ConfigurationServiceTest {
         //TestData
         Integer brokerId = 2;
         Integer configId = 1;
-        Configuration configuration = createConfiguration(1, 2, "ABC", "test config", 0);
+        Configuration configuration = createConfiguration(1, 2, "ABC", "test config", 0, "test description");
         configuration.setMasterConfiguration(1);
 
         //Stub Functions for this test
@@ -186,7 +185,7 @@ public class ConfigurationServiceTest {
         //TestData
         Integer brokerId = 2;
         Integer configId = 1;
-        Configuration configuration = createConfiguration(1, 2, "ABC", "test config", 0);
+        Configuration configuration = createConfiguration(1, 2, "ABC", "test config", 0, "test description");
         Company company = createCompany();
 
         //Stub Functions for this test
@@ -215,9 +214,9 @@ public class ConfigurationServiceTest {
         //TestData
         Integer brokerId = 2;
         Integer configId = 1;
-        Configuration configurationInDb = createConfiguration(1, 2, "ABC", "test config", 0);
-        Configuration updatedConfiguration = createConfiguration(1, 2, "ABC", "Updatedname", 0);
-        String configJson = "{\"name\": \"Updatename\"}";
+        Configuration configurationInDb = createConfiguration(1, 2, "ABC", "test config", 0, "test description");
+        Configuration updatedConfiguration = createConfiguration(1, 2, "ABC", "Updatedname", 0, "test description");
+        String configJson = "{\"configurationName\": \"Updatedname\"}";
         Company company = createCompany();
 
         //Stub Functions for this test
@@ -233,7 +232,7 @@ public class ConfigurationServiceTest {
         }
 
         //Assertions
-        assertEquals(updatedConfiguration.getName(), configuration.getName());
+        assertEquals(updatedConfiguration.getConfigurationName(), configuration.getConfigurationName());
     }
 
     /**
@@ -269,10 +268,10 @@ public class ConfigurationServiceTest {
       //TestData
         Integer brokerId = 2;
         Integer configId = 1;
-        Configuration configurationInDb = createConfiguration(1, 2, "ABC", "test config", 0);
-        Configuration updatedConfiguration = createConfiguration(1, 2, "ABC", "Updatedname", 0);
-        Configuration masterConfiguration = createConfiguration(1, 2, "ABC2", "masterConfig", 1);
-        String configJson = "{\"name\": \"Updatename\",\"skus\": [{\"skuId\": 1}]}";
+        Configuration configurationInDb = createConfiguration(1, 2, "ABC", "test config", 0, "test description");
+        Configuration updatedConfiguration = createConfiguration(1, 2, "ABC", "Updatedname", 0, "test description");
+        Configuration masterConfiguration = createConfiguration(1, 2, "ABC2", "masterConfig", 1, "test description");
+        String configJson = "{\"configurationName\": \"Updatedname\",\"skus\": [{\"id\": 1}]}";
         
         Set<Sku> masterSkus = new HashSet<Sku>();
         masterSkus.add(createSku(2));
@@ -304,8 +303,8 @@ public class ConfigurationServiceTest {
         Integer brokerId = 12345;
         Company broker = createCompany();
         broker.setConfigurationId(123);
-        Configuration configuration = createConfiguration(1, 2, "ABC", "test config");
-        Configuration masterConfiguration = createConfiguration(1, 2, "ABC2", "masterConfig", 1);
+        Configuration configuration = createConfiguration(1, 2, "ABC", "test config", "test description");
+        Configuration masterConfiguration = createConfiguration(1, 2, "ABC2", "masterConfig", 1, "test description");
 
         //Spy
         ConfigurationService configServiceSpy = spy(configurationService);
@@ -330,7 +329,7 @@ public class ConfigurationServiceTest {
         //TestData
         Integer brokerId = 12345;
         Company broker = createCompany();
-        Configuration configuration = createConfiguration(1, 2, "ABC", "test config");
+        Configuration configuration = createConfiguration(1, 2, "ABC", "test config", "test description");
         broker.setConfigurationId(null); // Broker does not have any Configuration Set
 
         //Stub Functions for this test
@@ -354,7 +353,7 @@ public class ConfigurationServiceTest {
         //TestData
         Integer brokerId = 12345;
         Company broker = createCompany();
-        Configuration configuration = createConfiguration(1, 2, "ABC", "test config");
+        Configuration configuration = createConfiguration(1, 2, "ABC", "test config", "test description");
         broker.setConfigurationId(123);// Broker has configuration set
         
         //Spy
@@ -381,9 +380,9 @@ public class ConfigurationServiceTest {
     public void test_GetConfigurations(){
         Integer brokerId = 2;
         List<Configuration> configList = new ArrayList<Configuration>();
-        configList.add(createConfiguration(1, 2, "ABC", "test config"));
-        configList.add(createConfiguration(1, 2, "AB1C", "test1 config"));
-        Pageable pageable = getPageable(null, null, null, DEFAULT_SORT_BY_CONFIGURATION_ID);
+        configList.add(createConfiguration(1, 2, "ABC", "test config", "test description"));
+        configList.add(createConfiguration(1, 2, "AB1C", "test1 config", "test description"));
+        Pageable pageable = getPageable(null, null, null, DEFAULT_SORT_BY_CONFIGURATION_NAME);
 
         when(configurationRepository.findAll(Matchers.any(Specification.class), Matchers.any(Pageable.class))).
             thenReturn(new PageImpl<Configuration>(configList, pageable, configList.size())); 

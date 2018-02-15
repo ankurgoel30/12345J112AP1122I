@@ -5,7 +5,6 @@ import static com.thinkhr.external.api.ApplicationConstants.EMAIL_PATTERN;
 import static com.thinkhr.external.api.ApplicationConstants.UNDERSCORE;
 import static com.thinkhr.external.api.ApplicationConstants.VALID_FILE_EXTENSION_IMPORT;
 import static com.thinkhr.external.api.response.APIMessageUtil.getMessageFromResourceBundle;
-import static com.thinkhr.external.api.services.utils.FileImportUtil.getMaxRecords;
 import static com.thinkhr.external.api.services.utils.FileImportUtil.getMissingHeaders;
 import static com.thinkhr.external.api.services.utils.FileImportUtil.getRequiredHeaders;
 import static com.thinkhr.external.api.services.utils.FileImportUtil.readFileContent;
@@ -42,7 +41,7 @@ public class FileImportValidator {
      * @throws ApplicationException
      * 
      */
-    public static List<String> validateAndGetFileContent (MultipartFile fileToImport, String resource) throws ApplicationException {
+    public static List<String> validateAndGetFileContent (MultipartFile fileToImport, String resource, int maxRecord) throws ApplicationException {
 
         String fileName = fileToImport.getOriginalFilename();
 
@@ -59,7 +58,7 @@ public class FileImportValidator {
         // Read all records from file
         List<String> fileContents = readFileContent(fileToImport);
 
-        validateFileContents(fileContents, fileName, resource);
+        validateFileContents(fileContents, fileName, resource, maxRecord);
 
         return fileContents;
     }
@@ -72,13 +71,11 @@ public class FileImportValidator {
      * @param fileName
      * @param resource
      */
-    public static void validateFileContents(List<String> fileContents, String fileName, String resource) {
+    public static void validateFileContents(List<String> fileContents, String fileName, String resource, int maxRecord) {
         
         if (fileContents == null || fileContents.isEmpty() || fileContents.size() < 2) {
             throw ApplicationException.createBulkImportError(APIErrorCodes.NO_RECORDS_FOUND_FOR_IMPORT, fileName);
         }
-        
-        int maxRecord = getMaxRecords(resource);
 
         if (fileContents.size() - 1 > maxRecord) {
             throw ApplicationException.createBulkImportError(APIErrorCodes.MAX_RECORD_EXCEEDED,

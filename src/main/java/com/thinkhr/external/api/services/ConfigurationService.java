@@ -1,8 +1,8 @@
 package com.thinkhr.external.api.services;
 
-import static com.thinkhr.external.api.ApplicationConstants.DEFAULT_SORT_BY_CONFIGURATION_ID;
-import static com.thinkhr.external.api.ApplicationConstants.TOTAL_RECORDS;
+import static com.thinkhr.external.api.ApplicationConstants.DEFAULT_SORT_BY_CONFIGURATION_NAME;
 import static com.thinkhr.external.api.ApplicationConstants.SKUS_FIELD;
+import static com.thinkhr.external.api.ApplicationConstants.TOTAL_RECORDS;
 import static com.thinkhr.external.api.request.APIRequestHelper.setRequestAttribute;
 import static com.thinkhr.external.api.services.utils.EntitySearchUtil.applyAdditionalFilter;
 import static com.thinkhr.external.api.services.utils.EntitySearchUtil.getEntitySearchSpecification;
@@ -169,8 +169,8 @@ public class ConfigurationService extends CommonService {
 
         //On terms that master configuration is never null for a broker
         Configuration masterConfiguration = configurationRepository.findFirstByCompanyIdAndMasterConfiguration(brokerId,1);
-        Set<Integer> masterSkuIds = masterConfiguration.getSkus().stream().map(a -> a.getSkuId()).collect(Collectors.toSet());
-        Set<Integer> requiredSkuIds = configuration.getSkus().stream().map(a -> a.getSkuId()).collect(Collectors.toSet());
+        Set<Integer> masterSkuIds = masterConfiguration.getSkus().stream().map(a -> a.getId()).collect(Collectors.toSet());
+        Set<Integer> requiredSkuIds = configuration.getSkus().stream().map(a -> a.getId()).collect(Collectors.toSet());
         
         requiredSkuIds.removeAll(masterSkuIds);
         
@@ -272,7 +272,7 @@ public class ConfigurationService extends CommonService {
      */
     @Override
     public String getDefaultSortField()  {
-        return DEFAULT_SORT_BY_CONFIGURATION_ID;
+        return DEFAULT_SORT_BY_CONFIGURATION_NAME;
     }
 
 

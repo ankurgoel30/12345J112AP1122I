@@ -3,8 +3,6 @@ package com.thinkhr.external.api.services.utils;
 import static com.thinkhr.external.api.ApplicationConstants.COMMA_SEPARATOR;
 import static com.thinkhr.external.api.ApplicationConstants.COMPANY;
 import static com.thinkhr.external.api.ApplicationConstants.COMPANY_CUSTOM_COLUMN_PREFIX;
-import static com.thinkhr.external.api.ApplicationConstants.MAX_RECORDS_COMPANY_CSV_IMPORT;
-import static com.thinkhr.external.api.ApplicationConstants.MAX_RECORDS_USER_CSV_IMPORT;
 import static com.thinkhr.external.api.ApplicationConstants.REQUIRED_HEADERS_COMPANY_CSV_IMPORT;
 import static com.thinkhr.external.api.ApplicationConstants.REQUIRED_HEADERS_USER_CSV_IMPORT;
 import static com.thinkhr.external.api.ApplicationConstants.USER;
@@ -52,6 +50,7 @@ import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 import org.powermock.modules.junit4.PowerMockRunnerDelegate;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.test.context.ContextConfiguration;
@@ -81,6 +80,9 @@ public class FileImportUtilTest {
     public void setup(){
         MockitoAnnotations.initMocks(this);
     }
+    
+    @Value("${com.thinkhr.external.api.user.records.limit}")
+    public Integer MAX_RECORDS_USER_CSV_IMPORT;
 
     /**
      * Test to verify when there is at least one missing header. 
@@ -513,46 +515,6 @@ public class FileImportUtilTest {
     }
 
     /**
-     * Test to verify if resource is null.
-     * 
-     */
-    @Test
-    public void testGetMaxRecordsForResourceNull() {
-        Integer maxRecords = FileImportUtil.getMaxRecords(null);
-        assertEquals(null, maxRecords);
-    }
-    
-    /**
-     * Test to verify if resource is company.
-     * 
-     */
-    @Test
-    public void testGetMaxRecordsForResourceCompany() {
-        Integer maxRecords = FileImportUtil.getMaxRecords(COMPANY);
-        assertEquals(MAX_RECORDS_COMPANY_CSV_IMPORT, maxRecords.intValue());
-    }
-
-    /**
-     * Test to verify if resource is user.
-     * 
-     */
-    @Test
-    public void testGetMaxRecordsForResourceUser() {
-        Integer maxRecords = FileImportUtil.getMaxRecords(USER);
-        assertEquals(MAX_RECORDS_USER_CSV_IMPORT, maxRecords.intValue());
-    }
-
-    /**
-     * Test to verify if resource is ABC.
-     * 
-     */
-    @Test
-    public void testGetMaxRecordsForOtherResource() {
-        Integer maxRecords = FileImportUtil.getMaxRecords("ABC");
-        assertEquals(null, maxRecords);
-    }
-    
-    /**
      * Test to validateAndGetContentFromModelSuccess.
      * 
      */
@@ -561,7 +523,7 @@ public class FileImportUtilTest {
         List<BulkJsonModel> users = createBulkUsers();
         String resource = "USER";
         
-        List<String> fileContents = FileImportUtil.validateAndGetContentFromModel(users, resource);
+        List<String> fileContents = FileImportUtil.validateAndGetContentFromModel(users, resource, MAX_RECORDS_USER_CSV_IMPORT);
         
         assertNotNull(fileContents);
         assertEquals(3, fileContents.size());

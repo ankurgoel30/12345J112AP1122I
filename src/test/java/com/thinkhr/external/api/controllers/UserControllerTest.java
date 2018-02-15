@@ -1,6 +1,5 @@
 package com.thinkhr.external.api.controllers;
 
-import static com.thinkhr.external.api.ApplicationConstants.MAX_RECORDS_COMPANY_CSV_IMPORT;
 import static com.thinkhr.external.api.ApplicationConstants.REQUIRED_HEADERS_COMPANY_CSV_IMPORT;
 import static com.thinkhr.external.api.ApplicationConstants.REQUIRED_HEADERS_USER_CSV_IMPORT;
 import static com.thinkhr.external.api.ApplicationConstants.VALID_FILE_EXTENSION_IMPORT;
@@ -36,6 +35,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.core.io.InputStreamResource;
@@ -80,6 +80,9 @@ public class UserControllerTest {
     public void setup() {
         this.mockMvc = MockMvcBuilders.webAppContextSetup(wac).build();
     }
+    
+    @Value("${com.thinkhr.external.api.user.records.limit}")
+    public static Integer MAX_RECORDS_USERS_CSV_IMPORT;
 
     /**
      * Test to verify Get users API (/v1/users) when no request parameters
@@ -466,7 +469,7 @@ public class UserControllerTest {
 
         ApplicationException mockedExp = ApplicationException
                 .createBulkImportError(APIErrorCodes.MAX_RECORD_EXCEEDED,
-                        String.valueOf(MAX_RECORDS_COMPANY_CSV_IMPORT));
+                        String.valueOf(MAX_RECORDS_USERS_CSV_IMPORT));
 
         given(userController.bulkUploadFile(any(), any())).willThrow(mockedExp);
 
