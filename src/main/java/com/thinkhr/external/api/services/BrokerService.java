@@ -1,19 +1,25 @@
 package com.thinkhr.external.api.services;
 
 import static com.thinkhr.external.api.ApplicationConstants.COMPANY_TYPE_BROKER;
+import static com.thinkhr.external.api.ApplicationConstants.WELCOME_EMAIL_TYPE;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.lang.StringUtils;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.thinkhr.external.api.db.entities.Company;
 import com.thinkhr.external.api.db.entities.Configuration;
+import com.thinkhr.external.api.db.entities.EmailConfiguration;
+import com.thinkhr.external.api.db.entities.EmailField;
+import com.thinkhr.external.api.db.entities.EmailTemplate;
 import com.thinkhr.external.api.exception.APIErrorCodes;
 import com.thinkhr.external.api.exception.ApplicationException;
 
@@ -30,6 +36,9 @@ import com.thinkhr.external.api.exception.ApplicationException;
  */
 @Service
 public class BrokerService extends CompanyService {
+    
+    @Value("${sendgrid_auth_template_id}")
+    private String authTemplateId;
     
     /**
     *
@@ -77,9 +86,11 @@ public class BrokerService extends CompanyService {
      * Add a company in database with type = broker_partner
      * 
      * @param company object
+     * @param welcomeSenderEmail 
+     * @param welcomeSenderEmailSubject 
      */
     @Transactional
-    public Company addBroker(Company company) {
+    public Company addBroker(Company company, String welcomeSenderEmailSubject, String welcomeSenderEmail) {
         
         if (StringUtils.isEmpty(company.getCompanyType())) { 
             company.setCompanyType(COMPANY_TYPE_BROKER);
@@ -95,7 +106,83 @@ public class BrokerService extends CompanyService {
         company = companyRepository.save(company); //To update with brokerId and master configuration id
         learnCompanyService.updateLearnCompany(company);
         
+        createEmailTemplateAndConfiguration(company, welcomeSenderEmailSubject, welcomeSenderEmail);
+        
         return company;
+    }
+
+    /**
+     * Adds email template and configuration for new brokers
+     * 
+     * @param company
+     * @param welcomeSenderEmail 
+     * @param welcomeSenderEmailSubject 
+     */
+    private void createEmailTemplateAndConfiguration(Company company, String welcomeSenderEmailSubject, String welcomeSenderEmail) {
+
+        //Set the email template
+        EmailTemplate emailTemplate = createEmailTemplate(company);
+        
+        //Create the Email Configurations
+        List<EmailConfiguration> emailConfigurations = createEmailConfigurationWithTemplate(company, welcomeSenderEmailSubject, welcomeSenderEmail, emailTemplate);
+        
+        emailTemplate.setEmailConfigurations(emailConfigurations);
+        
+        emailTemplateRepository.save(emailTemplate);
+        
+    }
+
+    
+    /**
+     * Creates an Email template for the new broker company
+     * 
+     * @param company
+     * @return
+     */
+    private EmailTemplate createEmailTemplate(Company company) {
+
+        EmailTemplate emailTemplate = new EmailTemplate();
+        emailTemplate.setBrokerId(company.getCompanyId());
+        emailTemplate.setType(WELCOME_EMAIL_TYPE);
+        emailTemplate.setSendgridTemplateId(authTemplateId);
+        
+        return emailTemplate;
+    }
+    
+    /**
+     * Creates email configuration for broker with the specified template
+     * 
+     * @param company
+     * @param welcomeSenderEmailSubject
+     * @param welcomeSenderEmail
+     * @param emailTemplate 
+     * @return 
+     */
+    private List<EmailConfiguration> createEmailConfigurationWithTemplate(Company company,
+            String welcomeSenderEmailSubject, String welcomeSenderEmail, EmailTemplate emailTemplate) {
+
+        List<EmailConfiguration> emailConfigurations = new ArrayList<EmailConfiguration>();
+        
+        //Set Email Configuration for Email Subject 
+        EmailConfiguration emailConfigurationForSubject = new EmailConfiguration();
+        EmailField emailFieldForSubject = new EmailField();
+        emailFieldForSubject.setId(2);
+        emailConfigurationForSubject.setEmailField(emailFieldForSubject);
+        emailConfigurationForSubject.setValue(welcomeSenderEmailSubject);
+        emailConfigurationForSubject.setEmailTemplate(emailTemplate);
+        emailConfigurations.add(emailConfigurationForSubject);
+        
+        //Set Email Configuration for Email
+        EmailConfiguration emailConfigurationForMail = new EmailConfiguration();
+        EmailField emailFieldForMail = new EmailField();
+        emailFieldForMail.setId(11);
+        emailConfigurationForMail.setEmailField(emailFieldForMail);
+        emailConfigurationForMail.setValue(welcomeSenderEmail);
+        emailConfigurationForMail.setEmailTemplate(emailTemplate);
+        emailConfigurations.add(emailConfigurationForMail);
+        
+        return emailConfigurations;
+        
     }
 
     /**

@@ -161,10 +161,10 @@ public class BrokerControllerTest {
 
         ResponseEntity<Company> responseEntity = createCompanyResponseEntity(broker, HttpStatus.CREATED);
 
-        given(brokerController.addBroker(Mockito.any(Company.class))).willReturn(responseEntity);
+        given(brokerController.addBroker(Mockito.any(Company.class),Mockito.anyString(),Mockito.anyString())).willReturn(responseEntity);
 
         mockMvc.perform(post(BROKER_API_BASE_PATH)
-                .accept(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON).param("welcome_sender_email_subject", "testSubject").param("welcome_sender_email", "testEmail@test.com")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(getJsonString(broker)))
                 .andExpect(status().isCreated())

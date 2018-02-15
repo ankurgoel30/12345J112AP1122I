@@ -112,8 +112,10 @@ public class BrokerController {
      * @param Company object
      */
     @RequestMapping(method=RequestMethod.POST)
-    public ResponseEntity<Company> addBroker(@Valid @RequestBody Company company) throws ApplicationException {
-        brokerService.addBroker(company);
+    public ResponseEntity<Company> addBroker(@Valid @RequestBody Company company,
+            @RequestParam(value = "welcome_sender_email_subject", required = true) String welcomeSenderEmailSubject,
+            @RequestParam(value = "welcome_sender_email", required = true) String welcomeSenderEmail) throws ApplicationException {
+        brokerService.addBroker(company, welcomeSenderEmailSubject, welcomeSenderEmail);
         return new ResponseEntity<Company>(company, HttpStatus.CREATED);
     }
 
