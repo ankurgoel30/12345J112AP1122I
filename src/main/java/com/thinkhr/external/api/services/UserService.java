@@ -451,7 +451,7 @@ public class UserService extends ImportService {
         }
 
         String phone = getValueFromRow(record, headerIndexMap.get(FileUploadEnum.USER_PHONE.getHeader()));
-        if (!validatePhone(USER, record, phone, fileImportResult, resourceHandler)) {
+        if (!validatePhone(record, phone, fileImportResult, resourceHandler)) {
             return;
         }
 

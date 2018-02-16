@@ -125,4 +125,5 @@ public class ApplicationConstants {
     public static final String MASTER_CONFIG_KEY = "master";
     public static final String MASTER_CONFIG_NAME = "Master Configuration";
     public static final String DATE_PATTERN = "yyyy-MM-dd";
+    public static final Integer MAX_PHONE_LENGTH = 25;
 }
