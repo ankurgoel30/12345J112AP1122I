@@ -19,6 +19,7 @@ import java.util.stream.Collectors;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
@@ -46,6 +47,9 @@ import com.thinkhr.external.api.exception.ApplicationException;
 public class ConfigurationService extends CommonService {
     
     private Logger logger = LoggerFactory.getLogger(ConfigurationService.class);
+
+    @Autowired
+    private SkuService skuService;
 
     /**
      * Get an alternate configuration
@@ -150,12 +154,17 @@ public class ConfigurationService extends CommonService {
         }
         
         Configuration configuration = update(configurationJson, configurationInDb);
+        Set<Integer> skuIds = configuration.getSkus().stream().map(a -> a.getId()).collect(Collectors.toSet());
+        if (!CollectionUtils.isEmpty(configuration.getSkus())) {
+            skuService.validateSkus(skuIds);
+        }
         
         if(!CollectionUtils.isEmpty(configuration.getSkus())){
             validateSkusToConfigure(configuration, brokerId);
         }
         
         configuration.setUpdated((int) (System.currentTimeMillis() / 1000L));
+        configuration.setConfigurationId(configurationId);
         
         return updateConfiguration(configuration);
     }

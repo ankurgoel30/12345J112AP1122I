@@ -75,6 +75,9 @@ public class CompanyService  extends ImportService {
 
     @Autowired
     protected LearnCompanyService learnCompanyService;
+    
+    @Autowired
+    protected UserService userService;
 
     private Logger logger = LoggerFactory.getLogger(CompanyService.class);
     private static final String resource = COMPANY;
@@ -107,6 +110,14 @@ public class CompanyService  extends ImportService {
             if (requestParameters != null) {
                 requestParameters.entrySet().stream().forEach(entry -> { logger.debug(entry.getKey() + ":: " + entry.getValue()); });
             }
+        }
+        
+        if (requestParameters == null) {
+            requestParameters = new HashMap<String, String>();
+        }
+        
+        if (requestParameters.get("companyStatus") == null) {
+            requestParameters.put("companyStatus", "1");
         }
 
         Specification<Company> spec = getEntitySearchSpecification(searchSpec, requestParameters, Company.class, new Company());
@@ -336,6 +347,10 @@ public class CompanyService  extends ImportService {
      */
     protected int deleteCompany(int companyId, Company company) {
         companyRepository.softDelete(companyId);
+        
+        // Deleting users associated with companyId
+        List<Integer> throneUsers = userRepository.findAllUsersByCompanyId(companyId);
+        throneUsers.stream().forEach(userId -> userService.deleteUser(userId));
 
         learnCompanyService.deactivateLearnCompany(company);
 

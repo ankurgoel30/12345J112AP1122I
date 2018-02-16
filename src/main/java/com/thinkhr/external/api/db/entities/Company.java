@@ -101,7 +101,7 @@ public class Company implements SearchableEntity {
     private String tempID;
 
     @Column(name = "Client_Status") 
-    private Integer companyStatus;
+    private Integer companyStatus = 1;
 
     @Column(name = "enhanced_password")
     @JsonProperty(access = Access.WRITE_ONLY)
