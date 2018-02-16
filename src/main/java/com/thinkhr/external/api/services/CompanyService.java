@@ -187,13 +187,15 @@ public class CompanyService  extends ImportService {
      * @param company
      */
     private void associateChildEntities(Company company) {
-        Location location = company.getLocation();
-        if (location != null && location.getCompany() == null) {
-            location.setCompany(company);
+        List<Location> locations = company.getLocation();
+        locations.stream().forEach(loc -> {
+            if (loc != null && loc.getCompany() == null) {
+                loc.setCompany(company);
 
-            // setting tempID for location
-            location.setTempID(CommonUtil.getTempId());
-        }
+                // setting tempID for location
+                loc.setTempID(CommonUtil.getTempId());
+            }
+        });
     }
 
     /**
@@ -232,7 +234,11 @@ public class CompanyService  extends ImportService {
         Company updatedCompany = update(companyJson, companyInDb);
 
         if (updatedCompany.getLocation() != null) {
-            updatedCompany.getLocation().setCompany(null); // This is required before doing validation otherwise validation is cascaded recursively and gives stackoverflow error
+            List<Location> locations = updatedCompany.getLocation();
+            locations.stream().forEach(loc -> {
+                loc.setCompany(null);// This is required before doing validation otherwise validation is cascaded recursively and gives stackoverflow error
+            });
+            //updatedCompany.getLocation().setCompany(null); // This is required before doing validation otherwise validation is cascaded recursively and gives stackoverflow error
         }
         validateObject(updatedCompany);
 

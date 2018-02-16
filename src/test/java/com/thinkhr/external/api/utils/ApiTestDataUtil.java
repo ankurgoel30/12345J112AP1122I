@@ -7,9 +7,7 @@ import static com.thinkhr.external.api.services.utils.EmailUtil.SET_PASSWORD_LIN
 import static com.thinkhr.external.api.services.utils.EmailUtil.SUPPORT_EMAIL;
 import static com.thinkhr.external.api.services.utils.EmailUtil.SUPPORT_PHONE;
 import static com.thinkhr.external.api.services.utils.EmailUtil.USER_NAME;
-import static com.thinkhr.external.api.utils.ApiTestDataUtil.createConfiguration;
 
-import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -34,7 +32,6 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.mock.web.MockMultipartFile;
 
-import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sendgrid.Content;
 import com.sendgrid.Email;
@@ -156,7 +153,9 @@ public class ApiTestDataUtil {
         company.setCompanySize(companySize);
 
         Location location = createLocation();
-        company.setLocation(location);
+        company.setLocation(new ArrayList<Location>());
+        company.getLocation().add(location);
+
         company.setIsActive(1);
         return company;
     }
@@ -361,7 +360,8 @@ public class ApiTestDataUtil {
         company.setSearchHelp(searchHelp);
         company.setIndustry(industry);
         company.setCompanySize(companySize);
-        company.setLocation(location);
+        company.setLocation(new ArrayList<Location>());
+        company.getLocation().add(location);
         company.setBroker(broker);
         company.setCustom1(custom1);
         company.setIsActive(1);

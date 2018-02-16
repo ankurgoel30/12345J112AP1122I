@@ -12,10 +12,11 @@ import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
-import javax.persistence.OneToOne;
+import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
+import javax.persistence.Transient;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
@@ -32,7 +33,10 @@ import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonProperty.Access;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.thinkhr.external.api.helpers.JsonDateDeSerializer;
+import com.thinkhr.external.api.helpers.LocationDeserializer;
+import com.thinkhr.external.api.helpers.LocationSerializer;
 
 import lombok.Data;
 
@@ -410,10 +414,17 @@ public class Company implements SearchableEntity {
     @Column(name = "t1_email_template_id")
     private String emailTemplateId;
 
+//    @NotNull
+//    @Valid
+//    @OneToOne(mappedBy = "company",cascade=CascadeType.ALL,fetch=FetchType.LAZY)
+//    private Location location ;
+    
     @NotNull
     @Valid
-    @OneToOne(mappedBy = "company",cascade=CascadeType.ALL,fetch=FetchType.LAZY )
-    private Location location ;
+    @OneToMany(mappedBy = "company",cascade=CascadeType.ALL,fetch=FetchType.LAZY )
+    @JsonDeserialize(using=LocationDeserializer.class)
+    @JsonSerialize(using=LocationSerializer.class)
+    private List<Location> location = new ArrayList<Location>(1) ;
     
     
     /**

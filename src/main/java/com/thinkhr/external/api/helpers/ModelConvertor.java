@@ -37,7 +37,13 @@ public class ModelConvertor {
     public LearnCompany convert(Company company) {
         
         LearnCompany learnCompany =  new LearnCompany() ;
-        Location location = company.getLocation();
+        Location location = null;
+
+        List<Location> locations = company.getLocation();
+        if (locations != null) {
+            location = locations.get(0);
+        }
+
         if (location != null) {
             learnCompany.setAddress(location.getAddress());
             learnCompany.setAddress2(location.getAddress2());
@@ -67,18 +73,22 @@ public class ModelConvertor {
      */
     public List<Object> getColumnsForInsert(Company company) {
         if (company.getLocation() == null) {
-            company.setLocation(new Location());
+            company.setLocation(new ArrayList<Location>());
         }
+
+        company.getLocation().add(new Location());
+        Location location = company.getLocation().get(0);
+
         List<Object> learnCompanyFields = new ArrayList<Object>(Arrays.asList(
                 company.getCompanyId(), 
                 LearnCompanyService.getLearnCompanyNameByConfigurationId(company),
                 company.getCompanyType(),
                 LearnCompanyService.generateCompanyKey(company.getCompanyId()),
-                company.getLocation().getAddress(),
-                company.getLocation().getAddress2(),
-                company.getLocation().getCity(),
-                company.getLocation().getState(),
-                company.getLocation().getZip(),
+                location.getAddress(),
+                location.getAddress2(),
+                location.getCity(),
+                location.getState(),
+                location.getZip(),
                 company.getBroker(),
                 company.getCompanyPhone(),
                 "1",
@@ -123,7 +133,12 @@ public class ModelConvertor {
             return;
         }
 
-        Location location = company.getLocation();
+        Location location = null;
+        List<Location> locations = company.getLocation();
+        if (locations != null) {
+            location = locations.get(0);
+        }
+
         if (location != null) {
             learnCompany.setAddress(location.getAddress());
             learnCompany.setAddress2(location.getAddress2());
