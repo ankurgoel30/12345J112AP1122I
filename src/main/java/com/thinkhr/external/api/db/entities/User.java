@@ -93,7 +93,7 @@ public class User implements SearchableEntity {
     private String mobile;
 
     @Column(name="Phone")
-    @Size(max = 20)
+    @Size(max = 25)
     private String phone;
 
     @Column(name="Fax")

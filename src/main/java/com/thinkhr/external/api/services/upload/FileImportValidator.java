@@ -2,6 +2,7 @@ package com.thinkhr.external.api.services.upload;
 
 import static com.thinkhr.external.api.ApplicationConstants.COMMA_SEPARATOR;
 import static com.thinkhr.external.api.ApplicationConstants.EMAIL_PATTERN;
+import static com.thinkhr.external.api.ApplicationConstants.MAX_PHONE_LENGTH;
 import static com.thinkhr.external.api.ApplicationConstants.UNDERSCORE;
 import static com.thinkhr.external.api.ApplicationConstants.VALID_FILE_EXTENSION_IMPORT;
 import static com.thinkhr.external.api.response.APIMessageUtil.getMessageFromResourceBundle;
@@ -18,7 +19,6 @@ import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
 
-import com.thinkhr.external.api.ApplicationConstants;
 import com.thinkhr.external.api.exception.APIErrorCodes;
 import com.thinkhr.external.api.exception.ApplicationException;
 import com.thinkhr.external.api.exception.MessageResourceHandler;
@@ -201,22 +201,14 @@ public class FileImportValidator {
      * @param fileImportResult
      * @param resourceHandler
      */
-    public static boolean validatePhone(String resource, String record, String phoneNo,
+    public static boolean validatePhone(String record, String phoneNo,
             FileImportResult fileImportResult,
             MessageResourceHandler resourceHandler) {
 
-        Integer maxPhoneLength = 12;
-        if (resource == ApplicationConstants.COMPANY) {
-            maxPhoneLength = 12;
-        }
-        if (resource == ApplicationConstants.USER) {
-            maxPhoneLength = 20;
-        }
-
-        if (!StringUtils.isBlank(phoneNo) && phoneNo.length() > maxPhoneLength) {
+        if (!StringUtils.isBlank(phoneNo) && phoneNo.length() > MAX_PHONE_LENGTH) {
             fileImportResult.addFailedRecord(record,
                     getMessageFromResourceBundle(resourceHandler, APIErrorCodes.INVALID_PHONE, phoneNo,
-                            String.valueOf(maxPhoneLength)),
+                            String.valueOf(MAX_PHONE_LENGTH)),
                     getMessageFromResourceBundle(resourceHandler, APIErrorCodes.SKIPPED_RECORD));
             return false;
         }

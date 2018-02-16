@@ -131,4 +131,5 @@ public class ApplicationConstants {
     public static final String DATE_PATTERN = "yyyy-MM-dd";
 
     public static final Integer MAX_SENDGRID_PERSONALISATION = 1000;
+    public static final Integer MAX_PHONE_LENGTH = 25;
 }

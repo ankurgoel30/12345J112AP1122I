@@ -71,7 +71,7 @@ public class LearnCompany {
     private String zip;
 
     @Column(name = "phone")
-    @Size(max = 12)
+    @Size(max = 25)
     private String phone;
 
     @Column(name = "company_type")
