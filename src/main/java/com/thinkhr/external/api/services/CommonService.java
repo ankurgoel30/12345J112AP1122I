@@ -22,6 +22,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectReader;
 import com.thinkhr.external.api.db.entities.Company;
@@ -105,6 +106,9 @@ public class CommonService {
     LearnCompanyRepository learnCompanyRepository;
     
     @Autowired
+    EmailTemplateRepository emailTemplateRepository;
+    
+    @Autowired
     PackageRepository packageRepository;
     
     @Autowired
@@ -118,6 +122,12 @@ public class CommonService {
     
     @PersistenceContext
     protected EntityManager entityManager;
+    
+    @Value("${com.thinkhr.external.api.company.records.limit}")
+    protected int maxRecordsCompanyImport;
+    
+    @Value("${com.thinkhr.external.api.user.records.limit}")
+    protected int maxRecordsUserImport;
     
     /**
      * @return
@@ -274,9 +284,26 @@ public class CommonService {
         configuration.setCompanyId(companyId);
         configuration.setMasterConfiguration(1);
         configuration.setConfigurationKey(MASTER_CONFIG_KEY);
-        configuration.setName(MASTER_CONFIG_NAME);
+        configuration.setConfigurationName(MASTER_CONFIG_NAME); 
         configuration.setDescription(MASTER_CONFIG_NAME);
         return configuration;
     }
-
+    
+    /**
+     * Returns true if Json String has the requested field
+     * 
+     * @param configurationJson
+     * @return
+     */
+    public boolean containsField(String configurationJson, String field) {
+       
+            try {
+                ObjectMapper mapper = new ObjectMapper();
+                // convert JSON string to Map
+                JsonNode node = mapper.readTree(configurationJson);
+                return (node.has(field)) ? true : false;
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+    }
 }

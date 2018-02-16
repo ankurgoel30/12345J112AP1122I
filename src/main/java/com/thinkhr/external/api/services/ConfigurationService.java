@@ -1,20 +1,25 @@
 package com.thinkhr.external.api.services;
 
+import static com.thinkhr.external.api.ApplicationConstants.DEFAULT_SORT_BY_CONFIGURATION_NAME;
+import static com.thinkhr.external.api.ApplicationConstants.SKUS_FIELD;
 import static com.thinkhr.external.api.ApplicationConstants.TOTAL_RECORDS;
 import static com.thinkhr.external.api.request.APIRequestHelper.setRequestAttribute;
+import static com.thinkhr.external.api.services.utils.EntitySearchUtil.applyAdditionalFilter;
 import static com.thinkhr.external.api.services.utils.EntitySearchUtil.getEntitySearchSpecification;
 import static com.thinkhr.external.api.services.utils.EntitySearchUtil.getPageable;
-import static com.thinkhr.external.api.services.utils.EntitySearchUtil.applyAdditionalFilter;
 
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
 
+import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
@@ -43,6 +48,9 @@ public class ConfigurationService extends CommonService {
     
     private Logger logger = LoggerFactory.getLogger(ConfigurationService.class);
 
+    @Autowired
+    private SkuService skuService;
+
     /**
      * Get an alternate configuration
      * 
@@ -69,7 +77,7 @@ public class ConfigurationService extends CommonService {
      * @param brokerId
      * @return
      */
-    private Configuration checkConfigurationForBroker(Configuration configuration,
+    protected Configuration checkConfigurationForBroker(Configuration configuration,
             Integer brokerId) {
         
         if(!configuration.getCompanyId().equals(brokerId)){
@@ -139,7 +147,46 @@ public class ConfigurationService extends CommonService {
             throw ApplicationException.createAuthorizationError(APIErrorCodes.MASTER_CONFIGURATION_NOT_CHANGEABLE, 
                     String.valueOf(configurationId));
         }
-        return updateConfiguration(configurationJson, configurationInDb);
+        
+        //To Set Configuration DB object's SKU list to null when all SKU have to be deleted otherwise it merges the same and does not delete
+        if(containsField(configurationJson,SKUS_FIELD)){
+            configurationInDb.setSkus(null);
+        }
+        
+        Configuration configuration = update(configurationJson, configurationInDb);
+        Set<Integer> skuIds = configuration.getSkus().stream().map(a -> a.getId()).collect(Collectors.toSet());
+        if (!CollectionUtils.isEmpty(configuration.getSkus())) {
+            skuService.validateSkus(skuIds);
+        }
+        
+        if(!CollectionUtils.isEmpty(configuration.getSkus())){
+            validateSkusToConfigure(configuration, brokerId);
+        }
+        
+        configuration.setUpdated((int) (System.currentTimeMillis() / 1000L));
+        configuration.setConfigurationId(configurationId);
+        
+        return updateConfiguration(configuration);
+    }
+
+    /**
+     * To validate if SKUs in configuration are subset of the SKUs in master configuration for the broker
+     * 
+     * @param configuration
+     */
+    private void validateSkusToConfigure(Configuration configuration, Integer brokerId) {
+
+        //On terms that master configuration is never null for a broker
+        Configuration masterConfiguration = configurationRepository.findFirstByCompanyIdAndMasterConfiguration(brokerId,1);
+        Set<Integer> masterSkuIds = masterConfiguration.getSkus().stream().map(a -> a.getId()).collect(Collectors.toSet());
+        Set<Integer> requiredSkuIds = configuration.getSkus().stream().map(a -> a.getId()).collect(Collectors.toSet());
+        
+        requiredSkuIds.removeAll(masterSkuIds);
+        
+        if(!CollectionUtils.isEmpty(requiredSkuIds)){
+            throw ApplicationException.createBadRequest(APIErrorCodes.INVALID_SKU_IDS, 
+                    StringUtils.join(requiredSkuIds, ","),StringUtils.join(masterSkuIds, ","),String.valueOf(brokerId));
+        }
     }
 
     /**
@@ -150,12 +197,11 @@ public class ConfigurationService extends CommonService {
      * @return
      */
     @Transactional
-    public Configuration updateConfiguration(String configurationJson, Configuration configurationInDb) 
+    public Configuration updateConfiguration( Configuration configurationInDb) 
             throws IOException {
-        Configuration updatedConfiguration = update(configurationJson, configurationInDb);
-
-        validateObject(updatedConfiguration);
-        Configuration updatedConfig = configurationRepository.save(updatedConfiguration);
+        
+        validateObject(configurationInDb);
+        Configuration updatedConfig = configurationRepository.save(configurationInDb);
 
         // This is required otherwise values for updatable=false fields is not synced with 
         // database when these fields are passed in payload .
@@ -182,7 +228,14 @@ public class ConfigurationService extends CommonService {
             throw ApplicationException.createBadRequest(APIErrorCodes.MASTER_CONFIGURATION_NOT_EXISTS); 
         }
         
-        configuration.setMasterConfiguration(null);
+        if(!CollectionUtils.isEmpty(configuration.getSkus())){
+            validateSkusToConfigure(configuration, brokerId);
+        }
+        
+        //Modification done as master configuration cannot be created via this API
+        configuration.setMasterConfiguration(0);
+        
+        configuration.setCreated((int) (System.currentTimeMillis() / 1000L));
         
         return configurationRepository.save(configuration);
     }
@@ -203,9 +256,6 @@ public class ConfigurationService extends CommonService {
         
         List<Configuration> configurations = new ArrayList<Configuration>();
         
-        Map<String,String> brokerParameter = new HashMap<String,String>();
-        brokerParameter.put("companyId", String.valueOf(brokerId));
-        
         Pageable pageable = getPageable(offset, limit, sortField, getDefaultSortField());
         Configuration entity = new Configuration();
         Specification<Configuration> spec = getEntitySearchSpecification(searchSpec, requestParams, Configuration.class, entity);
@@ -223,5 +273,16 @@ public class ConfigurationService extends CommonService {
         
         return configurations;
     }
+    
+    /**
+     * Return default sort field for Configuration service
+     * 
+     * @return String 
+     */
+    @Override
+    public String getDefaultSortField()  {
+        return DEFAULT_SORT_BY_CONFIGURATION_NAME;
+    }
+
 
  }

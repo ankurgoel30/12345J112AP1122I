@@ -32,12 +32,9 @@ public class BulkTimeWatcher {
     public void userBulkUploadMethod() {
     };
 
-    @Pointcut("execution(* com.thinkhr.external.api.services.UserService.populateAndSaveToDB(..))")
-    public void userPopulateAndSaveToDbMethod() {
-    };
 
-    @Pointcut("execution(* com.thinkhr.external.api.repositories.QueryBuilder.buildUserInsertQuery(..))")
-    public void buildUserInsertQuery() {
+    @Pointcut("execution(* com.thinkhr.external.api.services.UserService.sendMail(..))")
+    public void sendEmailPointcut() {
     };
 
     StopWatch bulkUploadComplete = null;
@@ -49,6 +46,7 @@ public class BulkTimeWatcher {
     StopWatch throneUserSave = null;
     StopWatch learnUserSave = null;
     StopWatch userInsertQuery = null;
+    public static StopWatch sendEmailWatch = null;
  
     @Before("userBulkUploadMethod()")
     public void bulkUploadMethodEnter(JoinPoint jp) {
@@ -62,14 +60,16 @@ public class BulkTimeWatcher {
         logger.info(printBulkWatchReport());
     }
 
-    @Before("buildUserInsertQuery()")
-    public void bUIQEnter(JoinPoint jp) {
-        userInsertQuery.start();
+
+    @Before("sendEmailPointcut()")
+    public void sendEmailBefore(JoinPoint jp) {
+        logger.info("In sendEmail feature.....");
+        sendEmailWatch.start();
     }
 
-    @After("buildUserInsertQuery()")
-    public void bUIQExit(JoinPoint jp) {
-        userInsertQuery.stop();
+    @After("sendEmailPointcut()")
+    public void sendEmailAfter(JoinPoint jp) {
+        sendEmailWatch.stop();
     }
 
     private void initClocks() {
@@ -82,28 +82,30 @@ public class BulkTimeWatcher {
         throneUserSave = new StopWatch();
         learnUserSave = new StopWatch();
         userInsertQuery = new StopWatch();
+        sendEmailWatch = new StopWatch();
     }
 
     private String printBulkWatchReport() {
         StringBuffer strBuffer = new StringBuffer();
 
         return strBuffer.append("Bulk Upload Complete - " + bulkUploadComplete.getTotalTimeSeconds())
-                 .append(NEW_LINE)
-                 .append("Before Forloop - " + beforeLoop.getTotalTimeSeconds())
-                 .append(NEW_LINE)
-                 .append("Complete loop time - " + completeLoopTime.getTotalTimeSeconds())
-                 .append(NEW_LINE)
-                 .append("Time in populate and save to DB  - " + populateAndSavetoDb.getTotalTimeSeconds())
-                 .append(NEW_LINE)
-                 .append("Time in passsword Encrypt - " + passwordEncrypt.getTotalTimeSeconds())
-                 .append(NEW_LINE)
-                 .append("Time in generate username - " + generateUserName.getTotalTimeSeconds())
-                 .append(NEW_LINE)
-                 .append("Time in Throne Db - " + throneUserSave.getTotalTimeSeconds())
-                 .append(NEW_LINE)
-                 .append("Time in LearnDb - " + learnUserSave.getTotalTimeSeconds())
-                 .append(NEW_LINE)
-                 .append("Time in buildQuery - " + userInsertQuery.getTotalTimeMillis()).toString();
-
+                .append(NEW_LINE)
+                .append("Before Forloop - " + beforeLoop.getTotalTimeSeconds())
+                .append(NEW_LINE)
+                .append("Complete loop time - " + completeLoopTime.getTotalTimeSeconds())
+                .append(NEW_LINE)
+                .append("Time in populate and save to DB  - " + populateAndSavetoDb.getTotalTimeSeconds())
+                .append(NEW_LINE)
+                .append("Time in passsword Encrypt - " + passwordEncrypt.getTotalTimeSeconds())
+                .append(NEW_LINE)
+                .append("Time in generate username - " + generateUserName.getTotalTimeSeconds())
+                .append(NEW_LINE)
+                .append("Time in Throne Db - " + throneUserSave.getTotalTimeSeconds())
+                .append(NEW_LINE)
+                .append("Time in LearnDb - " + learnUserSave.getTotalTimeSeconds())
+                .append(NEW_LINE)
+                .append("Time in SendEmail - " + sendEmailWatch.getTotalTimeSeconds())
+                .append(NEW_LINE)
+                .append("Time in buildQuery - " + userInsertQuery.getTotalTimeMillis()).toString();
     }
 }

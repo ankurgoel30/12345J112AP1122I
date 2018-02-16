@@ -4,8 +4,6 @@ import static com.thinkhr.external.api.ApplicationConstants.COMMA_SEPARATOR;
 import static com.thinkhr.external.api.ApplicationConstants.COMPANY;
 import static com.thinkhr.external.api.ApplicationConstants.COMPANY_CUSTOM_COLUMN_PREFIX;
 import static com.thinkhr.external.api.ApplicationConstants.FILE_IMPORT_RESULT_MSG;
-import static com.thinkhr.external.api.ApplicationConstants.MAX_RECORDS_COMPANY_CSV_IMPORT;
-import static com.thinkhr.external.api.ApplicationConstants.MAX_RECORDS_USER_CSV_IMPORT;
 import static com.thinkhr.external.api.ApplicationConstants.REQUIRED_HEADERS_COMPANY_CSV_IMPORT;
 import static com.thinkhr.external.api.ApplicationConstants.REQUIRED_HEADERS_USER_CSV_IMPORT;
 import static com.thinkhr.external.api.ApplicationConstants.USER;
@@ -269,26 +267,6 @@ public class FileImportUtil {
     }
 
     /**
-     * Get Maximum record configurations
-     * 
-     * @param resource
-     * @return
-     */
-    public static Integer getMaxRecords(String resource) {
-        
-        if (resource == null) {
-            return null;
-        }
-
-        switch(resource) {
-            case COMPANY : return MAX_RECORDS_COMPANY_CSV_IMPORT;
-            case USER : return MAX_RECORDS_USER_CSV_IMPORT;
-        }
-        
-        return null;
-    }
-
-    /**
      * Convert list of objects into list of strings 
      * 
      * @param list
@@ -297,7 +275,7 @@ public class FileImportUtil {
      * @throws Exception 
      */
     public static List<String> validateAndGetContentFromModel(List<BulkJsonModel> list,
-            String resource) {
+            String resource, int maxRecord) {
 
         if (CollectionUtils.isEmpty(list)) {
             return null;
@@ -309,7 +287,7 @@ public class FileImportUtil {
         for (BulkJsonModel obj : list) {
             fileContents.add(obj.getAttributeValueAsCommaSeparated());
         }
-        validateFileContents(fileContents, null, resource);
+        validateFileContents(fileContents, null, resource, maxRecord);
 
         return fileContents;
     }

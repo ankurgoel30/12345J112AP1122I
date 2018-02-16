@@ -2,6 +2,7 @@ package com.thinkhr.external.api.response;
 
 import static com.thinkhr.external.api.ApplicationConstants.DEFAULT_SORT_BY_COMPANY_NAME;
 import static com.thinkhr.external.api.ApplicationConstants.DEFAULT_SORT_BY_USER_NAME;
+import static com.thinkhr.external.api.ApplicationConstants.DEFAULT_SORT_BY_CONFIGURATION_NAME;
 
 import java.io.IOException;
 import java.util.List;
@@ -12,6 +13,7 @@ import org.springframework.util.CollectionUtils;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.JsonSerializer;
 import com.fasterxml.jackson.databind.SerializerProvider;
+import com.thinkhr.external.api.db.entities.Configuration;
 import com.thinkhr.external.api.db.entities.SearchableEntity;
 import com.thinkhr.external.api.db.entities.User;
 import com.thinkhr.external.api.exception.APIErrorCodes;
@@ -124,6 +126,8 @@ public class APIResponseSerializer extends JsonSerializer<APIResponse> {
                 if (sort == null) {
                     if (searchEnity instanceof User) {
                         sort = EntitySearchUtil.getFormattedString(DEFAULT_SORT_BY_USER_NAME);
+                    } else if (searchEnity instanceof Configuration) {
+                        sort = EntitySearchUtil.getFormattedString(DEFAULT_SORT_BY_CONFIGURATION_NAME);
                     } else {
                         sort = EntitySearchUtil.getFormattedString(DEFAULT_SORT_BY_COMPANY_NAME);
                     }

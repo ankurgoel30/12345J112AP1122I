@@ -7,6 +7,7 @@ import static com.thinkhr.external.api.services.utils.EmailUtil.SET_PASSWORD_LIN
 import static com.thinkhr.external.api.services.utils.EmailUtil.SUPPORT_EMAIL;
 import static com.thinkhr.external.api.services.utils.EmailUtil.SUPPORT_PHONE;
 import static com.thinkhr.external.api.services.utils.EmailUtil.USER_NAME;
+import static com.thinkhr.external.api.utils.ApiTestDataUtil.createConfiguration;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -46,6 +47,7 @@ import com.thinkhr.external.api.db.entities.EmailConfiguration;
 import com.thinkhr.external.api.db.entities.EmailField;
 import com.thinkhr.external.api.db.entities.EmailTemplate;
 import com.thinkhr.external.api.db.entities.Location;
+import com.thinkhr.external.api.db.entities.Sku;
 import com.thinkhr.external.api.db.entities.StandardFields;
 import com.thinkhr.external.api.db.entities.ThroneRole;
 import com.thinkhr.external.api.db.entities.User;
@@ -263,21 +265,41 @@ public class ApiTestDataUtil {
      * @return
      */
     public static Configuration createConfiguration(Integer configurationId, Integer companyId, String configurationKey,
-            String name) {
-        return createConfiguration(configurationId, companyId, configurationKey, name, null);
+            String name, String description) {
+        return createConfiguration(configurationId, companyId, configurationKey, name, null, description);
     }
 
     public static Configuration createConfiguration(Integer configurationId, Integer companyId, String configurationKey,
-            String name, Integer master) {
+            String name, Integer master, String description) {
         Configuration configuration = new Configuration();
         if (configurationId != null) {
             configuration.setConfigurationId(configurationId);
         }
         configuration.setCompanyId(companyId);
         configuration.setConfigurationKey(configurationKey);
-        configuration.setName(name);
+        configuration.setConfigurationName(name); 
         configuration.setMasterConfiguration(master);
+        configuration.setDescription(description); 
         return configuration;
+    }
+    
+    /**
+     * Test Data creation for list of configurations
+     * 
+     * @return
+     */
+    public static List<Configuration> createConfigurationList(){
+       
+        Configuration configuration = createConfiguration(1, 2, "ABC", "test config", "test description");
+        Configuration configuration1 = createConfiguration(2, 3, "ABC1", "test1 config", "test description");
+        Configuration configuration2 = createConfiguration(3, 4, "ABC2", "test2 config", "test description");
+        
+        List<Configuration> configurationList = new ArrayList<Configuration>();
+        configurationList.add(configuration);
+        configurationList.add(configuration1);
+        configurationList.add(configuration2);
+        
+        return configurationList;
     }
 
     /**
@@ -1609,6 +1631,11 @@ public class ApiTestDataUtil {
     
     
     
+    /**
+     * Create Bulk Companies test data
+     * 
+     * @return
+     */
     public static List<BulkJsonModel> createBulkCompanies() {
         
         List<BulkJsonModel> companies = new ArrayList<BulkJsonModel>();
@@ -1659,10 +1686,23 @@ public class ApiTestDataUtil {
         
     }
     
+    /**
+     * Create Bulk companies response object
+     * 
+     * @param companies
+     * @param httpStatus
+     * @return
+     */
     public static ResponseEntity<List<BulkJsonModel>> createBulkCompanyResponseEntity(List<BulkJsonModel> companies, HttpStatus httpStatus) {
         return new ResponseEntity<List<BulkJsonModel>>(companies, httpStatus);
     }
     
+    
+    /**
+     * Create test data for Bulk users
+     * 
+     * @return
+     */
     public static List<BulkJsonModel> createBulkUsers() {
         
         List<BulkJsonModel> users = new ArrayList<BulkJsonModel>();
@@ -1697,12 +1737,19 @@ public class ApiTestDataUtil {
         
     }
     
+    /**
+     * Creates a Bulk User response object
+     * 
+     * @param company
+     * @param httpStatus
+     * @return
+     */
     public static ResponseEntity<List<BulkJsonModel>> createBulkUserResponseEntity(List<BulkJsonModel> users, HttpStatus httpStatus) {
         return new ResponseEntity<List<BulkJsonModel>>(users, httpStatus);
     }
 
     /**
-     * Creates a company response object
+     * Creates a configuration response object
      * 
      * @param company
      * @param httpStatus
@@ -1713,8 +1760,27 @@ public class ApiTestDataUtil {
         return new ResponseEntity<Configuration>(config, httpStatus);
     }
 
+    /**
+     * Creates a configuration response object
+     * 
+     * @param company
+     * @param httpStatus
+     * @return
+     */
     public static ResponseEntity<Integer> createConfigurationIdResponseEntity(Integer configurationId,
             HttpStatus httpStatus) {
         return new ResponseEntity<Integer>(configurationId, httpStatus);
+    }
+    
+    /**
+     * Create test Data for Sku
+     * 
+     * @param id
+     * @return
+     */
+    public static Sku createSku(Integer id){
+        Sku sku = new Sku();
+        sku.setId(id);
+        return sku;
     }
 }

@@ -16,6 +16,7 @@ import javax.persistence.OneToOne;
 import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
+import javax.persistence.Transient;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
@@ -100,7 +101,7 @@ public class Company implements SearchableEntity {
     private String tempID;
 
     @Column(name = "Client_Status") 
-    private Integer companyStatus;
+    private Integer companyStatus = 1;
 
     @Column(name = "enhanced_password")
     @JsonProperty(access = Access.WRITE_ONLY)
@@ -409,6 +410,12 @@ public class Company implements SearchableEntity {
 
     @Column(name = "t1_email_template_id")
     private String emailTemplateId;
+    
+    @Transient
+    private String welcomeSenderEmailSubject;
+    
+    @Transient
+    private String welcomeSenderEmail;
 
     @NotNull
     @Valid

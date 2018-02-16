@@ -55,6 +55,14 @@ public interface UserRepository extends PagingAndSortingRepository<User, Integer
     
     /**
      * 
+     * @param companyId
+     * @return
+     */
+    @Query(value = "select u.userId from User u where u.companyId = :companyId")
+    public List<Integer> findAllUsersByCompanyId(@Param("companyId") Integer companyId);
+    
+    /**
+     * 
      * @param addedBy
      * @return
      */

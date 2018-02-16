@@ -66,6 +66,7 @@ import com.thinkhr.external.api.repositories.CompanyRepository;
 import com.thinkhr.external.api.repositories.ConfigurationRepository;
 import com.thinkhr.external.api.repositories.CustomFieldsRepository;
 import com.thinkhr.external.api.repositories.FileDataRepository;
+import com.thinkhr.external.api.repositories.UserRepository;
 import com.thinkhr.external.api.response.APIMessageUtil;
 import com.thinkhr.external.api.services.upload.FileUploadEnum;
 import com.thinkhr.external.api.services.utils.FileImportUtil;
@@ -87,6 +88,12 @@ public class CompanyServiceTest {
 
     @Mock
     private CompanyRepository companyRepository;
+    
+    @Mock
+    private UserRepository userRepository;
+    
+    @Mock
+    private UserService userService;
 
     @Mock
     private LearnCompanyService learnCompanyService;
@@ -132,7 +139,7 @@ public class CompanyServiceTest {
                 "This is search help", "Other", "10"));
         Pageable pageable = getPageable(null, null, null, DEFAULT_SORT_BY_COMPANY_NAME);
 
-        when(companyRepository.findAll(null, pageable)).thenReturn(new PageImpl<Company>(companyList, pageable, companyList.size()));
+        when(companyRepository.findAll(Matchers.any(), Matchers.any(Pageable.class))).thenReturn(new PageImpl<Company>(companyList, pageable, companyList.size()));
 
         try {
             List<Company> result =  companyService.getAllCompany(null, null, null, null, null);
@@ -163,7 +170,7 @@ public class CompanyServiceTest {
         Pageable pageable = getPageable(null, null, null, DEFAULT_SORT_BY_COMPANY_NAME);
 
         //Verifying that internally pageable arguments is passed to companyRepository's findAll method
-        verify(companyRepository, times(1)).findAll(null, pageable);
+        verify(companyRepository, times(1)).findAll(Matchers.any(), Matchers.any(Pageable.class));
     }
 
     /**
@@ -417,6 +424,7 @@ public class CompanyServiceTest {
         int brokerId = 12345;
         Company testdataBroker = ApiTestDataUtil.createCompany();
         CompanyService companyServiceSpy = Mockito.spy(companyService);
+        companyServiceSpy.maxRecordsCompanyImport=3500;
         Mockito.doReturn(testdataBroker).when(companyServiceSpy).validateBrokerId(brokerId);
 
         FileImportResult fileImportResultTestData = ApiTestDataUtil.createFileImportResultWithNoFailedRecords();
@@ -450,6 +458,7 @@ public class CompanyServiceTest {
         int brokerId = 12345;
         Company testdataBroker = ApiTestDataUtil.createCompany();
         CompanyService companyServiceSpy = Mockito.spy(companyService);
+        companyServiceSpy.maxRecordsCompanyImport=3500;
         Mockito.doReturn(testdataBroker).when(companyServiceSpy).validateBrokerId(brokerId);
 
         FileImportResult fileImportResultTestData = ApiTestDataUtil.createFileImportResultWithFailedRecords();
@@ -486,6 +495,7 @@ public class CompanyServiceTest {
         int brokerId = 12345;
         Company testdataBroker = ApiTestDataUtil.createCompany();
         CompanyService companyServiceSpy = Mockito.spy(companyService);
+        companyServiceSpy.maxRecordsCompanyImport=3500;
         Mockito.doReturn(testdataBroker).when(companyServiceSpy).validateBrokerId(brokerId);
 
         ApplicationException appEx = ApplicationException.createBulkImportError(APIErrorCodes.UNMAPPED_CUSTOM_HEADERS,
@@ -539,6 +549,7 @@ public class CompanyServiceTest {
         int brokerId = 12345;
         Company testdataBroker = ApiTestDataUtil.createCompany();
         CompanyService companyServiceSpy = Mockito.spy(companyService);
+        companyServiceSpy.maxRecordsCompanyImport=3500;
         Mockito.doReturn(testdataBroker).when(companyServiceSpy).validateBrokerId(brokerId);
 
         FileImportResult fileImportResultTestData = ApiTestDataUtil.createFileImportResultWithNoFailedRecords();
@@ -564,6 +575,7 @@ public class CompanyServiceTest {
         int brokerId = 12345;
         Company testdataBroker = ApiTestDataUtil.createCompany();
         CompanyService companyServiceSpy = Mockito.spy(companyService);
+        companyServiceSpy.maxRecordsCompanyImport=3500;
         Mockito.doReturn(testdataBroker).when(companyServiceSpy).validateBrokerId(brokerId);
 
         FileImportResult fileImportResultTestData = ApiTestDataUtil.createFileImportResultWithFailedRecords();
@@ -837,7 +849,7 @@ public class CompanyServiceTest {
         Integer roleId = 5;
         Integer configurationId = 1;
         Integer companyId = 2;
-        Configuration configuration = ApiTestDataUtil.createConfiguration(1, 2, "ABC", "test config");
+        Configuration configuration = ApiTestDataUtil.createConfiguration(1, 2, "ABC", "test config", "test description");
 
         when(configurationRepository.findFirstByConfigurationIdAndCompanyId(configurationId, companyId))
                 .thenReturn(configuration);

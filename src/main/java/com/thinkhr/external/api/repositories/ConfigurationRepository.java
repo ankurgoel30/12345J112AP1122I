@@ -1,10 +1,5 @@
 package com.thinkhr.external.api.repositories;
 
-import java.util.List;
-
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.jpa.domain.Specification;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
@@ -32,12 +27,6 @@ public interface ConfigurationRepository
      * @return
      */
     public Configuration findFirstByConfigurationIdAndCompanyId(Integer configurationId, Integer companyId);
-
-    /**
-     * @param brokerId
-     * @return
-     */
-    public List<Configuration> findByCompanyId(Integer brokerId);
 
     /**
      * Soft Delete Configuration

@@ -3,6 +3,7 @@ package com.thinkhr.external.api.services.email;
 import static com.thinkhr.external.api.ApplicationConstants.EMAIL_BODY;
 import static com.thinkhr.external.api.ApplicationConstants.EMAIL_SUBJECT;
 import static com.thinkhr.external.api.ApplicationConstants.FROM_EMAIL;
+import static com.thinkhr.external.api.ApplicationConstants.MAX_SENDGRID_PERSONALISATION;
 import static com.thinkhr.external.api.ApplicationConstants.RESET_PASSWORD_PREFIX;
 import static com.thinkhr.external.api.services.utils.CommonUtil.generateHashedValue;
 import static com.thinkhr.external.api.services.utils.EmailUtil.BROKER_NAME;
@@ -18,8 +19,9 @@ import static com.thinkhr.external.api.services.utils.EmailUtil.prepareResetPass
 import java.util.ArrayList;
 import java.util.List;
 
-import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.scheduling.annotation.Async;
+import org.springframework.util.CollectionUtils;
 
 import com.thinkhr.external.api.ApplicationConstants;
 import com.thinkhr.external.api.db.entities.Company;
@@ -55,6 +57,28 @@ public abstract class EmailService extends CommonService {
     
     @Value("${login_url}")
     protected String loginUrl;
+    
+    @Async
+    public void sendEmailToUsers(Integer companyId, String jobId) {
+        List<User> userList = userRepository.findByAddedBy(jobId);
+
+        if (CollectionUtils.isEmpty(userList)) {
+            return;
+        }
+
+        // Sendgrid has limit of maximum 1000 personalisation in a single mail request.
+        // So here dividing the users in chunks of 1000
+        List<User> tempUserList = new ArrayList<User>();
+        int counter = 0;
+        for (User user : userList) {
+            tempUserList.add(user);
+            if (tempUserList.size() % MAX_SENDGRID_PERSONALISATION == 0 || counter == userList.size() - 1) {
+                createAndSendEmail(companyId, tempUserList);
+                tempUserList = new ArrayList<User>();
+            }
+            counter++;
+        }
+    }
 
     /**
      * @param brokerId

@@ -16,7 +16,7 @@ public class ApplicationConstants {
     public static final String ASCENDING = "+";
     public static final String DEFAULT_SORT_BY_COMPANY_NAME = "+companyName";
     public static final String DEFAULT_SORT_BY_USER_NAME = "+userName";
-    public static final String DEFAULT_SORT_BY_CONFIGURATION_ID = "+configurationId";
+    public static final String DEFAULT_SORT_BY_CONFIGURATION_NAME = "+configurationName";
     public static final String SUCCESS_DELETED = "SUCCESSFULLY_DELETED";
     public static final String TOTAL_RECORDS = "totalRecords";
     public static final String LIMIT_PARAM = "limit";
@@ -37,8 +37,9 @@ public class ApplicationConstants {
     public static final String CLIENT = "CLIENT";
     public static final String COMPANY_TYPE_BROKER = "broker_partner";
     
-    public static final int MAX_RECORDS_COMPANY_CSV_IMPORT = 3500;
-    public static final int MAX_RECORDS_USER_CSV_IMPORT = 4500;
+    //Externalized the Max limit for Bulk Import of Companies and users
+    //public static final int MAX_RECORDS_COMPANY_CSV_IMPORT = 3500;
+    //public static final int MAX_RECORDS_USER_CSV_IMPORT = 4500;
     public static final String SPACE = " ";
 
     public static final String DEFAULT_BROKER_ID = "187624";
@@ -47,6 +48,7 @@ public class ApplicationConstants {
     public static final String COMMA_SEPARATOR = ",";
     public static final String QUERY_SEPARATOR = "?";
     public static final String FAILED_COLUMN_TO_IMPORT = "FAILURE_REASON";
+    public static final String SKUS_FIELD = "skus";
 
     //Paychex has special treatment for determining duplicate records
     public static final Integer SPECIAL_CASE_BROKER1 = 187624;
@@ -111,9 +113,11 @@ public class ApplicationConstants {
     public static final String HASH_KEY = "thinkHRLandI";
     
     //EMAIL PROPERTIES
-    public static final String DEFAULT_WELCOME_SUBJECT= "";
+    public static final String DEFAULT_WELCOME_EMAIL_SUBJECT= "Welcome to ThinkHR!";
     public static final String DEFAULT_WELCOME_BODY = "";
-    public static final String FROM_EMAIL_ADDRESS = "";
+    public static final String FROM_EMAIL_ADDRESS = "Default Email Address";
+    public static final String WELCOME_SENDER_EMAIL_SUBJECT = "welcomeSenderEmailSubject";
+    public static final String WELCOME_SENDER_EMAIL = "welcomeSenderEmail";
     
     // For email feature 
     public static final String EMAIL_BODY = "body";
@@ -125,5 +129,7 @@ public class ApplicationConstants {
     public static final String MASTER_CONFIG_KEY = "master";
     public static final String MASTER_CONFIG_NAME = "Master Configuration";
     public static final String DATE_PATTERN = "yyyy-MM-dd";
+
+    public static final Integer MAX_SENDGRID_PERSONALISATION = 1000;
     public static final Integer MAX_PHONE_LENGTH = 25;
 }

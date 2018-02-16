@@ -351,4 +351,28 @@ public class CompanyRepositoryTest {
         assertEquals(broker.getCompanyType(), company.getCompanyType());
     }
 
+    @Test
+    public void test_findByCompanyIdAndCompanyType() {
+        Company broker = createCompany(null, "Pepcus", "Software", "345345435", new Date(), "Special",
+                "This is search help", "Other", "10");
+        broker.setCompanyType(COMPANY_TYPE_BROKER);
+
+        Company notBrokerCompany = createCompany(null, "Pepcus", "Software", "345345435", new Date(), "Special",
+                "This is search help", "Other", "10");
+
+        companyRepository.save(broker);
+        companyRepository.save(notBrokerCompany);
+
+        Company company = companyRepository.findOne(broker.getCompanyId());
+        Company company2 = companyRepository.findOne(notBrokerCompany.getCompanyId());
+
+        assertNotNull(company);
+        assertEquals(broker.getCompanyId(), company.getCompanyId());
+        assertEquals(broker.getCompanyType(), company.getCompanyType());
+        assertNotNull(company2);
+        assertEquals(notBrokerCompany.getCompanyId(), company2.getCompanyId());
+        assertEquals(notBrokerCompany.getCompanyType(), company2.getCompanyType());
+    }
+
+
 }
