@@ -1,19 +1,29 @@
 package com.thinkhr.external.api.services;
 
 import static com.thinkhr.external.api.ApplicationConstants.COMPANY_TYPE_BROKER;
+import static com.thinkhr.external.api.ApplicationConstants.WELCOME_EMAIL_TYPE;
+import static com.thinkhr.external.api.ApplicationConstants.WELCOME_SENDER_EMAIL;
+import static com.thinkhr.external.api.ApplicationConstants.WELCOME_SENDER_EMAIL_SUBJECT;
+import static com.thinkhr.external.api.ApplicationConstants.FROM_EMAIL_ADDRESS;
+import static com.thinkhr.external.api.ApplicationConstants.DEFAULT_WELCOME_EMAIL_SUBJECT;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.lang.StringUtils;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.thinkhr.external.api.db.entities.Company;
 import com.thinkhr.external.api.db.entities.Configuration;
+import com.thinkhr.external.api.db.entities.EmailConfiguration;
+import com.thinkhr.external.api.db.entities.EmailField;
+import com.thinkhr.external.api.db.entities.EmailTemplate;
 import com.thinkhr.external.api.exception.APIErrorCodes;
 import com.thinkhr.external.api.exception.ApplicationException;
 
@@ -30,6 +40,15 @@ import com.thinkhr.external.api.exception.ApplicationException;
  */
 @Service
 public class BrokerService extends CompanyService {
+    
+    @Value("${sendgrid_auth_template_id}")
+    private String authTemplateId;
+    
+    @Value("${com.thinkhr.external.api.email.subject.id}")
+    private Integer welcomeEmailSubjectId;
+    
+    @Value("${com.thinkhr.external.api.from.email.id}")
+    private Integer welcomeEmailId;
     
     /**
     *
@@ -54,7 +73,11 @@ public class BrokerService extends CompanyService {
             requestParameters = new HashMap<String, String>();
         }
         requestParameters.put("companyType", COMPANY_TYPE_BROKER); //To always filter broker records;
-        return getAllCompany(offset, limit, sortField, searchSpec, requestParameters);
+        List<Company> companies = getAllCompany(offset, limit, sortField, searchSpec, requestParameters);
+        
+        companies.forEach(c -> setWelcomeEmailDetails(c));
+        
+        return companies;
    }
 
    /**
@@ -77,12 +100,22 @@ public class BrokerService extends CompanyService {
      * Add a company in database with type = broker_partner
      * 
      * @param company object
+     * @param welcomeSenderEmail 
+     * @param welcomeSenderEmailSubject 
      */
     @Transactional
     public Company addBroker(Company company) {
         
         if (StringUtils.isEmpty(company.getCompanyType())) {
             company.setCompanyType(COMPANY_TYPE_BROKER);
+        }
+        
+        if (StringUtils.isEmpty(company.getWelcomeSenderEmailSubject())) {
+            throw ApplicationException.createBadRequest(APIErrorCodes.NULL_PARAMETER, WELCOME_SENDER_EMAIL_SUBJECT);
+        }
+        
+        if (StringUtils.isEmpty(company.getWelcomeSenderEmail())) {
+            throw ApplicationException.createBadRequest(APIErrorCodes.NULL_PARAMETER, WELCOME_SENDER_EMAIL);
         }
         
         company = addCompany(company, null);
@@ -95,7 +128,81 @@ public class BrokerService extends CompanyService {
         company = companyRepository.save(company); //To update with brokerId and master configuration id
         learnCompanyService.updateLearnCompany(company);
         
+        createEmailTemplateAndConfiguration(company);
+        
         return company;
+    }
+
+    /**
+     * Adds email template and configuration for new brokers
+     * 
+     * @param company
+     * @param welcomeSenderEmail 
+     * @param welcomeSenderEmailSubject 
+     */
+    private void createEmailTemplateAndConfiguration(Company company) {
+
+        //Set the email template
+        EmailTemplate emailTemplate = createEmailTemplate(company);
+        
+        //Create the Email Configurations
+        List<EmailConfiguration> emailConfigurations = createEmailConfigurationWithTemplate(company, emailTemplate);
+        
+        emailTemplate.setEmailConfigurations(emailConfigurations);
+        
+        emailTemplateRepository.save(emailTemplate);
+        
+    }
+
+    
+    /**
+     * Creates an Email template for the new broker company
+     * 
+     * @param company
+     * @return
+     */
+    private EmailTemplate createEmailTemplate(Company company) {
+
+        EmailTemplate emailTemplate = new EmailTemplate();
+        emailTemplate.setBrokerId(company.getCompanyId());
+        emailTemplate.setType(WELCOME_EMAIL_TYPE);
+        emailTemplate.setSendgridTemplateId(authTemplateId);
+        
+        return emailTemplate;
+    }
+    
+    /**
+     * Creates email configuration for broker with the specified template
+     * 
+     * @param company
+     * @param emailTemplate 
+     * @return 
+     */
+    private List<EmailConfiguration> createEmailConfigurationWithTemplate(Company company,
+            EmailTemplate emailTemplate) {
+
+        List<EmailConfiguration> emailConfigurations = new ArrayList<EmailConfiguration>();
+        
+        //Set Email Configuration for Email Subject 
+        EmailConfiguration emailConfigurationForSubject = new EmailConfiguration();
+        EmailField emailFieldForSubject = new EmailField();
+        emailFieldForSubject.setId(welcomeEmailSubjectId);
+        emailConfigurationForSubject.setEmailField(emailFieldForSubject);
+        emailConfigurationForSubject.setValue(company.getWelcomeSenderEmailSubject());
+        emailConfigurationForSubject.setEmailTemplate(emailTemplate);
+        emailConfigurations.add(emailConfigurationForSubject);
+        
+        //Set Email Configuration for Email
+        EmailConfiguration emailConfigurationForMail = new EmailConfiguration();
+        EmailField emailFieldForMail = new EmailField();
+        emailFieldForMail.setId(welcomeEmailId);
+        emailConfigurationForMail.setEmailField(emailFieldForMail);
+        emailConfigurationForMail.setValue(company.getWelcomeSenderEmail());
+        emailConfigurationForMail.setEmailTemplate(emailTemplate);
+        emailConfigurations.add(emailConfigurationForMail);
+        
+        return emailConfigurations;
+        
     }
 
     /**
@@ -111,7 +218,38 @@ public class BrokerService extends CompanyService {
             throw ApplicationException.createEntityNotFoundError(APIErrorCodes.ENTITY_NOT_FOUND,
                     "broker", "brokerId="+ brokerId);
         }
+        
+        company = setWelcomeEmailDetails(company);
 
+        return company;
+    }
+
+    /**
+     * Sets the Welcome Email Subject and Welcome Email for the Broker
+     * 
+     * @param company
+     * @return
+     */
+    private Company setWelcomeEmailDetails(Company company) {
+        
+        EmailTemplate emailTemplate = emailTemplateRepository.findFirstByBrokerIdAndType(company.getCompanyId(), WELCOME_EMAIL_TYPE);
+        
+        //Set default values if no configuration present for broker
+        if(emailTemplate == null){
+            company.setWelcomeSenderEmailSubject(DEFAULT_WELCOME_EMAIL_SUBJECT);
+            company.setWelcomeSenderEmail(FROM_EMAIL_ADDRESS);
+            
+        //Set specific values for broker from his Email Configuration    
+        }else{
+            for (EmailConfiguration configuration : emailTemplate.getEmailConfigurations()) {
+                if(configuration.getEmailField().getId() == welcomeEmailSubjectId){
+                    company.setWelcomeSenderEmailSubject(configuration.getValue());
+                }else if(configuration.getEmailField().getId() == welcomeEmailId){
+                    company.setWelcomeSenderEmail(configuration.getValue());
+                }
+            }
+        }
+        
         return company;
     }
 

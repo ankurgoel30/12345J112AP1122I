@@ -106,6 +106,9 @@ public class CommonService {
     LearnCompanyRepository learnCompanyRepository;
     
     @Autowired
+    EmailTemplateRepository emailTemplateRepository;
+    
+    @Autowired
     PackageRepository packageRepository;
     
     @Autowired

@@ -113,9 +113,11 @@ public class ApplicationConstants {
     public static final String HASH_KEY = "thinkHRLandI";
     
     //EMAIL PROPERTIES
-    public static final String DEFAULT_WELCOME_SUBJECT= "";
+    public static final String DEFAULT_WELCOME_EMAIL_SUBJECT= "Welcome to ThinkHR!";
     public static final String DEFAULT_WELCOME_BODY = "";
-    public static final String FROM_EMAIL_ADDRESS = "";
+    public static final String FROM_EMAIL_ADDRESS = "Default Email Address";
+    public static final String WELCOME_SENDER_EMAIL_SUBJECT = "welcomeSenderEmailSubject";
+    public static final String WELCOME_SENDER_EMAIL = "welcomeSenderEmail";
     
     // For email feature 
     public static final String EMAIL_BODY = "body";

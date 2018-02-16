@@ -28,6 +28,7 @@ import org.springframework.test.context.junit4.SpringRunner;
 
 import com.thinkhr.external.api.db.entities.Company;
 import com.thinkhr.external.api.db.entities.Configuration;
+import com.thinkhr.external.api.db.entities.EmailTemplate;
 import com.thinkhr.external.api.exception.APIErrorCodes;
 import com.thinkhr.external.api.exception.ApplicationException;
 import com.thinkhr.external.api.exception.MessageResourceHandler;
@@ -35,6 +36,7 @@ import com.thinkhr.external.api.helpers.ModelConvertor;
 import com.thinkhr.external.api.repositories.CompanyRepository;
 import com.thinkhr.external.api.repositories.ConfigurationRepository;
 import com.thinkhr.external.api.repositories.CustomFieldsRepository;
+import com.thinkhr.external.api.repositories.EmailTemplateRepository;
 import com.thinkhr.external.api.repositories.FileDataRepository;
 import com.thinkhr.external.api.response.APIMessageUtil;
 import com.thinkhr.external.api.services.utils.FileImportUtil;
@@ -71,6 +73,9 @@ public class BrokerServiceTest {
 
     @Mock
     private ConfigurationRepository configurationRepository;
+    
+    @Mock
+    private EmailTemplateRepository emailTemplateRepository;
 
     @Mock
     private FileDataRepository fileDataRepository;
@@ -160,13 +165,18 @@ public class BrokerServiceTest {
         Integer brokerId = 10;
         Company company = createCompany(1, "Pepcus", "Software", "345345435", new Date(), "Special",
                 "This is search help", "Other", "10");
+        company.setWelcomeSenderEmail("abc@xyz.com");
+        company.setWelcomeSenderEmailSubject("Welcome to ThinkHR!");
 
         BrokerService brokerServiceSpy = spy(brokerService);
         Configuration config = brokerService.createMasterConfiguration(null);
+        
+        EmailTemplate emailTemplate = new EmailTemplate();
 
         doReturn(company).when(brokerServiceSpy).addCompany(company, brokerId);
         when(configurationRepository.save(any(Configuration.class))).thenReturn(config);
         when(companyRepository.save(company)).thenReturn(company);
+        when(emailTemplateRepository.save(emailTemplate)).thenReturn(null);
 
         Company result = brokerServiceSpy.addBroker(company);
 
